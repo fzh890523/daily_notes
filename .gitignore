@@ -1,3 +1,9 @@
-*.exe
 *.tags
 *.tags1
+*.exe
+.idea/*
+.idea
+*.out
+*.s
+*.o
+*.i
