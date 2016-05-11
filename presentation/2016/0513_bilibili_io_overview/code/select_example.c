@@ -12,9 +12,9 @@
 #endif
 
 /*
-gcc -lcurses -lrt bio_example_1.c term_utils.c
+gcc -lcurses -lrt select_example_1.c term_utils.c
 
-bio + while(read)
+while(select + read)
 */
 
 
