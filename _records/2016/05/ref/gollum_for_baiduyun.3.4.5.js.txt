@@ -1,0 +1,515 @@
+/**
+ * 贪灵Gollum for Baiduyun, Ver.3.4.5
+ * 立即执行函数：百度云盘批量转存用户分享。
+ *
+ * 【特点】
+ *    - 可保持或无视原分享者的目录结构。
+ *    - 支持差分转存。
+ *    - 自动分解转存，可突破单次转存总文件数5000的限制。
+ *    - 可在分享主页下，进入某文件夹来转存其下级子文件夹。
+ *    - 支持专辑转存。
+ *    - 具有神秘力量转存用户分享主页上不可见的分享（鸣谢百度云盘提供的BUG）
+ *
+ * 【注意】
+ *    - 执行前用户必须登录自己的百度云盘帐号。
+ *    - 可在『分享主页/单项分享/分享子文件夹/单项专辑』页面执行本代码。
+ *    - 依赖百度云盘提供的模块，需等待页面加载完毕后才能执行本代码。
+ *
+ *    Feel lucky to explore: 
+ *          1075874930
+ *          1563658231
+ *          2332146839
+ *          2604495904
+ *          2670973685
+ *          2905885322
+ *          439872812
+ *          973223940 
+ *
+ * 【声明】
+ *  本代码为作者原创，首发于Hi!PDA论坛E-INK版。
+ *  作者不保留任何权利，亦不承担任何责任。
+ *  欢迎改写为插件或移植/修改，只须注明出处『Hi!PDA原创，来自E版带点爱』。
+ *
+ * @param options 任选参数，可以任意指定以下属性:
+ *    from_uk   分享提供者的用户D。
+ *              可从浏览器地址栏取得，比如E版名媛苏菇莨为'1075874930'。
+ *              省略时自动设定为当前分享页面的用户ID。
+ *    to_folder 转存目标文件夹，必须是用户已经创建的文件夹。
+ *              为避免失误，有意不自动创建目标文件夹。
+ *              省略时自动设定为『/我的资源/』。
+ *    flat      缺省时自动保持原分享者的目录结构。
+ *              若设定为真值(1/true)是则无视原目录结构。
+ *    max       从最新分享开始起算的最大转存项目数。
+ *              忽略时转存全部分享项目。
+ *    album     转存专辑使用的参数，省略时等同于 {max: undefined, skip: false}。
+ *              其属性max为最多处理专辑件数, 
+ *              若设定属性skip为真值(1/true)则不转存专辑
+ *    timeout   等待百度服务器响应的时间限值(单位毫秒，缺省值9000=9秒)。
+ *              服务器频繁取消响应(canceled)致转存失败时，请考虑适当延长。
+ *    conn_max  可对百度服务器发出的最大并发请求数，缺省值为8。
+ *              服务器频繁取消响应(canceled)致转存失败时，请考虑适当降低。
+ *    retry     分享文件/文件夹转存失败时自动重试次数，缺省值为3次。
+ *              注意，此设定对专辑无效。
+ *    clean     缺省时进行差分转存。
+ *              若设定为真值(1/true)则全部转存。
+ */
+((this.gollum = function _gollum_for_baiduyun_(options) {
+  options = $.extend({retry: 3}, this.gollum.options, options);
+  
+  var global = this,
+      ctx = this.FileUtils || this.yunData.getContext(),
+      arg_uk = options.from_uk,
+      from_uk = arg_uk || (ctx.SHARE_DATAS ? ctx.SHARE_DATAS.currentUK : ctx.uk),
+      to_folder = options.to_folder || '/18810815415 精排版书籍 （可能是豆瓣读书编辑）/',
+      max = options.max || -1,
+      idx = 0,
+      timeout = options.timeout || ($.ajaxSettings.timeout * 3),
+      folders = {},     // 用于决定是否创建子目录时，保存已知存在或查询中的文件夹信息
+      // 常数
+      BDSTOKEN = ctx.bdstoken,
+      MSG     = {'0': '转存成功', '2': '文件夹不存在', '12': '已经存在', FAILED: '转存失败', OVER: '单次转存不能超过5000文件，将分解转存子文件夹'}, 
+      PERPAGE = 100;    // 百度云盘限制每页最多可处理100件
+
+  to_folder = '/' + to_folder.replace(/(^\/)|(\/$)/g, '') + '/';
+  options.from_uk = from_uk;
+  
+  console.log('Gollum调用参数：\r\n', JSON.stringify(options, null, 2));
+  
+  // 差分保存 
+  var gollum = global.gollum, history, accept, map = {};
+  if (options.clean) {
+    history = [];
+    delete getStorage['gollum.' + from_uk];
+    accept = function (k) { return true; };
+  } else {
+    history = gollum.latest || [];
+    if (!gollum.latest || (gollum.options && gollum.options.from_uk !== from_uk)) {
+      var k = 'gollum.' + from_uk, st = getStorage(), old = st[k];
+      try {
+        old = old ? JSON.parse(old) : [];
+      } catch (e) {
+        console.log(e);
+        old = [];
+      }
+      history = union(old, history);
+    }
+    history.forEach(function(v) {
+      var m = /\s*(\S*)\s?@?\:\s?(.*)\s*/.exec(v);
+      m && (map[m[2]] = m[1]);
+    });
+    accept = function (path, id, prefix) { 
+      return map[path] !== id + '' || console.log('skip', (prefix || '') + path); 
+    };
+  }
+  
+  $.extend(gollum, {
+    options: options,
+    clean: function(options) {
+        gollum.latest = [];
+        delete getStorage()['gollum.' + from_uk];
+        gollum(options);
+      }
+  });
+  
+
+  // 百度还在用jQuery 1.5.x，没办法只好自己polyfill一个简单版来实现Deferred对象的pipe()函数
+  function polyfill(d) {
+    if (!$.isFunction(d.pipe)) {
+      function chain(fnDone) {
+        return $.Deferred(function (nd) {
+          d.then(function () { 
+              var r = fnDone.apply(this, arguments);
+              r && $.isFunction(r.promise)
+                ? r.promise().then(nd.resolve, nd.reject, nd.notify)
+                : nd.resolveWith(this === d ? nd : this, [r]);
+            }, function ()  { 
+              nd.rejectWith(this === d ? nd : this, [r])});
+            }).promise();
+      }
+      
+      var fnPromise = d.promise;
+      d.promise = function() { 
+        return $.extend(fnPromise.apply(null, arguments), {pipe: chain}); 
+      }
+    }
+    return d;
+  }
+  
+  function padding(s, l) {
+    return ('                    ' + (s = (s || '') + '')).slice(Math.min(-l || -16, -s.length));
+  }
+  
+  function union(a1, a2) {
+    a2 = a1.concat(a2);
+    a1 = [];
+
+    var len = a2.length;
+    while (len--) {
+      var itm = a2[len];
+      a1.indexOf(itm) !== -1 || a1.unshift(itm);
+    }
+    return a1;
+  }
+  
+  function getStorage() {
+    return global.localStorage;
+  }
+  
+  // 有数量限定的执行令牌池，用来限定并发请求的数量避免负荷过大
+  var pool = (function create_pool(size) {
+    var used = 0, pending = [], t;
+    
+    function delayStore() {
+      !t || (clearTimeout(t), t = undefined);
+      t = setTimeout(function() {
+        console.log('writing history to storage...');
+        arg_uk || delete gollum.options.from_uk;
+        delete gollum.options.clean;
+        var k = 'gollum.' + from_uk, st = getStorage(), old = st[k];
+        try { old = old ? JSON.parse(old) : []; } catch(e) { old = []; }
+        gollum.latest = history = union(old, history);
+        st[k] = JSON.stringify(history);
+      }, 1000);
+    }
+    
+    return {
+      get: function() {
+        var wait = $.Deferred(polyfill);
+        used++ < size ? wait.resolve(used) : pending.push(wait);
+        return wait.promise({ free: function() {
+            delayStore();
+            if (used > 0 && wait) {
+              pending.length > 0 && pending.shift().resolve(used);
+              used--; wait = null;
+            }
+          }});
+      }
+    }
+  })(options.conn_max = Math.max(options.conn_max || 8, 1));
+  
+  // 封装$.ajax()调用，在并发执行的同时通过令牌池来限制请求符合，提高转存成功率
+  function $ajax() {
+    var slot = pool.get(), args = [].slice.apply(arguments);
+    return slot.pipe(function () {
+      return $.ajax.apply(null, args).done(slot.free).fail(slot.free);
+    });
+  }
+  
+  // 取得自己网盘中目标文件夹下文件一览，亦可用于判定文件夹是否存在
+  function ls(data, filter) {
+    data.dir || (data = {dir: data, page: 1, num: -1});
+    data.desc || (delete data.desc);
+    var list = $.Deferred();
+    $ajax({url: '/api/list', data: data}).then(function(r) { 
+        r.list
+          ? list.resolve((filter ? r.list.filter(filter) : r.list).map(function(e) { return e.server_filename }))
+          : list.reject();
+     });
+    return list;
+  }
+  
+  // 获取上一级文件夹路径
+  function getParentFolder(path) {
+    var m = /\/?(.*)\/.*/.exec(path);
+    return m ? m[1] : '';
+  }
+    
+  // 用于删除垃圾文件夹
+  function rmdir(path, retry) {
+    retry = retry || 0;
+    console.log('删除垃圾文件夹', path, '重试', retry);
+    $ajax({url : '/api/filemanager?' + $.param({opera: 'delete', 'async':2}),
+           data: {filelist: JSON.stringify([path])},  type: 'post'})
+      .then(function(r) {
+        if (r.errno && retry < options.retry) {
+          setTimeout(rmdir.bind(null, path, retry + 1), 200);
+        }
+    });
+  }
+
+  // 准备子目录，必要时自动创建（可能或重复创建出垃圾文件夹，将在最后被删除）
+  function prepareFolder(item, path, parent) {
+    if (path[0] === '/' && parent[parent.length - 1] === '/') {
+      path = path.substr(1);
+    }
+    path = parent + path;
+    item.folder = folders[path] = folders[path] || $.Deferred();
+
+    if (item.folder.touched) {
+      return item.folder;
+    } else {
+      item.folder.touched = true;
+      $ajax({url: '/api/list', data: {dir: path, page: 1, num: -1}}).then(function(r) {
+        if (r.list) {
+          item.folder.resolve(path);
+        } else if (!item.folder.isResolved()) {
+          var cmd = { url  : '/api/create?' + $.param({a: 'commit', bdstoken: BDSTOKEN}), 
+                      data : {path: path, isdir: 1, block_list: '[]', method: 'post'}, 
+                      type : 'post' };
+          $ajax(cmd).then(function (x) {
+              console.log('创建文件夹:　　', x.path);
+              item.folder.resolve(path);
+              // 清扫重复创建的目录（以括号含数字结尾）
+              if (x.path !== path && /\(\d+\)/.exec(x.path.substr(path.length))) {
+                rmdir(x.path);
+              }
+            });
+        };
+      });
+    }
+
+    return item.folder;
+  }
+
+  // 转存单项分享/文件/文件夹。如果文件夹下文件总数超过5000，将递归执行自动分解分别转存其下内容。
+  function deep_transfer(shareId, sub, item) {
+    sub.then(function(path) {
+      var cmd = { url: '/share/transfer?' + $.param({from: from_uk, shareid: shareId, bdstoken: BDSTOKEN, ondup: 'overwrite'}), 
+                  data: {path: path, filelist: JSON.stringify([item.path])}, 
+                  type: 'post', 
+                  timeout: options.timeout };
+      $ajax(cmd)
+        .then(function(y) { 
+            if (item.retry) { console.log('RETRY', item);};
+            if (y.limit) {
+              // 超5000，分解转存
+              console.log(MSG.OVER, item.path);
+              item.over_limit = true;
+              list(from_uk, 0, 1, $.extend(item, {shareId: shareId, parent: path + '/', isdir: 1}));
+            } else {
+              console.log(++idx, MSG[y.errno] || MSG.FAILED, item.path);
+            }
+            if (y.errno === 0 || y.errno === 12) {
+              history.push(padding(item.fs_id) + ' : ' + item.path);
+            }
+          })
+       .fail(function(y, status) { 
+            item.retry = (item.retry || 0) + 1;
+            console.log(++idx, '转存失败', item.path, '重试', item.retry); 
+            if (item.retry < options.retry) {
+              setTimeout(deep_transfer.bind(null, shareId, sub, item));
+            }
+          });
+    });
+  }
+  
+  // 获取分享者主页下项目一览，并转存
+  function home(uk) {
+    if (uk < 0) {
+      console.log('请等待页面加载完毕再执行Gollum for Baiduyun');
+    }
+    
+    var cmd = {url: '/share/homerecord', data: {uk: uk, pagelength: PERPAGE, page: 1}};
+
+    function _loop(will, arr) {
+      var batch = [], i;
+      for (i = 0; i < options.conn_max; i++) {
+        batch.push($ajax(cmd));
+        cmd.data.page++;
+      }
+      $.when.apply(null, batch).done(function() {
+        var stop, result = [].slice.apply(arguments).forEach(function(v) {
+          v.length && (v = v[0]);
+          if (v.list && v.list.length) {
+            [].push.apply(arr, v.list);
+          } else {
+            stop = true;
+          }
+        });
+        console.log('正在取得分享一览...', arr.length);
+        if ((arr.length < max || max < 0) && !stop) {
+          return _loop(will, arr);
+        }
+        will.resolve(arr);
+      }).fail(function(){
+        console.log('无法继续获取共享一览: @', arr.length);
+        will.resolve(arr);
+      });
+      return will;
+    }
+    
+    _loop($.Deferred(), []).then(function(arr) {
+      arr = max >= 0 ? arr.slice(0, max) : arr;
+      arr.length ? arr.forEach(list.bind(null, from_uk, -1, 1)) : console.log('无法取得共享一览');
+    });
+  }
+  
+  // list all files/sub-folders under one share item or sub-folder
+  // "page" starts from 1
+  function list(uk, start, page, item) {
+    item.path = item.path || item.typicalPath;
+    
+    if (item.fsIds && item.fsIds.length > 1) {
+      console.log('分解含有复数项目（文件夹/文件）的分享', item.path);
+      $ajax({url: '/s/' + item.shorturl}).then(function(r) {
+        // 强行解析分享页面
+        var m = /^\s*yunData.FILEINFO\s*=\s*(.*);.*$/m.exec(r);
+        if (m && m[1]) {
+          JSON.parse(m[1]).forEach(function(e) {
+            list(uk, 0, 1, {shareId: item.shareId, path: e.path, fs_id: item.shareId});
+          });
+        } 
+      });
+      return;
+    }
+    
+    function _single() {
+      item.fs_id = item.fs_id || item.fsIds[0];
+      if (accept(item.path, item.fs_id)) {
+        var sub = prepareFolder(item, options.flat ? '' : getParentFolder(item.path), item.parent || to_folder);
+        return deep_transfer(item.shareId, sub, item);
+      }
+    }
+
+    if (item.isdir === undefined || !item.isdir) {
+      return _single();
+    }
+
+    $ajax({url: '/share/list', data: {uk: uk, shareid: item.shareId, page: page, num: PERPAGE, dir: item.path, bdstoken: BDSTOKEN}})
+     .then(function(r) {
+       if (r.list.length) {
+         if (start === 0) {
+           if (!accept(item.path, item.fs_id)) {
+             return;
+           }
+           console.log('深入榨干: ', item.path);
+           prepareFolder(item, item.path, to_folder);
+         }
+
+         r.list.forEach(deep_transfer.bind(null, item.shareId, item.folder));
+         list(uk, start + r.list.length, page + 1, item);
+       } else {
+         if (start === 0) {
+           item.over_limit ? console.log('不能转存空白或违禁分享:', item.path) : _single();
+         }
+       }
+    }).fail(function() { console.log('无法取得共享一览: @' + start); });
+  }
+  
+  // --- ALBUM begin
+  options.album = options.album || {};
+  options.album.max = options.album.max || -1;
+  options.album.idx = 0;
+  
+  // 保存专辑
+  function transferAlbum(uk, album, remained, start, limit) {
+    if (!accept(album.title, album.album_id, '【专辑】')) {
+      return;
+    }
+    // 最多一次转存专辑文件数不超过limit
+    $ajax({url: '/pcloud/album/listfile?' + $.param({ album_id: album.album_id, query_uk: uk, start: start, limit: limit, bdstoken: BDSTOKEN })})
+     .then(function(r) { 
+        if (!r.errno) {
+          prepareFolder(album, '【专辑】' + album.title, to_folder);
+          album.folder.then(function(path) { 
+            var cmd = {url : '/pcloud/album/transfertask/create?' + $.param({bdstoken: BDSTOKEN}), 
+                       data: { access_token: BDSTOKEN, from_uk: uk, album_id: album.album_id, to_path: path,
+                               fsid_list: JSON.stringify(r.list.map(function (e) { return e.fs_id; }))}, 
+                       type: 'post'};
+            $ajax(cmd).then(function(z) {
+                if (z.errno === 0) {
+                  $ajax({url: '/pcloud/album/transfertask/query?' + $.param({bdstoken: BDSTOKEN}), data: {event_id: z.event_id}, type: 'post'})
+                   .then(function(w) {
+                      start === 0 && options.album.idx++;
+                      console.log(options.album.idx, w.errno === 0 ? '转存专辑成功' : '转存专辑失败', album.title, '@' + start + '/' + album.filecount);
+                      !!w.errno || history.push(padding(album.album_id, 19) + ' @: ' + album.title);
+                    });
+                } else {
+                  start === 0 && options.album.idx++;
+                  console.log(options.album.idx, '转存专辑失败: ', album.title);
+                }
+              });
+          });
+          
+          remained -= r.list.length;
+          if (remained > 0) { // 转存下一页
+            transferAlbum(uk, album, remained, start + r.list.length, Math.min(remained, limit));
+          }
+        } else {
+          console.log('无法取得专辑内容一览：', album.title, ' start from ', start);
+        }
+      });
+  }
+
+  // 检索专辑
+  function findAlbum(uk, count) {
+    var records = [], amax = options.album.max;
+    function _loop(start) {
+      return $ajax({url: '/pcloud/feed/getsharelist', data: {auth_type: 1, start: start, limit: PERPAGE, query_uk: uk}})
+                .then(function(r) { r.error || [].push.apply(records, r.records); });
+    }
+    
+    var arr, start;
+    for (arr = [], start = 0; start < count; start += PERPAGE) {
+      arr.push(_loop(start));
+    }
+    
+    $.when.apply(null, arr).then(function() {
+      records = amax < 0 ? records : records.slice(0, amax);
+      if (records.length) {
+        records.forEach(function(v, i) {
+           if (v.feed_type === 'album') {
+             transferAlbum(uk, v, v.filecount, 0, PERPAGE);
+           }
+         });
+      } else {
+        console.log('无法取得共享一览');
+      }
+    }).fail(function() { console.log('无法取得共享一览'); });    
+  }
+  
+  // 获取专辑数目
+  function getAlbumCount(uk) {
+    var will = $.Deferred();
+    $ajax({url: '/pcloud/user/getinfo', data: {query_uk: uk}})
+      .then(function(r) { will.resolve(r.errno === 0 ? r.user_info.album_count : 0); })
+      .fail(function() { will.resolve(0);});
+    return will;
+  }
+  
+  // --- ALBUM end.
+  
+  // 按所在页面不同执行转存
+  if (this.disk && disk.ui && disk.ui.album && disk.ui.album.albuminfo) {
+    // 在分享专辑的页面执行
+    var ainfo = disk.ui.album.albuminfo;
+    prepareFolder(ainfo, '【专辑】' + ainfo.title, to_folder);
+    transferAlbum(disk.ui.album.uinfo.uk, ainfo, ainfo.filecount, 0, PERPAGE);
+  } else {
+    var hasFileUtils = !!this.FileUtils || arg_uk;
+    ls(to_folder).then(function() {
+      if (hasFileUtils) {
+        // 在分享主页执行或直接指定分享者ID（等同于打开其分享主页）
+        home(from_uk);
+        if (!options.album.skip) {
+          getAlbumCount(from_uk).then(function(count) {
+            console.log('分享专辑数', count);
+            count > 0 && findAlbum(from_uk, count);
+          });
+        }
+      } else {
+        // 在打开分享之后，进入下级文件夹执行
+        ctx.shareId = ctx.shareid;
+        var path = /^#path=(.*)/.exec(decodeURIComponent(decodeURIComponent(location.hash)));
+        ctx.path = path ? decodeURIComponent(ctx.file_list.list[0].parent_path + path[1]) : ctx.typicalPath;
+        ctx.fs_id = global.yunData.FS_ID;
+        list(from_uk, 0, 1, ctx);
+      }
+    }).fail(function() { console.log(MSG['2'], to_folder); });
+  }
+  
+  return '贪灵Gollum ★ 批量转存百度云盘分享 Ver. 3.4.4';
+}) ({
+  // from_uk: '1075874930',               // 这是苏菇莨的分享识别ID, 省略时自动设定为当前页面提供分享的用户ID
+  // to_folder:  '/我的资源/schoolian/',   // 保存到自己已经存在的文件夹下，省略是自动设定为『/我的资源/』。注意前后必须包含路径分隔符『/』。
+  // flat: 1,                             // 无视原分享者的目录结构，直接转存到指定文件夹下
+  // max: 100,                            // 附加参数可以指定仅转存前max件分享项目数（与分享包含的文件数无关）
+  // album: { skip: false, max: -1},      // 转存专辑用控制参数，省略时转存全部专辑
+                                          // 服务器频繁取消响应(canceled)致转存失败时，或为提高执行效率，请考虑调整以下参数:
+  // timeout: 15000,                      //   - 等待百度服务器响应的时间（单位：毫秒），缺省值为9000（=9秒）。
+  // conn_max: 4,                         //   - 可对百度服务器发出的最大并发请求数，缺省值为8。
+  // retry: 0,                            //   - 文件或文件夹转存失败时自动重试次数，缺省值为3。注意，此设定对专辑无效。
+  // clean: true,                         // 全部转存。省略时则进行差分转存。
+  _just_ignore_me: 'OK'                   // 最末尾防止语法错误，此行不要解除注解
+}
+)); 
