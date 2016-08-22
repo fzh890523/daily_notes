@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)http://blog.theerrorlog.com/yield-from-in-python-3.html -->
+<html lang="zh"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="./Python3中的yield from语法 - The Error Log_files/skeleton.css">
+    <link rel="stylesheet" href="./Python3中的yield from语法 - The Error Log_files/common_layout.css">
+
+    <link href="http://blog.theerrorlog.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="The Error Log Atom Feed">
+
+    <script type="text/javascript" async="" src="./Python3中的yield from语法 - The Error Log_files/linkid.js"></script><script async="" src="./Python3中的yield from语法 - The Error Log_files/st.js"></script><script async="" src="./Python3中的yield from语法 - The Error Log_files/analytics.js"></script><script src="./Python3中的yield from语法 - The Error Log_files/require.js"></script>
+    <script type="text/javascript">
+        require.config({
+            baseUrl: "//blog.theerrorlog.com/theme/js",
+            shim: {
+                "zepto": { exports: "Zepto" }
+            }
+        });
+    </script>
+    <script src="./Python3中的yield from语法 - The Error Log_files/common.js"></script>
+
+    <title>Python3中的yield from语法 - The Error Log</title>
+
+<link rel="stylesheet" href="./Python3中的yield from语法 - The Error Log_files/pygments.css">
+<script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="zepto" src="./Python3中的yield from语法 - The Error Log_files/zepto.js"></script><script type="text/javascript" async="" src="./Python3中的yield from语法 - The Error Log_files/embed.js"></script><link rel="stylesheet" type="text/css" href="./Python3中的yield from语法 - The Error Log_files/new_embed-28251278dfbb54588d68fbd8d7cc72ba.css"><style type="text/css">.st-install-AzrCxiRLsxpd8WWR-Dsh .st-ui-result .st-ui-type-heading { color:#0089d7 !important }
+.st-install-AzrCxiRLsxpd8WWR-Dsh .st-ui-result em {font-style:normal; font-weight:bold; background-color:#f6fcfe !important}</style></head>
+
+<body mycollectionplug="bind">
+    <div class="container" id="main-container">
+        <div class="sixteen columns">
+            <!-- <h1 id="site-title" style="margin-top: 40px"> -->
+            <h1 id="site-title" style="margin-bottom: 14px;">
+                <a href="http://blog.theerrorlog.com/#site-title">The Error Log</a>
+            </h1>
+            <nav class="" style="top: 0px; left: 89.5px; width: 100%;">
+                <ul>
+                    <li><a href="http://blog.theerrorlog.com/pages/about-me.html">About Me</a></li>
+                    <li class="active"><a href="http://blog.theerrorlog.com/category/blog.html#site-title">Blog</a></li>
+                    <li><a href="http://blog.theerrorlog.com/category/gallery.html#site-title">Gallery</a></li>
+                </ul>
+            </nav>
+            <div class="title-sep">
+                <div class="scissors"></div>
+                <div class="hr-div"><hr></div>
+            </div>
+        </div>
+<div class="sixteen columns" style="margin-bottom: 20px">
+    <h1>Python3中的yield from语法</h1> 
+    <span class="post-author">by <a href="http://blog.theerrorlog.com/author/kay-zheng.html#site-title">Kay Zheng</a></span>
+    <br>
+    <span class="post-tags">
+        Tags: 
+            <a href="http://blog.theerrorlog.com/tag/python.html#site-title">python</a>, 
+            <a href="http://blog.theerrorlog.com/tag/xie-cheng.html#site-title">协程</a>, 
+            <a href="http://blog.theerrorlog.com/tag/generator.html#site-title">generator</a>
+    </span>
+    <br>
+    <span class="post-date">30 March 2014</span>
+</div>
+<div class="sixteen columns" id="post-content">
+    <h2>2016-2-23 更新</h2>
+<p>這篇文章是兩年前寫的， Python 3 中的 coroutine 現在使用的是
+<a href="https://www.python.org/dev/peps/pep-0492/">PEP-492</a> 提出的 async/await 語法，詳情請見我的<a href="http://blog.theerrorlog.com/pep-492-coroutines-with-async-and-await-syntax.html">另一篇文章</a>。</p>
+<h2>緣起</h2>
+<p>最近在捣鼓<a href="http://autobahn.ws/">Autobahn</a>，它有给出个<a href="https://github.com/tavendo/AutobahnPython/tree/master/examples/asyncio/websocket/echo">例子</a>是基于<a href="http://docs.python.org/dev/library/asyncio.html">asyncio</a>
+的，想着说放到<a href="http://doc.pypy.org/en/latest/release-pypy3-2.1.0-beta1.html">pypy3</a>上跑跑看竟然就……失败了。
+<code>pip install asyncio</code>直接报invalid syntax，粗看还以为2to3处理的时
+候有问题——这不能怪我，好～多package都是用2写了然后转成3的——结果发
+现asyncio本来就只支持3.3+的版本，才又回头看代码，赫然发现一句
+<code>yield from</code>；<code>yield</code>我知道，但是<code>yield from</code>是神马？</p>
+
+
+<h2>PEP-380</h2>
+<p>好吧这个标题是我google出来的，<code>yield from</code>的前世今生都在
+<a href="http://legacy.python.org/dev/peps/pep-0380/">这个PEP</a>里面，总之大意是原本的yield语句只能将CPU控制权
+还给直接调用者，当你想要将一个generator或者coroutine里带有
+yield语句的逻辑重构到另一个generator（原文是subgenerator）
+里的时候，会非常麻烦，因为外面的generator要负责为里面的
+generator做消息传递；所以某人有个想法是让python把消息传递
+封装起来，使其对程序猿透明，于是就有了<code>yield from</code>。</p>
+<p>PEP-380规定了<code>yield from</code>的语义，或者说嵌套的generator应该
+有的行为模式。</p>
+<p>假设A函数中有这样一个语句</p>
+<div class="highlight"><pre><span class="k">yield from</span> <span class="n">B</span><span class="p">()</span>
+</pre></div>
+
+
+<p>B()返回的是一个可迭代（iterable）的对象b，那么A()会返回一个
+generator——照我们的命名规范，名字叫a——那么：</p>
+<ol>
+<li>b迭代产生的每个值都直接传递给a的调用者。</li>
+<li>所有通过<code>send</code>方法发送到a的值都被直接传递给b. 如果发送的
+   值是<code>None</code>，则调用b的<code>__next__()</code>方法，否则调用b的<code>send</code>
+   方法。如果对b的方法调用产生<code>StopIteration</code>异常，a会继续
+   执行<code>yield from</code>后面的语句，而其他异常则会传播到a中，导
+   致a在执行<code>yield from</code>的时候抛出异常。</li>
+<li>如果有除<code>GeneratorExit</code>以外的异常被throw到a中的话，该异常
+   会被直接throw到b中。如果b的<code>throw</code>方法抛出<code>StopIteration</code>，
+   a会继续执行；其他异常则会导致a也抛出异常。</li>
+<li>如果一个<code>GeneratorExit</code>异常被throw到a中，或者a的<code>close</code>
+   方法被调用了，并且b也有<code>close</code>方法的话，b的<code>close</code>方法也
+   会被调用。如果b的这个方法抛出了异常，则会导致a也抛出异常。
+   反之，如果b成功close掉了，a也会抛出异常，但是是特定的
+   <code>GeneratorExit</code>异常。</li>
+<li>a中<code>yield from</code>表达式的求值结果是b迭代结束时抛出的
+   <code>StopIteration</code>异常的第一个参数。</li>
+<li>b中的<code>return &lt;expr&gt;</code>语句实际上会抛出<code>StopIteration(&lt;expr&gt;)</code>
+   异常，所以b中return的值会成为a中<code>yield from</code>表达式的返回值。</li>
+</ol>
+<p>为神马会有这么多要求？因为generator这种东西的行为在加入<code>throw</code>
+方法之后变得非常复杂，特别是几个generator在一起的情况，需要
+类似进程管理的元语对其进行操作。上面的所有要求都是为了统一
+generator原本就复杂的行为，自然简单不下来啦。</p>
+<p>我承认我一下没看明白PEP的作者到底想说什么，于是动手“重构”
+一遍大概会有点帮助。</p>
+<h2>一个没用的例子</h2>
+<p>说没用是因为你大概不会真的想把程序写成这样，但是……反正能说明
+问题就够了。</p>
+<p>设想有这样一个generator函数：</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">inner</span><span class="p">():</span>
+    <span class="n">coef</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="k">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">input_val</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">total</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">coef</span> <span class="o">*</span> <span class="n">input_val</span>
+        <span class="k">except</span> <span class="n">SwitchSign</span><span class="p">:</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">coef</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">BreakOut</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">total</span>
+</pre></div>
+
+
+<p>这个函数生成的generator将从<code>send</code>方法接收到的值累加到局部
+变量<code>total</code>中，并且在收到<code>BreakOut</code>异常时停止迭代；至于另外
+一个<code>SwitchSign</code>异常应该不难理解，这里就不剧透了。</p>
+<p>从代码上看，由inner()函数得到的generator通过<code>send</code>接收用于
+运算的数据，同时通过<code>throw</code>方法接受外部代码的控制以执行不同
+的代码分支，目前为止都很清晰。</p>
+<p>接下来因为需求有变动，我们需要在inner()这段代码的前后分别加
+入初始化和清理现场的代码。鉴于我认为“没坏的代码就不要动”，我
+决定让inner()维持现状，然后再写一个outer()，把添加的代码放在
+outer()里，并提供与inner()一样的操作接口。由于inner()利用了
+generator的若干特性，所以outer()也必须做到这五件事情：</p>
+<ol>
+<li>outer()必须生成一个generator；</li>
+<li>在每一步的迭代中，outer()要帮助inner()返回迭代值；</li>
+<li>在每一步的迭代中，outer()要帮助inner()接收外部发送的数据；</li>
+<li>在每一步的迭代中，outer()要处理inner()接收和抛出所有异常；</li>
+<li>在outer()被close的时候，inner()也要被正确地close掉。</li>
+</ol>
+<p>根据上面的要求，在只有<code>yield</code>的世界里，outer()可能是长这样的：</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">outer1</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">"Before inner(), I do this."</span><span class="p">)</span>
+    <span class="n">i_gen</span> <span class="o">=</span> <span class="n">inner</span><span class="p">()</span>
+    <span class="n">input_val</span> <span class="o">=</span> <span class="k">None</span>
+    <span class="n">ret_val</span> <span class="o">=</span> <span class="n">i_gen</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">input_val</span><span class="p">)</span>
+    <span class="k">while</span> <span class="k">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">input_val</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">ret_val</span>
+            <span class="n">ret_val</span> <span class="o">=</span> <span class="n">i_gen</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">input_val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ret_val</span> <span class="o">=</span> <span class="n">i_gen</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">break</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">"After inner(), I do that."</span><span class="p">)</span>
+</pre></div>
+
+
+<p>WTF，这段代码比inner()本身还要长，而且还没处理close操作。</p>
+<p>现在我们来试试外星科技：</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">outer2</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">"Before inner(), I do this."</span><span class="p">)</span>
+    <span class="k">yield from</span> <span class="n">inner</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">"After inner(), I do that."</span><span class="p">)</span>
+</pre></div>
+
+
+<p>除了完全符合上面的要求外，这四行代码打印出来的时候还能省点纸。</p>
+<p>我们可以在outer1()和outer2()上分别测试 <strong>数据</strong> 以及 <strong>异常</strong>
+的传递，不难发现这两个generator的行为基本上是一致的。既然如此，
+外星科技当然在大多数情况下是首选。</p>
+<h2>对generator和coroutine的疑问</h2>
+<p>从以前接触到Python下的coroutine就觉得它怪怪的，我能看清它们的
+行为模式，但是并不明白为什么要使用这种模式，generator和
+coroutine具有一样的对外接口，是generator造就了coroutine呢，还
+是coroutine造就了generator？最让我百思不得其解的是，Python下
+的coroutine将“消息传递”和“调度”这两种操作绑在一个<code>yield</code>
+上——即便有了<code>yield from</code>，这个状况还是没变过——我看不出这样做
+的必要性。如果一开始就从语法层面将这两种语义分开，并且为
+generator和coroutine分别设计一套接口，coroutine的概念大概也会
+容易理解一些。</p>
+<h2>完整代码</h2>
+<script src="./Python3中的yield from语法 - The Error Log_files/9919234.js"></script><link rel="stylesheet" href="./Python3中的yield from语法 - The Error Log_files/gist-embed-b03925b9c18fa42b22f168e7d17a7ca70ca50a4126cbfca9f91a1a8bc79b5905.css"><div id="gist9919234" class="gist">
+    <div class="gist-file">
+      <div class="gist-data">
+        <div class="js-gist-file-update-container js-task-list-container file-box">
+  <div id="file-yield_from_test-py" class="file">
+    
+
+  <div itemprop="text" class="blob-wrapper data type-python">
+      <table class="highlight tab-size js-file-line-container" data-tab-size="8">
+      <tbody><tr>
+        <td id="file-yield_from_test-py-L1" class="blob-num js-line-number" data-line-number="1"></td>
+        <td id="file-yield_from_test-py-LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-k">class</span> <span class="pl-en">SwitchSign</span>(<span class="pl-c1">Exception</span>):</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L2" class="blob-num js-line-number" data-line-number="2"></td>
+        <td id="file-yield_from_test-py-LC2" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">pass</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L3" class="blob-num js-line-number" data-line-number="3"></td>
+        <td id="file-yield_from_test-py-LC3" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L4" class="blob-num js-line-number" data-line-number="4"></td>
+        <td id="file-yield_from_test-py-LC4" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L5" class="blob-num js-line-number" data-line-number="5"></td>
+        <td id="file-yield_from_test-py-LC5" class="blob-code blob-code-inner js-file-line"><span class="pl-k">class</span> <span class="pl-en">BreakOut</span>(<span class="pl-c1">Exception</span>):</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L6" class="blob-num js-line-number" data-line-number="6"></td>
+        <td id="file-yield_from_test-py-LC6" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">pass</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L7" class="blob-num js-line-number" data-line-number="7"></td>
+        <td id="file-yield_from_test-py-LC7" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L8" class="blob-num js-line-number" data-line-number="8"></td>
+        <td id="file-yield_from_test-py-LC8" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L9" class="blob-num js-line-number" data-line-number="9"></td>
+        <td id="file-yield_from_test-py-LC9" class="blob-code blob-code-inner js-file-line"><span class="pl-k">def</span> <span class="pl-en">inner</span>():</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L10" class="blob-num js-line-number" data-line-number="10"></td>
+        <td id="file-yield_from_test-py-LC10" class="blob-code blob-code-inner js-file-line">    coef <span class="pl-k">=</span> <span class="pl-c1">1</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L11" class="blob-num js-line-number" data-line-number="11"></td>
+        <td id="file-yield_from_test-py-LC11" class="blob-code blob-code-inner js-file-line">    total <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L12" class="blob-num js-line-number" data-line-number="12"></td>
+        <td id="file-yield_from_test-py-LC12" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">while</span> <span class="pl-c1">True</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L13" class="blob-num js-line-number" data-line-number="13"></td>
+        <td id="file-yield_from_test-py-LC13" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">try</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L14" class="blob-num js-line-number" data-line-number="14"></td>
+        <td id="file-yield_from_test-py-LC14" class="blob-code blob-code-inner js-file-line">            input_val <span class="pl-k">=</span> <span class="pl-k">yield</span> total</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L15" class="blob-num js-line-number" data-line-number="15"></td>
+        <td id="file-yield_from_test-py-LC15" class="blob-code blob-code-inner js-file-line">            total <span class="pl-k">=</span> total <span class="pl-k">+</span> coef <span class="pl-k">*</span> input_val</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L16" class="blob-num js-line-number" data-line-number="16"></td>
+        <td id="file-yield_from_test-py-LC16" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">except</span> SwitchSign:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L17" class="blob-num js-line-number" data-line-number="17"></td>
+        <td id="file-yield_from_test-py-LC17" class="blob-code blob-code-inner js-file-line">            coef <span class="pl-k">=</span> <span class="pl-k">-</span>(coef)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L18" class="blob-num js-line-number" data-line-number="18"></td>
+        <td id="file-yield_from_test-py-LC18" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">except</span> BreakOut:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L19" class="blob-num js-line-number" data-line-number="19"></td>
+        <td id="file-yield_from_test-py-LC19" class="blob-code blob-code-inner js-file-line">            <span class="pl-k">return</span> total</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L20" class="blob-num js-line-number" data-line-number="20"></td>
+        <td id="file-yield_from_test-py-LC20" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L21" class="blob-num js-line-number" data-line-number="21"></td>
+        <td id="file-yield_from_test-py-LC21" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L22" class="blob-num js-line-number" data-line-number="22"></td>
+        <td id="file-yield_from_test-py-LC22" class="blob-code blob-code-inner js-file-line"><span class="pl-k">def</span> <span class="pl-en">outer1</span>():</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L23" class="blob-num js-line-number" data-line-number="23"></td>
+        <td id="file-yield_from_test-py-LC23" class="blob-code blob-code-inner js-file-line">    <span class="pl-c1">print</span>(<span class="pl-s"><span class="pl-pds">"</span>Before inner(), I do this.<span class="pl-pds">"</span></span>)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L24" class="blob-num js-line-number" data-line-number="24"></td>
+        <td id="file-yield_from_test-py-LC24" class="blob-code blob-code-inner js-file-line">    i_gen <span class="pl-k">=</span> inner()</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L25" class="blob-num js-line-number" data-line-number="25"></td>
+        <td id="file-yield_from_test-py-LC25" class="blob-code blob-code-inner js-file-line">    input_val <span class="pl-k">=</span> <span class="pl-c1">None</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L26" class="blob-num js-line-number" data-line-number="26"></td>
+        <td id="file-yield_from_test-py-LC26" class="blob-code blob-code-inner js-file-line">    ret_val <span class="pl-k">=</span> i_gen.send(input_val)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L27" class="blob-num js-line-number" data-line-number="27"></td>
+        <td id="file-yield_from_test-py-LC27" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">while</span> <span class="pl-c1">True</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L28" class="blob-num js-line-number" data-line-number="28"></td>
+        <td id="file-yield_from_test-py-LC28" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">try</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L29" class="blob-num js-line-number" data-line-number="29"></td>
+        <td id="file-yield_from_test-py-LC29" class="blob-code blob-code-inner js-file-line">            input_val <span class="pl-k">=</span> <span class="pl-k">yield</span> ret_val</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L30" class="blob-num js-line-number" data-line-number="30"></td>
+        <td id="file-yield_from_test-py-LC30" class="blob-code blob-code-inner js-file-line">            ret_val <span class="pl-k">=</span> i_gen.send(input_val)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L31" class="blob-num js-line-number" data-line-number="31"></td>
+        <td id="file-yield_from_test-py-LC31" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">except</span> <span class="pl-c1">StopIteration</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L32" class="blob-num js-line-number" data-line-number="32"></td>
+        <td id="file-yield_from_test-py-LC32" class="blob-code blob-code-inner js-file-line">            <span class="pl-k">break</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L33" class="blob-num js-line-number" data-line-number="33"></td>
+        <td id="file-yield_from_test-py-LC33" class="blob-code blob-code-inner js-file-line">        <span class="pl-k">except</span> <span class="pl-c1">Exception</span> <span class="pl-k">as</span> err:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L34" class="blob-num js-line-number" data-line-number="34"></td>
+        <td id="file-yield_from_test-py-LC34" class="blob-code blob-code-inner js-file-line">            <span class="pl-k">try</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L35" class="blob-num js-line-number" data-line-number="35"></td>
+        <td id="file-yield_from_test-py-LC35" class="blob-code blob-code-inner js-file-line">                ret_val <span class="pl-k">=</span> i_gen.throw(err)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L36" class="blob-num js-line-number" data-line-number="36"></td>
+        <td id="file-yield_from_test-py-LC36" class="blob-code blob-code-inner js-file-line">            <span class="pl-k">except</span> <span class="pl-c1">StopIteration</span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L37" class="blob-num js-line-number" data-line-number="37"></td>
+        <td id="file-yield_from_test-py-LC37" class="blob-code blob-code-inner js-file-line">                <span class="pl-k">break</span></td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L38" class="blob-num js-line-number" data-line-number="38"></td>
+        <td id="file-yield_from_test-py-LC38" class="blob-code blob-code-inner js-file-line">    <span class="pl-c1">print</span>(<span class="pl-s"><span class="pl-pds">"</span>After inner(), I do that.<span class="pl-pds">"</span></span>)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L39" class="blob-num js-line-number" data-line-number="39"></td>
+        <td id="file-yield_from_test-py-LC39" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L40" class="blob-num js-line-number" data-line-number="40"></td>
+        <td id="file-yield_from_test-py-LC40" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L41" class="blob-num js-line-number" data-line-number="41"></td>
+        <td id="file-yield_from_test-py-LC41" class="blob-code blob-code-inner js-file-line"><span class="pl-k">def</span> <span class="pl-en">outer2</span>():</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L42" class="blob-num js-line-number" data-line-number="42"></td>
+        <td id="file-yield_from_test-py-LC42" class="blob-code blob-code-inner js-file-line">    <span class="pl-c1">print</span>(<span class="pl-s"><span class="pl-pds">"</span>Before inner(), I do this.<span class="pl-pds">"</span></span>)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L43" class="blob-num js-line-number" data-line-number="43"></td>
+        <td id="file-yield_from_test-py-LC43" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">yield from</span> inner()</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L44" class="blob-num js-line-number" data-line-number="44"></td>
+        <td id="file-yield_from_test-py-LC44" class="blob-code blob-code-inner js-file-line">    <span class="pl-c1">print</span>(<span class="pl-s"><span class="pl-pds">"</span>After inner(), I do that.<span class="pl-pds">"</span></span>)</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L45" class="blob-num js-line-number" data-line-number="45"></td>
+        <td id="file-yield_from_test-py-LC45" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L46" class="blob-num js-line-number" data-line-number="46"></td>
+        <td id="file-yield_from_test-py-LC46" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L47" class="blob-num js-line-number" data-line-number="47"></td>
+        <td id="file-yield_from_test-py-LC47" class="blob-code blob-code-inner js-file-line"><span class="pl-k">if</span> <span class="pl-c1">__name__</span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">'</span>__main__<span class="pl-pds">'</span></span>:</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L48" class="blob-num js-line-number" data-line-number="48"></td>
+        <td id="file-yield_from_test-py-LC48" class="blob-code blob-code-inner js-file-line">    <span class="pl-k">import</span> code</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L49" class="blob-num js-line-number" data-line-number="49"></td>
+        <td id="file-yield_from_test-py-LC49" class="blob-code blob-code-inner js-file-line">    shell <span class="pl-k">=</span> code.InteractiveConsole(<span class="pl-c1">globals</span>())</td>
+      </tr>
+      <tr>
+        <td id="file-yield_from_test-py-L50" class="blob-num js-line-number" data-line-number="50"></td>
+        <td id="file-yield_from_test-py-LC50" class="blob-code blob-code-inner js-file-line">    shell.interact()</td>
+      </tr>
+</tbody></table>
+
+  </div>
+
+  </div>
+  
+</div>
+
+      </div>
+      <div class="gist-meta">
+        <a href="https://gist.github.com/l04m33/9919234/raw/bda7bd2097ccfa4869b96258d26ba04483602484/yield_from_test.py" style="float:right">view raw</a>
+        <a href="https://gist.github.com/l04m33/9919234#file-yield_from_test-py">yield_from_test.py</a>
+        hosted with ❤ by <a href="https://github.com/">GitHub</a>
+      </div>
+    </div>
+</div>
+
+</div>
+
+    <div class="sixteen columns">
+        <div id="disqus_thread"><iframe id="dsq-app2" name="dsq-app2" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Python3中的yield from语法 - The Error Log_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 2519px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+        <script type="text/javascript">
+            var disqus_shortname = "blogtheerrorlog";
+            var disqus_identifier = "yield-from-in-python-3.html";
+
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the &lt;a href="http://disqus.com/?ref_noscript"&gt;comments powered by Disqus.&lt;/a&gt;</noscript>
+        
+    </div>
+
+        <div class="sixteen columns footer">
+                <span>
+                    ©
+                        2013-2015
+                    <strong>Kay Zheng</strong>.
+                    除特别说明外，所有内容采用
+                    <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh"><strong>CC BY-NC-SA 3.0</strong></a>
+                    许可协议进行许可
+                </span>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-38877527-1', 'auto');
+        ga('require', 'linkid', 'linkid.js');
+        ga('require', 'displayfeatures');
+        ga('send', 'pageview');
+    </script>
+
+    <script type="text/javascript">
+        (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+        (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+        e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+        })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+        _st('install','AzrCxiRLsxpd8WWR-Dsh','2.0.0');
+    </script>
+
+
+
+<div class="st-injected-content-generated st-install-AzrCxiRLsxpd8WWR-Dsh" data-st-install-key="AzrCxiRLsxpd8WWR-Dsh" id="st-injected-content">
+<div class="st-ui-embed st-search-chrome-overlay-output st-search-escape-hide-outputs st-search-zoom-on-mobile" style="display: none;">
+    <div class="st-ui-overlay st-search-hide-outputs"></div>
+  <!-- Swiftype input and results overlay -->
+  <div class="st-ui-container st-ui-container-overlay  st-ui-injected-overlay-container ">
+    <!-- HEADER -->
+    <div class="st-ui-container-header_bar st-position-container">
+        <section class="st-ui-header">
+          <form>
+            <input class="st-default-search-input st-search-set-focus" type="text" value="" placeholder="Search this site" id="st-overlay-search-input" autocomplete="off" autocorrect="off" autocapitalize="off">
+          </form>
+          <span class="st-ui-search-icon"></span>
+
+            <a class="st-ui-close-button st-search-hide-outputs">Close</a>
+
+            <a class="st-ui-stamp" href="https://swiftype.com/" target="_blank">search by swiftype</a>
+        </section>
+    </div>
+
+    <!-- LEFT SIDEBAR -->
+    <div class="st-ui-container-left_sidebar st-position-container">
+      <div class="st-ui-injected-search-controls">
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="st-ui-container-right_sidebar st-position-container">
+      <div class="st-ui-injected-container-right_sidebar">
+        <div class="st-ui-injected-search-controls">
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIMARY CONTENT -->
+    <div class="st-ui-container-primary_content st-position-container">
+        <section class="st-ui-slide-autocomplete st-autocomplete-keyboard-navigable st-autocomplete-transient-on-select-and-results" data-st-target-element="#st-overlay-search-input" data-st-active-query-class="active" style="display: none;">
+          <span class="st-ui-type-heading-small">suggested results</span>
+          <div class="st-autocomplete-results"><div class="st-query-present" style="display: none;"></div></div>
+        </section>
+
+        <section class="st-ui-content st-search-results"><div class="st-query-not-present">
+          <span class="st-ui-fallback"></span>
+        </div><div class="st-query-present" style="display: none;"></div></section>
+
+      <section class="st-ui-no-results st-search-suggestions"><div class="st-query-not-present">
+      </div></section>
+    </div>
+
+
+
+    <!-- FOOTER -->
+    <div class="st-ui-container-footer_bar st-position-container">
+      <section class="st-ui-footer">
+          <span class="st-ui-search-summary st-search-summary"></span>
+        <span class="st-ui-pagination st-search-pagination"></span>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="st-default-autocomplete" data-st-target-element=".st-default-search-input" style="display: none; position: absolute; top: 349px; left: 0px; z-index: 999999;">
+  <div class="st-autocomplete-results st-ui-autocomplete"><div class="st-query-present" style="display: none;"></div></div>
+</div>
+<a class="st-search-show-outputs st-ui-search-tab">Search this site</a></div></body></html>
