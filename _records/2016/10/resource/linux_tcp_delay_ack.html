@@ -1,0 +1,1455 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>   
+   
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>LInux Tcp 延迟确认问题 - 浮白
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="最近给公司做项目，需要用到一个功能：将麦克风设备采集到的音频直接回放出来（不是录制）。Android里自带的录音机只能录制，没有实时回放功能。网上涉及到音频采集的教程，以用MediaRecorder录制的为多，涉及到直接回放的例子很少。在网上搜索了一天，终于在一个老外的论坛上找到了实时回放的方法，稍加改动，就可以工作了。&#160; &#160;&#160; &#160; 麦克风信号的实时回放，不需要对音频做编码，也就是说，不要走录制-" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/dark1/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/turkeyzhou/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/simple_dark.css" />
+ 
+
+
+</head>
+<body>
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/turkeyzhou">浮白</a></h2>
+            <h3>当浮一大白</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        
+     
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+            
+                <li id="btnContents"><a href="http://blog.csdn.net/turkeyzhou?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/turkeyzhou?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/turkeyzhou/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+            
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "turkeyzhou";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/turkeyzhou";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "yonka";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://blog.csdn.net/winner.html">
+<font color=red>【1024程序员节】获奖结果公布
+</font></a>
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/PK.html">
+<font color=blue>【观点】有了深度学习，你还学传统机器学习算法么？
+</font></a>
+&nbsp;&nbsp;&nbsp;
+<a href="http://lib.csdn.net/base/reactnative">
+<font color=red>【资源库】火爆了的React Native都在研究什么
+</font></a>
+
+</font></a>
+</div>                        </div>
+                        
+
+
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+
+
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+          
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/turkeyzhou/article/details/6764389">
+        LInux Tcp 延迟确认问题            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/tcp' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">tcp</a><a href='http://www.csdn.net/tag/linux' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">linux</a><a href='http://www.csdn.net/tag/struct' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">struct</a><a href='http://www.csdn.net/tag/%e7%ae%97%e6%b3%95' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">算法</a><a href='http://www.csdn.net/tag/server' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">server</a><a href='http://www.csdn.net/tag/linux%e5%86%85%e6%a0%b8' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">linux内核</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2011-09-09 17:01</span>
+            <span class="link_view" title="阅读次数">10880人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(0)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('LInux Tcp 延迟确认问题','6764389');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(6764389,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[{&quot;name&quot;:&quot;计算机网络知识库&quot;,&quot;url&quot;:&quot;http://lib.csdn.net/base/37?source=blogtop&quot;,&quot;logo&quot;:&quot;http://img.knowledge.csdn.net/upload/base/1463023002983_983.jpg&quot;}]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            try
+            {
+                var lib = eval("("+$("#lib").attr("value")+")");
+                var html = "";
+                if (lib.err == 0) {
+                    $.each(lib.data, function (i) {
+                        var obj = lib.data[i];
+                        //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                        html += ' <a href="' + obj.url + '" target="_blank">';
+                        html += ' <img src="' + obj.logo + '">';
+                        html += ' <em><b>' + obj.name + '</b></em>';
+                        html += ' </a>';
+                    });
+                    if (html != "") {
+                        setTimeout(function () {
+                            $("#lib").html(html);                      
+                            $("#embody").show();
+                        }, 100);
+                    }
+                }      
+            } catch (err)
+            { }
+            
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('630361','turkeyzhou','top','6764389');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">Socket/multi Thread<em>（54）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/turkeyzhou/article/category/630361"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_630361">                            
+                            </ul>
+                        </div>
+                    </label>                    
+                    <label  onclick="GetCategoryArticles('688876','turkeyzhou','top','6764389');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">UNIX/LINUX C/C++<em>（163）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/turkeyzhou/article/category/688876"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_688876">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+        <div   class="bog_copyright">         
+            <p  class="copyright_p" >版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+
+<p align="center"><strong>案例一：</strong>同事随手写个压力测试程序，其实现逻辑为：每秒钟先连续发N个132字节的包，然后连续收N个由后台服务回显回来的132字节包。其代码简化如下：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>char sndBuf[132];</em></p>
+<p><em>char rcvBuf[132];</em></p>
+<p><em>while (1) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; N; i&#43;&#43;){</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; send(fd, sndBuf, sizeof(sndBuf), 0);</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...&nbsp;&nbsp;&nbsp;&nbsp; </em></p>
+<p><em>&nbsp;&nbsp;&nbsp; }</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; N; i&#43;&#43;) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; recv(fd, rcvBuf, sizeof(rcvBuf), 0);</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; }</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; sleep(1);</em></p>
+<p><em>}</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>在实际测试中发现，当N大于等于3的情况，第2秒之后，每次第三个recv调用，总会阻塞40毫秒左右，但在分析Server端日志时，发现所有请求在Server端处理时耗均在2ms以下。</p>
+<p>当时的具体定位过程如下：先试图用strace跟踪客户端进程，但奇怪的是：一旦strace attach上进程，所有收发又都正常，不会有阻塞现象，一旦退出strace，问题重现。经同事提醒，很可能是strace改变了程序或系统的某些东西（这个问题现在也还没搞清楚），于是再用tcpdump抓包分析，发现Server后端在回现应答包后，Client端并没有立即对该数据进行ACK确认，而是等待了近40毫秒后才确认。经过Google，并查阅《TCP/IP详解卷一:协议》得知，此即TCP的延迟确认（Delayed
+ Ack）机制。</p>
+<p>其解决办法如下：在recv系统调用后，调用一次setsockopt函数，设置TCP_QUICKACK。最终代码如下：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>char sndBuf[132];</em></p>
+<p><em>char rcvBuf[132];</em></p>
+<p><em>while (1) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; N; i&#43;&#43;) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; send(fd, sndBuf, 132, 0);</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...&nbsp;&nbsp;&nbsp;&nbsp; </em></p>
+<p><em>&nbsp;&nbsp;&nbsp; }</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; N; i&#43;&#43;) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; recv(fd, rcvBuf, 132, 0);&nbsp; </em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setsockopt(fd, IPPROTO_TCP, TCP_QUICKACK, (int[]){1}, sizeof(int));&nbsp;
+</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; }</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; sleep(1);</em></p>
+<p><em>}</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><strong>案例二：</strong>在营销平台内存化CDKEY版本做性能测试时，发现请求时耗分布异常：90%的请求均在2ms以内，而10%左右时耗始终在38-42ms之间，这是一个很有规律的数字：40ms。因为之前经历过案例一，所以猜测同样是因为延迟确认机制引起的时耗问题，经过简单的抓包验证后，通过设置TCP_QUICKACK选项，得以解决时延问题。</p>
+<p>&nbsp;</p>
+<p><strong>延迟确认机制</strong></p>
+<p>在《TCP/IP详解卷一：协议》第19章对其进行原理进行了详细描述：TCP在处理交互数据流（即Interactive Data Flow，区别于Bulk Data Flow，即成块数据流，典型的交互数据流如telnet、rlogin等）时，采用了Delayed Ack机制以及Nagle算法来减少小分组数目。</p>
+<p>书上已经对这两种机制的原理讲的很清晰，这里不再做复述。本文后续部分将通过分析TCP/IP在Linux下的实现，来解释一下TCP的延迟确认机制。</p>
+<p>&nbsp;</p>
+<p><strong>1、为什么TCP延迟确认会导致延迟？</strong></p>
+<p>其实仅有延迟确认机制，是不会导致请求延迟的（初以为是必须等到ACK包发出去，recv系统调用才会返回）。一般来说，只有当该机制与Nagle算法或拥塞控制（慢启动或拥塞避免）混合作用时，才可能会导致时耗增长。我们下面来详细看看是如何相互作用的：</p>
+<p><strong>延迟确认与Nagle算法</strong></p>
+<p>我们先看看Nagle算法的规则（可参考tcp_output.c文件里tcp_nagle_check函数注释）：</p>
+<p>1）如果包长度达到MSS，则允许发送；</p>
+<p>2）如果该包含有FIN，则允许发送；</p>
+<p>3）设置了TCP_NODELAY选项，则允许发送；</p>
+<p>4）未设置TCP_CORK选项时，若所有发出去的包均被确认，或所有发出去的小数据包（包长度小于MSS）均被确认，则允许发送。</p>
+<p>对于规则4），就是说要求一个TCP连接上最多只能有一个未被确认的小数据包，在该分组的确认到达之前，不能发送其他的小数据包。如果某个小分组的确认被延迟了（案例中的40ms），那么后续小分组的发送就会相应的延迟。也就是说延迟确认影响的并不是被延迟确认的那个数据包，而是后续的应答包。</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p>1 00:44:37.878027 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: S 3512052379:3512052379(0) win 5840 &lt;mss 1448,wscale 7&gt;</p>
+<p>2 00:44:37.878045 IP 172.25.81.16.9877 &gt; 172.25.38.135.44792: S 3581620571:3581620571(0) ack 3512052380 win 5792 &lt;mss 1460,wscale 2&gt;</p>
+<p>3 00:44:37.879080 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: . ack 1 win 46</p>
+<p>......</p>
+<p>4 00:44:38.885325 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: P 1321:1453(132) ack 1321 win 86</p>
+<p>5 00:44:38.886037 IP 172.25.81.16.9877 &gt; 172.25.38.135.44792: P 1321:1453(132) ack 1453 win 2310</p>
+<p>6 00:44:38.887174 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: P 1453:2641(1188) ack 1453 win 102</p>
+<p>7 00:44:38.887888 IP 172.25.81.16.9877 &gt; 172.25.38.135.44792: P 1453:2476(1023) ack 2641 win 2904</p>
+<p>8 00:44:38.925270 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: . ack 2476 win 118</p>
+<p>9 00:44:38.925276 IP 172.25.81.16.9877 &gt; 172.25.38.135.44792: P 2476:2641(165) ack 2641 win 2904</p>
+<p>10 00:44:38.926328 IP 172.25.38.135.44792 &gt; 172.25.81.16.9877: . ack 2641 win 134</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>从上面的tcpdump抓包分析看，第8个包是延迟确认的，而第9个包的数据，在Server端（172.25.81.16）虽然早就已放到TCP发送缓冲区里面（应用层调用的send已经返回）了，但按照Nagle算法，第9个包需要等到第个7包（小于MSS）的ACK到达后才能发出。</p>
+<p>&nbsp;</p>
+<p><strong>延迟确认与拥塞控制</strong></p>
+<p>我们先利用TCP_NODELAY选项关闭Nagle算法，再来分析延迟确认与TCP拥塞控制是如何互相作用的。</p>
+<p>慢启动：TCP的发送方维护一个拥塞窗口，记为cwnd。TCP连接建立是，该&#20540;初始化为1个报文段，每收到一个ACK，该&#20540;就增加1个报文段。发送方取拥塞窗口与通告窗口(与滑动窗口机制对应)中的最小&#20540;作为发送上限（拥塞窗口是发送方使用的流控，而通告窗口则是接收方使用的流控）。发送方开始发送1个报文段，收到ACK后，cwnd从1增加到2，即可以发送2个报文段，当收到这两个报文段的ACK后，cwnd就增加为4，即指数增长：例如第一个RTT内，发送一个包，并收到其ACK，cwnd增加1，而第二个RTT内，可以发送两个包，并收到对应的两个ACK，则cwnd每收到一个ACK就增加1，最终变为4，实现了指数增长。</p>
+<p>在Linux实现里，并不是每收到一个ACK包，cwnd就增加1，如果在收到ACK时，并没有其他数据包在等待被ACK，则不增加。</p>
+<p>本人使用案例1的测试代码，在实际测试中，cwnd从初始&#20540;2开始，最终保持3个报文段的&#20540;，tcpdump结果如下：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p>1 16:46:14.288604 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: S 1324697951:1324697951(0) win 5840 &lt;mss 1460,wscale 2&gt;</p>
+<p>2 16:46:14.289549 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: S 2866427156:2866427156(0) ack 1324697952 win 5792 &lt;mss 1460,wscale 2&gt;</p>
+<p>3 16:46:14.288690 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: . ack 1 win 1460</p>
+<p>......</p>
+<p>4 16:46:15.327493 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: P 1321:1453(132) ack 1321 win 4140</p>
+<p>5 16:46:15.329749 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: P 1321:1453(132) ack 1453 win 2904</p>
+<p>6 16:46:15.330001 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: P 1453:2641(1188) ack 1453 win 4140</p>
+<p>7 16:46:15.333629 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: P 1453:1585(132) ack 2641 win 3498</p>
+<p>8 16:46:15.337629 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: P 1585:1717(132) ack 2641 win 3498</p>
+<p>9 16:46:15.340035 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: P 1717:1849(132) ack 2641 win 3498</p>
+<p>10 16:46:15.371416 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: . ack 1849 win 4140</p>
+<p>11 16:46:15.371461 IP 172.16.1.2.20001 &gt; 172.16.1.3.1913: P 1849:2641(792) ack 2641 win 3498</p>
+<p>12 16:46:15.371581 IP 172.16.1.3.1913 &gt; 172.16.1.2.20001: . ack 2641 win 4536</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上表中的包，是在设置TCP_NODELAY，且cwnd已经增长到3的情况，第7、8、9发出后，受限于拥塞窗口大小，即使此时TCP缓冲区有数据可以发送亦不能继续发送，即第11个包必须等到第10个包到达后，才能发出，而第10个包明显有一个40ms的延迟。</p>
+<p>&nbsp;</p>
+<p>注：通过getsockopt的TCP_INFO选项（man 7 tcp）可以查看TCP连接的详细信息，例如当前拥塞窗口大小，MSS等。</p>
+<p>&nbsp;</p>
+<p><strong>2、为什么是40ms？这个时间能不能调整呢？</strong></p>
+<p>首先在<a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_MRG/1.3/html/Realtime_Tuning_Guide/sect-Realtime_Tuning_Guide-General_System_Tuning-Reducing_the_TCP_delayed_ack_timeout.html">redhat的官方文档</a>中，有如下说明：</p>
+<p>一些应用在发送小的报文时，可能会因为TCP的Delayed Ack机制，导致一定的延迟。其&#20540;默认为40ms。可以通过修改tcp_delack_min，调整系统级别的最小延迟确认时间。例如：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em># echo 1 &gt; /proc/sys/net/ipv4/tcp_delack_min</em></p>
+<p>即是期望设置最小的延迟确认超时时间为1ms。</p>
+<p>不过在slackware和suse系统下，均未找到这个选项，也就是说40ms这个最小&#20540;，在这两个系统下，是无法通过配置调整的。</p>
+<p>&nbsp;</p>
+<p>linux-2.6.39.1/net/tcp.h下有如下一个宏定义：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>#define TCP_DELACK_MIN&nbsp;&nbsp;&nbsp; ((unsigned)(HZ/25))&nbsp;&nbsp;&nbsp; /* minimal time to delay before sending an ACK */</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><em>注：Linux内核每隔固定周期会发出timer interrupt（IRQ 0），HZ是用来定义每秒有几次timer interrupts的。举例来说，HZ为1000，代表每秒有1000次timer interrupts。HZ可在编译内核时设置。在我们现有服务器上跑的系统，HZ&#20540;均为250。</em></p>
+<p>以此可知，最小的延迟确认时间为40ms。</p>
+<p>TCP连接的延迟确认时间一般初始化为最小&#20540;40ms，随后根据连接的重传超时时间（RTO）、上次收到数据包与本次接收数据包的时间间隔等参数进行不断调整。具体调整算法，可以参考linux-2.6.39.1/net/ipv4/tcp_input.c, Line 564的tcp_event_data_recv函数。
+</p>
+<p>&nbsp;</p>
+<p><strong>3、为什么TCP_QUICKACK需要在每次调用recv后重新设置？</strong></p>
+<p>在man 7 tcp中，有如下说明：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><strong>TCP_QUICKACK </strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Enable quickack mode if set or disable quickack mode if cleared. In quickack mode, acks are &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sent immediately, rather than delayed if needed in accordance to normal TCP operation. &nbsp; This flag is not permanent, it only enables a switch to
+ or from quickack mode. Subsequent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; operation of the TCP protocol will once again enter/leave quickack mode depending on &nbsp;&nbsp;&nbsp;&nbsp; internal protocol processing and factors such as delayed ack timeouts occurring and data &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transfer. This option should
+ not be used in code intended to be portable.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>手册中明确描述TCP_QUICKACK不是永久的。那么其具体实现是如何的呢？参考setsockopt函数关于TCP_QUICKACK选项的实现：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>case TCP_QUICKACK:</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; if (!val) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icsk-&gt;icsk_ack.pingpong = 1;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; } else {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icsk-&gt;icsk_ack.pingpong = 0;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((1 &lt;&lt; sk-&gt;sk_state) &amp;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &amp;&amp;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inet_csk_ack_scheduled(sk)) {</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icsk-&gt;icsk_ack.pending |= ICSK_ACK_PUSHED;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tcp_cleanup_rbuf(sk, 1);</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!(val &amp; 1))</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icsk-&gt;icsk_ack.pingpong = 1;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;}</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; }</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; break;</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>其实linux下socket有一个pingpong属性来表明当前链接是否为交互数据流，如其&#20540;为1，则表明为交互数据流，会使用延迟确认机制。但是pingpong这个&#20540;是会动态变化的。例如TCP链接在要发送一个数据包时，会执行如下函数（linux-2.6.39.1/net/ipv4/tcp_output.c, Line 156）：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>/* Congestion state accounting after a packet has been sent. */</em></p>
+<p><em>static void tcp_event_data_sent(struct tcp_sock *tp,</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct sk_buff *skb, struct sock *sk)</em></p>
+<p><em>{</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ......</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp-&gt;lsndtime = now;</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* If it is a reply for ato after last received</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;* packet, enter pingpong mode.</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;*/</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((u32)(now - icsk-&gt;icsk_ack.lrcvtime) &lt; icsk-&gt;icsk_ack.ato)</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icsk-&gt;icsk_ack.pingpong = 1;</em></p>
+<p><em>}</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>最后两行代码说明：如果当前时间与最近一次接受数据包的时间间隔小于计算的延迟确认超时时间，则重新进入交互数据流模式。也可以这么理解：延迟确认机制被确认有效时，会自动进入交互式。</p>
+<p>通过以上分析可知，<strong>TCP_QUICKACK选项是需要在每次调用recv后重新设置的。</strong></p>
+<p><strong>&nbsp;</strong></p>
+<p><strong>4、为什么不是所有包都延迟确认？</strong></p>
+<p>TCP实现里，用tcp_in_quickack_mode（linux-2.6.39.1/net/ipv4/tcp_input.c, Line 197）这个函数来判断是否需要立即发送ACK。其函数实现如下：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>/* Send ACKs quickly, if &quot;quick&quot; count is not exhausted</em></p>
+<p><em>&nbsp;* and the session is not interactive.</em></p>
+<p><em>&nbsp;*/</em></p>
+<p><em>static inline int tcp_in_quickack_mode(const struct sock *sk)</em></p>
+<p><em>{</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const struct inet_connection_sock *icsk = inet_csk(sk);</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return icsk-&gt;icsk_ack.quick &amp;&amp; !icsk-&gt;icsk_ack.pingpong;</em></p>
+<p><em>}</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>要求满足两个条件才能算是quickack模式：</p>
+<p>1、pingpong被设置为0。</p>
+<p>2、快速确认数（quick）必须为非0。</p>
+<p>关于pingpong这个&#20540;，在前面有描述。而quick这个属性其代码中的注释为：scheduled number of quick acks，即快速确认的包数量，每次进入quickack模式，quick被初始化为接收窗口除以2倍MSS&#20540;（linux-2.6.39.1/net/ipv4/tcp_input.c, Line 174），每次发送一个ACK包，quick即被减1。</p>
+<p>&nbsp;</p>
+<p><strong>5、关于TCP_CORK选项</strong></p>
+<p>TCP_CORK选项与TCP_NODELAY一样，是控制Nagle化的。</p>
+<p>1、打开TCP_NODELAY选项，则意味着无论数据包是多么的小，都立即发送（不考虑拥塞窗口）。</p>
+<p>2、如果将TCP连接比喻为一个管道，那TCP_CORK选项的作用就像一个塞子。设置TCP_CORK选项，就是用塞子塞住管道，而取消TCP_CORK选项，就是将塞子拔掉。例如下面这段代码：</p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top">
+<p><em>int on = 1;</em></p>
+<p><em>setsockopt(sockfd, SOL_TCP, TCP_CORK, &amp;on, sizeof(on)); //set TCP_CORK</em></p>
+<p><em>write(sockfd, ...);&nbsp;&nbsp;&nbsp; //e.g., http header</em></p>
+<p><em>sendfile(sockfd, ...); //e.g., http body</em></p>
+<p><em>on = 0;</em></p>
+<p><em>setsockopt(sockfd, SOL_TCP, TCP_CORK, &amp;on, sizeof(on)); //unset TCP_CORK</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>当TCP_CORK选项被设置时，TCP链接不会发送任何的小包，即只有当数据量达到MSS时，才会被发送。当数据传输完成时，通常需要取消该选项，以便被塞住，但是又不够MSS大小的包能及时发出去。如果应用程序确定能一起发送多个数据集合（例如HTTP响应的头和正文），建议设置TCP_CORK选项，这样在这些数据之间不存在延迟。为提升性能及吞吐量，Web Server、文件服务器这一类一般会使用该选项。</p>
+<p>著名的高性能Web服务器Nginx，在使用sendfile模式的情况下，可以设置打开TCP_CORK选项：将nginx.conf配置文件里的tcp_nopush配置为on。（TCP_NOPUSH与TCP_CORK两个选项实现功能类&#20284;，只不过NOPUSH是BSD下的实现，而CORK是Linux下的实现）。另外Nginx为了减少系统调用，追求性能极致，针对短连接（一般传送完数据后，立即主动关闭连接，对于Keep-Alive的HTTP持久连接除外），程序并不通过setsockopt调用取消TCP_CORK选项，因为关闭连接会自动取消TCP_CORK选项，将剩余数据发出。</p>
+<p>&nbsp;</p>
+   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.14-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" ArticleId="6764389" >
+            <dl id="btnDigg" class="digg digg_enable"  onclick="btndigga();">
+               
+                 <dt>顶</dt>
+                <dd>0</dd>
+            </dl>
+           
+              
+            <dl id="btnBury" class="digg digg_enable"  onclick="btnburya();">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>               
+            </dl>
+            
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);" >&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);" >&nbsp;</a></div>
+    <script type="text/javascript">
+                function btndigga() {
+                    $(".tracking-ad[data-mod='popu_222'] a").click();
+                }
+                function btnburya() {
+                    $(".tracking-ad[data-mod='popu_223'] a").click();
+                }
+            </script>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/turkeyzhou/article/details/6764097';">上一篇</span><a href="/turkeyzhou/article/details/6764097" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">Linux slab 分配器剖析</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/turkeyzhou/article/details/6764756';">下一篇</span><a href="/turkeyzhou/article/details/6764756" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">Linux下高并发Tcp需要突破的限制</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article"  style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c"style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('630361','turkeyzhou','foot','6764389');">Socket/multi Thread<em>（54）</em></span>
+                                </label>
+                                <label class="">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('688876','turkeyzhou','foot','6764389');">UNIX/LINUX C/C++<em>（163）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141"  style="max-height:195px;">
+                        <a href="http://blog.csdn.net" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    <script  type="text/javascript">
+        $(function () {
+            GetCategoryArticles('630361', 'turkeyzhou','foot','6764389');
+        });
+    </script>
+      
+</div>
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/turkeyzhou/svc/GetSuggestContent/6764389",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "6764389",
+                username: "yonka",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = 'LInux Tcp 延迟确认问题' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+    <div id="ad_cen">        
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '6764389';
+    var commentscount = 0;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/turkeyzhou/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+               
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/turkeyzhou" target="_blank">
+    <img src="http://avatar.csdn.net/7/1/E/1_turkeyzhou.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/turkeyzhou" class="user_name" target="_blank">turkeyzhou</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=turkeyzhou','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>1809413次</span></li>
+    <li>积分：<span>23729</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog7.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：23729 </div>
+        </span>  </li>
+    <li>排名：<span>第204名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>559篇</span></li>
+    <li>转载：<span>290篇</span></li>
+    <li>译文：<span>3篇</span></li>
+    <li>评论：<span>294条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/turkeyzhou/article/category/555084" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">agile</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365498" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ajax/extjs</a><span>(30)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/426158" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Ajax/GWT-EXT/GWT</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365500" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">algorithms/recommond</a><span>(28)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/571450" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">android</a><span>(14)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/695306" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ANT/MAKE/MAVEN/CI</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/624085" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">APPFUSE</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/661811" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C++/symbian/QT</a><span>(28)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/595525" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">compute skill</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/374797" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">css</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/378430" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">database</a><span>(36)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/445115" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">design pattern</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/367412" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">flex</a><span>(24)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/547354" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Groovy/Grail</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/700032" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">hadoop/mapreduce</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365503" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">hibernate</a><span>(14)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/366774" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">html</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365501" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">j2ee</a><span>(82)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365499" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">j2se</a><span>(139)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/494799" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">jboss seam</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/821640" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JDK特性</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/822031" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">jmx</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/366771" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JS</a><span>(24)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365502" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">jsf</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/663568" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">KJAVA/J2ME</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365508" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">life</a><span>(16)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365507" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">linux/ubuntu</a><span>(46)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/382021" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">LINUX/UNIX shell</a><span>(23)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/699895" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MQ</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/758816" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">NOSQL</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/751216" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">OOM</a><span>(14)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/542932" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">osgi</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/601286" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">photoshop</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/376728" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PHP</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/604500" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PKI</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/366490" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">projects analyse</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/700128" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">protocol/TCP/IP</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/368878" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">regexp</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365506" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ror</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/699677" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">scalable/loadbalance</a><span>(12)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/596037" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">scm/CI</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/439656" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">search Enginer</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/678059" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">server program</a><span>(19)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/598307" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">sitemesh</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/537918" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SOA</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/630361" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Socket/multi Thread</a><span>(55)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/379808" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">softManage</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365505" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">spring</a><span>(36)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/368853" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">sql</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365504" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">struts</a><span>(23)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/449247" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SWT/JFace/JAVA GUI</a><span>(19)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/822032" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">tools</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/688876" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">UNIX/LINUX C/C++</a><span>(164)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/366489" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">velocity/freemarker/sitemesh</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/718298" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">WAP</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/367223" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">web</a><span>(21)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/365509" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">web service/rpc/soa</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/439655" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">workflow</a><span>(19)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/387128" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">xml</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1160785" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">firefox插件开发</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1263560" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">hadoop</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1270656" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">sas/spss</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1385431" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">VIM/IDE</a><span>(22)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1397157" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">安全</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1403133" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">python</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1494105" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HTTP/TCP/UDP</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1546453" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">nodejs</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/turkeyzhou/article/category/1692419" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">php</a><span>(0)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/turkeyzhou/article/month/2013/12">2013年12月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2013/11">2013年11月</a><span>(7)</span></li><li><a href="/turkeyzhou/article/month/2013/10">2013年10月</a><span>(3)</span></li><li><a href="/turkeyzhou/article/month/2013/09">2013年09月</a><span>(4)</span></li><li><a href="/turkeyzhou/article/month/2013/08">2013年08月</a><span>(5)</span></li><li><a href="/turkeyzhou/article/month/2013/07">2013年07月</a><span>(13)</span></li><li><a href="/turkeyzhou/article/month/2013/06">2013年06月</a><span>(7)</span></li><li><a href="/turkeyzhou/article/month/2013/05">2013年05月</a><span>(14)</span></li><li><a href="/turkeyzhou/article/month/2013/04">2013年04月</a><span>(37)</span></li><li><a href="/turkeyzhou/article/month/2013/03">2013年03月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2013/02">2013年02月</a><span>(27)</span></li><li><a href="/turkeyzhou/article/month/2013/01">2013年01月</a><span>(16)</span></li><li><a href="/turkeyzhou/article/month/2012/12">2012年12月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2012/11">2012年11月</a><span>(6)</span></li><li><a href="/turkeyzhou/article/month/2012/10">2012年10月</a><span>(10)</span></li><li><a href="/turkeyzhou/article/month/2012/09">2012年09月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2012/08">2012年08月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2012/07">2012年07月</a><span>(6)</span></li><li><a href="/turkeyzhou/article/month/2012/06">2012年06月</a><span>(9)</span></li><li><a href="/turkeyzhou/article/month/2012/05">2012年05月</a><span>(10)</span></li><li><a href="/turkeyzhou/article/month/2012/04">2012年04月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2012/03">2012年03月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2011/09">2011年09月</a><span>(12)</span></li><li><a href="/turkeyzhou/article/month/2011/08">2011年08月</a><span>(12)</span></li><li><a href="/turkeyzhou/article/month/2011/07">2011年07月</a><span>(3)</span></li><li><a href="/turkeyzhou/article/month/2011/05">2011年05月</a><span>(9)</span></li><li><a href="/turkeyzhou/article/month/2011/04">2011年04月</a><span>(14)</span></li><li><a href="/turkeyzhou/article/month/2011/03">2011年03月</a><span>(5)</span></li><li><a href="/turkeyzhou/article/month/2011/02">2011年02月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2011/01">2011年01月</a><span>(4)</span></li><li><a href="/turkeyzhou/article/month/2010/12">2010年12月</a><span>(4)</span></li><li><a href="/turkeyzhou/article/month/2010/11">2010年11月</a><span>(22)</span></li><li><a href="/turkeyzhou/article/month/2010/10">2010年10月</a><span>(12)</span></li><li><a href="/turkeyzhou/article/month/2010/09">2010年09月</a><span>(9)</span></li><li><a href="/turkeyzhou/article/month/2010/08">2010年08月</a><span>(3)</span></li><li><a href="/turkeyzhou/article/month/2010/07">2010年07月</a><span>(10)</span></li><li><a href="/turkeyzhou/article/month/2010/06">2010年06月</a><span>(19)</span></li><li><a href="/turkeyzhou/article/month/2010/05">2010年05月</a><span>(28)</span></li><li><a href="/turkeyzhou/article/month/2010/04">2010年04月</a><span>(13)</span></li><li><a href="/turkeyzhou/article/month/2010/03">2010年03月</a><span>(20)</span></li><li><a href="/turkeyzhou/article/month/2010/02">2010年02月</a><span>(8)</span></li><li><a href="/turkeyzhou/article/month/2010/01">2010年01月</a><span>(16)</span></li><li><a href="/turkeyzhou/article/month/2009/12">2009年12月</a><span>(21)</span></li><li><a href="/turkeyzhou/article/month/2009/11">2009年11月</a><span>(12)</span></li><li><a href="/turkeyzhou/article/month/2009/10">2009年10月</a><span>(36)</span></li><li><a href="/turkeyzhou/article/month/2009/09">2009年09月</a><span>(20)</span></li><li><a href="/turkeyzhou/article/month/2009/08">2009年08月</a><span>(32)</span></li><li><a href="/turkeyzhou/article/month/2009/07">2009年07月</a><span>(11)</span></li><li><a href="/turkeyzhou/article/month/2009/06">2009年06月</a><span>(7)</span></li><li><a href="/turkeyzhou/article/month/2009/05">2009年05月</a><span>(4)</span></li><li><a href="/turkeyzhou/article/month/2009/04">2009年04月</a><span>(11)</span></li><li><a href="/turkeyzhou/article/month/2009/03">2009年03月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2009/01">2009年01月</a><span>(2)</span></li><li><a href="/turkeyzhou/article/month/2008/12">2008年12月</a><span>(4)</span></li><li><a href="/turkeyzhou/article/month/2008/11">2008年11月</a><span>(32)</span></li><li><a href="/turkeyzhou/article/month/2008/10">2008年10月</a><span>(31)</span></li><li><a href="/turkeyzhou/article/month/2008/09">2008年09月</a><span>(15)</span></li><li><a href="/turkeyzhou/article/month/2008/08">2008年08月</a><span>(21)</span></li><li><a href="/turkeyzhou/article/month/2008/07">2008年07月</a><span>(8)</span></li><li><a href="/turkeyzhou/article/month/2008/06">2008年06月</a><span>(10)</span></li><li><a href="/turkeyzhou/article/month/2008/05">2008年05月</a><span>(36)</span></li><li><a href="/turkeyzhou/article/month/2008/04">2008年04月</a><span>(24)</span></li><li><a href="/turkeyzhou/article/month/2008/03">2008年03月</a><span>(28)</span></li><li><a href="/turkeyzhou/article/month/2008/02">2008年02月</a><span>(44)</span></li><li><a href="/turkeyzhou/article/month/2008/01">2008年01月</a><span>(7)</span></li><li><a href="/turkeyzhou/article/month/2007/12">2007年12月</a><span>(7)</span></li><li><a href="/turkeyzhou/article/month/2007/11">2007年11月</a><span>(8)</span></li><li><a href="/turkeyzhou/article/month/2007/09">2007年09月</a><span>(5)</span></li><li><a href="/turkeyzhou/article/month/2007/08">2007年08月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2007/07">2007年07月</a><span>(1)</span></li><li><a href="/turkeyzhou/article/month/2007/06">2007年06月</a><span>(7)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/turkeyzhou/article/details/5509725" title="CAS单点登录">CAS单点登录</a><span>(49340)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/6104135" title="C语言中返回字符串函数的四种实现方法">C语言中返回字符串函数的四种实现方法</a><span>(30386)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/8755976" title="C++ 线程池的封装实现">C++ 线程池的封装实现</a><span>(22880)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/7528182" title="多队列网卡简介">多队列网卡简介</a><span>(20173)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/8613589" title="make条件判断ifeq,ifneq,ifdef,ifndef">make条件判断ifeq,ifneq,ifdef,ifndef</a><span>(18293)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/8759530" title="一个高性能RPC框架原理剖析">一个高性能RPC框架原理剖析</a><span>(16962)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/2302438" title="Eclipse中CVS的使用">Eclipse中CVS的使用</a><span>(16843)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/8609360" title="linux select 多路复用机制">linux select 多路复用机制</a><span>(16778)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/5143820" title="数据流图DFD画法">数据流图DFD画法</a><span>(16712)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/8876658" title="python egg">python egg</a><span>(16640)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/turkeyzhou/article/details/5512348" title="实战WEB 服务器（JAVA编写WEB服务器）">实战WEB 服务器（JAVA编写WEB服务器）</a><span>(26)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/5509725" title="CAS单点登录">CAS单点登录</a><span>(20)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/4487889" title="java守护进程">java守护进程</a><span>(8)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/5202771" title="Spring事务解惑">Spring事务解惑</a><span>(7)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/2792840" title="话说状态模式和策略模式">话说状态模式和策略模式</a><span>(7)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/5619603" title="LINUX c++线程池框架">LINUX c++线程池框架</a><span>(6)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/4252858" title="Swing皮肤">Swing皮肤</a><span>(6)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/2636354" title="gwt-ext布局初探">gwt-ext布局初探</a><span>(6)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/2906392" title="spring源代码分析（2）--BeanFactory">spring源代码分析（2）--BeanFactory</a><span>(6)</span>
+</li>
+<li>
+<a href="/turkeyzhou/article/details/4490913" title="打造Swing绚丽按钮">打造Swing绚丽按钮</a><span>(5)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/googdev/article/details/52575079" target="_blank">* 2016 年最受欢迎的编程语言是什么？</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/52420761" 
+target="_blank">* Chromium扩展（Extension）的页面（Page）加载过程分析</a></li>
+<li><a href="http://blog.csdn.net/googdev/article/details/52598892" 
+target="_blank">* Android Studio 2.2 来啦</a></li>
+<li><a href="http://blog.csdn.net/anddlecn/article/details/52608697" target="_blank">* 手把手教你做音乐播放器（二）技术原理与框架设计</a></li>
+<li><a href="http://blog.csdn.net/defonds/article/details/52605670" 
+target="_blank">* JVM 性能调优实战之：使用阿里开源工具 TProfiler 在海量业务代码中精确定位性能代码</a></li>
+
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/turkeyzhou/article/details/5144273#comments">UC矩阵</a>
+    <p style="margin:0px;"><a href="/w1867919" class="user_name">w1867919</a>:
+写的很棒，转发学习，谢谢！
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/7688094#comments">Android获取屏幕高度</a>
+    <p style="margin:0px;"><a href="/aalong1111" class="user_name">aalong1111</a>:
+想问下 Display display = getWindowManager().getDefaul...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/8880887#comments">离线安装setuptools</a>
+    <p style="margin:0px;"><a href="/u012466304" class="user_name">u012466304</a>:
+顶一下
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/7944511#comments">代码布局relativeLayout</a>
+    <p style="margin:0px;"><a href="/chenzhiyan1993" class="user_name">chenzhiyan1993</a>:
+tv = new TextView()layoutParams1.addRule(RelativeL...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/8953911#comments">volatile与指针</a>
+    <p style="margin:0px;"><a href="/chd_zhang" class="user_name">chd_zhang</a>:
+不错不错
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/9307551#comments">Quorum？Quorum！</a>
+    <p style="margin:0px;"><a href="/bjq1016" class="user_name">bjq1016</a>:
+鸽巢理论的应用。很好的算法！
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/5512348#comments">实战WEB 服务器（JAVA编写WEB服务器）</a>
+    <p style="margin:0px;"><a href="/qq_33691353" class="user_name">qq_33691353</a>:
+请问编译和运行那里，在命令行运行您说的语句后，在浏览器里面输入localhost:8080/inde...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/5512348#comments">实战WEB 服务器（JAVA编写WEB服务器）</a>
+    <p style="margin:0px;"><a href="/qq_33434689" class="user_name">qq_33434689</a>:
+src\HAHA\HttpServer.java:56: 错误: 找不到符号         Req...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/5733242#comments">JAVA多线程CyclicBarrier应用</a>
+    <p style="margin:0px;"><a href="/chenchaofuck1" class="user_name">chenchaofuck1</a>:
+这图不错
+    </p>
+    </li>
+    <li>
+   
+         <a href="/turkeyzhou/article/details/7695813#comments">游戏中的状态机</a>
+    <p style="margin:0px;"><a href="/oPhineas" class="user_name">oPhineas</a>:
+很受益~
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 --> 
+                    <ins data-revive-zoneid="190" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+                    <!-- 广告位结束 -->
+
+           </div>   
+
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=219615"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+    <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_code.css" />
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/saveToCode.js"></script>
+      <script type="text/javascript" src="//csdnimg.cn/rabbit/tracking-ad/main.js?75eacd8"></script>
+</body>
+</html>   
+ 
