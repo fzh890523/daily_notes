@@ -1,0 +1,3718 @@
+<!DOCTYPE html>
+<!-- saved from url=(0065)https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/ -->
+<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">#habla_window_div {z-index:5000;}#habla_window_div #habla-callout-bubble-anchor,#habla_window_div #habla-callout-bubble-anchor-offline {margin: 0px;padding: 0px;border: 0px;}#habla_compressed_div {position: relative;}#habla_window_div .olark-callout-bubble-close-button {height: 20px;width: 20px;position: absolute;top: 0px;right: 0px;background: transparent url(https://static.olark.com/images/close.png) top right no-repeat;z-index:5001}#habla_window_div #olark-callout-bubble,#habla_window_div #olark-callout-bubble-offline {position: absolute;cursor: pointer;}#habla_window_div #olark-callout-bubble {height: 153px;width: 164px;}.olrk-fixed-bottom #olark-callout-bubble {z-index:5000;position:relative;}.olrk-fixed-top #olark-callout-bubble {z-index:5000;position:relative;}#habla_window_div #olark-callout-bubble-offline {height: 153px;width: 164px;}.olrk-fixed-bottom #olark-callout-bubble-offline {z-index:5000;position:relative;}.olrk-fixed-top #olark-callout-bubble-offline {z-index:5000;position:relative;}.olrk-fixed-top #olark-callout-bubble {top: 0px;}.olrk-fixed-bottom #olark-callout-bubble {bottom: 0px;}.olrk-fixed-left #olark-callout-bubble {right: 0px;}.olrk-fixed-right #olark-callout-bubble {left: 0px;}.olrk-fixed-left .olrk-left-align #olark-callout-bubble {left: 0px;}.olrk-fixed-top #olark-callout-bubble-offline {top: 0px;}.olrk-fixed-bottom #olark-callout-bubble-offline {bottom: 0px;}.olrk-fixed-left #olark-callout-bubble-offline {right: 0px;}.olrk-fixed-right #olark-callout-bubble-offline {left: 0px;}.olrk-fixed-left .olrk-left-align #olark-callout-bubble-offline {left: 0px;}#habla_window_div a:hover {background-color:transparent;}#habla_available_div {display: none;}</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+
+<link rel="dns-prefetch" href="https://munchkin.marketo.net/">
+<link rel="dns-prefetch" href="https://990-fxf-735.mktoresp.com/">
+<link rel="dns-prefetch" href="https://fast.fonts.net/">
+<link rel="dns-prefetch" href="https://fast.wistia.com/">
+<link rel="dns-prefetch" href="https://distillery.wistia.com/">
+<link rel="dns-prefetch" href="https://embed-0.wistia.com/">
+<link rel="dns-prefetch" href="https://pipedream.wistia.com/">
+<link rel="icon" type="image/png" href="https://www.nginx.com/wp-content/themes/nginx-theme/assets/img/nginx-favicon.png">
+
+
+
+
+
+
+
+
+
+
+
+
+<script async="" defer="true" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/visits"></script><script async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/fbevents.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/linkid.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/loader1.js.下载"></script><script async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/analytics.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/uwt.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/5607.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/roundtrip.js.下载"></script><script async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/gtm.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/amplitude-2.12.1-min.gz.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/munchkin.js.下载"></script><script type="text/javascript">	var NginxGlobalVars = {"ajax_url":"https:\/\/www.nginx.com\/wordpress\/wp-admin\/admin-ajax.php","home_url":"https:\/\/www.nginx.com","wp_json_url":"https:\/\/www.nginx.com\/wp-json"}; </script>
+ 
+
+<!-- This site is optimized with the Yoast SEO plugin v2.3.5 - https://yoast.com/wordpress/plugins/seo/ -->
+<title>Cache Placement Strategies for NGINX and NGINX Plus</title>
+<meta name="robots" content="noodp,noydir">
+<meta name="description" content="Explore how different cache configurations (with writes mirrored, striped, or split between two independent caches) affect cache-write throughput in NGINX.">
+<link rel="canonical" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/">
+<link rel="publisher" href="https://plus.google.com/+NGINXinc">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cache Placement Strategies for NGINX and NGINX Plus">
+<meta property="og:description" content="Explore how different cache configurations (with writes mirrored, striped, or split between two independent caches) affect cache-write throughput in NGINX.">
+<meta property="og:url" content="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/">
+<meta property="og:site_name" content="NGINX">
+<meta property="article:publisher" content="https://www.facebook.com/nginxinc">
+<meta property="article:tag" content="cache placement">
+<meta property="article:tag" content="caching">
+<meta property="article:tag" content="NGINX Plus">
+<meta property="article:tag" content="thread pools">
+<meta property="article:tag" content="tmpfs">
+<meta property="article:section" content="Blog">
+<meta property="article:published_time" content="2016-01-27T11:35:30+00:00">
+<meta property="article:modified_time" content="2016-11-02T22:21:05+00:00">
+<meta property="og:updated_time" content="2016-11-02T22:21:05+00:00">
+<meta property="fb:admins" content="1530428147">
+<meta property="og:image" content="https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:description" content="Explore how different cache configurations (with writes mirrored, striped, or split between two independent caches) affect cache-write throughput in NGINX.">
+<meta name="twitter:title" content="Cache Placement Strategies for NGINX and NGINX Plus">
+<meta name="twitter:site" content="@nginx">
+<meta name="twitter:domain" content="NGINX">
+<meta name="twitter:image" content="https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard.png">
+<meta name="twitter:creator" content="@owengarrett">
+<!-- / Yoast SEO plugin. -->
+
+<link rel="alternate" type="application/rss+xml" title="NGINX » Feed" href="https://www.nginx.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="NGINX » Comments Feed" href="https://www.nginx.com/comments/feed/">
+<link rel="stylesheet" id="columns-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/columns.css" type="text/css" media="all">
+<link rel="stylesheet" id="jq-scroll-style-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.mCustomScrollbar.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="nginx-theme-style-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx-theme.css" type="text/css" media="all">
+<link rel="stylesheet" id="magnific-popup-css-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/magnific-popup.css" type="text/css" media="all">
+<link rel="stylesheet" id="owl-carousel-css-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/owl.carousel.css" type="text/css" media="all">
+<link rel="stylesheet" id="rrssb-css-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/rrssb.css" type="text/css" media="all">
+<link rel="stylesheet" id="select2-css-css" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/select2.min.css" type="text/css" media="all">
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.mCustomScrollbar.concat.min.js.下载"></script>
+<link rel="https://api.w.org/" href="https://www.nginx.com/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.nginx.com/wordpress/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.nginx.com/wordpress/wp-includes/wlwmanifest.xml"> 
+<link rel="shortlink" href="https://www.nginx.com/?p=23526">
+<link rel="alternate" type="application/json+oembed" href="https://www.nginx.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://www.nginx.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F&amp;format=xml">
+<link rel="https://github.com/WP-API/WP-API" href="https://www.nginx.com/wp-json">
+            <style>
+                
+            </style>
+            <script type="text/javascript">
+            jQuery( function($) {
+                
+                function setCookie( cname, cvalue, exdays )
+                {
+                    var d = new Date();
+                    d.setTime( d.getTime() + ( exdays * 24 * 60 * 60 * 1000 ) );
+                    var expires = "expires="+ d.toUTCString();
+                    document.cookie = cname + "=" + cvalue + ";expires=" + expires + ';domain=nginx.com;path=/';
+                }
+                
+                function getCookie( cname )
+                {
+                    var name = cname + "=";
+                    var ca = document.cookie.split( ';' );
+                    for( var i = 0; i < ca.length; i++ )
+                    {
+                        var c = ca[i];
+                        while ( c.charAt( 0 ) == ' ' )
+                        {
+                            c = c.substring( 1 );
+                        }
+                        if ( c.indexOf( name ) == 0 )
+                        {
+                            return c.substring( name.length,c.length );
+                        }
+                    }
+                    return "";
+                }
+                
+                function checkCookie( cname )
+                {
+                    var c = getCookie( cname );
+                    if ( c != "" )
+                    {
+                        return true;
+                    }
+                    
+                    return false;
+                }
+                
+                function heroBannerRedirect( e )
+                {
+                    e.preventDefault();
+                    //alert(123);
+                }
+                
+                function footerBannerRedirect()
+                {
+                    
+                }
+                
+                var Banners = {
+                    
+                    heroBanners : [
+                                                {
+                            title: "",
+                            subtitle: "",
+                            button_url: "",
+                            button_text: "Download now",
+                            bg_image_url: "",
+                            bg_ipad_url: "",
+                            special_case: "1",
+                            special_html: "<div id=\"nativeapp-banner\" class=\"custom-banner gt-nativeapp-banner\">\r\n    <div class=\"nativeapp-banner-wrapper\">\r\n        <div class=\"nativeapp-banner-wrapper-inner\">\r\n            <div class=\"r8-wrapper\">\r\n                <div class=\"r8-content\">       \r\n                    <div class=\"content-left\">\r\n                         <img class=\"r8-img r9_logo\" src=\"https:\/\/assets.wp.nginx.com\/wp-content\/themes\/nginx-theme\/assets\/img\/landing-page\/Gartner2016_Homepage_hero5_660x437@2x.png\" alt=\"\">\r\n                    <\/div>\r\n                    <div class=\"content-right\">\r\n                         <h1 id=\"r10_hero_heading\">What's the best software tool for scaling your application?<\/h1>\r\n                         <h2 id=\"r10_hero_sub_heading\">Get the answer in the 2016 Gartner Magic Quadrant for ADCs and Critical Capabilities<\/h2>\r\n                         <a class=\"r8-btn-explore new-r9-btn-explode\" id=\"hero_banner_cta_btn\" href=\"#\" data-href=\"https:\/\/www.nginx.com\/resources\/library\/gartner-magic-quadrant-2016-for-adc\/\">Download Now<\/a>\r\n                         <img style=\"position: relative; top: 25px; margin-bottom: 20px;\" src=\"https:\/\/assets.wp.nginx.com\/wp-content\/themes\/nginx-theme\/assets\/img\/landing-page\/Gartner_logo_reg_decisionA_99x23.png\" alt=\"\">\r\n                    <\/div>\r\n                <\/div>\r\n            <\/div>\r\n            <div class=\"disclaimer\">GARTNER is a registered trademark and service mark of Gartner, Inc. and\/or its affiliates in the U.S. and internationally, and is used herein with permission. All rights reserved.<\/div>\r\n        <\/div>\r\n    <\/div>\r\n<\/div>",
+                        },
+                                                {
+                            title: "Move Java Apps to Docker with Ease",
+                            subtitle: "All you need to know to containerize your apps",
+                            button_url: "https://www.nginx.com/resources/library/docker-for-java-developers/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_DockerForJavaDevelopers_1392x650_bkgd1.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_DockerForJavaDevelopers_557x793_hero1.png",
+                            special_case: "0",
+                            special_html: "",
+                        },
+                                                {
+                            title: "Get the most out of NGINX",
+                            subtitle: "The free NGINX Cookbook has recipes <br>to help you get up and running quickly",
+                            button_url: "https://www.nginx.com/resources/library/nginx-cookbook-part-1-high-performance-load-balancing/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_NGINXCookbook_bkgd2_1392x650.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_NGINXCookbook_hero1_557x793-1.png",
+                            special_case: "0",
+                            special_html: "",
+                        },
+                                                {
+                            title: "Succeed in the Cloud",
+                            subtitle: "Learn best practices for moving apps to the cloud",
+                            button_url: "https://www.nginx.com/resources/library/enterprise-cloud/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/a2.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/a1.png",
+                            special_case: "0",
+                            special_html: "",
+                        },
+                                            ],
+                    
+                    footerBanners : [
+                                                {
+                            title: "",
+                            subtitle: "",
+                            button_url: "",
+                            button_text: "Download now",
+                            bg_image_url: "",
+                            bg_ipad_url: "",
+                        },
+                                                {
+                            title: "Move Java Apps to Docker with Ease",
+                            subtitle: "All you need to know to containerize your apps",
+                            button_url: "https://www.nginx.com/resources/library/docker-for-java-developers/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_DockerForJavaDevelopers_1392x650_bkgd1.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_DockerForJavaDevelopers_557x793_hero1.png",
+                        },
+                                                {
+                            title: "Looking to get up and running quickly with NGINX?",
+                            subtitle: "Use the easy-to-follow recipes in the free NGINX Cookbook",
+                            button_url: "https://www.nginx.com/resources/library/nginx-cookbook-part-1-high-performance-load-balancing/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_NGINXCookbook_bkgd2_1392x650.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/Ebook_NGINXCookbook_hero1_557x793-1.png",
+                        },
+                                                {
+                            title: "Succeed in the Cloud",
+                            subtitle: "Learn best practices for moving apps to the cloud",
+                            button_url: "https://www.nginx.com/resources/library/enterprise-cloud/",
+                            button_text: "Download now",
+                            bg_image_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/a2.png",
+                            bg_ipad_url: "https://assets.wp.nginx.com/wp-content/uploads/2016/09/a1.png",
+                        },
+                                            ]
+                    
+                };
+                
+                //console.log( Banners );
+                
+                var heroCookieState = 0,
+                    footerCookieState = 0,
+                    heroCookie = 'NGXHeroBannerCookie',
+                    footerCookie = 'NGXFooterCookie';
+                    
+                if( checkCookie( heroCookie ) )
+                {
+                    heroCookieState = getCookie( heroCookie );
+                    if( heroCookieState >= 3 ) heroCookieState = 3;
+                }
+                /*var visits = getCookie( '_nx_visits' );
+                if( visits < 3 )
+                {
+                    heroCookieState = 0;
+                }*/
+                
+                                
+                if( checkCookie( footerCookie ) )
+                {
+                    footerCookieState = getCookie( footerCookie );
+                    if( footerCookieState >= 3 ) footerCookieState = 3;
+                }
+                //footerCookieState = 0;
+                
+                // Setting hero banner
+                
+                if( Banners.heroBanners[heroCookieState].special_case == 1 )
+                {
+                    $( '.hero-banner-item' ).html( Banners.heroBanners[heroCookieState].special_html );
+                }
+                else
+                {
+                    $( '.hero-banner-item .dockernet-title' ).html( Banners.heroBanners[heroCookieState].title );
+                    $( '.hero-banner-item .dockernet-description' ).html( Banners.heroBanners[heroCookieState].subtitle );
+                    
+                    var preHeroLink = Banners.heroBanners[heroCookieState].button_url;
+                    var path = preHeroLink.split( '/' );
+                    var count = path.length;
+                    var heroLink = preHeroLink + '?utm_source=' + path[count-2] + '&utm_medium=hero';
+                    
+                    $( '.hero-banner-item #hero_banner_cta_btn' ).html( Banners.heroBanners[heroCookieState].button_text )
+                                                                    .attr( 'href', heroLink );
+                    $( '.hero-banner-item .dockernet-banner-wrapper' ).css( {
+                        backgroundImage: 'url(' + Banners.heroBanners[heroCookieState].bg_image_url + ')'
+                    } );
+                    $( '.hero-banner-item .dockernet-ipad' ).css( {
+                        backgroundImage: 'url(' + Banners.heroBanners[heroCookieState].bg_ipad_url + ')'
+                    } );
+                }
+                
+                $( '.hero-banner-item' ).css({
+                    visibility: 'visible',
+                    opacity: 0
+                });
+                
+                setTimeout( function() {
+                    $( '.hero-banner-item' ).animate({
+                        opacity: 1
+                    }, 500);
+                }, 1000 );
+                
+                $( '.hero-banner-item #hero_banner_cta_btn, .hero-banner-item .dockernet-ipad' ).click( function( e ) {
+                    e.preventDefault();
+                    
+                    var href = $( this ).attr( 'href' );
+                    if( href == '#' )
+                    {
+                        href = $( this ).data( 'href' );
+                    }
+					var btnLink =  href ;
+					var bannerName = $("#hero_banner_title").text();
+                    $( document ).trigger( 'hero-banner-cta-btn-click', [ btnLink, bannerName ] );
+                    $.post(
+                        'https://www.nginx.com/wordpress/wp-admin/admin-ajax.php',
+                        {
+                            action: 'update_ngx_banner_settings_reset'
+                        },
+                        function( response )
+                        {
+                            if( checkCookie( heroCookie ) )
+                            {
+                                var cvalue = getCookie( heroCookie );
+                            }
+                            else
+                            {
+                                var cvalue = 0;
+                            }
+                            cvalue++;
+                            
+                            setCookie( heroCookie, cvalue, 30 );
+                            window.location.href = href;
+                        }
+                    );
+                    
+                    return false;
+                } );
+                
+                                /**
+                 *
+                 *
+                // Setting for footer banner
+                $( '.blog_footer_cta .dockernet-cta-text-title' ).html( Banners.footerBanners[footerCookieState].title );
+                $( '.blog_footer_cta .dockernet-cta-text-title-inner' ).html( Banners.footerBanners[footerCookieState].subtitle );
+                $( '.blog_footer_cta #hero_banner_cta_btn' ).html( Banners.footerBanners[footerCookieState].button_text )
+                                                                .attr( 'href', Banners.footerBanners[footerCookieState].button_url );
+                $( '.blog_footer_cta .dockernet-blog-cta' ).css( {
+                    backgroundImage: 'url(' + Banners.footerBanners[footerCookieState].bg_image_url + ')'
+                } );
+                $( '.blog_footer_cta .dockernet-cta-cover img' ).attr( 'src', Banners.footerBanners[footerCookieState].bg_ipad_url );
+                
+                $( '.blog_footer_cta' ).css({
+                    visibility: 'visible',
+                    opacity: 0
+                });
+                
+                setTimeout( function() {
+                    $( '.blog_footer_cta' ).animate({
+                        opacity: 1
+                    }, 500);
+                }, 2000 );
+                
+                $( '.blog_footer_cta .dockernet-cta-cover img, .blog_footer_cta #blog_footer_cta, .blog_footer_cta #hero_banner_cta_btn' ).click( function( e ) {
+                    e.preventDefault();
+                    
+                    if( checkCookie( footerCookie ) )
+                    {
+                        var cvalue = getCookie( footerCookie );
+                    }
+                    else
+                    {
+                        var cvalue = 0;
+                    }
+                    cvalue++;
+                    
+                    setCookie( footerCookie, cvalue, 30 );
+                    window.location.href = $( '.blog_footer_cta #hero_banner_cta_btn' ).attr( 'href' );
+                    
+                    return false;
+                } );
+                */
+                                
+            } );
+            </script>
+                        <style>
+            .r8-btn-explore {
+    display: inline-block;
+    font-weight: 400;
+    text-align: left;
+    color: #000 !important;
+    text-decoration: none;
+    padding: 17px 35px;
+    background-color: #F0A828;
+    border-radius: 3px;
+    color: #000;
+    font-size: 16px;
+    line-height: 1.2;
+    position: relative;
+    text-transform: uppercase;
+    transition: background-color 0.35s ease;
+    margin-top: 50px;
+}
+
+
+/* GARTNER */
+.custom-banner.gt-nativeapp-banner .nativeapp-banner-wrapper-inner {
+    max-width: 1120px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 650px;
+}
+.custom-banner.gt-nativeapp-banner .r8-wrapper {
+    color: #fff;
+    text-align: center;
+    padding: 70px 0 90px 0;
+    width: 100%;
+}
+@media screen and (min-width: 800px) {
+.custom-banner.gt-nativeapp-banner .nativeapp-banner-wrapper-inner{
+    display: block;
+}
+}
+
+.disclaimer{
+    font-size: 11px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper{
+    overflow: hidden;
+}
+
+.content-left{
+    width: 50%;
+    float: left;
+}
+
+.content-right {
+  float: left;
+  padding-left: 40px;
+  padding-top: 10px;
+  width: 50%;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper .r8-content h1 {
+  font-size: 44px;
+  font-weight: lighter;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  margin-top: 0;
+  text-align: left;
+}
+
+.r8-content h2 {
+  color: #009639;
+  font-size: 22px;
+  margin: 20px 0;
+  max-width: 450px;
+  text-align: left;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper .r8-img {
+  border-right: 2px solid #fff;
+  padding-right: 80px;
+  width: 90%;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-btn-explore {
+  float: left;
+  margin-top: 15px;
+}
+
+
+@media only screen and (max-width: 979px) {
+.content-left, .content-right {
+  float: none;
+  padding: 0 50px;
+  width: 100%;
+}
+
+.custom-banner.gt-nativeapp-banner {
+  min-height: 870px;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper .r8-img {
+  border-bottom: 2px solid #fff;
+  border-right: medium none;
+  margin-bottom: 0;
+  padding-bottom: 40px;
+  padding-right: 0;
+  width: 100%;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper .r8-content h1 {
+  font-size: 30px;
+  line-height: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.r8-content h2 {
+  font-size: 22px;
+  text-align: center;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-btn-explore {
+  float: none;
+}
+
+.athp-section .custom-banner.gt-nativeapp-banner,
+.athp-section .custom-banner.gt-nativeapp-banner .nativeapp-banner-wrapper,
+.athp-section .custom-banner.gt-nativeapp-banner .nativeapp-banner-wrapper-inner{
+    min-height: auto !important;
+    height: auto !important;
+}
+
+.custom-banner.gt-nativeapp-banner .r8-wrapper {
+  padding: 50px 0 20px !important;
+}
+
+.disclaimer{
+    margin-top: 20px;
+}
+}
+/* END OF GARTNER */
+
+
+
+
+
+
+/* R10 */
+.content-left{
+    width: 50%;
+    float: left;
+}
+
+.content-right {
+  float: left;
+  padding-left: 40px;
+  padding-top: 10px;
+  width: 50%;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-wrapper .r8-content h1 {
+  font-size: 44px;
+  font-weight: lighter;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  margin-top: 0;
+  text-align: left;
+}
+
+.r8-content h2 {
+  color: #009639;
+  font-size: 22px;
+  margin: 20px 0;
+  max-width: 450px;
+  text-align: left;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-wrapper .r8-img {
+  border-right: 2px solid #fff;
+  padding-right: 80px;
+  width: 90%;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-btn-explore {
+  float: left;
+  margin-top: 15px;
+}
+
+
+@media only screen and (max-width: 979px) {
+.content-left, .content-right {
+  float: none;
+  padding: 0 50px;
+  width: 100%;
+}
+
+.custom-banner.r8-nativeapp-banner {
+  min-height: 870px;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-wrapper .r8-img {
+  border-bottom: 2px solid #fff;
+  border-right: medium none;
+  margin-bottom: 0;
+  padding-bottom: 40px;
+  padding-right: 0;
+  width: 140px;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-wrapper .r8-content h1 {
+  font-size: 30px;
+  line-height: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.r8-content h2 {
+  font-size: 22px;
+  text-align: center;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-btn-explore {
+  float: none;
+}
+
+.athp-section .custom-banner.r8-nativeapp-banner,
+.athp-section .custom-banner.r8-nativeapp-banner .nativeapp-banner-wrapper,
+.athp-section .custom-banner.r8-nativeapp-banner .nativeapp-banner-wrapper-inner{
+    min-height: auto !important;
+    height: auto !important;
+}
+
+.custom-banner.r8-nativeapp-banner .r8-wrapper {
+  padding: 50px 0 20px !important;
+}
+}
+/* END OF R10 */
+
+/* AMPLIFY BANNER */
+
+.amplify_beta_heading, .amplify_beta_cta{ display:none; }
+
+.custom-banner.microservices-ebook-banner .microservices-text-inner .microservices-title{ line-height:50px; padding-bottom:15px; }
+
+ @media screen and (min-width: 800px) {
+	.custom-banner.microservices-ebook-banner .microservices-text-inner .microservices-title{ line-height:75px; padding-bottom:30px; }
+
+ }
+
+@media screen and (max-width: 800px) {
+	.custom-banner.microservices-ebook-banner .microservices-text-inner .microservices-title{ 
+		line-height:40px; padding-bottom:10px; 
+		font-size: 35px;
+		text-align:center;
+	}
+
+.amplify-beta {
+  display: block;
+  float: none !important;
+  width: 100% !important;
+}
+
+.amplify-beta > img {
+  display: block !important;
+  margin: 0 auto !important;
+  max-width: 150px !important;
+  padding-top: 50px !important;
+  width: 80% !important;
+}
+
+.custom-banner.microservices-ebook-banner .microservices-text-wrapper .microservices-title {
+  font-size: 20px !important;
+}
+
+.nginx-theme-action-link-wrapper {
+  font-size: 14px!important;
+}
+
+.nginx-amplify-logo > img {
+  margin: 40px 0 20px !important;
+  max-width: 300px !important;
+  width: 100% !important;
+}
+
+
+}
+
+@media screen and (max-width: 400px) {
+    .custom-banner.microservices-ebook-banner, .custom-banner.microservices-ebook-banner .microservices-banner-wrapper, .hero-banner-item{
+            height: 550px !important;
+            min-height: auto !important;
+            overflow: hidden !important;
+        }
+        
+        .hero-banner-item{
+            margin-bottom: 30px;
+        }
+}
+
+@media only screen and (max-width: 979px) {
+	/*This codes is to hide nginxconf geo based banner from frist screen of mobile view.*/
+	.geo-header-banner.hide_from_first_screen{
+		z-index:-1000;
+	}	
+
+}
+
+.amplify-beta {
+  float: left;
+  width: 48.7106%;
+}
+
+.amplify-beta > img {
+  display: block;
+  margin: 0 100px 0 auto;
+  max-width: 300px;
+  width: 80%;
+}
+
+.custom-banner.microservices-ebook-banner .microservices-text-wrapper .microservices-title {
+  font-size: 36px;
+  line-height: 1.4 !important;
+}
+
+.nginx-amplify-logo > img {
+  margin: 60px 0 30px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.custom-banner.microservices-ebook-banner .microservices-text-wrapper {
+  display: block !important;
+  padding-top: 20px;
+}            
+            @media screen and (max-width: 400px) {
+                .custom-banner.microservices-ebook-banner, .custom-banner.microservices-ebook-banner .microservices-banner-wrapper, .hero-banner-item {
+                    height: auto !important;
+                    min-height: auto !important;
+                    overflow: hidden !important;
+                }
+            }
+            </style>
+            
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery('a[href="https://www.nginx.com/free-trial-request"]').attr("href", "#free-trial");
+		jQuery('a[href="https://www.nginx.com/contact-sales"]').attr("href", "#contact-us");
+	});
+</script>
+<style>
+	#menu-header-actions li.contact-sales-menu-btn{ display:none; } /*Hide contact sales button by default to do AB testing with conductrics*/
+</style>
+
+<style>
+
+/*Universal Marketo Form CSS*/	
+
+.nx_universal_marketo_form .label {
+  margin-top: 5px;
+  text-align: left;
+}
+
+.nx_universal_marketo_form select {
+  border: 1px solid #989898;
+  height: 36px;
+  margin: 5px auto 10px;
+  width: 100%;
+}
+
+.nx_universal_marketo_form .group-label {
+  margin-top: 5px;
+  text-align: left;
+}
+
+.nx_universal_marketo_form input[type="checkbox"] {
+  display: inline-block;
+  height: 20px !important;
+  margin: 5px 0 !important;
+  width: 20px !important;
+}
+
+.nx_universal_marketo_form label {
+  display: inline-block;
+  margin: 5px 0 7px;
+  padding-left: 10px;
+  text-align: left;
+  vertical-align: top;
+  width: calc(100% - 20px);
+}
+
+.contact-us-inner {
+  height: 95vh !important;
+  overflow-y: scroll;
+}
+
+.nx_universal_marketo_form select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+label, .label, .group-label, input, textarea, select {
+  color: #989898;
+}
+
+.label, .group-label{
+  font-weight: normal;
+}
+
+.label span, .group-label span{
+  font-weight: lighter;
+}
+
+.label {
+  clear: both;
+  padding-top: 5px;
+}
+
+.input-wrapper .label {
+  padding-top: 5px;
+}
+
+div.label {
+  padding-top: 10px;
+}
+
+.input-wrapper select.pull-right {
+  margin-top: 15px;
+}
+
+.input-wrapper .select-wrapper::after {
+  top: 17px;
+}
+
+.pull-left{
+	float: left;
+}
+
+.pull-right{
+	float: right;
+}
+
+.label.pull-left {
+  width: 70%;
+}
+
+select.pull-right {
+  margin-top: 15px;
+  max-width: 65px;
+  width: 28%;
+}
+
+input.pull-left {
+  margin: 0 !important;
+  width: 20px !important;
+}
+
+.regpg-main-section-inner .regpg-main-description {
+  margin-right: 4%;
+  width: 56%;
+}
+
+.regpg-main-section-inner .regpg-main-form {
+  width: 40%;
+}
+
+.column.pull-left {
+  margin-right: 1%;
+  margin-left: 0;
+  width: 49%;
+}
+
+.column.pull-right {
+  margin-left: 1%;
+  margin-right: 0;
+  width: 49%;
+}
+
+.nx_universal_marketo_form .group-label {
+  clear: both;
+  margin: 10px 0;
+  padding-top: 20px;
+}
+
+.select-wrapper{
+	position: relative;
+}
+
+.select-wrapper::after {
+  color: #989898;
+  content: "3";
+  font-family: "nginx-font" !important;
+  font-size: 22px;
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  pointer-events:none; /*To make this arrow clickable, othewise this <selec> is not expanded when click on this arrow*/
+}
+.input-wrapper {
+  clear: both;
+}
+
+
+@media only screen and (max-width: 767px) {
+
+.regpg-main-section-inner .regpg-main-description {
+  display: block;
+  float: none;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.regpg-main-section-inner .regpg-main-form {
+  display: block;
+  float: none;
+  margin: 0 auto;
+  width: 100%;
+}	
+
+.pull-left, .pull-right, .column.pull-left, .column.pull-right {
+  float: none;
+  margin: 5px 0 !important;
+  width: 100% !important;
+}
+
+.input-wrapper .select-wrapper {
+  max-width: 70px;
+}
+
+
+.select-wrapper::after, .input-wrapper .select-wrapper::after {
+  top: 8px;
+}
+
+.nx_universal_marketo_form label {
+  margin: 4px 0;
+}
+
+}
+</style>
+
+
+<script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/embed.js.下载"></script><script type="text/javascript" async="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/munchkin.js(1).下载"></script><script async="true" type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/ENFCRMZVSBGMXMPF4BGBP3"></script><script src="./Cache Placement Strategies for NGINX and NGINX Plus_files/4153-705-10-4121.js.下载" async="" defer="" data-cfasync="false"></script><script src="./Cache Placement Strategies for NGINX and NGINX Plus_files/application2.js.下载" async="" defer="" data-cfasync="false"></script><div style="width: 1px; height: 1px; display: inline; position: absolute;"><img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out"><img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(1)"><img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(2)"><img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(3)"></div><div style="width: 1px; height: 1px; display: inline; position: absolute;"><img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(4)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(5)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(6)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(7)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(8)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(9)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(10)">
+<img height="1" width="1" style="border-style:none;" alt="" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/out(11)">
+</div><style type="text/css">.olark-key,#hbl_code,#olark-data{display: none !important;}</style><link id="habla_style_div" type="text/css" rel="stylesheet" href="./Cache Placement Strategies for NGINX and NGINX Plus_files/291d77984f6eaa6b6c98bb0d8f6fa39b.css"><style type="text/css">@media print {#habla_beta_container_do_not_rely_on_div_classes_or_names {display: none !important}}</style></head>
+<body class="single single-post postid-23526 single-format-standard group-blog audience-group-expert" mycollectionplug="bind">
+<div id="page" class="hfeed site">
+
+	<a class="skip-link screen-reader-text" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#content">Skip to content</a>
+
+	<header id="masthead" class="site-header sticky-menu show-sticky-menu" role="banner" itemscope="" itemtype="http://schema.org/Organization">
+	
+		<div class="site-header-inner">
+
+			<div class="site-branding-wrapper">
+				<div class="site-branding">
+					<div class="site-title" itemprop="name"><a href="https://www.nginx.com/" rel="home"><img src="./Cache Placement Strategies for NGINX and NGINX Plus_files/logo.png" alt="Web Server Load Balancing with NGINX Plus"></a></div>
+				</div><!-- /.site-branding -->
+			</div><!-- /.site-branding-wrapper -->
+
+			<div class="header-menus">
+
+				<div class="header-actions-menu-location-wrapper">
+					<nav class="header-actions-menu-location" role="navigation">
+						<div class="menu-header-actions-container"><ul id="menu-header-actions" class="menu"><li id="menu-item-5252" class="free-trial-menu-btn menu-item menu-item-type-custom menu-item-object-custom menu-item-5252"><a href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#free-trial">Free Trial</a></li>
+<li id="menu-item-4811" class="contact-sales-menu-btn menu-item menu-item-type-custom menu-item-object-custom menu-item-4811" style="display: inline-block;"><a href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#contact-us">Contact Sales</a></li>
+</ul></div>					</nav><!-- /.header-actions-menu-location -->
+				</div><!-- /.header-actions-menu-location -->
+				<div class="primary-menu-location-wrapper">
+                    <a class="sticky-menu-logo" href="https://www.nginx.com/" rel="home"><img src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx_n_icon.png" alt="Web Server Load Balancing with NGINX Plus"></a>
+					<nav id="site-navigation" class="primary-menu-location" role="navigation">
+						<div class="menu-primary-container"><ul id="menu-primary" class="menu"><li id="menu-item-3570" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3570"><a href="https://www.nginx.com/products/"><span class="inner">Products</span><span class="icon icon-arrow-down"></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-4296" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4296"><a href="https://www.nginx.com/products/"><span class="inner">NGINX Plus</span></a></li>
+	<li id="menu-item-4441" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4441"><a href="https://www.nginx.com/products/technical-specs/"><span class="inner">Technical Specifications</span></a></li>
+	<li id="menu-item-43772" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-43772"><a href="https://www.nginx.com/resources/admin-guide/nginx-plus-releases/"><span class="inner">NGINX Plus Releases</span></a></li>
+	<li id="menu-item-3680" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3680"><a href="https://www.nginx.com/products/feature-matrix/"><span class="inner">Compare Versions</span></a></li>
+	<li id="menu-item-3917" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3917"><a href="https://www.nginx.com/products/pricing/"><span class="inner">Price &amp; Buy</span></a></li>
+	<li id="menu-item-19951" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-19951"><a href="https://www.nginx.com/products/nginx-plus-aws/"><span class="inner">NGINX Plus for AWS</span></a></li>
+	<li id="menu-item-14357" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14357"><a href="https://www.nginx.com/products/nginx-plus-microsoft-azure/"><span class="inner">NGINX Plus for Azure</span></a></li>
+	<li id="menu-item-13957" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13957"><a href="https://www.nginx.com/products/nginx-plus-google-cloud-platform/"><span class="inner">NGINX Plus for Google Cloud Platform</span></a></li>
+</ul>
+</li>
+<li id="menu-item-3572" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3572"><a href="https://www.nginx.com/solutions/"><span class="inner">Solutions</span><span class="icon icon-arrow-down"></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-3577" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3577"><a href="https://www.nginx.com/solutions/load-balancing/"><span class="inner">Load Balancing</span></a></li>
+	<li id="menu-item-11336" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11336"><a href="https://www.nginx.com/solutions/adc/"><span class="inner">Application Delivery Controller</span></a></li>
+	<li id="menu-item-19042" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19042"><a href="https://www.nginx.com/solutions/microservices/"><span class="inner">Microservices</span></a></li>
+	<li id="menu-item-21517" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-21517"><a href="https://www.nginx.com/solutions/cloud/"><span class="inner">Move to the Cloud</span></a></li>
+	<li id="menu-item-3573" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3573"><a href="https://www.nginx.com/solutions/api-gateway/"><span class="inner">API Gateway</span></a></li>
+	<li id="menu-item-3576" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3576"><a href="https://www.nginx.com/solutions/web-mobile-acceleration/"><span class="inner">Web &amp; Mobile Acceleration</span></a></li>
+	<li id="menu-item-3624" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3624"><a title="test" href="https://www.nginx.com/solutions/application-security/"><span class="inner">Application Security</span></a></li>
+	<li id="menu-item-3574" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3574"><a href="https://www.nginx.com/solutions/web-server/"><span class="inner">Web Server</span></a></li>
+</ul>
+</li>
+<li id="menu-item-3622" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3622"><a href="https://www.nginx.com/resources/"><span class="inner">Resources</span><span class="icon icon-arrow-down"></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-4235" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4235"><a href="https://www.nginx.com/resources/admin-guide/"><span class="inner">Admin Guide</span></a></li>
+	<li id="menu-item-5758" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5758"><a href="https://www.nginx.com/resources/library/"><span class="inner">Library</span></a></li>
+	<li id="menu-item-4056" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4056"><a href="https://www.nginx.com/resources/webinars/"><span class="inner">Webinars</span></a></li>
+	<li id="menu-item-23506" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-23506"><a href="https://www.nginx.com/resources/events/"><span class="inner">Events</span></a></li>
+	<li id="menu-item-4092" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4092"><a href="https://www.nginx.com/resources/more/"><span class="inner">Community Resources</span></a></li>
+	<li id="menu-item-14377" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14377"><a href="https://www.nginx.com/resources/wiki/"><span class="inner">Community Wiki</span></a></li>
+	<li id="menu-item-4093" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4093"><a href="https://www.nginx.com/faqs/"><span class="inner">FAQ</span></a></li>
+</ul>
+</li>
+<li id="menu-item-5455" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-5455"><a href="https://www.nginx.com/support-services/"><span class="inner">Support &amp; Services</span><span class="icon icon-arrow-down"></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-3628" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3628"><a href="https://www.nginx.com/support/"><span class="inner">Support</span></a></li>
+	<li id="menu-item-3631" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3631"><a href="https://www.nginx.com/services/"><span class="inner">Professional Services</span></a></li>
+	<li id="menu-item-3626" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3626"><a target="_blank" href="http://university.nginx.com/"><span class="inner">Training</span></a></li>
+</ul>
+</li>
+<li id="menu-item-3633" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3633"><a href="https://www.nginx.com/company/"><span class="inner">Company</span><span class="icon icon-arrow-down"></span></a>
+<ul class="sub-menu">
+	<li id="menu-item-3646" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3646"><a href="https://www.nginx.com/company/"><span class="inner">About Us</span></a></li>
+	<li id="menu-item-3636" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3636"><a href="https://www.nginx.com/jobs/"><span class="inner">Careers</span></a></li>
+	<li id="menu-item-3634" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3634"><a href="https://www.nginx.com/partners/"><span class="inner">Partners</span></a></li>
+	<li id="menu-item-3637" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3637"><a href="https://www.nginx.com/leadership-team/"><span class="inner">Leadership</span></a></li>
+	<li id="menu-item-5327" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5327"><a href="https://www.nginx.com/press/"><span class="inner">Press</span></a></li>
+</ul>
+</li>
+<li id="menu-item-3616" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3616"><a href="https://www.nginx.com/customers/"><span class="inner">Customers</span></a></li>
+<li id="menu-item-3571" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3571"><a href="https://www.nginx.com/blog/"><span class="inner">Blog</span></a></li>
+</ul></div>						<div class="search-form-wrapper">
+							<form method="get" class="search-form" action="https://www.nginx.com/">
+	<label for="search" class="screen-reader-text">Search</label>
+	<input type="search" name="s" id="s" class="search-field" placeholder="Search nginx.com" value="" maxlength="150">
+	<input type="submit" class="search-button" value="Search">
+</form>
+						</div>
+					</nav><!-- /#site-navigation.primary-menu-location -->
+				</div><!-- /.primary-menu-location-wrapper -->
+
+				<div class="header-extras-wrapper">
+					<div class="header-extras">
+						<div class="header-extra header-tel" itemprop="telephone"><a href="tel:+18009159122">1-800-915-9122</a></div>
+						<div class="header-extra header-login">
+							<a class="login-link" href="https://cs.nginx.com/login">
+								<div class="icon icon-user"></div>
+								<div class="login-text">Login</div>
+							</a>
+						</div>
+					</div>
+				</div>
+
+			</div><!-- /.header-menus -->
+
+			<div class="mobile-menu-button-wrapper">
+				<a href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" class="mobile-menu-button"><div class="icon icon-menu"></div></a>
+			</div>
+
+			<div class="mobile-search-button-wrapper">
+				<div class="search-form-wrapper">
+					<form method="get" class="search-form" action="https://www.nginx.com/">
+	<label for="search" class="screen-reader-text">Search</label>
+	<input type="search" name="s" id="s" class="search-field" placeholder="Search nginx.com" value="" maxlength="150">
+	<input type="submit" class="search-button" value="Search">
+</form>
+				</div>
+			</div>
+
+		</div><!-- /.site-header-inner -->
+	</header><!-- /#masthead -->
+<div style="min-height: 40px; background-color: rgb(238, 238, 238); margin-bottom: 0px; padding-top: 122px;">
+    <div class="site-content">
+    	<div class="site-content-inner" style="padding-top:0px; clear:both; line-height: 22px;">
+    	    	<p class="single-breadcrumbs">
+    		<a href="https://www.nginx.com/">Home</a>&nbsp;&nbsp;›&nbsp;&nbsp;
+    		<a href="https://www.nginx.com/blog/">Blog</a> &nbsp;&nbsp;›&nbsp;&nbsp;
+    	<a href="https://www.nginx.com/category/tech/">Tech</a>&nbsp;&nbsp;›&nbsp;&nbsp;    		<a href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/">Cache Placement Strategies for NGINX and NGINX Plus</a>
+    	</p>
+        </div>
+	</div>
+</div>
+<div id="content" class="site-content for-type-post" style="padding-top: 122px;">
+
+	<div class="site-content-inner" style="margin-top:-70px;">
+
+		<div id="primary" class="content-area">
+			<main id="main" class="site-main" role="main">
+
+							
+<article id="post-23526" class="post-23526 post type-post status-publish format-standard has-post-thumbnail hentry category-blog category-tech tag-cache-placement tag-caching tag-nginx-plus tag-thread-pools tag-tmpfs campaign-core-product wpautop">
+
+		<div class="nginx-single-meta groups-qty-2">
+		<div class="nginx-single-meta-inner">
+			<div class="nginx-single-groups-flag">
+				<div class="nginx-single-groups-flag-inner">
+					<div class="nginx-single-group"><a href="https://www.nginx.com/blog/">Blog</a></div><div class="nginx-single-group"><a href="https://www.nginx.com/category/tech/">Tech</a></div>				</div>
+			</div>
+
+
+			<div class="nginx-post-author">
+				<a href="https://www.nginx.com/blog/author/owen/">
+				Owen Garrett				</a>
+			</div>
+			<div class="nginx-post-meta-separator"> · </div>
+			<div class="nginx-post-date">January 27, 2016</div>
+		</div>
+                <div class="nginx-social-data" id="nginx-social-data"></div>
+	</div>
+
+
+
+	<header class="entry-header">
+		<h1 class="page-title">Cache Placement Strategies for NGINX and NGINX Plus</h1>	</header><!-- .entry-header -->
+	<div class="entry-tags">
+		 <div class="tag-icon"><img src="./Cache Placement Strategies for NGINX and NGINX Plus_files/icon-tag.png"></div><a href="https://www.nginx.com/blog/tag/cache-placement/" rel="tag">cache placement</a>, <a href="https://www.nginx.com/blog/tag/caching/" rel="tag">caching</a>, <a href="https://www.nginx.com/blog/tag/nginx-plus/" rel="tag">NGINX Plus</a>, <a href="https://www.nginx.com/blog/tag/thread-pools/" rel="tag">thread pools</a>, <a href="https://www.nginx.com/blog/tag/tmpfs/" rel="tag">tmpfs</a> 
+	</div>
+	<style type="text/css">
+	.social_share_buttons_wrap{margin-bottom:20px; max-width:500px !important; height:36px !important; overflow:hidden !important;}
+	.social_share_buttons_wrap .rrssb-buttons li { margin-top:0px !important; margin-bottom:0px !important;}
+	@media only screen and (max-width: 320px) {
+	
+	.social_share_buttons_wrap{height:30px !important; overflow:hidden !important;}
+	
+	}
+	
+</style>
+<div class="social_share_buttons_wrap">
+	<!-- Buttons start here. Copy this ul to your document. -->
+	<ul class="rrssb-buttons clearfix rrssb-1">
+	  <li class="rrssb-twitter" data-initwidth="16.666666666666668" data-size="52" style="width: calc(50% - 84px);">
+		<!-- Replace href with your Meta and URL information  -->
+		<a href="https://twitter.com/intent/tweet?text=Cache+Placement+Strategies+for+NGINX+and+NGINX+Plus+by+%40nginx+https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F" class="popup">
+		  <span class="rrssb-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+			  <path d="M24.253 8.756C24.69 17.08 18.297 24.182 9.97 24.62c-3.122.162-6.22-.646-8.86-2.32 2.702.18 5.375-.648 7.507-2.32-2.072-.248-3.818-1.662-4.49-3.64.802.13 1.62.077 2.4-.154-2.482-.466-4.312-2.586-4.412-5.11.688.276 1.426.408 2.168.387-2.135-1.65-2.73-4.62-1.394-6.965C5.574 7.816 9.54 9.84 13.802 10.07c-.842-2.738.694-5.64 3.434-6.48 2.018-.624 4.212.043 5.546 1.682 1.186-.213 2.318-.662 3.33-1.317-.386 1.256-1.248 2.312-2.4 2.942 1.048-.106 2.07-.394 3.02-.85-.458 1.182-1.343 2.15-2.48 2.71z"></path>
+			</svg>
+		  </span>
+		  <span class="rrssb-text">twitter</span>
+		</a>
+	  </li>
+		  
+	  <li class="rrssb-linkedin" data-initwidth="16.666666666666668" data-size="57" style="width: calc(50% - 84px);">
+		<!-- Replace href with your meta and URL information -->
+		<a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F&amp;title=Cache+Placement+Strategies+for+NGINX+and+NGINX+Plus&amp;summary=In+the+previous+article+in+this+caching+series%2C+we+looked+at+the+benefits+of+microcaching%26nbsp%3B%26ndash%3B%26nbsp%3Bcaching+dynamic+content+for+very+short+periods+of+time%26nbsp%3B%26ndash%3B%26nbsp%3Bwhich+sometimes+leads+to+very+significant+performance+improvement.+In+this+article%2C+we%E2%80%99ll+consider+another+aspect+of+caching%2C+that+of+cache+placement%2C+and+we%E2%80%99ll+look+at+strategies+for+dealing+with+slow+cache+storage.+Selecting+%5B%26hellip%3B%5D" class="popup">
+		  <span class="rrssb-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path d="M25.424 15.887v8.447h-4.896v-7.882c0-1.98-.71-3.33-2.48-3.33-1.354 0-2.158.91-2.514 1.802-.13.315-.162.753-.162 1.194v8.216h-4.9s.067-13.35 0-14.73h4.9v2.087c-.01.017-.023.033-.033.05h.032v-.05c.65-1.002 1.812-2.435 4.414-2.435 3.222 0 5.638 2.106 5.638 6.632zM5.348 2.5c-1.676 0-2.772 1.093-2.772 2.54 0 1.42 1.066 2.538 2.717 2.546h.032c1.71 0 2.77-1.132 2.77-2.546C8.056 3.593 7.02 2.5 5.344 2.5h.005zm-2.48 21.834h4.896V9.604H2.867v14.73z"></path></svg></span>
+		  <span class="rrssb-text">linkedin</span>
+		</a>
+	  </li>
+	  
+	  <li class="rrssb-hackernews small" data-initwidth="16.666666666666668" data-size="89" style="width: 42px;">
+		<a target="_blank" href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F&amp;t=Cache%20Placement%20Strategies%20for%20NGINX%20and%20NGINX%20Plus&amp;text=In%20the%20previous%20article%20in%20this%20caching%20series,%20we%20looked%20at%20the%20benefits%20of%20microcaching%C2%A0%E2%80%93%C2%A0caching%20dynamic%20content%20for%20very%20short%20periods%20of%20time%C2%A0%E2%80%93%C2%A0which%20sometimes%20leads%20to%20very%20significant%20performance%20improvement.%20In%20this%20article,%20we%E2%80%99ll%20consider%20another%20aspect%20of%20caching,%20that%20of%20cache%20placement,%20and%20we%E2%80%99ll%20look%20at%20strategies%20for%20dealing%20with%20slow%20cache%20storage.%20Selecting%20[%E2%80%A6]">
+		  <span class="rrssb-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+			  <path fill="#FFF" d="M14 13.626l-4.508-9.19H6.588l6.165 12.208v6.92h2.51v-6.92l6.15-12.21H18.69"></path>
+			</svg>
+		  </span>
+		  <span class="rrssb-text">hackernews</span>
+		</a>
+	  </li>
+					
+	  <li class="rrssb-facebook small" data-initwidth="16.666666666666668" data-size="68" style="width: 42px;">
+		<!--  Replace with your URL. For best results, make sure you page has the proper FB Open Graph tags in header:
+			  https://developers.facebook.com/docs/opengraph/howtos/maximizing-distribution-media-content/ -->
+		<a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F" class="popup">
+		  <span class="rrssb-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29"><path d="M26.4 0H2.6C1.714 0 0 1.715 0 2.6v23.8c0 .884 1.715 2.6 2.6 2.6h12.393V17.988h-3.996v-3.98h3.997v-3.062c0-3.746 2.835-5.97 6.177-5.97 1.6 0 2.444.173 2.845.226v3.792H21.18c-1.817 0-2.156.9-2.156 2.168v2.847h5.045l-.66 3.978h-4.386V29H26.4c.884 0 2.6-1.716 2.6-2.6V2.6c0-.885-1.716-2.6-2.6-2.6z"></path></svg></span>
+		  <span class="rrssb-text">facebook</span>
+		</a>
+	  </li>
+		  
+	  <li class="rrssb-googleplus small" data-initwidth="16.666666666666668" data-size="58" style="width: 42px;">
+		<!-- Replace href with your meta and URL information.  -->
+		<a href="https://plus.google.com/share?url=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F" class="popup">
+		  <span class="rrssb-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M21 8.29h-1.95v2.6h-2.6v1.82h2.6v2.6H21v-2.6h2.6v-1.885H21V8.29zM7.614 10.306v2.925h3.9c-.26 1.69-1.755 2.925-3.9 2.925-2.34 0-4.29-2.016-4.29-4.354s1.885-4.353 4.29-4.353c1.104 0 2.014.326 2.794 1.105l2.08-2.08c-1.3-1.17-2.924-1.883-4.874-1.883C3.65 4.586.4 7.835.4 11.8s3.25 7.212 7.214 7.212c4.224 0 6.953-2.988 6.953-7.082 0-.52-.065-1.104-.13-1.624H7.614z"></path></svg>            </span>
+		  <span class="rrssb-text">google+</span>
+		</a>
+	  </li>
+	  
+	  <li class="rrssb-reddit small" data-initwidth="16.666666666666668" data-size="45" style="width: 42px;">
+		<a target="_blank" href="http://www.reddit.com/submit?url=https%3A%2F%2Fwww.nginx.com%2Fblog%2Fcache-placement-strategies-nginx-plus%2F&amp;title=Cache+Placement+Strategies+for+NGINX+and+NGINX+Plus&amp;text=In+the+previous+article+in+this+caching+series%2C+we+looked+at+the+benefits+of+microcaching%26nbsp%3B%26ndash%3B%26nbsp%3Bcaching+dynamic+content+for+very+short+periods+of+time%26nbsp%3B%26ndash%3B%26nbsp%3Bwhich+sometimes+leads+to+very+significant+performance+improvement.+In+this+article%2C+we%E2%80%99ll+consider+another+aspect+of+caching%2C+that+of+cache+placement%2C+and+we%E2%80%99ll+look+at+strategies+for+dealing+with+slow+cache+storage.+Selecting+%5B%26hellip%3B%5D">
+		  <span class="rrssb-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+			  <path d="M11.794 15.316c0-1.03-.835-1.895-1.866-1.895-1.03 0-1.893.866-1.893 1.896s.863 1.9 1.9 1.9c1.023-.016 1.865-.916 1.865-1.9zM18.1 13.422c-1.03 0-1.895.864-1.895 1.895 0 1 .9 1.9 1.9 1.865 1.03 0 1.87-.836 1.87-1.865-.006-1.017-.875-1.917-1.875-1.895zM17.527 19.79c-.678.68-1.826 1.007-3.514 1.007h-.03c-1.686 0-2.834-.328-3.51-1.005-.264-.265-.693-.265-.958 0-.264.265-.264.7 0 1 .943.9 2.4 1.4 4.5 1.402.005 0 0 0 0 0 .005 0 0 0 0 0 2.066 0 3.527-.46 4.47-1.402.265-.264.265-.693.002-.958-.267-.334-.688-.334-.988-.043z"></path>
+			  <path d="M27.707 13.267c0-1.785-1.453-3.237-3.236-3.237-.792 0-1.517.287-2.08.76-2.04-1.294-4.647-2.068-7.44-2.218l1.484-4.69 4.062.955c.07 1.4 1.3 2.6 2.7 2.555 1.488 0 2.695-1.208 2.695-2.695C25.88 3.2 24.7 2 23.2 2c-1.06 0-1.98.616-2.42 1.508l-4.633-1.09c-.344-.082-.693.117-.803.454l-1.793 5.7C10.55 8.6 7.7 9.4 5.6 10.75c-.594-.45-1.3-.75-2.1-.72-1.785 0-3.237 1.45-3.237 3.2 0 1.1.6 2.1 1.4 2.69-.04.27-.06.55-.06.83 0 2.3 1.3 4.4 3.7 5.9 2.298 1.5 5.3 2.3 8.6 2.325 3.227 0 6.27-.825 8.57-2.325 2.387-1.56 3.7-3.66 3.7-5.917 0-.26-.016-.514-.05-.768.965-.465 1.577-1.565 1.577-2.698zm-4.52-9.912c.74 0 1.3.6 1.3 1.3 0 .738-.6 1.34-1.34 1.34s-1.343-.602-1.343-1.34c.04-.655.596-1.255 1.396-1.3zM1.646 13.3c0-1.038.845-1.882 1.883-1.882.31 0 .6.1.9.21-1.05.867-1.813 1.86-2.26 2.9-.338-.328-.57-.728-.57-1.26zm20.126 8.27c-2.082 1.357-4.863 2.105-7.83 2.105-2.968 0-5.748-.748-7.83-2.105-1.99-1.3-3.087-3-3.087-4.782 0-1.784 1.097-3.484 3.088-4.784 2.08-1.358 4.86-2.106 7.828-2.106 2.967 0 5.7.7 7.8 2.106 1.99 1.3 3.1 3 3.1 4.784C24.86 18.6 23.8 20.3 21.8 21.57zm4.014-6.97c-.432-1.084-1.19-2.095-2.244-2.977.273-.156.59-.245.928-.245 1.036 0 1.9.8 1.9 1.9-.016.522-.27 1.022-.57 1.327z"></path>
+			</svg>
+		  </span>
+		  <span class="rrssb-text">reddit</span>
+		</a>
+	  </li>
+			
+	</ul>
+	<!-- Buttons end here -->
+		<div style="clear:left"></div>
+</div>	<div class="entry-content blog-post">
+		<p><!-- CSS --></p>
+<style type="text/css">
+table.blog { 
+  border-collapse: collapse; 
+  }
+table.blog td { 
+  border: 1px solid black;
+  padding: 5px; 
+}
+</style>
+<p>In the <a href="https://www.nginx.com/blog/benefits-of-microcaching-nginx/?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog">previous article</a> in this caching series, we looked at the benefits of microcaching&nbsp;–&nbsp;caching dynamic content for very short periods of time&nbsp;–&nbsp;which sometimes leads to very significant performance improvement. In this article, we’ll consider another aspect of caching, that of cache placement, and we’ll look at strategies for dealing with slow cache storage.</p>
+<h2>Selecting a Cache Location</h2>
+<p>NGINX can manage multiple cache locations, each mapped to a different filesystem location, and you can configure NGINX to choose which cache to use on a per-request basis.</p>
+<p>In the following sample configuration, the <a target="_blank" href="http://nginx.org/r/proxy_cache_path?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog"><code>proxy_cache_path</code></a> directives create two caches, <strong>ssd_cache</strong> and <strong>disk_cache</strong>, mounted on the local directories <strong>/mnt/ssd/cache</strong> and <strong>/mnt/disk/cache</strong> respectively. The <a target="_blank" href="http://nginx.org/r/map?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog"><code>map</code></a> directive inspects the request URL and selects <strong>disk_cache</strong> for all requests that appear to be video downloads (have <strong>.mp4</strong> or <strong>.avi</strong> in the URL). The default <strong>ssd_cache</strong> location is selected for all other requests.</p>
+<pre><code class="config"># Define caches and their locations<br>
+proxy_cache_path /mnt/ssd/cache keys_zone=ssd_cache:10m levels=1:2 inactive=600s<br>
+                 max_size=700m;<br>
+proxy_cache_path /mnt/disk/cache keys_zone=disk_cache:100m levels=1:2 inactive=24h<br>
+                 max_size=80G;<p></p>
+<p># Requests for .mp4 and .avi files go to disk_cache<br>
+# All other requests go to ssd_cache<br>
+map $request_uri $cache {<br>
+    ~\.mp4(\?.*)?$  disk_cache;<br>
+    ~\.avi(\?.*)?$  disk_cache;</p>
+<p>    default ssd_cache;<br>
+}</p>
+<p>server {<br>
+    # select the cache based on the URI<br>
+    proxy_cache $cache;<br>
+      ...<br>
+}</p></code></pre>
+<p><strong>Note:</strong> For a simple deployment, you could create separate <code>location</code> blocks for different URLs and use the <code>proxy_cache</code> directive within each to specify a different cache location.</p>
+<h2>Where is Cached Data Stored?</h2>
+<p>NGINX and NGINX&nbsp;Plus utilize a hybrid disk-and-memory cache. Whether the cache is on disk, in SSD, or elsewhere, the operating system page cache brings a cached item into main memory when it’s requested. The cached content that was requested least recently is swapped out when memory is required for other purposes. The operating system actively manages the page cache to take advantage of unused main memory on the host.</p>
+<p>Metadata about cached content is always stored in main memory, in a shared memory zone accessible by all NGINX worker processes on the host. The zone is allocated with the <code>keys_zone</code> parameter to the <code>proxy_cache_path</code> directive. The NGINX <a href="https://www.nginx.com/resources/admin-guide/content-caching/?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog#plus"><code>cache_loader</code></a> process initializes the metadata at startup.</p>
+<h2>Can I Use tmpfs for Caching?</h2>
+<p>It is possible to cache to <strong>tmpfs</strong>&nbsp;–&nbsp;a transient in-memory filesystem&nbsp;–&nbsp;but that brings some challenges, beyond the obvious lack of persistence across reboots.</p>
+<p><strong>tmpfs</strong> filesystems are by necessity small because they are limited by the available RAM. NGINX can overfill the cache, because the worker processes add new resources to the cache, and the cache manager process then prunes the cache in the background to maintain the configured <a href="http://nginx.org/r/proxy_cache_path?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog" target="_blank"><code>max_size</code></a>. Therefore, it’s necessary to allow for spare capacity when sizing a cache, and this can be wasteful on a small cache file system.</p>
+<p>Furthermore, <strong>tmpfs</strong> filesystems are swapped out to disk when memory is constrained. The memory used by a <strong>tmpfs</strong> cache could just as effectively be used by the page cache for a larger on-disk cache.</p>
+<h2>Optimizing Read Operations</h2>
+<p>Valentin Bartenev’s <a href="https://www.nginx.com/blog/thread-pools-boost-performance-9x/?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog">blog about thread pools</a> describes in detail how to accelerate read operations with NGINX and NGINX&nbsp;Plus. Although the blog was written from the perspective of web serving, the results are directly applicable to a read-only cache workload.</p>
+<p>If content is available in main memory (because it was recently used or written to cache), cache read operations are immediate; if content is not in main memory, NGINX generally blocks while the content is retrieved from storage. The <a target="_blank" href="http://nginx.org/r/thread_pool?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog">thread pools</a> feature mitigates this problem by handing the blocking read operation over to an <code>aio</code> thread so that the main NGINX worker thread is not blocked. In the use case described in Valentin’s article, we saw a 9x performance improvement for hot content.</p>
+<h2>Testing the Effect of Disk Configuration on Cache Write Operations</h2>
+<p>For the rest of this article, we’ll look at a different kind of workload, dominated by cache write operations, and see how the disk choice affects cache throughput. Disk speed does not just limit the rate at which new content can be added to the cache; the NGINX worker threads can block when the page cache can’t commit new content to disk fast enough and that can limit overall throughput.</p>
+<p>The goal of our tests was to investigate strategies when writing to slow disks.</p>
+<h3>The Test Framework</h3>
+<p>Our first test system was a single Amazon EC2 <strong>t2.small</strong> instance with local SSD storage and two large magnetic EBS block devices:</p>
+<p><img src="./Cache Placement Strategies for NGINX and NGINX Plus_files/cache-placement-ec2-setup.png" alt="Amazon EC2 t2.small instance with local SSD storage and two large magnetic EBS block devices, used to test NGINX cache placement strategies." width="744" height="330" class="aligncenter size-full wp-image-23737" srcset="https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-ec2-setup-300x133.png 300w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-ec2-setup-640x284.png 640w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-ec2-setup-320x142.png 320w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-ec2-setup.png 744w" sizes="(max-width: 744px) 100vw, 744px"></p>
+<p>The second test system was a faster bare-metal server with local hard drives.</p>
+<p>We used <code>wrk</code> to generate load. The <code>wrk</code> client ran the following script called <strong>request.lua</strong>, which configures <code>wrk</code> to generate requests for randomly named files and distribute them across all NGINX workers:</p>
+<pre><code class="config">-- Generate requests like GET /753327908949534239.txt<br>
+-- See http://stackoverflow.com/a/24097793<br>
+math.randomseed( tonumber( tostring( {} ):sub(8) ) + os.time() )<p></p>
+<p>request = function()<br>
+   r1 = math.random( 100000000, 999999999 )<br>
+   r2 = math.random( 100000000, 999999999 )</p>
+<p>   path = "/" .. r1 .. r2 .. ".txt"<br>
+   return wrk.format(nil, path)<br>
+end</p></code></pre>
+<p>On the content generator, we configured NGINX to return the same 1 MB file for all requests:</p>
+<pre><code class="config">location / {<br>
+    try_files /1mb.txt =404;<br>
+    expires max;<br>
+}</code></pre>
+<h3>Establishing Baseline Throughput</h3>
+<p>First we ran a <code>wrk</code> test without caching to determine the maximum capacity of the system.</p>
+<p>The aggregate throughput on the EC2 instance (for client, proxy, and content generator combined) was about 486 MB/second (3.9 Gbps) on the AWS server:</p>
+<pre><code class="terminal">ubuntu$ <strong>./wrk -c 10 -t 10 -d 60 -s request.lua http://localhost/</strong><br>
+Running 1m test @ http://localhost/<br>
+  10 threads and 10 connections<br>
+  Thread Stats   Avg      Stdev     Max   +/- Stdev<br>
+    Latency    20.54ms    1.81ms  58.47ms   93.50%<br>
+    Req/Sec    48.68      3.96    80.00     83.30%<br>
+  29218 requests in 1.00m, 28.54GB read<br>
+Requests/sec:    486.35<br>
+Transfer/sec:    <strong>486.47MB</strong></code></pre>
+<p>The bare-metal server achieved approximately 6.3 GB/second (50 Gbps) on a similar test.</p>
+<h3>Measuring Cache Write Performance</h3>
+<p>We then tested four different configurations of disk volumes:</p>
+<ul>
+<li><strong>Single Disk</strong>&nbsp;–&nbsp;Cache writes are directed to a single disk</li>
+<li><strong>Mirror</strong>&nbsp;–&nbsp;Cache writes are mirrored across two disks, for redundancy</li>
+<li><strong>Stripe</strong>&nbsp;–&nbsp;Cache writes are striped across two physical disks, for performance</li>
+<li><strong>Hash</strong>&nbsp;–&nbsp;Cache writes are split across two independent caches, one per disk</li>
+</ul>
+<p>To implement the Mirror and Stripe strategies, we used Linux LVS to arrange partitions on the two disks in either a mirror or stripe layout.</p>
+<p>To implement the Hash strategy, we included the <a target="_blank" href="http://nginx.org/r/split_clients?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog&amp;_ga=1.232084892.22720722.1453183743"><code>split_clients</code></a> directive in the NGINX configuration. This configuration splits cached content evenly between the two caches created by the <code>proxy_cache_path</code> directives, one on each physical disk:</p>
+<pre><code class="config">proxy_cache_path /mnt/disk1/cache keys_zone=disk1:100m levels=1:2 inactive=600s<br>
+                 max_size=5G use_temp_path=off;<br>
+proxy_cache_path /mnt/disk2/cache keys_zone=disk2:100m levels=1:2 inactive=600s<br>
+                 max_size=5G use_temp_path=off;<p></p>
+<p>split_clients $request_uri $cache {<br>
+    50%     disk1;<br>
+    *       disk2;<br>
+}</p>
+<p>server {<br>
+    listen localhost:80;</p>
+<p>    proxy_cache $cache;</p>
+<p>    location / {<br>
+        proxy_http_version 1.1;<br>
+        proxy_set_header Connection "";<br>
+        proxy_pass http://upstreams;<br>
+    }</p>
+<p>    status_zone loadbalancer;<br>
+}</p></code></pre>
+<p>We tested the four strategies on both the Amazon EC2 server (where we expected slow and unpredictable disk speeds) and on the faster bare-metal server.</p>
+<p>During all of the tests, disk I/O was the limiting factor, and <code>iostat</code> illustrated (within sampling bias) the load on individual physical and virtual disks. For example, this output shows activity when testing the Stripe strategy, represented by the virtual <code>dm-0</code> device backed by the physical <code>xvdb</code> and <code>xvdc</code> devices: </p>
+<pre><code class="terminal">ubuntu$ <strong>iostat 3</strong><br>
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
+           0.00    0.00    0.55   98.89    0.55    0.00<p></p>
+<p>Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn<br>
+xvda              0.00         0.00         0.00          0          0<br>
+xvdb            267.87       141.83     32803.32        512     118420<br>
+xvdc            252.35         0.00     32131.72          0     115995<br>
+dm-0           1178.67         0.00     59157.89          0     213560<br>
+dm-1              0.28         0.00         0.97          0          3<br>
+dm-2              2.22       141.83         0.00        512          0<br>
+dm-3              2.22         0.00       141.83          0        512<br>
+dm-4              0.00         0.00         0.00          0          0</p></code></pre>
+<p>We obtained the following results by averaging across a large number of test runs (20 or more) for each strategy. The results from the EC2 tests showed wide variability, whereas the bare-metal tests were much more consistent once the system reached a steady state:</p>
+<table class="blog">
+<tbody>
+<tr>
+<td><strong>Cache Strategy</strong></td>
+<td><strong>Throughput on EC2 (MB/s)</strong></td>
+<td><strong>Throughput on Bare Metal (MB/s)</strong></td>
+</tr>
+<tr>
+<td>Single Disk</td>
+<td>39.8</td>
+<td>95.0</td>
+</tr>
+<tr>
+<td>Mirror</td>
+<td>31.5</td>
+<td>81.0</td>
+</tr>
+<tr>
+<td>Stripe</td>
+<td>51.1</td>
+<td>192.5</td>
+</tr>
+<tr>
+<td>Hash</td>
+<td>56.0</td>
+<td>215.3</td>
+</tr>
+</tbody>
+</table>
+<h3>Mitigating Unpredictable Factors</h3>
+<p>Disk I/O adds a lot of unpredictability to the system performance, and we took care to ensure that the caches were flushed and empty before each test run.</p>
+<p>The NGINX <code>cache_manager</code> process runs regularly and is responsible for pruning the cache in the background. Because the cache was being filled so quickly, <code>cache_manager</code> had to trim the cache aggressively to keep it within limits and make a measurable impact on performance.</p>
+<p>We used NGINX&nbsp;Plus’ live activity monitoring dashboard (backed by the extended <a target="_blank" href="http://nginx.org/en/docs/http/ngx_http_status_module.html?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog">Status</a> module) to monitor cache usage in real time, making sure that the caches did not fill completely during the tests:</p>
+<p><img src="./Cache Placement Strategies for NGINX and NGINX Plus_files/cache-placement-dashboard.png" alt="NGINX Plus live activity monitoring dashboard confirms that cache manager process prevents caches from filling completely during testing" width="957" height="691" class="aligncenter size-full wp-image-23581" srcset="https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard-300x217.png 300w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard-768x555.png 768w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard-640x462.png 640w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard-320x231.png 320w, https://assets.wp.nginx.com/wp-content/uploads/2016/01/cache-placement-dashboard.png 957w" sizes="(max-width: 957px) 100vw, 957px"></p>
+<p>The hit rate reported on the dashboard never went above 0%, confirming that the load generator was creating random, non-repeating URLs.</p>
+<h2>Analysis</h2>
+<p>The goal of this artificial benchmark is to test the performance of different cache configurations; the test fills the cache as quickly as possible with 1 MB files that are never requested again after the first time (no reuse, which is highly artificial).</p>
+<p>The simple Single Disk strategy is the baseline against which we can compare the more complex arrangements.</p>
+<p>Not surprisingly, the Mirror strategy was marginally slower that Single Disk. Even though the writes can be done together between the two physical disks, Mirror incurs a small amount of overhead. Nevertheless, you might wish to use a mirrored arrangement so that your cache is not vulnerable to the failure of a single disk.</p>
+<p>Stripe and Hash are both faster than Single Disk. The Hash results are higher than expected (more than twice the speed of Single Disk) but the tests were consistent and easily replicated. Hash appears to be marginally faster than Stripe.</p>
+<p>Want to try out caching strategies with NGINX&nbsp;Plus in your own enviroment? Start your <span style="white-space: nowrap;"><a href="https://www.nginx.com/?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog#free-trial">free 30-day trial</a></span> today or <a href="https://www.nginx.com/?utm_source=cache-placement-strategies-nginx-plus&amp;utm_medium=blog#contact-us">contact us</a> for a live demo.</p>
+	</div><!-- .entry-content -->
+</article><!-- #post-## -->
+
+<style type="text/css">
+	.entry-tags {
+	  margin: 20px 0;
+	}	
+	.entry-tags a {
+	  color: #009639;
+	  font-size: 14px;
+	  font-style: italic;
+	  text-decoration: none;
+	}
+	.tag-icon {
+	  display: inline-block;
+	  float: left;
+	  margin-top: 2px;
+	  width: 20px;
+	}
+	.tag-icon img{
+		width: 15px;
+	}
+</style>
+<script type="text/javascript">
+
+	var NginxPostInfo = {"ID":23526,"published_date":"January 27, 2016","categories":["Blog","Tech"],"tags":["cache placement","caching","NGINX Plus","thread pools","tmpfs"],"campaigns":["Core Product"],"author":"Owen Garrett","wordcount":1692} ;
+
+</script>                                <div class="gartner_blog_cta">
+    <div class="gartner_blog_cta_pad">
+        <h2>2016 Gartner Magic Quadrant for ADCs</h2>
+        <div class="gartner_blog_wrap">
+            <div class="gartner_blog_cta_left">
+                <img style="margin-top: 20px;" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/Gartner2016_Homepage_hero5_660x437@2x.png" alt="">
+            </div>
+            <div class="gartner_blog_cta_right">
+                <p>NGINX Receives Highest Score for Modern Critical Capabilities Use Cases</p>
+                	<div class="nginx-theme-action-link-wrapper for-default has-icon">
+		<a class="nginx-theme-action-link for-default" href="https://www.nginx.com/resources/library/gartner-magic-quadrant-2016-for-adc/" id="mb1"> DOWNLOAD NOW</a>			<div class="icon icon-arrow-disc" style="cursor: pointer;"></div>
+			</div>
+	            </div>
+            <div class="gartner_clr"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .gartner_blog_cta{
+        background: url(https://www.nginx.com/wp-content/themes/nginx-theme/assets/img/landing-page/r8-bg.jpg) #000;
+        overflow: hidden;
+        background-size: cover;
+    }
+    .gartner_blog_cta_pad{
+        padding: 30px;
+    }
+    .gartner_blog_cta_pad h2{
+        margin: 0;
+        color: #fff;
+        font-size: 30px;
+        text-align: center;
+    }
+    .gartner_blog_wrap{
+        padding: 20px 0;
+    }
+    .gartner_blog_cta_left{
+        width: 50%;
+        border-right: 1px solid #fff;
+        padding-right: 20px;
+        box-sizing: border-box;
+        float: left;
+    }
+    .gartner_blog_cta_right{
+        width: 49%;
+        padding-left: 20px;
+        box-sizing: border-box;
+        float: right;
+    }
+    .gartner_blog_cta_right p{
+        color: #009639;
+        margin-top: 45px;
+        font-size: 20px;
+    }
+    .gartner_clr{
+        clear: both;
+    }
+    @media only screen and (max-width: 979px) {
+        .gartner_blog_cta_left,
+        .gartner_blog_cta_right{
+            float: none;
+            width: 100%;
+            padding: 0;
+        }
+        .gartner_blog_cta_left{
+            border: none;
+            margin-bottom: 20px;
+        }
+        .gartner_blog_cta{
+            text-align: center;
+        }
+        .gartner_blog_cta_right p{
+            margin-top: 30px;
+        }
+    }
+</style>
+				
+                <div id="disqus_thread"><iframe id="dsq-app1" name="dsq-app1" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 321px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+                <script type="text/javascript">
+                    /* * * CONFIGURATION VARIABLES * * */
+                    var disqus_shortname = 'nginxblog';
+
+                    /* * * DON'T EDIT BELOW THIS LINE * * */
+                    (function() {
+                        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                    })();
+                </script>
+                <noscript>Please enable JavaScript to view the &lt;a href="https://disqus.com/?ref_noscript" rel="nofollow"&gt;comments powered by Disqus.&lt;/a&gt;</noscript>
+			
+			</main><!-- #main -->
+		</div><!-- #primary -->
+
+		
+<div id="secondary" class="widget-area" role="complementary">
+	<aside id="text-6" class="widget widget_text"><h3 class="widget-title">About NGINX</h3>			<div class="textwidget">NGINX is the heart of the modern web, powering half of the world’s busiest sites and applications. The company's comprehensive <a href="https://www.nginx.com/products/">application delivery platform</a> combines load balancing, content caching, web serving, security controls, and monitoring in one easy-to-use software package.</div>
+		</aside><aside id="nginx_theme_search_form_widget-3" class="widget widget_nginx_theme_search_form_widget">        <div class="search-form-widget">
+            <form method="get" action="https://www.nginx.com/">
+            	<span class="search-form-wrapper"></span>
+                <input name="s" maxlength="150" type="search" placeholder="SEARCH">
+                <input value="Search" type="submit">
+            </form>
+        </div>
+		</aside><div id="asidewrapper-sticky-wrapper" class="sticky-wrapper is-sticky" style="height: 521px;"><div id="asidewrapper" style="padding-top: 0px; width: 318px; position: fixed; top: 70px;"><aside id="nginx_theme_category_list_and_tag_list_modal_widget-3" class="widget widget_nginx_theme_category_list_and_tag_list_modal_widget">        <h3 class="widget-title">Categories</h3>
+        <ul class="category-list">
+            	<li class="cat-item cat-item-5"><a href="https://www.nginx.com/category/events/">Events</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="https://www.nginx.com/category/news/" title="News about NGINX ">News</a>
+</li>
+	<li class="cat-item cat-item-17"><a href="https://www.nginx.com/category/tech/" title="Technical articles">Tech</a>
+</li>
+	<li class="cat-item cat-item-18"><a href="https://www.nginx.com/category/opinion/" title="Opinions about the industry">Opinion</a>
+</li>
+            <li><a href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" class="category-list-more-button">More »</a></li>
+        </ul>
+		</aside><aside id="nginx_theme_top_posts_widget-3" class="widget widget_nginx_theme_top_posts_widget">        <h3 class="widget-title">Top Posts</h3>
+        <ul class="top-posts-list">
+                        <li>
+                <a href="https://www.nginx.com/blog/creating-nginx-rewrite-rules/">Creating NGINX Rewrite Rules</a>
+            </li>
+                        <li>
+                <a href="https://www.nginx.com/blog/introduction-to-microservices/">Introduction to Microservices</a>
+            </li>
+                        <li>
+                <a href="https://www.nginx.com/blog/building-microservices-using-an-api-gateway/">Building Microservices: Using an API Gateway</a>
+            </li>
+                        <li>
+                <a href="https://www.nginx.com/blog/nginx-caching-guide/">A Guide to Caching with NGINX and NGINX Plus</a>
+            </li>
+                        <li>
+                <a href="https://www.nginx.com/blog/service-discovery-in-a-microservices-architecture/">Service Discovery in a Microservices Architecture</a>
+            </li>
+                    </ul>
+		</aside><aside id="nginx_theme_email_subscribe_widget-3" class="widget widget_nginx_theme_email_subscribe_widget">        <div class="email-subscribe-form-widget">
+            <form action="https://app-ab05.marketo.com/index.php/leadCapture/save" method="post" enctype="application/x-www-form-urlencoded">
+                <input type="email" name="Email" placeholder="STAY IN THE LOOP" required="" class="email_subscribe_form_email">
+                <button style="display: none;" id="email_subscribe_button"></button>
+                <button type="submit" class="email_subscribe_arrow"><div class="icon icon-arrow-disc" style="cursor: pointer;"></div></button>
+                <input type="hidden" name="_mkt_trk" value="id:990-FXF-735&amp;token:_mch-nginx.com-1463140348298-72846">
+                <input type="hidden" name="munchkinId" value="990-FXF-735">
+                <input type="hidden" name="formid" value="1544">
+                <input type="hidden" name="returnURL" value="https://www.nginx.com/newsletter-signup/confirmation/">
+            </form>
+        </div>
+                <script type="text/javascript">
+        	//autofill off for email
+			jQuery(document).ready(function(e) { 
+				setTimeout( function(){
+				 jQuery(".email_subscribe_form_email").val(""); 
+				},1000 );
+            });
+        </script>
+        
+		</aside></div></div>        <script type="text/javascript">
+        	jQuery(document).ready( function(){
+				jQuery(".category-list-more-button").click(function(e){
+					e.preventDefault();
+					jQuery(".blog-tags-modal-wrap").show();
+					return false;
+				});
+			});
+        </script>
+        </div><!-- #secondary -->
+
+	</div><!-- /.site-content-inner-->
+</div><!-- /#content -->
+
+
+<section class="pre-footer-cta-wrapper">
+	<div class="pre-footer-cta-inner">
+
+		<!-- button -->
+		<div class="pre-footer-cta-button">
+				<div class="nginx-theme-action-link-wrapper for-default-try has-icon">
+		<a class="nginx-theme-action-link for-default-try" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#free-trial"> Try NGINX Plus for free</a>			<div class="icon icon-arrow-disc" style="cursor: pointer;"></div>
+			</div>
+			</div>
+
+		<!-- button -->
+		<div class="pre-footer-cta-button">
+				<div class="nginx-theme-action-link-wrapper for-default-ask has-icon">
+		<a class="nginx-theme-action-link for-default-ask" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#contact-us"> Ask us a question</a>			<div class="icon icon-arrow-disc" style="cursor: pointer;"></div>
+			</div>
+			</div>
+
+		<!-- email signup field -->
+		<div class="default-pre-footer-cta-signup-wrapper">
+			
+			<form id="mf1" action="https://app-ab05.marketo.com/index.php/leadCapture/save" method="post" enctype="application/x-www-form-urlencoded" class="default-pre-footer-cta-signup">
+			<input type="email" name="Email" id="Email Address" placeholder="Sign up for newsletter" class="default-pre-footer-cta-signup-input" required="">
+			<button style="display: none;" id="prefooterdefbutton"></button>
+			<span class="home_cta_signup_btn" type="submit"><div class="icon icon-arrow-submit"></div></span>
+			<input name="_mkt_trk" type="hidden" value="id:990-FXF-735&amp;token:_mch-nginx.com-1463140348298-72846">
+<input name="munchkinId" type="hidden" value="990-FXF-735">
+<input name="formid" type="hidden" value="1544">
+<input name="returnURL" type="hidden" value="https://www.nginx.com/newsletter-signup/confirmation/">
+</form>		</div>
+		<script type="text/javascript">
+            //autofill off for email
+            jQuery(document).ready(function(e) {
+                setTimeout( function(){
+                 jQuery(".default-pre-footer-cta-signup-input").val(""); 
+                },1000 );
+            });
+        </script>
+	</div><!-- /.pre-footer-cta-inner -->
+</section><!-- /.pre-footer-cta-wrapper -->
+	<footer id="colophon" class="site-footer" role="contentinfo">
+		<div class="site-footer-inner">
+			<div class="footer-primary-nav">
+				<nav class="footer-menu-wrap" role="navigation">
+					<ul id="menu-footer-products" class="footer-menu"><li id="menu-item-3650" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-3650"><a href="https://www.nginx.com/products/">Products</a>
+<ul class="sub-menu">
+	<li id="menu-item-3652" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3652"><a href="https://www.nginx.com/products/">NGINX Plus</a></li>
+	<li id="menu-item-11931" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11931"><a href="https://www.nginx.com/products/technical-specs/">Technical Specifications</a></li>
+	<li id="menu-item-4100" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4100"><a href="https://www.nginx.com/products/feature-matrix/">Compare Versions</a></li>
+	<li id="menu-item-4101" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4101"><a href="https://www.nginx.com/products/pricing/">Price &amp; Buy</a></li>
+	<li id="menu-item-4104" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4104"><a href="https://www.nginx.com/products/nginx-plus-aws-old/">NGINX Plus for AWS</a></li>
+	<li id="menu-item-20887" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20887"><a href="https://www.nginx.com/products/nginx-plus-microsoft-azure/">NGINX Plus for Azure</a></li>
+	<li id="menu-item-20892" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20892"><a href="https://www.nginx.com/products/nginx-plus-google-cloud-platform/">NGINX Plus for Google Cloud Platform</a></li>
+</ul>
+</li>
+</ul>				</nav><!-- /.footer-menu-location -->
+				<nav class="footer-menu-wrap" role="navigation">
+					<ul id="menu-footer-solutions" class="footer-menu"><li id="menu-item-4128" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-4128"><a href="https://www.nginx.com/solutions/">Solutions</a>
+<ul class="sub-menu">
+	<li id="menu-item-4130" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4130"><a href="https://www.nginx.com/solutions/load-balancing/">Load Balancing</a></li>
+	<li id="menu-item-24967" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24967"><a href="https://www.nginx.com/solutions/adc/">Application Delivery Controller</a></li>
+	<li id="menu-item-24957" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24957"><a href="https://www.nginx.com/solutions/microservices/">Microservices</a></li>
+	<li id="menu-item-24962" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24962"><a href="https://www.nginx.com/solutions/cloud/">Move to the Cloud</a></li>
+	<li id="menu-item-4132" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4132"><a href="https://www.nginx.com/solutions/api-gateway/">API Gateway</a></li>
+	<li id="menu-item-4129" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4129"><a href="https://www.nginx.com/solutions/web-mobile-acceleration/">Web &amp; Mobile Acceleration</a></li>
+	<li id="menu-item-4131" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4131"><a href="https://www.nginx.com/solutions/application-security/">Application Security</a></li>
+	<li id="menu-item-4134" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4134"><a href="https://www.nginx.com/solutions/web-server/">Web Server</a></li>
+</ul>
+</li>
+</ul>				</nav><!-- /.footer-menu-location -->
+			</div>
+			<div class="footer-secondary-nav">
+				<nav class="footer-menu-wrap" role="navigation">
+					<ul id="menu-footer-resources-and-support" class="footer-menu"><li id="menu-item-4151" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-4151"><a href="https://www.nginx.com/resources/">Resources</a>
+<ul class="sub-menu">
+	<li id="menu-item-4153" class="menu-item menu-item-type-taxonomy menu-item-object-nx_info_types menu-item-4153"><a href="https://www.nginx.com/blog/nx_info_types/admin-guide/">Admin Guide</a></li>
+	<li id="menu-item-24977" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24977"><a href="https://www.nginx.com/resources/library/">Library</a></li>
+	<li id="menu-item-4154" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4154"><a href="https://www.nginx.com/resources/webinars/">Webinars</a></li>
+	<li id="menu-item-24982" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24982"><a href="https://www.nginx.com/resources/events/">Events</a></li>
+	<li id="menu-item-4155" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4155"><a href="https://www.nginx.com/resources/more/">Community Resources</a></li>
+	<li id="menu-item-24992" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-24992"><a href="https://www.nginx.com/resources/wiki/">Community Wiki</a></li>
+	<li id="menu-item-4156" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4156"><a href="https://www.nginx.com/faqs/">FAQ</a></li>
+</ul>
+</li>
+<li id="menu-item-5548" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-5548"><a href="https://www.nginx.com/support-services/">Support &amp; Services</a>
+<ul class="sub-menu">
+	<li id="menu-item-5567" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5567"><a href="https://www.nginx.com/support/">Support</a></li>
+	<li id="menu-item-4150" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4150"><a href="https://www.nginx.com/services/">Professional Services</a></li>
+	<li id="menu-item-4149" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4149"><a href="http://university.nginx.com/">Training</a></li>
+</ul>
+</li>
+</ul>				</nav><!-- /.footer-menu-location -->
+				<nav class="footer-menu-wrap" role="navigation">
+					<ul id="menu-footer-extras" class="footer-menu"><li id="menu-item-4157" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-4157"><a href="https://www.nginx.com/company/">Company</a>
+<ul class="sub-menu">
+	<li id="menu-item-4158" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4158"><a href="https://www.nginx.com/company/">About Us</a></li>
+	<li id="menu-item-4159" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4159"><a href="https://www.nginx.com/jobs/">Careers</a></li>
+	<li id="menu-item-4160" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4160"><a href="https://www.nginx.com/partners/">Partners</a></li>
+	<li id="menu-item-4162" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4162"><a href="https://www.nginx.com/leadership-team/">Leadership</a></li>
+	<li id="menu-item-5550" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5550"><a href="https://www.nginx.com/press/">Press</a></li>
+</ul>
+</li>
+<li id="menu-item-4126" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4126"><a href="https://www.nginx.com/customers/">Customers</a></li>
+<li id="menu-item-4127" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4127"><a href="https://www.nginx.com/blog/">Blog</a></li>
+</ul>				</nav><!-- /.footer-menu-location -->
+			</div>
+			<div class="footer-connect-nav">
+				<div class="footer-social">
+					<span class="footer-head">Connect With Us</span>
+					<ul>
+						<li><a href="https://www.facebook.com/nginxinc" class="icon-facebook">facebook</a></li>
+						<li><a href="https://twitter.com/nginx" class="icon-twitter">twitter</a></li>
+						<li><a href="http://www.linkedin.com/company/nginx" class="icon-linkedin">linkedin</a></li>
+						<li style="margin-right:-3px;margin-left:2px;"><a href="https://www.youtube.com/user/NginxInc"><img style="width:26px;height:auto;" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/yt-nginx@2x.png"></a></li>
+						<li><a href="https://www.nginx.com/feed/" class="icon-rss">rss</a></li>
+					</ul>
+				</div>
+				<div class="footer-email-signup">
+					<span class="footer-head">Stay in the Loop</span>
+					
+					<form id="mf1" action="https://app-ab05.marketo.com/index.php/leadCapture/save" method="post" enctype="application/x-www-form-urlencoded" class="regpg-main-form-element">
+					<input type="email" name="Email" id="Email Address" placeholder="enter your email" class="footer-email-signup-input" required="">
+					<button style="display: none;" id="footernewsletter"></button>
+					<div type="submit" class="footer_newsletter_arrow"><div class="icon icon-arrow-submit"></div></div>
+					<input name="_mkt_trk" type="hidden" value="id:990-FXF-735&amp;token:_mch-nginx.com-1463140348298-72846">
+<input name="munchkinId" type="hidden" value="990-FXF-735">
+<input name="formid" type="hidden" value="1544">
+<input name="returnURL" type="hidden" value="https://www.nginx.com/newsletter-signup/confirmation/">
+</form>				</div>
+				<script type="text/javascript">
+                    //autofill off for email
+                    jQuery(document).ready(function(e) {
+                        setTimeout( function(){
+                         jQuery(".footer-email-signup-input").val(""); 
+                        },1000 );
+                    });
+                </script>
+			</div>
+
+			<div class="site-info">
+				© NGINX Inc. · 85 Federal St. San Francisco, CA 94107 · 1-800-915-9122 · <a href="https://www.nginx.com/privacy-policy/">Privacy Policy</a>			</div><!-- /.site-info -->
+
+		</div><!-- /.site-footer-inner -->
+	</footer><!-- /#colophon -->
+</div><!-- /#page -->
+
+<div class="free-trial-wrap">
+	<div class="free-trial-inner-wrap">
+		<div class="free-trial-inner">
+			<h2 class="free-trial-title">TRY NGINX PLUS!</h2>
+			<h4>Download a 30 day free trial and see what you've been missing.</h4>
+			
+			<form id="mf1" action="https://app-ab05.marketo.com/index.php/leadCapture/save" method="post" enctype="application/x-www-form-urlencoded" class="regpg-main-form-element nginx_free_trial_form" style="position: relative;">
+			<input class="mf3_form_fname" type="text" name="FirstName" id="First Name" placeholder="First Name" required="">
+			<input class="mf3_form_lname" type="text" name="LastName" id="Last Name" placeholder="Last Name" required="">
+			<input class="mf3_form_email" type="email" name="Email" id="Email Address" placeholder="Email" required="">
+			<input class="mf3_form_company" type="text" name="Company" id="Company" placeholder="Company" required="">
+			<input class="mf3_form_job_title" type="text" name="Title" id="Title" placeholder="Job Title" required="">
+			<input class="mf3_form_phone" type="tel" name="Phone" id="Phone Number" placeholder="Phone Number" required="">
+			    <select id="Country" name="Country" tabindex="-1" class="select2-hidden-accessible" aria-hidden="true">
+        <option value="US">United States</option>
+        <option value="CA">Canada</option>
+        <option value="AF">Afghanistan</option>
+        <option value="AX">Åland Islands</option>
+        <option value="AL">Albania</option>
+        <option value="DZ">Algeria</option>
+        <option value="AD">Andorra</option>
+        <option value="AO">Angola</option>
+        <option value="AI">Anguilla</option>
+        <option value="AQ">Antarctica</option>
+        <option value="AG">Antigua and Barbuda</option>
+        <option value="AR">Argentina</option>
+        <option value="AM">Armenia</option>
+        <option value="AW">Aruba</option>
+        <option value="AU">Australia</option>
+        <option value="AT">Austria</option>
+        <option value="AZ">Azerbaijan</option>
+        <option value="BS">Bahamas</option>
+        <option value="BH">Bahrain</option>
+        <option value="BD">Bangladesh</option>
+        <option value="BB">Barbados</option>
+        <option value="BY">Belarus</option>
+        <option value="BE">Belgium</option>
+        <option value="BZ">Belize</option>
+        <option value="BJ">Benin</option>
+        <option value="BM">Bermuda</option>
+        <option value="BT">Bhutan</option>
+        <option value="BO">Bolivia</option>
+        <option value="BA">Bosnia and Herzegovina</option>
+        <option value="BW">Botswana</option>
+        <option value="BV">Bouvet Island</option>
+        <option value="BR">Brazil</option>
+        <option value="IO">British Indian Ocean Territory</option>
+        <option value="BN">Brunei Darussalam</option>
+        <option value="BG">Bulgaria</option>
+        <option value="BF">Burkina Faso</option>
+        <option value="BI">Burundi</option>
+        <option value="KH">Cambodia</option>
+        <option value="CM">Cameroon</option>
+        <option value="CV">Cape Verde</option>
+        <option value="KY">Cayman Islands</option>
+        <option value="CF">Central African Republic</option>
+        <option value="TD">Chad</option>
+        <option value="CL">Chile</option>
+        <option value="CN">China</option>
+        <option value="CX">Christmas Island</option>
+        <option value="CC">Cocos (Keeling) Islands</option>
+        <option value="CO">Colombia</option>
+        <option value="KM">Comoros</option>
+        <option value="CG">Congo</option>
+        <option value="CD">Congo, The Democratic Republic of The</option>
+        <option value="CK">Cook Islands</option>
+        <option value="CR">Costa Rica</option>
+        <option value="CI">Cote D\'ivoire</option>
+        <option value="HR">Croatia</option>
+        <option value="CU">Cuba</option>
+        <option value="CY">Cyprus</option>
+        <option value="CZ">Czech Republic</option>
+        <option value="DK">Denmark</option>
+        <option value="DJ">Djibouti</option>
+        <option value="DM">Dominica</option>
+        <option value="DO">Dominican Republic</option>
+        <option value="EC">Ecuador</option>
+        <option value="EG">Egypt</option>
+        <option value="SV">El Salvador</option>
+        <option value="GQ">Equatorial Guinea</option>
+        <option value="ER">Eritrea</option>
+        <option value="EE">Estonia</option>
+        <option value="ET">Ethiopia</option>
+        <option value="FK">Falkland Islands (Malvinas)</option>
+        <option value="FO">Faroe Islands</option>
+        <option value="FJ">Fiji</option>
+        <option value="FI">Finland</option>
+        <option value="FR">France</option>
+        <option value="GF">French Guiana</option>
+        <option value="PF">French Polynesia</option>
+        <option value="TF">French Southern Territories</option>
+        <option value="GA">Gabon</option>
+        <option value="GM">Gambia</option>
+        <option value="GE">Georgia</option>
+        <option value="DE">Germany</option>
+        <option value="GH">Ghana</option>
+        <option value="GI">Gibraltar</option>
+        <option value="GR">Greece</option>
+        <option value="GL">Greenland</option>
+        <option value="GD">Grenada</option>
+        <option value="GP">Guadeloupe</option>
+        <option value="GU">Guam</option>
+        <option value="GT">Guatemala</option>
+        <option value="GG">Guernsey</option>
+        <option value="GN">Guinea</option>
+        <option value="GW">Guinea-Bissau</option>
+        <option value="GY">Guyana</option>
+        <option value="HT">Haiti</option>
+        <option value="HM">Heard Island and McDonald Islands</option>
+        <option value="VA">Holy See (Vatican City State)</option>
+        <option value="HN">Honduras</option>
+        <option value="HK">Hong Kong</option>
+        <option value="HU">Hungary</option>
+        <option value="IS">Iceland</option>
+        <option value="IN">India</option>
+        <option value="ID">Indonesia</option>
+        <option value="IR">Iran, Islamic Republic of</option>
+        <option value="IQ">Iraq</option>
+        <option value="IE">Ireland</option>
+        <option value="IM">Isle of Man</option>
+        <option value="IL">Israel</option>
+        <option value="IT">Italy</option>
+        <option value="JM">Jamaica</option>
+        <option value="JP">Japan</option>
+        <option value="JE">Jersey</option>
+        <option value="JO">Jordan</option>
+        <option value="KZ">Kazakhstan</option>
+        <option value="KE">Kenya</option>
+        <option value="KI">Kiribati</option>
+        <option value="KP">Korea, Democratic People\'s Republic of</option>
+        <option value="KR">Korea, Republic of</option>
+        <option value="KW">Kuwait</option>
+        <option value="KG">Kyrgyzstan</option>
+        <option value="LA">Lao People\'s Democratic Republic</option>
+        <option value="LV">Latvia</option>
+        <option value="LB">Lebanon</option>
+        <option value="LS">Lesotho</option>
+        <option value="LR">Liberia</option>
+        <option value="LY">Libya</option>
+        <option value="LI">Liechtenstein</option>
+        <option value="LT">Lithuania</option>
+        <option value="LU">Luxembourg</option>
+        <option value="MO">Macao</option>
+        <option value="MK">Macedonia, The Former Yugoslav Republic of</option>
+        <option value="MG">Madagascar</option>
+        <option value="MW">Malawi</option>
+        <option value="MY">Malaysia</option>
+        <option value="MV">Maldives</option>
+        <option value="ML">Mali</option>
+        <option value="MT">Malta</option>
+        <option value="MQ">Martinique</option>
+        <option value="MR">Mauritania</option>
+        <option value="MU">Mauritius</option>
+        <option value="YT">Mayotte</option>
+        <option value="MX">Mexico</option>
+        <option value="MD">Moldova, Republic of</option>
+        <option value="MC">Monaco</option>
+        <option value="MN">Mongolia</option>
+        <option value="ME">Montenegro</option>
+        <option value="MS">Montserrat</option>
+        <option value="MA">Morocco</option>
+        <option value="MZ">Mozambique</option>
+        <option value="MM">Myanmar</option>
+        <option value="NA">Namibia</option>
+        <option value="NR">Nauru</option>
+        <option value="NP">Nepal</option>
+        <option value="NL">Netherlands</option>
+        <option value="NC">New Caledonia</option>
+        <option value="NZ">New Zealand</option>
+        <option value="NI">Nicaragua</option>
+        <option value="NE">Niger</option>
+        <option value="NG">Nigeria</option>
+        <option value="NU">Niue</option>
+        <option value="NF">Norfolk Island</option>
+        <option value="NO">Norway</option>
+        <option value="OM">Oman</option>
+        <option value="PK">Pakistan</option>
+        <option value="PW">Palau</option>
+        <option value="PS">Palestine</option>
+        <option value="PA">Panama</option>
+        <option value="PG">Papua New Guinea</option>
+        <option value="PY">Paraguay</option>
+        <option value="PE">Peru</option>
+        <option value="PH">Philippines</option>
+        <option value="PN">Pitcairn</option>
+        <option value="PL">Poland</option>
+        <option value="PT">Portugal</option>
+        <option value="PR">Puerto Rico</option>
+        <option value="QA">Qatar</option>
+        <option value="RE">Reunion</option>
+        <option value="RO">Romania</option>
+        <option value="RU">Russian Federation</option>
+        <option value="RW">Rwanda</option>
+        <option value="SH">Saint Helena</option>
+        <option value="KN">Saint Kitts and Nevis</option>
+        <option value="LC">Saint Lucia</option>
+        <option value="PM">Saint Pierre and Miquelon</option>
+        <option value="VC">Saint Vincent and The Grenadines</option>
+        <option value="WS">Samoa</option>
+        <option value="SM">San Marino</option>
+        <option value="ST">Sao Tome and Principe</option>
+        <option value="SA">Saudi Arabia</option>
+        <option value="SN">Senegal</option>
+        <option value="RS">Serbia</option>
+        <option value="SC">Seychelles</option>
+        <option value="SL">Sierra Leone</option>
+        <option value="SG">Singapore</option>
+        <option value="SK">Slovakia</option>
+        <option value="SI">Slovenia</option>
+        <option value="SB">Solomon Islands</option>
+        <option value="SO">Somalia</option>
+        <option value="ZA">South Africa</option>
+        <option value="GS">South Georgia and The South Sandwich Islands</option>
+        <option value="ES">Spain</option>
+        <option value="LK">Sri Lanka</option>
+        <option value="SD">Sudan</option>
+        <option value="SR">Suriname</option>
+        <option value="SJ">Svalbard and Jan Mayen</option>
+        <option value="SZ">Swaziland</option>
+        <option value="SE">Sweden</option>
+        <option value="CH">Switzerland</option>
+        <option value="SY">Syrian Arab Republic</option>
+        <option value="TW">Taiwan</option>
+        <option value="TJ">Tajikistan</option>
+        <option value="TZ">Tanzania, United Republic of</option>
+        <option value="TH">Thailand</option>
+        <option value="TL">Timor-Leste</option>
+        <option value="TG">Togo</option>
+        <option value="TK">Tokelau</option>
+        <option value="TO">Tonga</option>
+        <option value="TT">Trinidad and Tobago</option>
+        <option value="TN">Tunisia</option>
+        <option value="TR">Turkey</option>
+        <option value="TM">Turkmenistan</option>
+        <option value="TC">Turks and Caicos Islands</option>
+        <option value="TV">Tuvalu</option>
+        <option value="UG">Uganda</option>
+        <option value="UA">Ukraine</option>
+        <option value="AE">United Arab Emirates</option>
+        <option value="GB">United Kingdom</option>
+        <option value="UY">Uruguay</option>
+        <option value="UZ">Uzbekistan</option>
+        <option value="VU">Vanuatu</option>
+        <option value="VE">Venezuela</option>
+        <option value="VN">Vietnam</option>
+        <option value="VG">Virgin Islands, British</option>
+        <option value="WF">Wallis and Futuna</option>
+        <option value="EH">Western Sahara</option>
+        <option value="YE">Yemen</option>
+        <option value="ZM">Zambia</option>
+        <option value="ZW">Zimbabwe</option>
+    </select><span class="select2 select2-container select2-container--default" dir="ltr" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single free-trial-dropdown" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-labelledby="select2-Country-container"><span class="select2-selection__rendered" id="select2-Country-container"><span class="select2-selection__placeholder">Choose Country</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+    
+			<input type="text" id="name-tp" name="NameTp">
+			<button id="submit_free_trial" type="submit">START MY FREE TRIAL <span class="icon icon-arrow-disc" style="cursor: pointer;"></span></button>
+			<input name="_mkt_trk" type="hidden" value="id:990-FXF-735&amp;token:_mch-nginx.com-1463140348298-72846">
+<input name="munchkinId" type="hidden" value="990-FXF-735">
+<input name="formid" type="hidden" value="1543">
+<input name="returnURL" type="hidden" value="https://www.nginx.com/thank-you-free-trial/">
+</form>			<div class="terms-of-use">We'll <a href="https://www.nginx.com/privacy-policy/">take care of your data.</a> </div>
+			<div class="close-button">X</div>
+		</div>
+	</div>
+</div>
+<div class="contact-us-wrap">
+	<div class="contact-us-inner-wrap">
+		<div class="contact-us-inner">
+		<!--<div style="height:150px; background:#99CC00;"></div>-->
+			<div id="contact-submit-form-wrapper">
+				<!--<h2 class="contact-us-title">Contact Sales</h2>-->
+				<h2 class="contact-us-title">Got a question for the NGINX team?</h2>
+				<div style="text-align:center;margin-bottom: 0.5em;"><span class="contact-us-back-btn">&lt; back</span></div>
+				
+				<form id="mf2" action="https://app-ab05.marketo.com/index.php/leadCapture/save" method="post" enctype="application/x-www-form-urlencoded" class="regpg-main-form-element nginx_contact_sales_pop" style="position: relative;">
+				<input class="nginx_contact_fname" type="text" name="FirstName" id="First Name" placeholder="First Name" required="">
+				<input class="nginx_contact_lname" type="text" name="LastName" id="Last Name" placeholder="Last Name" required="">
+				<input class="nginx_contact_email" type="email" name="Email" id="Email Address" placeholder="Email" required="">
+				<input class="nginx_contact_company" type="text" name="Company" id="Company" placeholder="Company" required="">
+				<input class="nginx_contact_phone" type="tel" name="Phone" id="Phone Number" placeholder="Phone Number" required=""><textarea class="nginx_contact_inq" name="Inquiry_Details__c" id="Inquiry_Details__c" placeholder="Inquiry details"></textarea>
+				<input type="text" id="name-tp" name="NameTp">
+				<button type="submit" id="nginx_contact_sales_pop_submit">SUBMIT <span class="icon icon-arrow-disc" style="cursor: pointer;"></span></button>
+				<input name="_mkt_trk" type="hidden" value="id:990-FXF-735&amp;token:_mch-nginx.com-1463140348298-72846">
+<input name="munchkinId" type="hidden" value="990-FXF-735">
+<input name="formid" type="hidden" value="1542">
+<input name="returnURL" type="hidden" value="https://www.nginx.com/thank-you-contact-sales/">
+</form>			</div>
+			<div id="contact-options-wrapper">
+				<h2 class="contact-us-title">Got a question for the NGINX team?</h2>
+				<div class="contact-opt-item"><a id="ngx_contact_sales_call_us" href="tel:+18009159122"><strong>CALL US</strong> AT 1-800-915-9122</a></div>
+				<div class="contact-opt-item" id="contact_opt_item_live_chat" style="display: none;"><a id="contact_opt_btn_live_chat" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#">START A <strong>LIVE CHAT</strong></a></div>
+				<div class="contact-opt-item"><a id="contact_opt_btn_send_msg" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#">SEND US A <strong>MESSAGE</strong></a></div>
+			</div>
+			<div class="close-button">X</div>
+		</div>
+	</div>
+</div>
+
+
+<style type="text/css">
+	.contact-us-inner{ height:auto!important; }
+	.contact-us-back-btn {
+	  color: #b9b9ba;
+	  cursor: pointer;
+	  font-weight: bold;
+	  left: 5px;
+	  position: absolute;
+	  top: 5px;
+	}
+	#contact-submit-form-wrapper{
+		display:none;
+	}
+	#contact-submit-form-wrapper .contact-us-title{
+		margin-bottom:0;
+	}
+	.contact-opt-item{
+		border: 0;
+		font-family: inherit;
+		font-size: 100%;
+		font-style: inherit;
+		font-weight: inherit;
+		margin: 0;
+		outline: 0;
+		padding: 0;
+		vertical-align: baseline;	
+		box-sizing: inherit;
+		margin-bottom:19px;
+	}
+	.contact-opt-item:hover{
+		background:#EFEDEC;
+	}
+	.contact-opt-item a{
+		color: #222120;
+		text-decoration: none;
+		border: 2px solid #F4A846;
+		border-radius: 4px;
+		display: block;
+		font-weight: 400;
+		padding: 8px 9px;
+		text-align: center;
+		transition: all 0.1s ease;
+		font-family: inherit;
+		font-size: 100%;
+		font-style: inherit;
+		margin: 0;
+		outline: 0;
+		vertical-align: baseline;
+		box-sizing: inherit;
+	}
+	#contact_opt_item_live_chat{ display:none;}
+</style><script type="text/javascript">
+(function() {
+	var didInit = false;
+	function initMunchkin() {
+		if(didInit === false) {
+			didInit = true;
+			Munchkin.init('990-FXF-735');
+		}
+	}
+	var s = document.createElement('script');
+	s.type = 'text/javascript';
+	s.async = true;
+	s.src = '//munchkin.marketo.net/munchkin.js';
+	s.onreadystatechange = function() {
+		if (this.readyState == 'complete' || this.readyState == 'loaded') {
+			initMunchkin();
+		}
+	};
+	s.onload = initMunchkin;
+	document.getElementsByTagName('head')[0].appendChild(s);
+})();
+</script>
+    <style>
+        .mCSB_inside>.mCSB_container{margin-right: 0 !important;}
+    </style>
+                <script type="text/javascript">
+            (function($){
+        $(document).ready(function(){
+                
+                var R10WafHeroBannerCTA = 0;
+                $( document ).on( 'hero_cta_conductrics_init', function() {
+                        if( R10WafHeroBannerCTA == 0 )
+                        {
+                                //conductrics 
+                                $.conductrics({
+                                        owner: 'owner_ZGRnZVkXv',
+                                        apiKey: 'api-tfNXgjsgBfTGvJJawzTsClFw',
+                                        agent: 'r10-waf-hero',
+                                        baseUrl: '//api.conductrics.com',
+                                                
+                                });				
+                                $.conductrics('get-decision', {choices:['secure-scale-ease','secure-reliable-delivery']}, function(selection) {
+                                        //alert( "Conductrics Decision: " + selection.code );
+                                        //console.log(selection.code);
+                                        switch (selection.code) {
+                                                case 'secure-scale-ease':
+                                                        {
+                                                                $(".r10-banner #r10_hero_heading").html('Secure and Scale Your Applications with Ease');
+                                                                $(".r10-banner #r10_hero_sub_heading").html('Now with a powerful web application firewall, custom modules, and more');
+                                                                $(".r10-banner #r10_hero_button").html('Learn More');
+                                                                break;
+                                                        }
+                                                case 'secure-reliable-delivery':
+                                                        {
+                                                                $(".r10-banner #r10_hero_heading").html('Secure and Reliable Delivery for your Applications');
+                                                                $(".r10-banner #r10_hero_sub_heading").html('Now with a powerful web application firewall, better network integration, and more');
+                                                                $(".r10-banner #r10_hero_button").html('Explore R10');
+                                                                break;
+                                                        }								
+                                                                        
+                                        }
+                                });	
+                                //end conductrics					
+                                
+                                $(".r10-banner #hero_banner_cta_btn").click(function(e){	
+                                        
+                                        e.preventDefault();														
+                                        //conductrics 
+                                        $.conductrics({
+                                                owner: 'owner_ZGRnZVkXv',
+                                                apiKey: 'api-tfNXgjsgBfTGvJJawzTsClFw',
+                                                agent: 'r10-waf-hero',
+                                                baseUrl: '//api.conductrics.com',
+                                                        
+                                        });					
+                                        var HREF = $(this).data('href');
+                                        $.conductrics('send-goal', {goal:"cta-click"} );
+                                        setTimeout( function() { window.location.href = HREF;}, 2000 );
+                                        
+                                        
+                                });
+                        }
+                        R10WafHeroBannerCTA++;
+                } );
+        
+        });//end document ready
+})( jQuery );            </script>
+            <div class="blog-tags-modal-wrap">
+	<div class="blog-tags-modal-inner-wrap">
+		<div class="blog-tags-modal-inner">
+			<div class="close-button" id="blogpg-tag-filter-close-btn">☓</div>
+			<h2 class="blog-tags-modal-title">Tags</h2>
+			<div class="blog-tag-box">
+						<ul class="show-tags">
+			<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/3betgaming/">
+						
+							3BetGaming (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/3scale/">
+						
+							3scale (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/5xx-errors/">
+						
+							5xx errors (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/ab-testing/">
+						
+							A/B testing (2)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/agile-development/">
+						
+							agile development (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/alert/">
+						
+							alert (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/amazon-linux/">
+						
+							Amazon Linux (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/amazon-route-53/">
+						
+							Amazon Route 53 (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/amazon-web-services-aws/">
+						
+							Amazon Web Serv.. (12)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/analysis/">
+						
+							analysis (0)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/ansible/">
+						
+							Ansible (3)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/apache-tomcat/">
+						
+							Apache Tomcat (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/api/">
+						
+							API (7)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/api-gateway/">
+						
+							API gateway (3)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/apis/">
+						
+							APIs (1)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/application-delivery-controller-adc/">
+						
+							application deli.. (7)						</a>
+					</li>
+					<li class="show-tag">						<a href="https://www.nginx.com/blog/tag/application-delivery-platform/">
+						
+							application deli.. (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-development/">
+						
+							application deve.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-health-checks/">
+						
+							application hea.. (21)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-performance/">
+						
+							application per.. (10)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-performance-management/">
+						
+							Application Perf.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-performance-management-apm/">
+						
+							application perf.. (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/application-tracing/">
+						
+							application trac.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/architecture/">
+						
+							architecture (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/authentication/">
+						
+							authentication (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/autom/">
+						
+							autom (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/automation/">
+						
+							automation (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/automattic/">
+						
+							Automattic (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/bash/">
+						
+							BASH (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/benchmark-testing/">
+						
+							benchmark testing (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/benchmarking/">
+						
+							benchmarking (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/beta/">
+						
+							beta (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/black-friday/">
+						
+							Black Friday (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/byte-range-caching/">
+						
+							byte-range caching (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/c10k-problem/">
+						
+							C10K problem (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cache-placement/">
+						
+							cache placement (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/caching/">
+						
+							caching (14)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/caching-static-files/">
+						
+							caching static f.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/case-study/">
+						
+							case study (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/centos/">
+						
+							CentOS (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/certificate-authority-ca/">
+						
+							Certificate Auth.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cgi/">
+						
+							CGI (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/chef/">
+						
+							Chef (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cloud/">
+						
+							cloud (13)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cloud-load-balancer/">
+						
+							cloud load balan.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cloudflare/">
+						
+							CloudFlare (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/community/">
+						
+							Community (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/configuration-analysis/">
+						
+							configuration an.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/configuration-example/">
+						
+							configuration e.. (25)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/consul/">
+						
+							Consul (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/consulting/">
+						
+							consulting (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/containers/">
+						
+							containers (11)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/content-caching/">
+						
+							content caching (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/content-delivery-network-cdn/">
+						
+							content delivery.. (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/continuous-delivery/">
+						
+							continuous deliv.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/continuous-integration-ci/">
+						
+							continuous integ.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/coreos/">
+						
+							CoreOS (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/couchbase/">
+						
+							Couchbase (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/customer-support/">
+						
+							customer support (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve/">
+						
+							CVE (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2014-0224/">
+						
+							CVE-2014-0224 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2014-3566/">
+						
+							CVE-2014-3566 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2014-6271/">
+						
+							CVE-2014-6271 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2015-1635/">
+						
+							CVE-2015-1635 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2015-1793/">
+						
+							CVE-2015-1793 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2015-8562/">
+						
+							CVE-2015-8562 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2016-0800/">
+						
+							CVE-2016-0800 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/cve-2016-1546/">
+						
+							CVE-2016-1546 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dashboard/">
+						
+							dashboard (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/database-server/">
+						
+							database server (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/datadog/">
+						
+							Datadog (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ddos-distributed-denial-of-service/">
+						
+							DDoS (distribute.. (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/debug-server/">
+						
+							debug server (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/debugging/">
+						
+							debugging (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/deploy/">
+						
+							deploy (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/development/">
+						
+							development (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/devnation/">
+						
+							DevNation (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/devops/">
+						
+							DevOps (32)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/direct-server-return-dsr/">
+						
+							Direct Server Re.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/discovery-education/">
+						
+							Discovery Educat.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dns-srv-records/">
+						
+							DNS SRV records (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/docker/">
+						
+							Docker (24)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dockercon/">
+						
+							DockerCon (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/draining/">
+						
+							draining (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dropbox/">
+						
+							Dropbox (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/drown/">
+						
+							DROWN (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/drupal/">
+						
+							Drupal (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dynamic-modules/">
+						
+							dynamic modules (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dynamic-reconfiguration/">
+						
+							dynamic reconfig.. (9)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/dynatrace/">
+						
+							Dynatrace (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ebook/">
+						
+							ebook (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ecommerce/">
+						
+							ecommerce (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/elastic-compute-cloud-ec2/">
+						
+							Elastic Compute .. (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/elastic-load-balancing-elb/">
+						
+							Elastic Load Bal.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/elasticsearch/">
+						
+							Elasticsearch (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/elk-stack/">
+						
+							ELK stack (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/emoji/">
+						
+							emoji (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ephemeral-port-exhaustion/">
+						
+							ephemeral port e.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/etcd/">
+						
+							etcd (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/event-loop/">
+						
+							event loop (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/expedia/">
+						
+							Expedia (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/exploit/">
+						
+							exploit (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/f5/">
+						
+							F5 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/fabric-model-mra/">
+						
+							Fabric Model in .. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/facebook/">
+						
+							Facebook (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/fastcgi/">
+						
+							FastCGI (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/four-tier-application-architecture/">
+						
+							four-tier applic.. (1)						</a>
+					</li>
+					</ul><ul><li>						<a href="https://www.nginx.com/blog/tag/freebsd/">
+						
+							FreeBSD (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/galera-cluster/">
+						
+							Galera Cluster (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/gartner/">
+						
+							Gartner (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/github/">
+						
+							GitHub (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/global-load-balancing-glb/">
+						
+							global load bala.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/global-server-load-balancing-glsb/">
+						
+							global server lo.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/globo-com/">
+						
+							Globo.com (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/go/">
+						
+							Go (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/google-chrome/">
+						
+							Google Chrome (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/google-cloud-engine/">
+						
+							Google Cloud Eng.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/google-cloud-platform/">
+						
+							Google Cloud Pla.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/google-plus/">
+						
+							Google Plus (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/gpg-key/">
+						
+							GPG key (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/hardware-replacement/">
+						
+							hardware replace.. (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/hashicorp/">
+						
+							HashiCorp (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/heartbleed/">
+						
+							Heartbleed (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/high-availability/">
+						
+							high availability (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/high-availability-ha/">
+						
+							high availabilit.. (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/high-performance/">
+						
+							high performance (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/hp-moonshot/">
+						
+							HP Moonshot (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/hsts-http-strict-transport-security/">
+						
+							HSTS (HTTP Stric.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/http-live-streaming-hls/">
+						
+							HTTP Live Stream.. (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/http2/">
+						
+							HTTP/2 (25)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ibm-power/">
+						
+							IBM POWER (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/idempotent/">
+						
+							idempotent (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/identity/">
+						
+							identity (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ignitionone/">
+						
+							IgnitionOne (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/image-filter-module/">
+						
+							Image-Filter mod.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/immutable-infrastructure/">
+						
+							immutable infras.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/infrastructure-as-code/">
+						
+							Infrastructure a.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/inkabinka/">
+						
+							InkaBinka (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/inter-process-communication-ipc/">
+						
+							inter-process co.. (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/internet-of-things-iot/">
+						
+							Internet of Thin.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/interop/">
+						
+							Interop (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ip-transparency/">
+						
+							IP Transparency (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/java/">
+						
+							Java (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/javascript/">
+						
+							JavaScript (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/jboss/">
+						
+							JBoss (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/jenkins/">
+						
+							Jenkins (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/joomla/">
+						
+							Joomla (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/json-web-token-jwt/">
+						
+							JSON Web Token (.. (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/keepalive/">
+						
+							keepalive (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/keepalive-connections/">
+						
+							keepalive connec.. (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/kibana/">
+						
+							Kibana (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/kong/">
+						
+							Kong (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/kubecon/">
+						
+							KubeCon (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/kubernetes/">
+						
+							Kubernetes (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/layer-4/">
+						
+							Layer 4 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/layer-7/">
+						
+							Layer 7 (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ldap/">
+						
+							LDAP (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/lets-encrypt/">
+						
+							Let's Encrypt (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/librato/">
+						
+							Librato (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/lightning-talks/">
+						
+							lightning talks (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/live-activity-monitoring/">
+						
+							live activity m.. (14)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/load-balancing/">
+						
+							load balancing (56)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/logstash/">
+						
+							Logstash (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/lua/">
+						
+							Lua (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/management/">
+						
+							management (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/management-and-monitoring/">
+						
+							management and m.. (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/mashape/">
+						
+							Mashape (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/maxcdn/">
+						
+							MaxCDN (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/micro-caching/">
+						
+							micro-caching (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microcaching/">
+						
+							microcaching (16)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microservices/">
+						
+							microservices (43)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microservices-architecture/">
+						
+							microservices ar.. (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microsoft-azure/">
+						
+							Microsoft Azure (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microsoft-exchange/">
+						
+							Microsoft Exchange (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/microsoft-threat-management-gateway-tmg/">
+						
+							Microsoft Threat.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/model-view-controller-mvc/">
+						
+							Model View Contr.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/modern-web/">
+						
+							modern web (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/modsecurity-web-application-firewall-waf/">
+						
+							ModSecurity web .. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/monitoring/">
+						
+							monitoring (10)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/monitoring-and-management/">
+						
+							monitoring and m.. (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/monolithic-application/">
+						
+							monolithic appli.. (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/monolithic-architecture/">
+						
+							monolithic archi.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/montana/">
+						
+							Montana (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/mulesoft/">
+						
+							MuleSoft (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/multiple-application-servers/">
+						
+							multiple applica.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/multiplexing/">
+						
+							multiplexing (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/mysql/">
+						
+							MySQL (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/netflix/">
+						
+							Netflix (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/new-relic/">
+						
+							New Relic (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/news/">
+						
+							News (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginscript/">
+						
+							nginScript (11)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx/">
+						
+							NGINX (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-amplify/">
+						
+							NGINX Amplify (12)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-award/">
+						
+							NGINX award (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-core-training/">
+						
+							NGINX Core train.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-events/">
+						
+							NGINX events (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-innovators-program/">
+						
+							NGINX Innovators.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-market-penetration/">
+						
+							NGINX market pen.. (9)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-microservices-reference-architecture/">
+						
+							NGINX Microserv.. (10)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus/">
+						
+							NGINX Plus (122)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-api/">
+						
+							NGINX Plus API (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-on-amazon-cloud-quick-start/">
+						
+							NGINX Plus on th.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-10/">
+						
+							NGINX Plus Relea.. (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-11/">
+						
+							NGINX Plus Relea.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-3/">
+						
+							NGINX Plus Relea.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-4/">
+						
+							NGINX Plus Relea.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-5/">
+						
+							NGINX Plus Relea.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-6/">
+						
+							NGINX Plus Relea.. (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-7/">
+						
+							NGINX Plus Relea.. (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-8/">
+						
+							NGINX Plus Relea.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-release-9/">
+						
+							NGINX Plus Relea.. (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-plus-repository/">
+						
+							NGINX Plus repos.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-release/">
+						
+							NGINX release (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-user-summit/">
+						
+							NGINX User Summit (6)						</a>
+					</li>
+					</ul><ul><li>						<a href="https://www.nginx.com/blog/tag/nginx-user-survey/">
+						
+							NGINX user survey (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-wiki/">
+						
+							nginx wiki (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-conf/">
+						
+							nginx.conf (15)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-conf-2015/">
+						
+							nginx.conf 2015 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/nginx-conf-2016/">
+						
+							nginx.conf 2016 (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/node-js/">
+						
+							Node.js (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/oreilly/">
+						
+							O'Reilly (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/oauth/">
+						
+							OAuth (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/open-source/">
+						
+							open source (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/openid-connect/">
+						
+							OpenID Connect (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/openshift/">
+						
+							OpenShift (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/openssl/">
+						
+							OpenSSL (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/openstack/">
+						
+							OpenStack (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/openstack-heat/">
+						
+							OpenStack Heat (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/optimizations/">
+						
+							optimizations (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/oracle-e-business-suite/">
+						
+							Oracle E-Busines.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/oracle-weblogic-server/">
+						
+							Oracle WebLogic .. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/oscon/">
+						
+							OSCON (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/owen-garrett/">
+						
+							Owen Garrett (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/pattern/">
+						
+							pattern (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/performance-comparison/">
+						
+							performance comp.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/permalinks/">
+						
+							permalinks (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/photon-os/">
+						
+							Photon OS (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/php/">
+						
+							PHP (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/plug-in/">
+						
+							plug-in (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/poodle-attack/">
+						
+							POODLE attack (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/professional-services/">
+						
+							professional ser.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/profitbricks/">
+						
+							ProfitBricks (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/proxy-model-mra/">
+						
+							Proxy Model in N.. (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/puppet/">
+						
+							Puppet (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/python/">
+						
+							Python (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/reinvent/">
+						
+							re:Invent (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/real-time-application/">
+						
+							real-time applic.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/red-hat/">
+						
+							Red Hat (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/red-hat-summit/">
+						
+							Red Hat Summit (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/refactoring/">
+						
+							refactoring (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/reliam/">
+						
+							reliam (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/responsive-images/">
+						
+							responsive images (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/reverse-proxy-server/">
+						
+							reverse proxy s.. (13)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/rewrite-rules/">
+						
+							rewrite rules (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/rewrite-urls/">
+						
+							rewrite URLs (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/rewriting-urls/">
+						
+							rewriting URLs (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/rhel/">
+						
+							RHEL (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/router-mesh-model-in-nginx-mra/">
+						
+							Router Mesh Mode.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/scalability/">
+						
+							scalability (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/scale13x/">
+						
+							SCALE13x (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/secure-sockets-layer-ssl/">
+						
+							Secure Sockets L.. (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/secured-urls/">
+						
+							secured URLs (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/security/">
+						
+							security (7)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/security-advisory/">
+						
+							security advisory (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/security-alert/">
+						
+							security alert (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/security-attack/">
+						
+							security attack (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/security-certificate/">
+						
+							security certifi.. (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/selinux/">
+						
+							SELinux (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/sendfile/">
+						
+							sendfile (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/seo/">
+						
+							SEO (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/service-discovery/">
+						
+							service discovery (15)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/service-oriented-architecture-soa/">
+						
+							service-oriented.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/session-draining/">
+						
+							session draining (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/session-persistence/">
+						
+							session persiste.. (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/single-sign-on-sso/">
+						
+							single sign-on (.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/smart-sharding/">
+						
+							smart sharding (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/socket-sharding/">
+						
+							socket sharding (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/socket-io/">
+						
+							Socket.IO (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/soft/">
+						
+							soft (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ssh/">
+						
+							SSH (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ssl-termination/">
+						
+							SSL termination (0)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ssltls/">
+						
+							SSL/TLS (13)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ssltls-termination/">
+						
+							SSL/TLS terminat.. (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/sslv3/">
+						
+							SSLv3 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/stale-content/">
+						
+							stale content (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/static-file-caching/">
+						
+							static file cac.. (19)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/stevie-award/">
+						
+							Stevie award (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/support/">
+						
+							support (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/survey/">
+						
+							survey (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/symfony-2/">
+						
+							Symfony 2 (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/tcp-load-balancing/">
+						
+							TCP load balancing (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/thematic/">
+						
+							thematic (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/third-party-modules/">
+						
+							third-party modu.. (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/thread-pools/">
+						
+							thread pools (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/tmpfs/">
+						
+							tmpfs (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/tomcat/">
+						
+							Tomcat (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/training/">
+						
+							training (4)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/transparent-proxy/">
+						
+							transparent proxy (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/twelve-factor-app/">
+						
+							Twelve-Factor App (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/ubuntu/">
+						
+							Ubuntu (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/udp-load-balancing/">
+						
+							UDP load balancing (6)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/upgrades/">
+						
+							upgrades (5)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/url-rewriting/">
+						
+							URL rewriting (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/utl-rewriting/">
+						
+							UTL rewriting (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/vcloud-air/">
+						
+							vCloud Air (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/velocity/">
+						
+							Velocity (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/velocity-conference/">
+						
+							Velocity confere.. (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/video-streaming/">
+						
+							video streaming (8)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/virtual-machine/">
+						
+							virtual machine (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/vmware/">
+						
+							VMware (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/vulnerability/">
+						
+							vulnerability (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/waf/">
+						
+							WAF (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/warpwire/">
+						
+							Warpwire (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/web/">
+						
+							web (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/web-frontend/">
+						
+							web frontend (2)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/web-server/">
+						
+							web server (10)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/webinar/">
+						
+							webinar (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/websocket/">
+						
+							WebSocket (9)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/websphere/">
+						
+							WebSphere (1)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/wordpress/">
+						
+							WordPress (3)						</a>
+					</li>
+					<li>						<a href="https://www.nginx.com/blog/tag/zookeeper/">
+						
+							ZooKeeper (5)						</a>
+					</li>
+								</ul>
+			<div class="no-more-tags"><em>No More Tags to display</em></div>	
+			</div>
+
+			<div class="load-more-wrapper">
+				<a id="load-more-tags" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" class="load-more-tags"> Show More Tags</a>
+			</div>			
+		</div>
+	</div>
+</div>
+<style type="text/css">
+
+.blog-tags-modal-wrap {
+		position: fixed;
+		width: 100%;
+		height: 100%;
+		z-index: 999999;
+		background-color: rgba(0,0,0,0.7);
+		top: 0;
+		display: none;
+		transition: display 2s;
+		-webkit-transition: display 2s;
+	}
+.blog-tags-modal-wrap.visible{ display:table; }
+.blog-tags-modal-inner-wrap {
+    display: table-cell;
+    vertical-align: middle;
+    width: 100vw;
+}
+
+
+.blog-tags-modal-inner {
+    background-color: white;
+    width: 700px;
+    height: 553px;
+    overflow: hidden;
+   /* overflow-y: scroll;*/
+    margin: 0 auto;
+    position: relative;
+    text-align: center;
+    padding: 25px;
+    padding-top: 10px;
+}
+
+.blog-tags-modal-inner .close-button {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    color: #ccc;
+    font-size: 1.8rem;
+    font-weight: 400;
+    transform: scale(1.5, 1);
+    cursor: pointer;
+}
+
+
+.blog-tag-box{height:390px; overflow: hidden;  overflow-y: scroll ;}
+
+.blog-tag-box ul{
+	text-align:left;
+	padding:0px;
+        margin: 0;
+	list-style-type:none;
+	float:left;
+        width: 33%;
+        padding-right: 15px;
+        box-sizing: border-box;
+}
+
+.blog-tags-modal-title{
+	font-size: 3.2rem;
+	border-bottom: 1px solid #cccccc;
+	padding-bottom: 10px;
+	margin-bottom: 15px;
+	font-weight: 700;
+	color: #000;
+	text-align:left;
+}
+
+.nginx-theme-action-link-wrapper {
+  min-width: 180px;
+  margin-bottom: 10px;
+}
+
+
+.blog-tags-modal-inner ul li{
+	text-align:left;
+	list-style-type:none;
+}
+
+.load-more-wrapper {
+	display: none;
+}
+
+.no-more-tags{
+	font-size:10px;
+	display:none;
+}
+
+@media only screen and (max-width: 767px) {
+  
+    
+.blog-tag-box ul{
+	width: 100%;
+}
+
+.blog-tag-box ul.tags {
+  float: none;
+  display: none;
+}
+
+.blog-tags-modal-wrap.visible {
+  display: block;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.blog-tags-modal-inner {
+  height: auto;
+  /*padding-bottom: 130px;*/
+  width: 100%;
+}
+
+.load-more-wrapper {
+  background: #eee;
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 40px 0 20px;
+  max-width: 200px;
+  padding: 12px;
+  text-transform: uppercase;
+}
+
+a.load-more-tags {
+	color: #009639;
+	outline: none;
+	text-decoration: none;
+}
+
+.blog-tag-box ul{
+  float: none;
+}
+.blog-tag-box ul li{
+  display: none;
+}
+
+.blog-tag-box ul li.show-tag {
+  display: block!important;
+}
+
+.blog-tag-box ul:last-child {
+  position: relative;
+}
+
+
+.no-more-tags.show-no-more-tags{
+	display:block;
+}
+	
+</style>
+
+
+<!-- Show more tags -->
+<script type="text/javascript">
+
+	(function($) {
+            $(".load-more-tags").on("click", showMoreTags);
+			var idx = 16;
+			var totElms = 0;
+			var elms = false;
+            function showMoreTags() {
+				if( idx > 16 && idx >= totElms )
+				{ 
+					return; 
+				}
+				
+				
+				if( elms == false )
+				{
+				elms = $('.blog-tag-box li');
+				totElms = elms.length;
+				}
+				var i;
+				
+				for( i = 1 ; i<=17; i++ )
+				{
+					idx++;
+					if( idx == totElms )
+					{
+						//show finish message
+						$('.no-more-tags').addClass('show-no-more-tags');
+						//$(".load-more-tags").hide();
+						break;
+						
+					}
+					else
+					{
+						$( elms[idx] ).addClass('show-tag');
+					}
+				}
+				
+            }
+	
+		$("#blogpg-tag-filter-close-btn").click(function(e){
+			e.preventDefault();				 
+			jQuery(".blog-tags-modal-wrap").hide();													 
+		});
+            
+	})(jQuery);
+
+</script>
+
+
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx-universal-marketo-form.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var nginxudVars = {"ajaxUrl":"https:\/\/www.nginx.com\/wordpress\/wp-admin\/admin-ajax.php","assetsUrl":"https:\/\/www.nginx.com\/wp-content\/plugins\/wordpress-nginx-user-database\/assets"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginxud-script.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.fitvids.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/skip-link-focus-fix.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.cookie.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.visible.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.magnific-popup.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/owl.carousel.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/clamp.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/moment.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/rrssb.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.sticky.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jquery.smooth-scroll.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/viewport-units-buggyfill.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/underscore.min.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var nginxAudienceTargetingVars = [];
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx-audience-targeting.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var jsmform = {"ajaxurl":"https:\/\/www.nginx.com\/wordpress\/wp-admin\/admin-ajax.php","tempdir":"https:\/\/assets.wp.nginx.com\/wp-content\/themes\/nginx-theme"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/jsmform.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/sidebar.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/conductrics.jquery.min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/conductrics-js-wrapper-min.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/effect.min.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var nginxThemeVars = {"ajaxurl":"https:\/\/www.nginx.com\/wordpress\/wp-admin\/admin-ajax.php","nonce":"b01c9ebdfa","free_trial_request_summary":"https:\/\/www.nginx.com\/free-trial-request-summary\/","free_trial_request_detail":"https:\/\/www.nginx.com\/free-trial-request-detail\/","free_trial_request":"https:\/\/www.nginx.com\/free-trial-request\/"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx-theme.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var NginxMixPanel = {"home_url":"https:\/\/www.nginx.com\/"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/nginx-mixpanel-tracker.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/select2.full.min.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var ampObj = {"api_key":"3bb9b223df92ec97b63aab6382b938cb","data":{"post_id":23526,"url":"https:\/\/www.nginx.com\/blog\/cache-placement-strategies-nginx-plus\/","title":"Cache Placement Strategies for NGINX and NGINX Plus","eventName":"blog - pageview"}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/amplitude.js.下载"></script>
+<script type="text/javascript" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/wp-embed.min.js.下载"></script>
+<script>window.viewportUnitsBuggyfill.init();</script>
+<!-- Google Tag Manager -->
+<noscript>&lt;iframe src="//www.googletagmanager.com/ns.html?id=GTM-WBXGM3"
+height="0" width="0" style="display:none;visibility:hidden"&gt;&lt;/iframe&gt;</noscript>
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WBXGM3');
+</script>
+<!-- End Google Tag Manager -->
+
+
+
+<style type="text/css">
+.single-breadcrumbs {
+  font-size: 13px;
+  margin: 10px 0;
+  padding-bottom: 2px;
+}
+
+@media only screen and (max-width: 782px) {
+.single-breadcrumbs {
+  margin-top: 0;
+}
+}
+</style>
+<iframe style="display: none;" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/saved_resource(1).html"></iframe>
+<script type="text/javascript" id="">var dataLayer=dataLayer||[];_bam={debug:!1};(function(d,e,a,b,f,c,g){d.GoogleAnalyticsObject=f;d[f]=d[f]||function(){(d[f].q=d[f].q||[]).push(arguments)};d[f].l=1*new Date;c=e.createElement(a);g=e.getElementsByTagName(a)[0];c.async=1;c.src=b;g.parentNode.insertBefore(c,g)})(window,document,"script","//www.google-analytics.com/analytics.js","ga");ga("create","UA-27974099-1","auto");ga("require","linkid","linkid.js");ga("require","linker");ga("linker:autoLink",["nginx.com","nginx.org"]);
+ga("require","displayfeatures");ga("create","UA-27974099-5","auto",{allowLinker:!0,name:"rollup"});ga("rollup.require","linkid","linkid.js");ga("rollup.require","linker");ga("rollup.linker:autoLink",["nginx.com","nginx.org"]);ga("rollup.require","displayfeatures");
+"undefined"!==typeof NginxPostInfo&&("undefined"!==typeof NginxPostInfo.published_date&&ga("set","dimension1",NginxPostInfo.published_date),"undefined"!==typeof NginxPostInfo.wordcount&&ga("set","dimension2",NginxPostInfo.wordcount),"undefined"!==typeof NginxPostInfo.author&&ga("set","dimension3",NginxPostInfo.author),"undefined"!==typeof NginxPostInfo.categories&&ga("set","dimension4",NginxPostInfo.categories),"undefined"!==typeof NginxPostInfo.tags&&ga("set","dimension5",NginxPostInfo.tags),"undefined"!==
+typeof NginxPostInfo.campaigns&&ga("set","dimension6",NginxPostInfo.campaigns));_bam.log=function(d){_bam.debug&&console.log(d);return _bam};_bam.pageView=function(){ga("send","pageview");ga("rollup.send","pageview");return _bam};_bam.createCookie=function(d,e,a){if(a){var b=new Date;"userCategory"==d?b.setTime(b.getTime()+31536E6):b.setTime(b.getTime()+1E3*a);a="; expires\x3d"+b.toGMTString()}else a="";document.cookie=d+"\x3d"+e+a+"; path\x3d/"};
+_bam.readCookie=function(d){d+="\x3d";for(var e=document.cookie.split(";"),a=0;a<e.length;a++){for(var b=e[a];" "==b.charAt(0);)b=b.substring(1,b.length);if(0==b.indexOf(d))return b.substring(d.length,b.length)}return""};
+_bam.extend=function(){try{if("undefined"==typeof jQuery||"function"!=typeof jQuery.bind)return _bam.log("Check that jQuery is defined and has bind() method"),_bam;var d=/\.(zip|exe|dmg|pdf|doc.*|xls.*|ppt.*|mp3|slxb|pps.*|vsd|vxd|txt|rar|wma|mov|avi|wmv|flv|wav)$/i,e="";void 0!=jQuery("base").attr("href")&&(e=jQuery("base").attr("href"));jQuery("a:not(.popup)").bind("click",function(a){_bam.log(a);a=jQuery(this);var b="undefined"!=typeof a.attr("href")?a.attr("href"):"";if(!b.match(/^javascript:/i)&&
+""!=b&&-1==window.location.href.indexOf("resources/wiki")){var f=!0,c=[];if(b.match(/^mailto\:/i)||b.match(/^mailto\: /i))c.category="Email",c.action="Click",c.label=b.replace(/^mailto\:/i,""),c.loc=b;else if(b.match(d)){var g=/[.]/.exec(b)?/[^.]+$/.exec(b):void 0;c.category="Download";c.action="Click-"+g[0].toLowerCase();c.label=b.replace(/ /g,"-");c.loc=e+b}else b.match(/^https?\:/i)&&a[0].hostname!=location.hostname?(c.category="External",c.action="Click",c.label=b.replace(/^https?\:\/\//i,""),
+c.non_i=!0,c.loc=b):f=!1;if(f){ga("send","event",c.category,c.action,c.label,c.value);if(void 0==a.attr("target")||"_blank"!=a.attr("target").toLowerCase())return setTimeout(function(){location.href=c.loc},_bam.delay),!1;ga("rollup.send","event",c.category,c.action,c.label,c.value);if(void 0==a.attr("target")||"_blank"!=a.attr("target").toLowerCase())return setTimeout(function(){location.href=c.loc},_bam.delay),!1}}});return _bam}catch(a){_bam.log?_bam.debug&&_bam.log(a):console.log(a)}};
+_bam.custom=function(){try{jQuery(".topnav .button").on("click",function(){ga("send","event","Button","Click","Header - "+jQuery(this).text()+"");ga("send","pageview","/vpv/"+jQuery(this).text().replace(/ /g,"-")+"-Header");ga("rollup.send","event","Button","Click","Header - "+jQuery(this).text()+"");ga("rollup.send","pageview","/vpv/"+jQuery(this).text().replace(/ /g,"-")+"-Header")});jQuery(".button.button-large").on("click",function(){ga("send","event","Button","Click",jQuery(this).text());ga("send",
+"pageview","/vpv/"+jQuery(this).text().replace(/ /g,"-")+"-Body");ga("rollup.send","event","Button","Click",jQuery(this).text());ga("rollup.send","pageview","/vpv/"+jQuery(this).text().replace(/ /g,"-")+"-Body")});jQuery(".button").on("click",function(){if("Get Started"==jQuery(this).text()){var a=window.location.pathname;ga("send","pageview","/vpv/Try-NGINX-Plus-Free"+a);ga("send","event","Button","Click from "+a,"Try-NGINX-Plus-Free");ga("rollup.send","pageview","/vpv/Try-NGINX-Plus-Free"+a);ga("rollup.send",
+"event","Button","Click from "+a,"Try-NGINX-Plus-Free")}});jQuery("#download-oss").on("click",function(){ga("send","event","Button","Click","Open Source Download and Install");ga("rollup.send","event","Button","Click","Open Source Download and Install")});jQuery("#single-instance").on("click",function(){ga("send","event","Button","Click","Single Instance");ga("rollup.send","event","Button","Click","Single Instance")});jQuery("#five-instances").on("click",function(){ga("send","event","Button","Click",
+"Five Instances");ga("rollup.send","event","Button","Click","Five Instances")});jQuery("#ten-instances").on("click",function(){ga("send","event","Button","Click","Ten Instances Contact");ga("rollup.send","event","Button","Click","Ten Instances Contact")});jQuery("#more-instances").on("click",function(){ga("send","event","Button","Click","25+ Instances Contact");ga("rollup.send","event","Button","Click","25+ Instances Contact")});jQuery("div._email-signup .button").on("click",function(){ga("send",
+"event","Button","Click","Sign-Up-Footer");ga("send","pageview","/vpv/Sign-Up-Footer");ga("rollup.send","event","Button","Click","Sign-Up-Footer");ga("rollup.send","pageview","/vpv/Sign-Up-Footer")});jQuery("button.mktoButton").on("click",function(){""!=jQuery("#FirstName").val()&&""!=jQuery("#LastName").val()&&""!=jQuery("#Email").val()&&-1!=jQuery("#Email").val().indexOf("@")&&""!=jQuery("#Company").val()&&(ga("send","pageview","/vpv"+document.location.pathname+"/submit"),ga("rollup.send","pageview",
+"/vpv"+document.location.pathname+"/submit"))});jQuery(".item_add").on("click",function(){jQuery(this).parent().parent().find("h4").text();ga("send","pageview","/vpv/add-to-cart");ga("rollup.send","pageview","/vpv/add-to-cart")});var d,e;location.pathname.match("/search/")&&(e=location.pathname.split("/"),d=e[2],ga("send","pageview","/vpv/search?q\x3d"+d),ga("rollup.send","pageview","/vpv/search?q\x3d"+d))}catch(a){_bam.log?_bam.debug&&_bam.log(a):console.log(a)}};
+"undefined"!=typeof jQuery&&jQuery(document).ready(function(){_bam.extend();_bam.custom();_bam.pageView()});dataLayer.push({event:"trackingloaded"});</script><div style="display: none; visibility: hidden;"><script type="text/javascript">window.olark||function(c){var b=window,l=document,m="https:"==b.location.protocol?"https:":"http:",e=c.name,f="load",g="addEventListener";(function(){function h(){a.P(f);b[e](f)}b[e]=function(){(a.s=a.s||[]).push(arguments)};for(var a=b[e]._={},d=c.methods.length;d--;)(function(a){b[e][a]=function(){b[e]("call",a,arguments)}})(c.methods[d]);a.l=c.loader;a.i=arguments.callee;a.p={0:+new Date};a.P=function(b){a.p[b]=new Date-a.p[0]};b[g]?b[g](f,h,!1):b.attachEvent("on"+f,h);a.P(1);var d=l.createElement("script"),
+k=document.getElementsByTagName("script")[0];d.type="text/javascript";d.async=!0;d.src=m+"//"+a.l;k.parentNode.insertBefore(d,k);a.P(2)})()}({loader:function(c){return"static.olark.com/jsclient/loader1.js?ts\x3d"+(c?c[1]:+new Date)}(document.cookie.match(/olarkld=([0-9]+)/)),name:"olark",methods:["configure","extend","declare","identify"]});olark.identify("4153-705-10-4121");olark("api.chat.onReady",function(){"function"===typeof nginx_olark_ready&&nginx_olark_ready()});
+olark("api.chat.onOperatorsAvailable",function(){"function"===typeof nginx_olark_operators_available&&nginx_olark_operators_available()});olark("api.chat.onOperatorsAway",function(){"function"===typeof nginx_olark_operators_away&&nginx_olark_operators_away()});</script>
+</div><script src="./Cache Placement Strategies for NGINX and NGINX Plus_files/adsct" type="text/javascript"></script><span style="display: none;"><iframe style="display: none !important;" id="_olark_framesocket61435" src="./Cache Placement Strategies for NGINX and NGINX Plus_files/storage.html"></iframe></span><div id="habla_beta_container_do_not_rely_on_div_classes_or_names" class="habla-browser-chrome habla-desktop olrk-noquirks"><div id="hbl_operator_state_div" class="olrk-away"><div id="hbl_region" class="olrk-normal"><div id="habla_window_state_div" class="olrk-state-closed"><div id="habla_window_div" style="margin: 0px 20px; bottom: 0px; right: 0px; display: none; position: fixed;" class="habla_window_div_base hbl_pal_main_width olrk-fixed-bottom olrk-fixed-right "><div id="habla_compressed_div" style="display: none;"><a id="habla-callout-bubble-anchor" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" style="display: none;"><div id="olark-callout-bubble" style="visibility: hidden; height: 153px;"><div></div></div></a><a id="habla-callout-bubble-anchor-offline" href="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" style="display: none;"><div id="olark-callout-bubble-offline"><div></div></div></a></div><div id="habla_panel_div" class="habla_panel_border hbl_pal_main_bg hbl_pal_panel_border hbl_pal_main_font_family hbl_pal_main_font_size " style="display: none;"><div id="habla_both_div" style="display: none;"><div id="habla_topbar_div" class="habla_topbar_div_normal hbl_pal_title_fg hbl_pal_title_bg habla_topbar_div_compressed "><a id="habla_closebutton_a" class="habla_button habla_button_a_normal hbl_pal_header_font_size hbl_pal_button_bg hbl_pal_button_fg ">x</a><a id="habla_sizebutton_a" class="habla_button habla_button_a_normal hbl_pal_header_font_size hbl_pal_button_bg hbl_pal_button_fg ">^</a><a id="habla_oplink_a" class="habla_oplink_a_normal hbl_pal_header_font_size hbl_pal_title_fg ">Have a question about NGINX Plus?</a></div></div><div id="habla_expanded_div" style="display: none;"><div id="habla_middle_div"><div id="habla_middle_wrapper_div"><div id="habla_conversation_div" class="hbl_panel habla_conversation_div hbl_pal_main_height hbl_pal_control_border hbl_pal_main_fg hbl_pal_main_bg   habla_conversation_message_on " style="height: 200px; overflow: hidden; display: none;"><span id="hbl_body_message">Questions? We'd love to chat about NGINX Plus features!</span></div><div id="habla_offline_message_sent_div" class="hbl_panel habla_offline_message_sent_div hbl_pal_main_height hbl_pal_control_border hbl_pal_main_fg " style="display: none;">Thank you for your message. We will get back to you as soon as we can.</div><div id="habla_offline_message_div" class="hbl_panel habla_offline_message_div hbl_pal_control_border hbl_pal_main_fg " style="display: block;"><span id="habla_offline_message_span">Send us your questions about NGINX Plus and we'll get back to you soon!</span><div class="hbl_txt_wrapper"><textarea id="habla_name_input" name="habla_name_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Name" style="height: 20px; display: block;"></textarea></div><div class="hbl_txt_wrapper"><textarea id="habla_offline_email_input" name="habla_offline_email_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Email" style="height: 20px; display: block;"></textarea></div><div class="hbl_txt_wrapper"><textarea id="habla_offline_phone_input" name="habla_offline_phone_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Phone (optional)" style="height: 20px; display: block;"></textarea></div><div class="hbl_txt_wrapper"><textarea id="habla_offline_body_input" name="habla_offline_body_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Describe your questions, please. " style="height: 115px; display: block;"></textarea></div><span id="habla_offline_error_span" class="habla_offline_error_span "></span><input id="habla_offline_submit_input" name="habla_offline_submit_input" type="submit" class="habla_offline_submit_input hbl_pal_offline_submit_fg hbl_pal_control_border hbl_pal_offline_submit_bg " value="Send" style="display: block;"><div id="habla_offline_clear_div" class="clear_style "></div></div><div id="habla_pre_chat_div" class="hbl_panel habla_pre_chat_div hbl_pal_main_height hbl_pal_main_fg " style="display: none; height: 200px;"><span id="habla_pre_chat_span">Thanks for stopping by! Do you have questions about NGINX Plus?</span><div class="hbl_txt_wrapper"><textarea id="habla_pre_chat_name_input" name="habla_pre_chat_name_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Name" style="height: 20px; line-height: 20px;"></textarea></div><div class="hbl_txt_wrapper"><textarea id="habla_pre_chat_email_input" name="habla_pre_chat_email_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Email" style="height: 20px; line-height: 20px;"></textarea></div><div class="hbl_txt_wrapper" style="display: none;"><textarea id="habla_pre_chat_phone_input" name="habla_pre_chat_phone_input" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type your Phone (optional)" style="height: 20px; line-height: 20px; display: none;"></textarea></div><span id="habla_pre_chat_error_span"></span><input id="habla_pre_chat_submit_input" name="habla_pre_chat_submit_input" type="submit" class="habla_pre_chat_form_field habla_offline_submit_input hbl_pal_offline_submit_fg hbl_pal_control_border hbl_pal_offline_submit_bg " value="Click here to start chatting"><div id="habla_pre_chat_clear_div" class="clear_style "></div></div></div><form id="habla_chatform_form" action="https://www.nginx.com/blog/cache-placement-strategies-nginx-plus/#" method="GET" autocomplete="off" class="habla_chatform_form " style="display: none;"><div id="habla_input_div" class="habla_input_div "><div class="hbl_txt_wrapper"><textarea id="habla_wcsend_input" name="habla_wcsend_input" size="undefined" class="habla_wcsend_field habla_wcsend_input_pre habla_wcsend_input_normal hbl_pal_input_pre_fg hbl_pal_main_font_family hbl_pal_input_font_size hbl_pal_control_border " placeholder="Type here and hit enter to chat" disabled="" style="line-height: 20px; height: 20px; display: none;"></textarea></div></div></form></div></div></div><div id="habla_closed_div" style="display: none;"></div></div></div></div></div></div></body></html>
