@@ -1,0 +1,163 @@
+<!doctype HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Sequenced Packets Over Ordinary TCP</title>
+</head>
+<body>
+
+<h1>Sequenced Packets Over Ordinary TCP</h1>
+
+<p>This is a rough idea for an admittedly not hugely useful technical 
+hack related to low-level network protocol gubbins. If you don't want to 
+know about this, look away now.</p>
+
+<p>I will assume you know what <a
+href="http://www.rfc-editor.org/rfc/rfc793.txt">TCP</a> is (oh - i'll
+warn you now that i say 'packet' instead of 'segment' throughout this
+document; i'm like that). I will assume you know what the <a
+href="http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html">POSIX
+socket API</a> almost universally used to access it is. What you may or
+may not know about are the two things i'm going to talk about today: the
+sequenced packet (aka SOCK_SEQPACKET) socket type from the socket API
+and the urgent pointer from the TCP specification.</p>
+
+<p>The socket API supports sockets of several types; 'type' does not
+refer to the protocol behind the socket, but rather to the semantics
+associated with the socket. The best-known socket types are stream
+(SOCK_STREAM) and datagram (SOCK_DGRAM); the former supplies a pair of
+full-duplex, reliable, ordered, structureless byte streams connected to
+a single remote socket, while the latter supplies an aperture through
+which unreliable, unordered, smallish bundles of bytes can be sent to
+multiple remote sockets. There are, however, other socket types; the 
+most interesting is the sequenced-packet socket (SOCK_SEQPACKET). The <a 
+href="http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_10.html">actual 
+text</a> of the socket API specification says of sequenced packet 
+sockets:</p>
+
+<blockquote>The SOCK_SEQPACKET socket type is similar to the SOCK_STREAM
+type, and is also connection-oriented. The only difference between these
+types is that record boundaries are maintained using the SOCK_SEQPACKET
+type. A record can be sent using one or more output operations and
+received using one or more input operations, but a single operation
+never transfers parts of more than one record. Record boundaries are
+visible to the receiver via the MSG_EOR flag in the received message
+flags returned by the recvmsg() function. It is protocol-specific
+whether a maximum record size is imposed.</blockquote>
+
+<p>So basically, it's either a sequence of packets which are delivered
+reliably and in order, or a reliable, ordered stream with record
+boundaries in it, depending on how you look at it. Either way, it's
+clearly halfway between stream (ie TCP) and datagram (ie UDP) sockets.
+The stuff about MSG_EOR is how you mark the ends of messages; messages
+are read and written like stream data, but with a couple of nuances: to
+mark the end of a message when sending, set the MSG_EOR flag in the last
+send(), and to detect the end of a message when receiving, use recvmsg()
+and look for the MSG_EOR flag in the msghdr.msg_flags field.</p>
+
+<p>(Incidentally, that line saying "a record can be sent using one or
+more output operations and received using one or more input operations"
+is a bit weird; the specs for recv() and recvmsg() say "for
+message-based sockets such as SOCK_DGRAM and SOCK_SEQPACKET, the entire
+message must be read in a single operation.". There's a <a
+href="http://www.opengroup.org/austin/mailarchives/austin-review-l/msg00839.html">post
+on an Open Group mailing list</a> on the semantics of the MSG_WAITALL
+flag in the context of sequenced packet sockets which indicates that
+messages on a sequenced packet socket can indeed be delivered through
+multiple recv() calls, which does make more sense; you can then use
+MSG_WAITALL to force delivery in a single read, although it doesn't work
+if the message is bigger than your buffer)</p>
+
+<p>Moreover, sequenced packet sockets are probably the most
+programmer-friendly kind: they have strong reliability and ordering
+guarantees (like TCP but unlike UDP), and they provide record
+demarcation at the protocol level (like UDP but unlike TCP); they should
+therefore be a key tool for network programmers. However, as far as i
+can tell, there is no internet transport-layer protocol in common use
+which has sequenced packet semantics; SOCK_SEQPACKET is therefore not a
+generally available socket type! Where it does turn up is when you're
+running connections straight over ATM or IR or other suitable link
+layers, and nobody cares about that.</p>
+
+<p>But all is not lost! I have come up with a way to supply sequenced
+packet semantics using entirely normal TCP, by exploiting a little-used
+but historically ancient feature of that protocol which, i think, was
+designed expressely for that purpose: the urgent pointer.</p>
+
+<p>The TCP spec is pretty brief, so have a read through and see what it
+says about the the urgent pointer. Basically, it's a facility by which
+one end of a TCP connection can indicate to the other that there's
+urgent data somewhere in the stream. From the client (ie
+application-layer protocol) point of view, it looks like there's a
+button next to the output stream of each socket, with a red light next
+to the input stream of the other, both labelled 'URGENT!!!'; one end
+writes some data that it thinks is urgent, then hits the button: the
+light at the other end then goes on immediately, and goes off once the
+client has read all the data that the sender had written before hitting
+the button. The TCP modules handle this by dint of two components of
+their packets: the 'urgent pointer field significant' (aka URG) control
+bit, and the urgent pointer (UP). The URG bit is set in all packets sent
+after the button is pressed, up to and including the one containing the
+last byte of urgent data; the presence of a set URG bit in a packet
+therefore indicates to the receiving TCP module that it should switch on
+the urgency light. The UP points to the last byte of the urgent data
+(RFC 793 is confused about this - see <a
+href="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC 1122</a>, section
+4.2.2.4, for the correction); the receiving module can turn off the
+urgency light once the client has read that byte.</p>
+
+<p>For completeness, i should point out that the UP field in the TCP
+header is actually only 16 bits long; it expresses the UP as an offset
+from the sequence number of the packet. RFC 793 is cagey about what
+happens when the UP is more than 65535 greater than the current sequence
+number, but <a href="http://www.rfc-editor.org/rfc/rfc2147.txt"a>RFC
+2147</a> says, inter alia:</p>
+
+<blockquote>When a TCP packet is to be sent with an Urgent Pointer
+(i.e., the URG bit set), first calculate the offset from the Sequence
+Number to the Urgent Pointer. If the offset is less than 65535, fill in
+the Urgent field and continue with the normal TCP processing. If the
+offset is greater than 65535, and the offset is greater than or equal to
+the length of the TCP data [which it will be, unless you're dealing with
+super-jumbograms], fill in the Urgent Pointer with 65535 and continue
+with the normal TCP processing.</blockquote>
+
+<p>Anyway, i propose abusing the urgent mechanism to mark the ends of
+messages: the urgent pointer simply points to the end of the current
+message. Rather than connecting this to buttons and lights, the
+seqpacket-aware TCP module does the right thing with MSG_EOR: MSG_EOR
+being set in send() causes the UP to be set, and hitting the UP when
+doing recvmsg() causes it to set MSG_EOR. Simple!</p>
+
+<p>There is one little problem, which is that you can't pack multiple
+messages into a single TCP packet, since you wouldn't be able to have
+the UP pointing at the ends of all of them. This is a shame, but not
+that big a deal; the whole sequenced packet thing is about reasonably
+big packets. If a burning need for multiple messages per packets was
+felt, w e could specify a negotiable TCP option to hold additional
+message-end pointers.</p>
+
+<p>There is some degree of interaction between the mechanism i describe
+and TCP's push function. The push function was specified in part so that
+applications can indicate to the TCP module when they'd got to the end
+of a block of data, so that it does not waste time waiting for more;
+with explicit message boundaries, it can work this out itself. TCP
+modules should send less-than-MTU packets when and only when a message
+end is signalled; the rest of the time, they should wait for enough data
+from the client to fill a complete packet, without any timeout. As well
+as rendering the push function obsolete, explicit message boundaries
+also make Nagle's algorithm unnecessary. The push function can, however,
+be repurposed: explicit pushes can be applied to indicate that a message
+should be delivered as quickly as possible (the push should be signalled
+in the same send that delivers the end-of-message indication). The TCP
+modules should then do everything they can to deliver the message
+quickly, and should indicate to the user that the message was pushed. 
+Both these interactions with the user can be mediated by a MSG_PUSH flag
+in the send() or recvmsg() flags (and perhaps a MSG_PUSH_PENDING flag in
+recvmsg(), to indicate that a message somewhere ahead is being pushed).
+The push would be communicated in the TCP packets by the setting of the
+PSH flag, as now. We might even enable out-of-order delivery of the
+pushed message, but that would be very weird. In essence, we're swapping
+the semantics of the push and urgent functions!</p>
+
+</body>
+</html>

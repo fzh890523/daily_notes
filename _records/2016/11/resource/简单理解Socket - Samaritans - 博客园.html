@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)http://www.cnblogs.com/dolphinX/p/3460545.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简单理解Socket - Samaritans - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./简单理解Socket - Samaritans - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./简单理解Socket - Samaritans - 博客园_files/bundle-BlueSky.css">
+<link type="text/css" rel="stylesheet" href="./简单理解Socket - Samaritans - 博客园_files/101421.css">
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="./简单理解Socket - Samaritans - 博客园_files/bundle-BlueSky-mobile.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/dolphinX/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/dolphinX/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/dolphinX/wlwmanifest.xml">
+<script type="text/javascript" src="./简单理解Socket - Samaritans - 博客园_files/encoder.js"></script><script src="./简单理解Socket - Samaritans - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'dolphinX', cb_enable_mathjax=false;var isLogined=true;</script>
+<script src="./简单理解Socket - Samaritans - 博客园_files/blog-common.js" type="text/javascript"></script>
+<style>@font-face{font-family:uc-nexus-iconfont;src:url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_1476274416_922599.woff) format('woff'),url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_1476274416_922599.ttf) format('truetype')}</style></head>
+<body style="zoom: 1;"><div id="uc_reader_tip" style="position:absolute;top:0px;left:0px;z-index: 9999999999;height:0;border:0;padding:0;margin:0;"><div id="reader-tip-icon" class="reader-tip-bar tip-bar tip-bar--yellow" style="margin-top:-42px;margin-left:0px;"><button id="reader-tip-bar-close" class="reader-tip-bar-close"></button></div></div>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/dolphinX/"><img id="blogLogo" src="./简单理解Socket - Samaritans - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/dolphinX/">Samaritan</a></h1>
+<h2>It always seems impossible until it's done.</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/dolphinX/">首页</a></li>
+<li></li>
+<li><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/Samaritans">联系</a></li>
+<li><a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/dolphinX/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="http://www.cnblogs.com/dolphinX/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<span id="stats_post_count">随笔 - 110&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 1662</span>
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/dolphinX/p/3460545.html">简单理解Socket</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><h3>题外话</h3>
+<p>前几天和朋友聊天，朋友问我怎么最近不写博客了，一个是因为最近在忙着公司使用的一些控件的开发，浏览器兼容性搞死人；但主要是因为这段时间一直在看html5的东西，看到web socket时觉得很有意思，动手写几个demo，但web socket需要特定的服务器支持，由于标准制定工作还没完成，所以没有多少主流的服务器支持，自己在网上下载了几个实现，包括php的、C#的、甚至Node.js的，但一个是协议变化比较大，很多代码已经过时了，再就是有一些支持最新的标准，但是我想稍微改造一下，看人家源代码的时候云里雾里，看看别人的代码行数也不多，决定自己实现一个。</p>
+<p>悲剧由此开始，虽然哥们儿国内非知名工科大学毕业，但好歹也是科班CS出身，但大学得过且过，什么TCP/IP协议，什么socket了都没概念。为了做出一个简单的支持广播的websocket server，在网上找了很多相关代码，左抄一句，右抄一句，弄了一个星期竟然还是漏洞百出，调试不起来，只好从头来过了，先补一些基本知识，然后再一步步根据原理实现，今天终于实现了绝大部分功能，由此真的感受到了，搞计算机必须得有理论指导实践，否则只能像个没头苍蝇到处乱撞。</p>
+<h3>TCP/IP</h3>
+<p>要想理解socket首先得熟悉一下TCP/IP协议族，<span>&nbsp;</span><span lang="EN-US">TCP/IP</span><span>（</span><span lang="EN-US">Transmission Control Protocol/Internet Protocol</span><span>）即传输控制协议</span><span lang="EN-US">/</span><span>网间协议，定义了主机如何连入因特网及数据如何再它们之间传输的标准，</span></p>
+<p><span>从字面意思来看TCP/IP是TCP和IP协议的合称，但实际上TCP/IP协议是指<span>因特网整个TCP/IP协议族。不同于ISO模型的七个分层，TCP/IP协议参考模型把所有的TCP/IP系列协议归类到四个抽象层中</span></span></p>
+<p>应用层：<span>TFTP，HTTP，SNMP，FTP，SMTP，DNS，Telnet 等等</span></p>
+<p>传输层：<span>TCP，UDP</span></p>
+<p>网络层：<span>IP，ICMP，OSPF，EIGRP，IGMP</span></p>
+<p>数据链路层：<span>SLIP，CSLIP，PPP，MTU</span></p>
+<p>每一抽象层建立在低一层提供的服务上，并且为高一层提供服务，看起来大概是这样子的</p>
+<p><img src="./简单理解Socket - Samaritans - 博客园_files/05230830-04807bb739954461a8bfc7513707f253.jpg" alt="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="./简单理解Socket - Samaritans - 博客园_files/05230857-f49d5855f1e14a23a186737e0bec8a0f.gif" alt=""></p>
+<p>估计有兴趣打开此文的同学都对此有一定了解了，加上我也是一知半解，所以就不详细解释，有兴趣同学可以上网上搜一下资料</p>
+<p><a title="TCP/IP协议" href="http://zh.wikipedia.org/wiki/TCP/IP" target="_blank">维基百科</a><a title="维基百科" href="http://zh.wikipedia.org/wiki/TCP/IP" target="_blank"> <br></a></p>
+<p><a title="TCP/IP协议" href="http://baike.baidu.com/link?url=KJleEWJUBxe3XaxEaTU1lcQrg9qYN7FYzuPhoWVyoPFNk79NIURxAO6HSWC1MfrCU1Dh7QRsNDWOaZ-4bg5HRa" target="_blank">百度百科</a></p>
+<p>在TCP/IP协议中两个因特网主机通过两个路由器和对应的层连接。各主机上的应用通过一些数据通道相互执行读取操作</p>
+<p><span><img src="./简单理解Socket - Samaritans - 博客园_files/05221430-6bd4ce2a2cf7434ca9216c0a5b6a0985.png" alt="" width="417" height="493"><span>       <br></span></span></p>
+<h3>socket</h3>
+<p>我们知道两个进程如果需要进行通讯最基本的一个前提能能够唯一的标示一个进程，在本地进程通讯中我们可以使用PID来唯一标示一个进程，但PID只在本地唯一，网络中的两个进程PID冲突几率很大，这时候我们需要另辟它径了，我们知道IP层的ip地址可以唯一标示主机，而TCP层协议和端口号可以唯一标示主机的一个进程，这样我们可以利用ip地址＋协议＋端口号唯一标示网络中的一个进程。</p>
+<p>能够唯一标示网络中的进程后，它们就可以利用socket进行通信了，什么是socket呢？我们经常把socket翻译为套接字，socket是在应用层和传输层之间的一个抽象层，它把TCP/IP层复杂的操作抽象为几个简单的接口供应用层调用已实现进程在网络中通信。</p>
+<p><img src="./简单理解Socket - Samaritans - 博客园_files/05225723-2ffa89aad91f46099afa530ef8660b20.jpg" alt=""></p>
+<p>socket起源于UNIX，在Unix一切皆文件哲学的思想下，socket是一种"打开—读/写—关闭"模式的实现，服务器和客户端各自维护一个"文件"，在建立连接打开后，可以向自己文件写入内容供对方读取或者读取对方内容，通讯结束时关闭文件。</p>
+<h3>socket通信流程</h3>
+<p> socket是"打开—读/写—关闭"模式的实现，以使用TCP协议通讯的socket为例，其交互流程大概是这样子的</p>
+<p><img src="./简单理解Socket - Samaritans - 博客园_files/05232335-fb19fc7527e944d4845ef40831da4ec2.png" alt=""></p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器根据地址类型（ipv4,ipv6）、socket类型、协议创建socket</span></span></p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器为socket绑定ip地址和端口号</span></span></p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器socket监听端口号请求，随时准备接收客户端发来的连接，这时候服务器的socket并没有被打开</span></span></p>
+<p>客户端创建socket</p>
+<p>客户端打开socket，根据服务器ip地址和端口号试图连接服务器socket</p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器socket接收到客户端socket请求，被动打开，开始接收客户端请求，直到客户端返回连接信息。这时候socket进入<span style="color: #ff0000;"><strong>阻塞</strong></span>状态，所谓阻塞即accept()方法一直到客户端返回连接信息后才返回，开始接收下一个客户端谅解请求</span></span></p>
+<p>客户端连接成功，向服务器发送连接状态信息</p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器accept方法返回，连接成功</span></span></p>
+<p>客户端向socket写入信息</p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器读取信息</span></span></p>
+<p>客户端关闭</p>
+<p><span style="color: #888888;"><span style="color: #008000;">服务器端关闭</span></span></p>
+<h3>三次握手</h3>
+<p>在TCP/IP协议中，TCP协议通过三次握手建立一个可靠的连接</p>
+<p><img src="./简单理解Socket - Samaritans - 博客园_files/05234233-eed6ddcba93c42be8847e98d6da62802.jpg" alt="" width="566" height="340"></p>
+<p>第一次握手：客户端尝试连接服务器，向服务器发送syn包（<span>同步序列编号</span><em><strong>Synchronize Sequence Numbers</strong></em>），syn=j，客户端进入SYN_SEND状态等待服务器确认</p>
+<p>第二次握手：服务器接收客户端syn包并确认（ack=j+1），同时向客户端<span>发送一个SYN包（syn=k），即SYN+ACK包，此时服务器进入SYN_RECV</span><span>状态</span></p>
+<p>第三次握手：<span>第三次握手：客户端</span><span>收到服务</span><span>器的SYN+ACK包，向服务器</span><span>发送确认包ACK(ack</span><span>=k+1），此包发送完毕，客户端和服务器进入ESTABLISHED</span><span>状态，完成三次握手</span></p>
+<p>定睛一看，服务器socket与客户端socket建立连接的部分其实就是大名鼎鼎的三次握手</p>
+<p><img src="./简单理解Socket - Samaritans - 博客园_files/05234946-b80841921eae4d2ab983f26ed9023768.png" alt=""></p>
+<p>&nbsp;<strong>socket编程API</strong></p>
+<p> 前面提到socket是"打开—读/写—关闭"模式的实现，简单了解一下socket提供了哪些API供应用程序使用，还是以TCP协议为例，看看Unix下的socket API，其它语言都很类似（PHP甚至名字都几乎一样），这里我就简单解释一下方法作用和参数，具体使用有兴趣同学可以看看博客参考中的链接或者上网搜索</p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> socket(<span style="color: #0000ff;">int</span> domain, <span style="color: #0000ff;">int</span> type, <span style="color: #0000ff;">int</span> protocol);</pre>
+</div>
+<p>根据指定的地址族、数据类型和协议来分配一个socket的描述字及其所用的资源。</p>
+<p>domain:协议族，常用的有<span>AF_INET</span><span>、</span><span>AF_INET6</span><span>、</span><span>AF_LOCAL</span><span>、</span><span>AF_ROUTE</span>其中<span>AF_INET代表使用ipv4地址</span></p>
+<p><span>type:<span>socket类型，常用的socket类型有，</span><span>SOCK_STREAM</span><span>、</span><span>SOCK_DGRAM</span><span>、</span><span>SOCK_RAW</span><span>、</span><span>SOCK_PACKET</span><span>、</span><span>SOCK_SEQPACKET</span><span>等</span></span></p>
+<p>protocol:<span>协议。常用的协议有，</span><span>IPPROTO_TCP</span><span>、</span><span>IPPTOTO_UDP</span><span>、</span><span>IPPROTO_SCTP</span><span>、</span><span>IPPROTO_TIPC</span><span>等</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> bind(<span style="color: #0000ff;">int</span> sockfd, <span style="color: #0000ff;">const</span> <span style="color: #0000ff;">struct</span> sockaddr *addr, socklen_t addrlen);</pre>
+</div>
+<p><span>把一个地址族中的特定地址赋给socket</span></p>
+<p>sockfd:<span>socket描述字，也就是socket引用</span></p>
+<p>addr:<span>要绑定给sockfd的协议地址</span></p>
+<p>addrlen:<span>地址的长度</span></p>
+<p><em>通常服务器在启动的时候都会绑定一个众所周知的地址（如ip地址+端口号），用于提供服务，客户就可以通过它来接连服务器；而客户端就不用指定，有系统自动分配一个端口号和自身的ip地址组合。这就是为什么通常服务器端在listen之前会调用bind()，而客户端就不会调用，而是在connect()时由系统随机生成一个。</em></p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> listen(<span style="color: #0000ff;">int</span> sockfd, <span style="color: #0000ff;">int</span> backlog);</pre>
+</div>
+<p>监听socket</p>
+<p><span>sockfd:要监听的socket描述字</span></p>
+<p><span>backlog:相应socket可以排队的最大连接个数</span>&nbsp;</p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> connect(<span style="color: #0000ff;">int</span> sockfd, <span style="color: #0000ff;">const</span> <span style="color: #0000ff;">struct</span> sockaddr *addr, socklen_t addrlen);</pre>
+</div>
+<p>连接某个socket</p>
+<p><span>sockfd:客户端的socket描述字</span></p>
+<p><span>addr:服务器的socket地址</span></p>
+<p><span>addrlen:socket地址的长度</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> accept(<span style="color: #0000ff;">int</span> sockfd, <span style="color: #0000ff;">struct</span> sockaddr *addr, socklen_t *addrlen);</pre>
+</div>
+<p>&nbsp;<span>TCP服务器监听到客户端请求之后，调用</span><span><span>accept</span><span>()</span></span><span>函数取接收请求</span></p>
+<p>sockfd:服务器的socket描述字</p>
+<p>addr:客户端的socket地址</p>
+<p>addrlen:socket地址的长度</p>
+<div class="cnblogs_code">
+<pre>ssize_t read(<span style="color: #0000ff;">int</span> fd, <span style="color: #0000ff;">void</span> *buf, size_t count);</pre>
+</div>
+<p>读取socket内容</p>
+<p>fd:socket描述字</p>
+<p>buf：缓冲区</p>
+<p>count：缓冲区长度</p>
+<div class="cnblogs_code">
+<pre>ssize_t write(<span style="color: #0000ff;">int</span> fd, <span style="color: #0000ff;">const</span> <span style="color: #0000ff;">void</span> *buf, size_t count);</pre>
+</div>
+<p>向socket写入内容，其实就是发送内容</p>
+<p>fd:socket描述字</p>
+<p>buf：缓冲区</p>
+<p>count：缓冲区长度</p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">int</span> close(<span style="color: #0000ff;">int</span> fd);</pre>
+</div>
+<p><span>socket标记为以关闭</span> ，<span>使相应socket描述字的引用计数-1，当引用计数为0的时候，触发TCP客户端向服务器发送终止连接请求。</span></p>
+<h3>参考</h3>
+<p><a href="http://www.cnblogs.com/skynet/archive/2010/12/12/1903949.html" target="_blank"> Linux Socket编程（不限Linux）</a></p>
+<p><a href="http://goodcandle.cnblogs.com/archive/2005/12/10/294652.aspx" target="_blank">揭开Socket编程的面纱 <br></a></p>
+<p>PS. 有同学看完后发现没有demo示例，参考中的示例已经很不错了，我就不班门弄斧了，而且我用C#实现了一个websocket server，接下来的博客中会有介绍。另外由于刚刚实际接触socket，文中谬误较多，还望大家批评指正，文章内容主要参考上面两个博文，图片全部来源于网络，在百度图片搜索得来，无法注明第一源地址，如有版权问题请站内信联系，第一时间处理。</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/dolphinX/category/525268.html" target="_blank">杂谈</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(3460545,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;0c473040-b30a-e111-b7b9-842b2b196315&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./简单理解Socket - Samaritans - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./简单理解Socket - Samaritans - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/dolphinX/" target="_blank"><img src="./简单理解Socket - Samaritans - 博客园_files/20141207171254.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/dolphinX/">Samaritans</a><br>
+            <a href="http://home.cnblogs.com/u/dolphinX/followees">关注 - 12</a><br>
+            <a href="http://home.cnblogs.com/u/dolphinX/followers">粉丝 - 2575</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;0c473040-b30a-e111-b7b9-842b2b196315&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(3460545,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">70</span>
+    </div>
+    <div class="buryit" onclick="votePost(3460545,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">1</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/dolphinX/p/3439970.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/dolphinX/p/3439970.html" title="发布于2013-11-26 21:48">html5 Application Cache——加快简历二次访问速度</a><br><a href="http://www.cnblogs.com/dolphinX/p/3462496.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/dolphinX/p/3462496.html" title="发布于2013-12-07 11:47">C# socket编程实践——支持广播的简单socket服务器</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2013-12-06 00:25</span> <a href="http://www.cnblogs.com/dolphinX/">Samaritans</a> 阅读(<span id="post_view_count">136903</span>) 评论(<span id="post_comment_count">22</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=3460545" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/dolphinX/p/3460545.html#" onclick="AddToWz(3460545);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=101421,cb_entryId=3460545,cb_blogApp=currentBlogApp,cb_blogUserGuid='0c473040-b30a-e111-b7b9-842b2b196315',cb_entryCreatedDate='2013/12/6 0:25:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2831547,&#39;0xunfiooDco17SlHzauk041RFMywSg4TXIUvkXYytFIVLr2uswUKtw==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2831547,&#39;0xunfiooDco17SlHzauk041RFMywSg4TXIUvkXYytFIVLr2uswUKtw==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2831547" class="layer">#1楼</a><a name="2831547" id="comment_anchor_2831547"></a>  <span class="comment_date">2013-12-06 09:29</span> <a id="a_comment_author_2831547" href="http://www.cnblogs.com/haitao-fan/" target="_blank">尼玛范爷</a> <a href="http://msg.cnblogs.com/send/%E5%B0%BC%E7%8E%9B%E8%8C%83%E7%88%B7" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2831547" class="blog_comment_body">我也刚看过websocket，只看了下页面的东西，后台的代码也是缺少参考了啊</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2831547,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2831547,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2831547_avatar" style="display:none;">http://pic.cnblogs.com/face/395638/20140818132358.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2831557,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2831557,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2831557" class="layer">#2楼</a><a name="2831557" id="comment_anchor_2831557"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2013-12-06 09:35</span> <a id="a_comment_author_2831557" href="http://www.cnblogs.com/dolphinX/" target="_blank">Samaritans</a> <a href="http://msg.cnblogs.com/send/Samaritans" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2831557" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2831547" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2831547);">@</a>
+范海涛<br><fieldset class="comment_quote"><legend><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2831547" title="查看引用原文">引用</a></legend>我也刚看过websocket，只看了下页面的东西，后台的代码也是缺少参考了啊</fieldset><br><a href="http://www.html5rocks.com/en/tutorials/websockets/basics/" target="_blank">http://www.html5rocks.com/en/tutorials/websockets/basics/</a><br><br>这篇文章最后有提到几个服务器端支持，<br><b>Node.js</b><br>Socket.IO<br>WebSocket-Node<br>ws<br><b>Java</b><br>Jetty<br><b>Ruby</b><br>EventMachine<br><b>Python</b><br>pywebsocket<br>Tornado<br><b>Erlang</b><br>Shirasu<br><b>C++</b><br>libwebsockets<br><b>.NET</b><br>SuperWebSocket<br><br>但不太能符合我个人需求，所以我自己写了个简单的</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2831557,&#39;Digg&#39;,this)">支持(1)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2831557,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2831557_avatar" style="display:none;">http://pic.cnblogs.com/face/349217/20141207171254.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832167,&#39;rl/V8pfswbOknanlj9+U2XWc5Lh4h5TaTF3HkXRkvDtEuIn7SZo6lA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832167,&#39;rl/V8pfswbOknanlj9+U2XWc5Lh4h5TaTF3HkXRkvDtEuIn7SZo6lA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832167" class="layer">#3楼</a><a name="2832167" id="comment_anchor_2832167"></a>  <span class="comment_date">2013-12-06 22:51</span> <a id="a_comment_author_2832167" href="http://www.cnblogs.com/cc-jony/" target="_blank">cc_jony</a> <a href="http://msg.cnblogs.com/send/cc_jony" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832167" class="blog_comment_body">期待下一篇啊  我最近也在找类似于webQQ的资料   如果lz有这方面的货，希望lz慷慨给予哦  贴一个我今天看的  html5+websocket <a href="http://www.ibm.com/developerworks/cn/web/1112_huangxa_websocket/" target="_blank">http://www.ibm.com/developerworks/cn/web/1112_huangxa_websocket/</a></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832167,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832167,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832208,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832208,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832208" class="layer">#4楼</a><a name="2832208" id="comment_anchor_2832208"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2013-12-07 00:10</span> <a id="a_comment_author_2832208" href="http://www.cnblogs.com/dolphinX/" target="_blank">Samaritans</a> <a href="http://msg.cnblogs.com/send/Samaritans" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832208" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832167" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2832167);">@</a>
+cc_jony<br><fieldset class="comment_quote"><legend><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832167" title="查看引用原文">引用</a></legend>期待下一篇啊  我最近也在找类似于webQQ的资料   如果lz有这方面的货，希望lz慷慨给予哦  贴一个我今天看的  html5+websocket http://www.ibm.com/developerworks/cn/web/1112_huangxa_websocket/</fieldset><br>这篇文章有些过时了。。。<br>计划周末这两天总结一下，先写一个支持广播的socket服务器熟悉一下socket编程，然后写一个最简单的websocket服务器（C#版），配合html调用demo<br><br>代码基本调试好了，还有一些优化工作，否则不好意思拿出来见人。。。尽量尽快和大家分享</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832208,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832208,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2832208_avatar" style="display:none;">http://pic.cnblogs.com/face/349217/20141207171254.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832221,&#39;PeCAmHble8kwO18pK90sMqGV9qAJm5VzcELPymbbTEVR5aUpMjRUbg==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832221,&#39;PeCAmHble8kwO18pK90sMqGV9qAJm5VzcELPymbbTEVR5aUpMjRUbg==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832221" class="layer">#5楼</a><a name="2832221" id="comment_anchor_2832221"></a>  <span class="comment_date">2013-12-07 02:06</span> <a id="a_comment_author_2832221" href="http://www.cnblogs.com/nonocast/" target="_blank">nonocast</a> <a href="http://msg.cnblogs.com/send/nonocast" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832221" class="blog_comment_body">我之前写了一些关于WebSocket的blog可以参考，<a href="http://nonocast.cn/tag/websocket/" target="_blank">http://nonocast.cn/tag/websocket/</a>，另外自己写了一个HTTP Server包含Draft-76和RFC6455，你也可以参考代码<a href="http://nohttp.codeplex.com/" target="_blank">http://nohttp.codeplex.com</a>, 你可以通过nuget获取nonocast.http。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832221,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832221,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2832221_avatar" style="display:none;">http://pic.cnblogs.com/face/u10353.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832251,&#39;7CFcenyAn0lFv69/x5moRcSEFKjswoOc0Fc9aw1ImKkyc6Ai2hJekA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832251,&#39;7CFcenyAn0lFv69/x5moRcSEFKjswoOc0Fc9aw1ImKkyc6Ai2hJekA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832251" class="layer">#6楼</a><a name="2832251" id="comment_anchor_2832251"></a>  <span class="comment_date">2013-12-07 09:02</span> <a id="a_comment_author_2832251" href="http://home.cnblogs.com/u/518240/" target="_blank">汉家郎</a> <a href="http://msg.cnblogs.com/send/%E6%B1%89%E5%AE%B6%E9%83%8E" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832251" class="blog_comment_body">博客园被挂马了么。。怎么打开首页杀毒软件就有提示</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832251,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832251,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832252,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832252,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832252" class="layer">#7楼</a><a name="2832252" id="comment_anchor_2832252"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2013-12-07 09:02</span> <a id="a_comment_author_2832252" href="http://www.cnblogs.com/dolphinX/" target="_blank">Samaritans</a> <a href="http://msg.cnblogs.com/send/Samaritans" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832252" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832221" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2832221);">@</a>
+nonocast<br><fieldset class="comment_quote"><legend><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832221" title="查看引用原文">引用</a></legend>我之前写了一些关于WebSocket的blog可以参考，http://nonocast.cn/tag/websocket/，另外自己写了一个HTTP Server包含Draft-76和RFC6455，你也可以参考代码http://nohttp.codeplex.com, 你可以通过nuget获取nonocast.http。</fieldset><br>有空看看，谢谢</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832252,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832252,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2832252_avatar" style="display:none;">http://pic.cnblogs.com/face/349217/20141207171254.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832254,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832254,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832254" class="layer">#8楼</a><a name="2832254" id="comment_anchor_2832254"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2013-12-07 09:04</span> <a id="a_comment_author_2832254" href="http://www.cnblogs.com/dolphinX/" target="_blank">Samaritans</a> <a href="http://msg.cnblogs.com/send/Samaritans" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832254" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832251" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2832251);">@</a>
+汉家郎<br><fieldset class="comment_quote"><legend><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832251" title="查看引用原文">引用</a></legend>博客园被挂马了么。。怎么打开首页杀毒软件就有提示</fieldset><br>。。。。。。。。。。。。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832254,&#39;Digg&#39;,this)">支持(1)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832254,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2832254_avatar" style="display:none;">http://pic.cnblogs.com/face/349217/20141207171254.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2832258,&#39;+V9NCA48p8Zj664d0CZUqDXo4rXJ9S0yB/6BmejPTU2BlCpIVBIDPA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2832258,&#39;+V9NCA48p8Zj664d0CZUqDXo4rXJ9S0yB/6BmejPTU2BlCpIVBIDPA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832258" class="layer">#9楼</a><a name="2832258" id="comment_anchor_2832258"></a>  <span class="comment_date">2013-12-07 09:46</span> <a id="a_comment_author_2832258" href="http://www.cnblogs.com/cmt/" target="_blank">博客园团队</a> <a href="http://msg.cnblogs.com/send/%E5%8D%9A%E5%AE%A2%E5%9B%AD%E5%9B%A2%E9%98%9F" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2832258" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2832251" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2832251);">@</a>
+汉家郎<br>您好，没有被挂马，可能是您所用网络运营商的弹窗广告。<br>我们曾经遭遇过，详见<a href="http://www.cnblogs.com/cmt/archive/2012/06/18/2553328.html" target="_blank">弹弹弹，走到哪里弹到哪里 —— 关于上海电信强制弹窗广告</a></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2832258,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2832258,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2832258_avatar" style="display:none;">http://pic.cnblogs.com/face/35695/20140318223943.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2837361,&#39;Q1w+cmm8A4AUhg+U8XlvAY/DOyZlHWLz2BV1XkmUlOVJI/TPrEzEKg==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2837361,&#39;Q1w+cmm8A4AUhg+U8XlvAY/DOyZlHWLz2BV1XkmUlOVJI/TPrEzEKg==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2837361" class="layer">#10楼</a><a name="2837361" id="comment_anchor_2837361"></a>  <span class="comment_date">2013-12-14 22:08</span> <a id="a_comment_author_2837361" href="http://www.cnblogs.com/ctcx/" target="_blank">Sam tsai</a> <a href="http://msg.cnblogs.com/send/Sam%20tsai" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2837361" class="blog_comment_body">写的很好，很通俗！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2837361,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2837361,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2837361_avatar" style="display:none;">http://pic.cnblogs.com/face/u22806.jpg?id=01105921</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(2837382,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(2837382,&#39;n5t6YME0+KWlLbGKhpaIxWOVilXJPlSETm7odeOaaRxwee1iSJtfuA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2837382" class="layer">#11楼</a><a name="2837382" id="comment_anchor_2837382"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2013-12-14 23:03</span> <a id="a_comment_author_2837382" href="http://www.cnblogs.com/dolphinX/" target="_blank">Samaritans</a> <a href="http://msg.cnblogs.com/send/Samaritans" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2837382" class="blog_comment_body"><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2837361" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,2837361);">@</a>
+Sam tsai<br><fieldset class="comment_quote"><legend><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#2837361" title="查看引用原文">引用</a></legend>写的很好，很通俗！</fieldset><br>谢谢支持</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2837382,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2837382,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2837382_avatar" style="display:none;">http://pic.cnblogs.com/face/349217/20141207171254.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3264691,&#39;+tgYUpB/5gHR6WkFeUFRvO/oydn2mEouAWpDiwzgAgH4B1nFbXGJcw==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3264691,&#39;+tgYUpB/5gHR6WkFeUFRvO/oydn2mEouAWpDiwzgAgH4B1nFbXGJcw==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3264691" class="layer">#12楼</a><a name="3264691" id="comment_anchor_3264691"></a>  <span class="comment_date">2015-09-11 10:19</span> <a id="a_comment_author_3264691" href="http://www.cnblogs.com/chenglonglongcheng/" target="_blank">游龙流</a> <a href="http://msg.cnblogs.com/send/%E6%B8%B8%E9%BE%99%E6%B5%81" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3264691" class="blog_comment_body">支持</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3264691,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3264691,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3264691_avatar" style="display:none;">http://pic.cnblogs.com/face/u336851.jpg?id=29144437</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3265479,&#39;ULjRNcCz/xaVPp1+QL04a7PUV57z2vQ75TyKpkFYNklkaFZpTakJyg==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3265479,&#39;ULjRNcCz/xaVPp1+QL04a7PUV57z2vQ75TyKpkFYNklkaFZpTakJyg==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3265479" class="layer">#13楼</a><a name="3265479" id="comment_anchor_3265479"></a>  <span class="comment_date">2015-09-12 16:41</span> <a id="a_comment_author_3265479" href="http://www.cnblogs.com/lulianqi/" target="_blank">lulianqi15</a> <a href="http://msg.cnblogs.com/send/lulianqi15" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3265479" class="blog_comment_body">写的好用心啊 图文并茂<br>有个地方有小疑问 “而TCP层协议和端口号可以唯一标示主机的一个进程” 这样的描述个人认为是不是有问题。<br>    网络连接的操作其实都是操作系统自己的事情，所有的端口都由操作系统控制。  不应该与上层应用程序有直接联系，A应用程序向操作系统申请要把标记为xxx端口的数据给自己（监听），同样B应用程序也是可以的（前提是A申请的时候不能用独占的模式）。个人认为端口是网络数据的一个抽象的分组，是不应该与应用层的具体进程一一对应</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3265479,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3265479,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3265479_avatar" style="display:none;">http://pic.cnblogs.com/face/209007/20150914192924.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3273687,&#39;f7fwegHeoUpg1WOHY6P7QVxaXUXNh8IqmAhniAba63CWLIRJJV3tWw==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3273687,&#39;f7fwegHeoUpg1WOHY6P7QVxaXUXNh8IqmAhniAba63CWLIRJJV3tWw==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3273687" class="layer">#14楼</a><a name="3273687" id="comment_anchor_3273687"></a>  <span class="comment_date">2015-09-24 16:36</span> <a id="a_comment_author_3273687" href="http://www.cnblogs.com/williamwindy/" target="_blank">williamwindy</a> <a href="http://msg.cnblogs.com/send/williamwindy" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3273687" class="blog_comment_body">楼主好<br>特别是图示，很好理解。<br>有点疑问，socket通信流程图中，server端中要是send数据给client,那后面的流程要怎么画呢 ?</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3273687,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3273687,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3322629,&#39;BgxuU3MpvrdouzBJ32lVoVpY6yqeelKdmvKjcM63miETX5wXO9qSFw==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3322629,&#39;BgxuU3MpvrdouzBJ32lVoVpY6yqeelKdmvKjcM63miETX5wXO9qSFw==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3322629" class="layer">#15楼</a><a name="3322629" id="comment_anchor_3322629"></a>  <span class="comment_date">2015-12-08 09:43</span> <a id="a_comment_author_3322629" href="http://www.cnblogs.com/zuilehongdou/" target="_blank">贫贫贫贫僧</a> <a href="http://msg.cnblogs.com/send/%E8%B4%AB%E8%B4%AB%E8%B4%AB%E8%B4%AB%E5%83%A7" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3322629" class="blog_comment_body">写得好清楚！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3322629,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3322629,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3322629_avatar" style="display:none;">http://pic.cnblogs.com/face/841469/20151120100301.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3325297,&#39;NO0RujIiRiXrtfwrCzh+PNig7oIt3E2Invt5oeh0SKCx4TXz/iRH7Q==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3325297,&#39;NO0RujIiRiXrtfwrCzh+PNig7oIt3E2Invt5oeh0SKCx4TXz/iRH7Q==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3325297" class="layer">#16楼</a><a name="3325297" id="comment_anchor_3325297"></a>  <span class="comment_date">2015-12-11 16:42</span> <a id="a_comment_author_3325297" href="http://home.cnblogs.com/u/105020/" target="_blank">逸然</a> <a href="http://msg.cnblogs.com/send/%E9%80%B8%E7%84%B6" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3325297" class="blog_comment_body">大概看了下，图表很形象，非常好</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3325297,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3325297,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3334686,&#39;7lXgPzQcoE1LAztEQPU9otUE4Ph2s8c2De6MtlRnllptN50FlpkCvQ==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3334686,&#39;7lXgPzQcoE1LAztEQPU9otUE4Ph2s8c2De6MtlRnllptN50FlpkCvQ==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3334686" class="layer">#17楼</a><a name="3334686" id="comment_anchor_3334686"></a>  <span class="comment_date">2015-12-25 16:39</span> <a id="a_comment_author_3334686" href="http://www.cnblogs.com/Wddpct/" target="_blank">白细胞</a> <a href="http://msg.cnblogs.com/send/%E7%99%BD%E7%BB%86%E8%83%9E" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3334686" class="blog_comment_body">楼主好，socket处理和用使用微软的web api有什么不同吗，我感觉都是交流数据而已</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3334686,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3334686,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3334686_avatar" style="display:none;">http://pic.cnblogs.com/face/647983/20151216145018.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3341422,&#39;i0ZKXTYVdYBL0sFM9Xg2zJcRMUmeus+lmGmad8tP/u5DiChl7a7OBg==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3341422,&#39;i0ZKXTYVdYBL0sFM9Xg2zJcRMUmeus+lmGmad8tP/u5DiChl7a7OBg==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3341422" class="layer">#18楼</a><a name="3341422" id="comment_anchor_3341422"></a>  <span class="comment_date">2016-01-05 16:02</span> <a id="a_comment_author_3341422" href="http://www.cnblogs.com/YYCat/" target="_blank">5暧小雅</a> <a href="http://msg.cnblogs.com/send/5%E6%9A%A7%E5%B0%8F%E9%9B%85" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3341422" class="blog_comment_body">本来不晕的，看了lz的文章，感觉脑袋要炸，内容太多了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3341422,&#39;Digg&#39;,this)">支持(1)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3341422,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3365567,&#39;hcbpVdAvgd7L4cuaOEcNVwdVLsJXMgUwG8m+bo9B0vEw5kJIqpOSIA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3365567,&#39;hcbpVdAvgd7L4cuaOEcNVwdVLsJXMgUwG8m+bo9B0vEw5kJIqpOSIA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3365567" class="layer">#19楼</a><a name="3365567" id="comment_anchor_3365567"></a>  <span class="comment_date">2016-02-23 16:29</span> <a id="a_comment_author_3365567" href="http://www.cnblogs.com/flfwzgl/" target="_blank">flfwzgl</a> <a href="http://msg.cnblogs.com/send/flfwzgl" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3365567" class="blog_comment_body">"不同于ISO模型的七个分层" 中 应该是 OSI 吧</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3365567,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3365567,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3365567_avatar" style="display:none;">http://pic.cnblogs.com/face/557160/20150208014352.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3439989,&#39;/l2Bf0b8hAponugcmUBv3MQkl8SbZZMcKL10ukbH/5C1Eal/hfPvew==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3439989,&#39;/l2Bf0b8hAponugcmUBv3MQkl8SbZZMcKL10ukbH/5C1Eal/hfPvew==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3439989" class="layer">#20楼</a><a name="3439989" id="comment_anchor_3439989"></a>  <span class="comment_date">2016-05-26 18:06</span> <a id="a_comment_author_3439989" href="http://home.cnblogs.com/u/965038/" target="_blank">点点滴滴滴</a> <a href="http://msg.cnblogs.com/send/%E7%82%B9%E7%82%B9%E6%BB%B4%E6%BB%B4%E6%BB%B4" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3439989" class="blog_comment_body">GoEasy web三步轻松实现web实时推送<br>1. 引入goeasy.js<br>2. 客户端订阅， <br>Var goeasy = new GoEasy({appkey:’your appkey’});<br>goeasy.subscribe(channel:”your channel”, onMessage:function(message){alert(‘received message’+ message.content)})<br>3. 三种推送方式<br>Javascript: goeasy.publish({channel:’your channel’, message:’your publish msg’});<br>Java SDK: GoEasy goeasy = new GoEasy(“appkey”); goeasy.publish(“your channel”,”your msg”);<br>RestAPI: url请在goeasy官网上查看<br>三步轻松实现web推送及接收。官网：goeasy.io,文档齐全</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3439989,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3439989,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3442417,&#39;cYkIVa6LiEkzgmU+ydbj67w8OGWjuOVUELAA2rrx6jwXszrvGsz7XA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3442417,&#39;cYkIVa6LiEkzgmU+ydbj67w8OGWjuOVUELAA2rrx6jwXszrvGsz7XA==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3442417" class="layer">#21楼</a><a name="3442417" id="comment_anchor_3442417"></a>  <span class="comment_date">2016-05-31 00:22</span> <a id="a_comment_author_3442417" href="http://home.cnblogs.com/u/967720/" target="_blank">GogFu1012</a> <a href="http://msg.cnblogs.com/send/GogFu1012" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3442417" class="blog_comment_body">web socket不能绑定其它电脑的IP吗</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3442417,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3442417,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3524495,&#39;smDwPipoPs8lNHyoDXbZvvs/qvtjA+COW/hqjl29ymcWPova1cao5A==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3524495,&#39;smDwPipoPs8lNHyoDXbZvvs/qvtjA+COW/hqjl29ymcWPova1cao5A==&#39;)">引用</a></span>
+				</div>
+				<a href="http://www.cnblogs.com/dolphinX/p/3460545.html#3524495" class="layer">#22楼</a><a name="3524495" id="comment_anchor_3524495"></a><span id="comment-maxId" style="display:none;">3524495</span><span id="comment-maxDate" style="display:none;">2016/10/5 14:13:36</span>  <span class="comment_date">2016-10-05 14:13</span> <a id="a_comment_author_3524495" href="http://www.cnblogs.com/tdws/" target="_blank">坦荡</a> <a href="http://msg.cnblogs.com/send/%E5%9D%A6%E8%8D%A1" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3524495" class="blog_comment_body">mark</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3524495,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3524495,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3524495_avatar" style="display:none;">http://pic.cnblogs.com/face/686162/20160624090624.png</span>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/dolphinX/p/3460545.html#top">返回顶部</a></div>
+<div id="comment_form_container">
+<div id="commentform_title">发表评论</div>
+<span id="tip_comment" style="color:Red"></span>
+<p>
+昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50" value="yonka">
+</p>
+<div class="commentbox_main">
+<div class="commentbox_title">
+<div class="commentbox_title_left">评论内容：</div>
+<div class="commentbox_title_right">
+<img id="ubb_quote" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/quote.gif" alt="引用" title="添加引用" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;quote&#39;)">
+<img id="ubb_bold" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/b.png" alt="粗体" title="添加粗体" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;b&#39;)">
+<img id="ubb_url" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/lk.png" alt="链接" title="添加链接" onclick="insertUbbUrl(&#39;tbCommentBody&#39;)">
+<img id="ubb_indent" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/indent.png" alt="缩进" title="添加首行缩进" onclick="insertIndent(&#39;tbCommentBody&#39;)">
+<img id="ubb_code" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/InsertCode.gif" alt="代码" title="添加代码" onclick="insertUbbCode()">
+<img id="ubb_img" class="comment_icon" src="./简单理解Socket - Samaritans - 博客园_files/img.gif" alt="图片" title="上传图片" onclick="OpenImageUploadWindow();">
+</div>
+</div>
+<div class="clear"></div>
+<textarea id="tbCommentBody" class="comment_textarea"></textarea>
+</div>
+<p id="commentbox_opt">
+<input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论">
+<span id="span_comment_canceledit" style="display:none"><a href="javascript:void(0);" onclick="return CancelCommentEdit()">不改了</a></span>
+<a href="javascript:void(0);" onclick="return logout();">退出登录</a>
+        <a id="commentbox_opt_sub" href="javascript:void(0);" title="订阅后有新评论时会邮件通知您" onclick="commentManager.Subscribe()">订阅评论</a>
+</p>
+<div id="tip_comment2" style="color:Red"></div>
+<p>
+[Ctrl+Enter快捷键提交]
+</p>
+<div style="display:none">
+<span id="comment_edit_id"></span><span id="span_parentcomment_id"></span>
+<span id="span_parent_id"></span>
+<span id="span_comment_replyto"></span>
+<span id="span_comment_posted"></span>
+</div>
+</div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/556735/" target="_blank">史上最严！谷歌公布安卓7.0 AOSP规范：快充都不能自己搞</a><br> ·  <a href="http://news.cnblogs.com/n/556734/" target="_blank">乐视体育和兴业银行联合发了一张信用卡 除此外还搞了好多事</a><br> ·  <a href="http://news.cnblogs.com/n/556733/" target="_blank">B站VIP大会员制度大变：无法直接购买</a><br> ·  <a href="http://news.cnblogs.com/n/556732/" target="_blank">网页开发从业者仍更重视桌面程序及网页应用</a><br> ·  <a href="http://news.cnblogs.com/n/556731/" target="_blank">那些年的“双11”，你都后悔买了啥？</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="ad_c2" class="c_ad_block"></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/555750/" target="_blank">循序渐进地代码重构</a><br> ·  <a href="http://kb.cnblogs.com/page/554496/" target="_blank">技术的正宗与野路子</a><br> ·  <a href="http://kb.cnblogs.com/page/553682/" target="_blank">陈皓：什么是工程师文化？</a><br> ·  <a href="http://kb.cnblogs.com/page/551422/" target="_blank">没那么难，谈CSS的设计模式</a><br> ·  <a href="http://kb.cnblogs.com/page/550625/" target="_blank">程序猿媳妇儿注意事项</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/dolphinX/">Samaritans</a><br>园龄：<a href="http://home.cnblogs.com/u/dolphinX/" title="入园时间：2011-11-09">5年</a><br>粉丝：<a href="http://home.cnblogs.com/u/dolphinX/followers/">2575</a><br>关注：<a href="http://home.cnblogs.com/u/dolphinX/followees/">12</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;0c473040-b30a-e111-b7b9-842b2b196315&#39;)">+加关注</a></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_recentposts" class="sidebar-block">
+<div class="catListEssay">
+<h3 class="catListTitle">最新随笔</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/dolphinX/p/5565753.html">1. JavaScript 精粹</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/5540199.html">2. git 使用</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/5181660.html">3. 前端零基础学习提纲</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/5116629.html">4. 阿里前端两年随想</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4385862.html">5. JavaScript面向对象</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4381855.html">6. 前端模块化</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4097693.html">7. 你可能没注意的CSS单位</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4087817.html">8. CSS 实现打字效果</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4087816.html">9. direction和unicode-bidi</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4085075.html">10. CSS3 滤镜</a></li>
+</ul>
+</div>
+</div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(109)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/dolphinX/category/389048.html">ASP.NET(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/dolphinX/category/503848.html">CSS(21)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/dolphinX/category/519616.html">ECMAScript5(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/dolphinX/category/530314.html">HTML(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/dolphinX/category/347116.html">JavaScript Core(23)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/dolphinX/category/532015.html">JavaScript应用(8)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/dolphinX/category/530304.html">jQuery(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/dolphinX/category/540916.html">node.js(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/dolphinX/category/517487.html">PHP step by step(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/dolphinX/category/517466.html">Web综合(8)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_10" href="http://www.cnblogs.com/dolphinX/category/459660.html">设计模式(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_11" href="http://www.cnblogs.com/dolphinX/category/514895.html">我所理解的OOP(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_12" href="http://www.cnblogs.com/dolphinX/category/525268.html">杂谈(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_13" href="http://www.cnblogs.com/dolphinX/category/514894.html">自备JavaScript库(6)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案<span style="font-size:11px;font-weight:normal">(110)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/dolphinX/archive/2016/06.html">2016年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/dolphinX/archive/2016/05.html">2016年5月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/dolphinX/archive/2016/02.html">2016年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/dolphinX/archive/2016/01.html">2016年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/dolphinX/archive/2015/04.html">2015年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/dolphinX/archive/2015/03.html">2015年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/dolphinX/archive/2014/11.html">2014年11月 (10)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/dolphinX/archive/2014/01.html">2014年1月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/dolphinX/archive/2013/12.html">2013年12月 (13)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/dolphinX/archive/2013/11.html">2013年11月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/dolphinX/archive/2013/10.html">2013年10月 (18)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/dolphinX/archive/2013/09.html">2013年9月 (15)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/dolphinX/archive/2013/08.html">2013年8月 (22)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/dolphinX/archive/2013/04.html">2013年4月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/dolphinX/archive/2012/11.html">2012年11月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/dolphinX/archive/2012/10.html">2012年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/dolphinX/archive/2012/09.html">2012年9月 (1)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_scorerank" class="sidebar-block">
+<div class="catListBlogRank">
+<h3 class="catListTitle">积分与排名</h3>
+<ul>
+	<li class="liScore">
+		积分 -	315802
+	</li>
+	<li class="liRank">
+		排名 -	416
+	</li>
+</ul>
+</div>
+
+
+</div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/dolphinX/p/3510346.html">1. 找工作的一些感悟——前端小菜的成长(313)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/3347677.html">2. 了解了这些才能开始发挥jQuery的威力(78)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/3486214.html">3. JavaScript 正则表达式上——基本语法(71)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/3460545.html">4. 简单理解Socket(70)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/3511300.html">5. 容易被忽略CSS特性(68)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/3286177.html">6. JavaScript prototype(61)</a></li><li><a href="http://www.cnblogs.com/dolphinX/archive/2012/09/29/2708763.html">7. JavaScript 闭包究竟是什么(57)</a></li><li><a href="http://www.cnblogs.com/dolphinX/archive/2012/10/13/2722501.html">8. CSS布局 ——从display，position， float属性谈起(51)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/4385862.html">9. JavaScript面向对象(43)</a></li><li><a href="http://www.cnblogs.com/dolphinX/p/5116629.html">10. 阿里前端两年随想(37)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 Samaritans
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+<div></div></body></html>
