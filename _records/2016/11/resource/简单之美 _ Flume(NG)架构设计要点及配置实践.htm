@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html class=" js flexbox canvas canvastext postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache" lang="zh-CN"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="baidu_union_verify" content="fa039528e51a3ffc6565fb61e9efe996">
+<meta name="baidu-tc-verification" content="50ab2a647c7650cd0f17b1a9de12d89d">
+<meta name="viewport" content="width=device-width">
+<title>简单之美 | Flume(NG)架构设计要点及配置实践</title>
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="http://shiyanjun.cn/xmlrpc.php">
+
+
+<link rel="alternate" type="application/rss+xml" title="简单之美 » Feed" href="http://shiyanjun.cn/feed">
+<link rel="alternate" type="application/rss+xml" title="简单之美 » 评论Feed" href="http://shiyanjun.cn/comments/feed">
+<link rel="alternate" type="application/rss+xml" title="简单之美 » Flume(NG)架构设计要点及配置实践评论Feed" href="http://shiyanjun.cn/archives/915.html/feed">
+<link rel="stylesheet" id="mediamaven_style-css" href="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/style.css" type="text/css" media="all">
+<link rel="stylesheet" id="wp-pagenavi-css" href="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/pagenavi-css.css" type="text/css" media="all">
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/modernizr-2.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/jquery.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/jquery-migrate.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/scripts.js"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://shiyanjun.cn/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://shiyanjun.cn/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="HDFS读文件过程分析：获取文件对应的Block列表" href="http://shiyanjun.cn/archives/925.html">
+<link rel="next" title="Kafka+Storm+HDFS整合实践" href="http://shiyanjun.cn/archives/934.html">
+<meta name="generator" content="WordPress 3.9.2">
+<link rel="canonical" href="http://shiyanjun.cn/archives/915.html">
+<link rel="shortlink" href="http://shiyanjun.cn/?p=915">
+<style type="text/css" id="custom-background-css">
+body.custom-background { background-image: url('http://shiyanjun.cn/wp-content/themes/media-maven/library/images/bg.jpg'); background-repeat: repeat; background-position: top left; background-attachment: fixed; }
+</style>
+<link rel="stylesheet" type="text/css" href="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/shCore.css"><link rel="stylesheet" type="text/css" href="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/shThemeDefault.css"><style type="text/css" id="syntaxhighlighteranchor"></style>
+</head>
+
+<body class="single single-post postid-915 single-format-standard custom-background single-author">
+<div id="container">
+	<header id="branding" role="banner">
+      <div id="inner-header" class="clearfix">
+		<hgroup id="site-heading">
+			<h1 id="site-title"><a href="http://shiyanjun.cn/" title="简单之美" rel="home">简单之美</a></h1>
+			<h2 id="site-description">简单之美，难得简单，享受简单的唯美。</h2>
+		</hgroup>
+
+		<nav id="access" role="navigation">
+			<h1 class="assistive-text section-heading">Main menu</h1>
+			<div class="skip-link screen-reader-text"><a href="#content" title="Skip to content">Skip to content</a></div>
+			<div class="menu"><div id="menu-icon">Menu</div><ul id="menu-%e6%88%91%e7%9a%84%e8%8f%9c%e5%8d%95" class="menu"><li id="menu-item-167" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-167"><a href="http://shiyanjun.cn/">首页</a></li>
+<li id="menu-item-118" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-118"><a href="http://shiyanjun.cn/archives/category/programming">编程语言</a></li>
+<li id="menu-item-788" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-788"><a href="http://shiyanjun.cn/archives/category/algorithm">算法</a></li>
+<li id="menu-item-113" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-113"><a href="http://shiyanjun.cn/archives/category/opensource">开源技术</a></li>
+<li id="menu-item-126" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-126"><a href="http://shiyanjun.cn/archives/category/database">数据库</a></li>
+<li id="menu-item-121" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-121"><a href="http://shiyanjun.cn/archives/category/server">服务器</a></li>
+<li id="menu-item-226" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-226"><a href="http://shiyanjun.cn/archives/category/datamining">数据挖掘</a></li>
+<li id="menu-item-199" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-199"><a href="http://shiyanjun.cn/about">关于</a></li>
+</ul></div>			<form role="search" method="get" id="searchform" class="searchform" action="http://shiyanjun.cn/">
+				<div>
+					<label class="screen-reader-text" for="s">搜索：</label>
+					<input name="s" id="s" type="text">
+					<input id="searchsubmit" value="搜索" type="submit">
+				</div>
+			</form>		</nav><!-- #access -->
+        
+
+      </div>
+
+
+	</header><!-- #branding -->
+
+    <div id="content" class="clearfix">
+        
+        <div id="main" class="col620 clearfix" role="main">
+
+			
+				<article id="post-915" class="post-915 post type-post status-publish format-standard hentry category-flume category-opensource tag-flume">
+	<header class="entry-header">
+		<h1 class="entry-title">Flume(NG)架构设计要点及配置实践</h1>
+
+		<div class="entry-meta">
+			<span class="sep"><i title="发表时间" class="icon-calendar"></i></span> <a href="http://shiyanjun.cn/archives/915.html" title="22:29:49" rel="bookmark"><time class="entry-date" datetime="2014-09-17T22:29:49+00:00">2014-09-17 22:29:49</time></a> <span class="byline"> <span class="sep"> &nbsp;&nbsp;<i title="文章作者" class="icon-user"></i></span> <span class="author vcard"><a class="url fn n" href="http://shiyanjun.cn/archives/author/yanjun" title="查看作者 Yanjun 的全部文章" rel="author">Yanjun</a></span></span>		</div><!-- .entry-meta -->
+	</header><!-- .entry-header -->
+
+	<div class="entry-content post_content">
+		<p>Flume 
+NG是一个分布式、可靠、可用的系统，它能够将不同数据源的海量日志数据进行高效收集、聚合、移动，最后存储到一个中心化数据存储系统中。由原来的
+Flume OG到现在的Flume NG，进行了架构重构，并且现在NG版本完全不兼容原来的OG版本。经过架构重构后，Flume 
+NG更像是一个轻量的小工具，非常简单，容易适应各种方式日志收集，并支持failover和负载均衡。</p>
+<p><strong>架构设计要点</strong></p>
+<p>Flume的架构主要有一下几个核心概念：</p>
+<ul>
+<li>Event：一个数据单元，带有一个可选的消息头</li>
+<li>Flow：Event从源点到达目的点的迁移的抽象</li>
+<li>Client：操作位于源点处的Event，将其发送到Flume Agent</li>
+<li>Agent：一个独立的Flume进程，包含组件Source、Channel、Sink</li>
+<li>Source：用来消费传递到该组件的Event</li>
+<li>Channel：中转Event的一个临时存储，保存有Source组件传递过来的Event</li>
+<li>Sink：从Channel中读取并移除Event，将Event传递到Flow Pipeline中的下一个Agent（如果有的话）</li>
+</ul>
+<p>Flume NG架构，如图所示：<br>
+<img class="alignnone size-full wp-image-918" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/flume-ng-architecture.png" alt="flume-ng-architecture" width="646" height="252"><br>
+外部系统产生日志，直接通过Flume的Agent的Source组件将事件（如日志行）发送到中间临时的channel组件，最后传递给Sink组件，HDFS Sink组件可以直接把数据存储到HDFS集群上。<br>
+一个最基本Flow的配置，格式如下：</p>
+<div id="highlighter_113099" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_113099_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_113099" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># list the sources, sinks and channels for the agent</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources = &lt;Source1&gt; &lt;Source2&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks = &lt;Sink1&gt; &lt;Sink2&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">&lt;Agent&gt;.channels = &lt;Channel1&gt; &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain"># set channel for source</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.channels = &lt;Channel1&gt; &lt;Channel2&gt; ...</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source2&gt;.channels = &lt;Channel1&gt; &lt;Channel2&gt; ...</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content"><code class="plain"># set channel for sink</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks.&lt;Sink1&gt;.channel = &lt;Channel1&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks.&lt;Sink2&gt;.channel = &lt;Channel2&gt;</code></td></tr></tbody></table></div></div></div>
+<p>尖括号里面的，我们可以根据实际需求或业务来修改名称。下面详细说明：<br>
+表示配置一个Agent的名称，一个Agent肯定有一个名称。与是Agent的Source组件的名称，消费传递过来的Event。与是Agent的Channel组件的名称。与是Agent的Sink组件的名称，从Channel中消费（移除）Event。<br>
+上面配置内容中，第一组中配置Source、Sink、Channel，它们的值可以有1个或者多个；第二组中配置Source将把数据存储（Put）到
+哪一个Channel中，可以存储到1个或多个Channel中，同一个Source将数据存储到多个Channel中，实际上是
+Replication；第三组中配置Sink从哪一个Channel中取（Task）数据，一个Sink只能从一个Channel中取数据。<br>
+下面，根据官网文档，我们展示几种Flow Pipeline，各自适应于什么样的应用场景：</p>
+<ul>
+<li>多个Agent顺序连接</li>
+</ul>
+<p><img class="alignnone size-full wp-image-919" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/flume-multiseq-agents.png" alt="flume-multiseq-agents" width="642" height="139"><br>
+可以将多个Agent顺序连接起来，将最初的数据源经过收集，存储到最终的存储系统中。这是最简单的情况，一般情况下，应该控制这种顺序连接的Agent
+的数量，因为数据流经的路径变长了，如果不考虑failover的话，出现故障将影响整个Flow上的Agent收集服务。</p>
+<ul>
+<li>多个Agent的数据汇聚到同一个Agent</li>
+</ul>
+<p><img class="alignnone size-full wp-image-920" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/flume-join-agent.png" alt="flume-join-agent" width="644" height="444"><br>
+这种情况应用的场景比较多，比如要收集Web网站的用户行为日志，Web网站为了可用性使用的负载均衡的集群模式，每个节点都产生用户行为日志，可以为每
+个节点都配置一个Agent来单独收集日志数据，然后多个Agent将数据最终汇聚到一个用来存储数据存储系统，如HDFS上。</p>
+<ul>
+<li>多路（Multiplexing）Agent</li>
+</ul>
+<p><img class="alignnone size-full wp-image-921" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/flume-multiplexing-agent.png" alt="flume-multiplexing-agent" width="649" height="388"><br>
+这种模式，有两种方式，一种是用来复制（Replication），另一种是用来分流（Multiplexing）。Replication方式，可以将
+最前端的数据源复制多份，分别传递到多个channel中，每个channel接收到的数据都是相同的，配置格式，如下所示：</p>
+<div id="highlighter_50470" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_50470_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_50470" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># List the sources, sinks and channels for the agent</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources = &lt;Source1&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks = &lt;Sink1&gt; &lt;Sink2&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">&lt;Agent&gt;.channels = &lt;Channel1&gt; &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain"># set list of channels for source (separated by space)</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.channels = &lt;Channel1&gt; &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain"># set channel for sinks</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks.&lt;Sink1&gt;.channel = &lt;Channel1&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sinks.&lt;Sink2&gt;.channel = &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>13</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.type = replicating</code></td></tr></tbody></table></div></div></div>
+<p>上面指定了selector的type的值为replication，其他的配置没有指定，使用的Replication方式，Source1会将
+数据分别存储到Channel1和Channel2，这两个channel里面存储的数据是相同的，然后数据被传递到Sink1和Sink2。<br>
+Multiplexing方式，selector可以根据header的值来确定数据传递到哪一个channel，配置格式，如下所示：</p>
+<div id="highlighter_582591" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_582591_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_582591" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain"># Mapping for multiplexing selector</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.type = multiplexing</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.header = &lt;someHeader&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>4</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.mapping.&lt;Value1&gt; = &lt;Channel1&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>5</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.mapping.&lt;Value2&gt; = &lt;Channel1&gt; &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>6</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.mapping.&lt;Value3&gt; = &lt;Channel2&gt;</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>7</code></td><td class="content"><code class="plain">#...</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>8</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>9</code></td><td class="content"><code class="plain">&lt;Agent&gt;.sources.&lt;Source1&gt;.selector.default = &lt;Channel2&gt;</code></td></tr></tbody></table></div></div></div>
+<p>上面selector的type的值为multiplexing，同时配置selector的header信息，还配置了多个selector的
+mapping的值，即header的值：如果header的值为Value1、Value2，数据从Source1路由到Channel1；如果
+header的值为Value2、Value3，数据从Source1路由到Channel2。</p>
+<ul>
+<li>实现load balance功能</li>
+</ul>
+<p><img class="alignnone size-full wp-image-922" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/flume-load-balance-agents.png" alt="flume-load-balance-agents" width="973" height="501"><br>
+Load balancing Sink Processor能够实现load 
+balance功能，上图Agent1是一个路由节点，负责将Channel暂存的Event均衡到对应的多个Sink组件上，而每个Sink组件分别连
+接到一个独立的Agent上，示例配置，如下所示：</p>
+<div id="highlighter_892443" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_892443_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_892443" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">a1.sinkgroups = g1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.sinks = k1 k2 k3</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.type = load_balance</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>4</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.backoff = true</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>5</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.selector = round_robin</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>6</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.selector.maxTimeOut=10000</code></td></tr></tbody></table></div></div></div>
+<ul>
+<li>实现failover能</li>
+</ul>
+<p>Failover Sink Processor能够实现failover功能，具体流程类似load 
+balance，但是内部处理机制与load balance完全不同：Failover Sink 
+Processor维护一个优先级Sink组件列表，只要有一个Sink组件可用，Event就被传递到下一个组件。如果一个Sink能够成功处理
+Event，则会加入到一个Pool中，否则会被移出Pool并计算失败次数，设置一个惩罚因子，示例配置如下所示：</p>
+<div id="highlighter_151292" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_151292_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_151292" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">a1.sinkgroups = g1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.sinks = k1 k2 k3</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.type = failover</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>4</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.priority.k1 = 5</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>5</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.priority.k2 = 7</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>6</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.priority.k3 = 6</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>7</code></td><td class="content"><code class="plain">a1.sinkgroups.g1.processor.maxpenalty = 20000</code></td></tr></tbody></table></div></div></div>
+<p><strong>基本功能</strong></p>
+<p>我们看一下，Flume 
+NG都支持哪些功能（目前最新版本是1.5.0.1），了解它的功能集合，能够让我们在应用中更好地选择使用哪一种方案。说明Flume 
+NG的功能，实际还是围绕着Agent的三个组件Source、Channel、Sink来看它能够支持哪些技术或协议。我们不再对各个组件支持的协议详
+细配置进行说明，通过列表的方式分别对三个组件进行概要说明：</p>
+<ul>
+<li>Flume Source</li>
+</ul>
+<table style="border: solid thin #868686" width="100%" cellspacing="0" cellpadding="2" border="1">
+<tbody>
+<tr>
+<td style="width: 20%;text-align: center;border: solid thin #868686" valign="top"><b>Source类型</b></td>
+<td style="width: 80%;text-align: center;border: solid thin #868686" valign="top"><b>说明</b></td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Avro Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">支持Avro协议（实际上是Avro RPC），内置支持</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Thrift Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">支持Thrift协议，内置支持</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Exec Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">基于Unix的command在标准输出上生产数据</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">JMS Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">从JMS系统（消息、主题）中读取数据，ActiveMQ已经测试过</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Spooling Directory Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">监控指定目录内数据变更</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Twitter 1% firehose Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">通过API持续下载Twitter数据，试验性质</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Netcat Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">监控某个端口，将流经端口的每一个文本行数据作为Event输入</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Sequence Generator Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">序列生成器数据源，生产序列数据</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Syslog Sources</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">读取syslog数据，产生Event，支持UDP和TCP两种协议</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">HTTP Source</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">基于HTTP POST或GET方式的数据源，支持JSON、BLOB表示形式</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Legacy Sources</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">兼容老的Flume OG中Source（0.9.x版本）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Flume Channel</li>
+</ul>
+<table style="border: solid thin #868686" width="100%" cellspacing="0" cellpadding="2" border="1">
+<tbody>
+<tr>
+<td style="width: 20%;text-align: center;border: solid thin #868686" valign="top"><b>Channel类型</b></td>
+<td style="width: 80%;text-align: center;border: solid thin #868686" valign="top"><b>说明</b></td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Memory Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">Event数据存储在内存中</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">JDBC Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">Event数据存储在持久化存储中，当前Flume Channel内置支持Derby</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">File Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">Event数据存储在磁盘文件中</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Spillable Memory Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">Event数据存储在内存中和磁盘上，当内存队列满了，会持久化到磁盘文件（当前试验性的，不建议生产环境使用）</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Pseudo Transaction Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">测试用途</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Custom Channel</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">自定义Channel实现</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Flume Sink</li>
+</ul>
+<table style="border: solid thin #868686" width="100%" cellspacing="0" cellpadding="2" border="1">
+<tbody>
+<tr>
+<td style="width: 20%;text-align: center;border: solid thin #868686" valign="top"><b>Sink类型</b></td>
+<td style="width: 80%;text-align: center;border: solid thin #868686" valign="top"><b>说明</b></td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">HDFS Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据写入HDFS</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Logger Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据写入日志文件</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Avro Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据被转换成Avro Event，然后发送到配置的RPC端口上</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Thrift Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据被转换成Thrift Event，然后发送到配置的RPC端口上</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">IRC Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据在IRC上进行回放</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">File Roll Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">存储数据到本地文件系统</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Null Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">丢弃到所有数据</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">HBase Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据写入HBase数据库</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Morphline Solr Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据发送到Solr搜索服务器（集群）</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">ElasticSearch Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">数据发送到Elastic Search搜索服务器（集群）</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Kite Dataset Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">写数据到Kite Dataset，试验性质的</td>
+</tr>
+<tr>
+<td style="width: 20%;border: solid thin #868686" valign="top">Custom Sink</td>
+<td style="width: 80%;border: solid thin #868686" valign="top">自定义Sink实现</td>
+</tr>
+</tbody>
+</table>
+<p>另外还有Channel Selector、Sink Processor、Event Serializer、Interceptor等组件，可以参考官网提供的用户手册。</p>
+<p><strong>应用实践</strong></p>
+<p>安装Flume NG非常简单，我们使用最新的1.5.0.1版本，执行如下命令：</p>
+<div id="highlighter_960886" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_960886_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_960886" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">cd /usr/local</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">wget <a href="http://mirror.bit.edu.cn/apache/flume/1.5.0.1/apache-flume-1.5.0.1-bin.tar.gz">http://mirror.bit.edu.cn/apache/flume/1.5.0.1/apache-flume-1.5.0.1-bin.tar.gz</a></code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">tar xvzf apache-flume-1.5.0.1-bin.tar.gz</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>4</code></td><td class="content"><code class="plain">cd apache-flume-1.5.0.1-bin</code></td></tr></tbody></table></div></div></div>
+<p>如果需要使用到Hadoop集群，保证Hadoop相关的环境变量都已经正确配置，并且Hadoop集群可用。下面，通过一些实际的配置实例，来了解Flume的使用。为了简单期间，channel我们使用Memory类型的channel。</p>
+<ul>
+<li>Avro Source+Memory Channel+Logger Sink</li>
+</ul>
+<p>使用apache-flume-1.5.0.1自带的例子，使用Avro Source接收外部数据源，Logger作为sink，即通过Avro RPC调用，将数据缓存在channel中，然后通过Logger打印出调用发送的数据。<br>
+配置Agent，修改配置文件conf/flume-conf.properties，内容如下：</p>
+<div id="highlighter_223435" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_223435_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_223435" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># Define a memory channel called ch1 on agent1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">agent1.channels.ch1.type = memory</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain"># Define an Avro source called avro-source1 on agent1 and tell it</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content"><code class="plain"># to bind to 0.0.0.0:41414. Connect it to channel ch1.</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.type = avro</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.bind = 0.0.0.0</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.port = 41414</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain"># Define a logger sink that simply logs all events it receives</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content"><code class="plain"># and connect it to the other end of the same channel.</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>13</code></td><td class="content"><code class="plain">agent1.sinks.log-sink1.channel = ch1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>14</code></td><td class="content"><code class="plain">agent1.sinks.log-sink1.type = logger</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>15</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>16</code></td><td class="content"><code class="plain"># Finally, now that we've defined all of our components, tell</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>17</code></td><td class="content"><code class="plain"># agent1 which ones we want to activate.</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>18</code></td><td class="content"><code class="plain">agent1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>19</code></td><td class="content"><code class="plain">agent1.channels.ch1.capacity = 1000</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>20</code></td><td class="content"><code class="plain">agent1.sources = avro-source1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>21</code></td><td class="content"><code class="plain">agent1.sinks = log-sink1</code></td></tr></tbody></table></div></div></div>
+<p>首先，启动Agent进程：</p>
+<div id="highlighter_571375" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_571375_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_571375" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng agent -c ./conf/ -f conf/flume-conf.properties -Dflume.root.logger=DEBUG,console -n agent1</code></td></tr></tbody></table></div></div></div>
+<p>然后，启动Avro Client，发送数据：</p>
+<div id="highlighter_161357" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_161357_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_161357" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng avro-client -c ./conf/ -H 0.0.0.0 -p 41414 -F /usr/</code><code class="functions">local</code><code class="plain">/programs/logs/</code><code class="functions">sync</code><code class="plain">.log -Dflume.root.logger=DEBUG,console</code></td></tr></tbody></table></div></div></div>
+<ul>
+<li>Avro Source+Memory Channel+HDFS Sink</li>
+</ul>
+<p>配置Agent，修改配置文件conf/flume-conf-hdfs.properties，内容如下：</p>
+<div id="highlighter_469133" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_469133_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_469133" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># Define a source, channel, sink</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">agent1.sources = avro-source1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">agent1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">agent1.sinks = hdfs-sink</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain"># Configure channel</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">agent1.channels.ch1.type = memory</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">agent1.channels.ch1.capacity = 1000000</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain">agent1.channels.ch1.transactionCapacity = 500000</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain"># Define an Avro source called avro-source1 on agent1 and tell it</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content"><code class="plain"># to bind to 0.0.0.0:41414. Connect it to channel ch1.</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>13</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>14</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.type = avro</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>15</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.bind = 0.0.0.0</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>16</code></td><td class="content"><code class="plain">agent1.sources.avro-source1.port = 41414</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>17</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>18</code></td><td class="content"><code class="plain"># Define a logger sink that simply logs all events it receives</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>19</code></td><td class="content"><code class="plain"># and connect it to the other end of the same channel.</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>20</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.channel = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>21</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.type = hdfs</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>22</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.path = <a href="hdfs://h1:8020/data/flume/">hdfs://h1:8020/data/flume/</a></code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>23</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.filePrefix = sync_file</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>24</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.fileSuffix = .log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>25</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.rollSize = 1048576</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>26</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.rollInterval = 0</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>27</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.rollCount = 0</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>28</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.batchSize = 1500</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>29</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.round = true</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>30</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.roundUnit = minute</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>31</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.threadsPoolSize = 25</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>32</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.useLocalTimeStamp = true</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>33</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.minBlockReplicas = 1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>34</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.fileType = SequenceFile</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>35</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.writeFormat = TEXT</code></td></tr></tbody></table></div></div></div>
+<p>首先，启动Agent：</p>
+<div id="highlighter_924999" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_924999_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_924999" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng agent -c ./conf/ -f conf/flume-conf-hdfs.properties -Dflume.root.logger=INFO,console -n agent1</code></td></tr></tbody></table></div></div></div>
+<p>然后，启动Avro Client，发送数据：</p>
+<div id="highlighter_298325" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_298325_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_298325" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng avro-client -c ./conf/ -H 0.0.0.0 -p 41414 -F /usr/</code><code class="functions">local</code><code class="plain">/programs/logs/</code><code class="functions">sync</code><code class="plain">.log -Dflume.root.logger=DEBUG,console</code></td></tr></tbody></table></div></div></div>
+<p>可以查看同步到HDFS上的数据：</p>
+<div id="highlighter_309651" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_309651_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_309651" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">hdfs dfs -</code><code class="functions">ls</code> <code class="plain">/data/flume</code></td></tr></tbody></table></div></div></div>
+<p>结果示例，如下所示：</p>
+<div id="highlighter_386886" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_386886_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_386886" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp; 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1377617 2014-09-16 14:35 /data/flume/sync_file.1410849320761.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp; 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1378137 2014-09-16 14:35 /data/flume/sync_file.1410849320762.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp;&nbsp; 259148 2014-09-16 14:35 
+/data/flume/sync_file.1410849320763.log</code></td></tr></tbody></table></div></div></div>
+<ul>
+<li>Spooling Directory Source+Memory Channel+HDFS Sink</li>
+</ul>
+<p>配置Agent，修改配置文件flume-conf-spool.properties，内容如下：</p>
+<div id="highlighter_315778" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_315778_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_315778" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># Define source, channel, sink</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">agent1.sources = spool-source1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">agent1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">agent1.sinks = hdfs-sink1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain"># Configure channel</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">agent1.channels.ch1.type = memory</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">agent1.channels.ch1.capacity = 1000000</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain">agent1.channels.ch1.transactionCapacity = 500000</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain"># Define and configure an Spool directory source</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>13</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.type = spooldir</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>14</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.spoolDir = /home/shirdrn/data/</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>15</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.ignorePattern = event(_\d{4}\-\d{2}\-\d{2}_\d{2}_\d{2})?\.log(\.COMPLETED)?</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>16</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.batchSize = 50</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>17</code></td><td class="content"><code class="plain">agent1.sources.spool-source1.inputCharset = UTF-8</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>18</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>19</code></td><td class="content"><code class="plain"># Define and configure a hdfs sink</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>20</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.channel = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>21</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.type = hdfs</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>22</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.path = <a href="hdfs://h1:8020/data/flume/">hdfs://h1:8020/data/flume/</a></code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>23</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.filePrefix = event_%y-%m-%d_%H_%M_%S</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>24</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.fileSuffix = .log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>25</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.rollSize = 1048576</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>26</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.rollCount = 0</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>27</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.batchSize = 1500</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>28</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.round = true</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>29</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.roundUnit = minute</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>30</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.threadsPoolSize = 25</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>31</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.useLocalTimeStamp = true</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>32</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.hdfs.minBlockReplicas = 1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>33</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.fileType = SequenceFile</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>34</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.writeFormat = TEXT</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>35</code></td><td class="content"><code class="plain">agent1.sinks.hdfs-sink1.rollInterval = 0</code></td></tr></tbody></table></div></div></div>
+<p>启动Agent进程，执行如下命令：</p>
+<div id="highlighter_595280" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_595280_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_595280" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng agent -c ./conf/ -f conf/flume-conf-spool.properties -Dflume.root.logger=INFO,console -n agent1</code></td></tr></tbody></table></div></div></div>
+<p>可以查看HDFS上同步过来的数据：</p>
+<div id="highlighter_625209" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_625209_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_625209" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">hdfs dfs -</code><code class="functions">ls</code> <code class="plain">/data/flume</code></td></tr></tbody></table></div></div></div>
+<p>结果示例，如下所示：</p>
+<div id="highlighter_607658" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_607658_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_607658" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:52 
+/data/flume/event_14-09-17_10_52_00.1410922355094.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:52 
+/data/flume/event_14-09-17_10_52_00.1410922355095.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:52 
+/data/flume/event_14-09-17_10_52_00.1410922355096.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:52 
+/data/flume/event_14-09-17_10_52_00.1410922355097.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1530 
+2014-09-17 10:53 /data/flume/event_14-09-17_10_52_00.1410922355098.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:53 
+/data/flume/event_14-09-17_10_53_00.1410922380386.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:53 
+/data/flume/event_14-09-17_10_53_00.1410922380387.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:53 
+/data/flume/event_14-09-17_10_53_00.1410922380388.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:53 
+/data/flume/event_14-09-17_10_53_00.1410922380389.log</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content"><code class="plain">-rw-r--r--&nbsp;&nbsp;
+ 3 shirdrn supergroup&nbsp;&nbsp;&nbsp; 1072265 2014-09-17 10:53 
+/data/flume/event_14-09-17_10_53_00.1410922380390.log</code></td></tr></tbody></table></div></div></div>
+<ul>
+<li>Exec Source+Memory Channel+File Roll Sink</li>
+</ul>
+<p>配置Agent，修改配置文件flume-conf-file.properties，内容如下：</p>
+<div id="highlighter_606131" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_606131_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_606131" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>01</code></td><td class="content"><code class="plain"># Define source, channel, sink</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>02</code></td><td class="content"><code class="plain">agent1.sources = tail-source1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>03</code></td><td class="content"><code class="plain">agent1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>04</code></td><td class="content"><code class="plain">agent1.sinks = file-sink1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>05</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>06</code></td><td class="content"><code class="plain"># Configure channel</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>07</code></td><td class="content"><code class="plain">agent1.channels.ch1.type = memory</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>08</code></td><td class="content"><code class="plain">agent1.channels.ch1.capacity = 1000000</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>09</code></td><td class="content"><code class="plain">agent1.channels.ch1.transactionCapacity = 500000</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>10</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>11</code></td><td class="content"><code class="plain"># Define and configure an Exec source</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>12</code></td><td class="content"><code class="plain">agent1.sources.tail-source1.channels = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>13</code></td><td class="content"><code class="plain">agent1.sources.tail-source1.type = exec</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>14</code></td><td class="content"><code class="plain">agent1.sources.tail-source1.command = tail -F /home/shirdrn/data/event.log</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>15</code></td><td class="content"><code class="plain">agent1.sources.tail-source1.shell = /bin/sh -c</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>16</code></td><td class="content"><code class="plain">agent1.sources.tail-source1.batchSize = 50</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>17</code></td><td class="content">&nbsp;</td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>18</code></td><td class="content"><code class="plain"># Define and configure a File roll sink</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>19</code></td><td class="content"><code class="plain"># and connect it to the other end of the same channel.</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>20</code></td><td class="content"><code class="plain">agent1.sinks.file-sink1.channel = ch1</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>21</code></td><td class="content"><code class="plain">agent1.sinks.file-sink1.type = file_roll</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>22</code></td><td class="content"><code class="plain">agent1.sinks.file-sink1.batchSize = 100</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>23</code></td><td class="content"><code class="plain">agent1.sinks.file-sink1.serializer = TEXT</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>24</code></td><td class="content"><code class="plain">agent1.sinks.file-sink1.sink.directory = /home/shirdrn/sink_data</code></td></tr></tbody></table></div></div></div>
+<p>启动Agent进程，执行如下命令：</p>
+<div id="highlighter_310447" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_310447_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_310447" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">bin/flume-ng agent -c ./conf/ -f conf/flume-conf-</code><code class="functions">file</code><code class="plain">.properties -Dflume.root.logger=INFO,console -n agent1</code></td></tr></tbody></table></div></div></div>
+<p>可以查看File Roll Sink对应的本地文件系统目录/home/shirdrn/sink_data下，示例如下所示：</p>
+<div id="highlighter_152057" class="syntaxhighlighter  "><div class="bar"><div class="toolbar"><a href="#viewSource" title="查看源代码" style="width: 16px; height: 16px;" class="item viewSource">查看源代码</a><div class="item copyToClipboard"><embed id="highlighter_152057_clipboard" type="application/x-shockwave-flash" title="复制到剪贴板" allowscriptaccess="always" wmode="transparent" flashvars="highlighterId=highlighter_152057" menu="false" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/clipboard.swf" width="16" height="16"></div><a href="#printSource" title="打印" style="width: 16px; height: 16px;" class="item printSource">打印</a><a href="#about" title="帮助" style="width: 16px; height: 16px;" class="item about">帮助</a></div></div><div class="lines"><div class="line alt1"><table><tbody><tr><td class="number"><code>1</code></td><td class="content"><code class="plain">-rw-rw-r-- 1 shirdrn shirdrn 13944825 Sep 17 11:36 1410924990039-1</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>2</code></td><td class="content"><code class="plain">-rw-rw-r-- 1 shirdrn shirdrn 11288870 Sep 17 11:37 1410924990039-2</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>3</code></td><td class="content"><code class="plain">-rw-rw-r-- 1 shirdrn shirdrn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0 Sep 17 11:37 1410924990039-3</code></td></tr></tbody></table></div><div class="line alt2"><table><tbody><tr><td class="number"><code>4</code></td><td class="content"><code class="plain">-rw-rw-r-- 1 shirdrn shirdrn 20517500 Sep 17 11:38 1410924990039-4</code></td></tr></tbody></table></div><div class="line alt1"><table><tbody><tr><td class="number"><code>5</code></td><td class="content"><code class="plain">-rw-rw-r-- 1 shirdrn shirdrn 16343250 Sep 17 11:38 1410924990039-5</code></td></tr></tbody></table></div></div></div>
+<p>有关Flume NG更多配置及其说明，请参考官方用户手册，非常详细。</p>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" href="http://flume.apache.org/FlumeUserGuide.html">http://flume.apache.org/FlumeUserGuide.html</a></li>
+<li><a target="_blank" href="https://blogs.apache.org/flume/entry/flume_ng_architecture">https://blogs.apache.org/flume/entry/flume_ng_architecture</a></li>
+</ul>
+            <!-- 署名及许可协议 -->
+            <div id="i_signature" style="display: block;background-color: #f8f8ee; border: solid 1px #e8e7d0; padding: 5px 10px 0px 10px; min-height: 10px; margin-bottom: 20px; margin-top: 20px; color: #666666;"><a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0" rel="license"><img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/88x31.png" style="border-width: 0pt;" alt="Creative Commons License" align="left"></a><p>本文基于<a target="_blank" title="Attribution-NonCommercial 4.0 Unported" href="http://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0</a>许可协议发布，欢迎转载、使用、重新发布，但务必保留文章署名<a href="http://shiyanjun.cn/" target="_blank">时延军</a>（包含链接：http://shiyanjun.cn），不得用于商业目的，基于本文修改后的作品务必以相同的许可发布。如有任何疑问，请与我<a href="mailto:i@shiyanjun.cn" target="_blank">联系</a>。</p>
+		            </div>
+	</div><!-- .entry-content -->
+
+	<footer class="entry-meta">
+		
+	</footer><!-- .entry-meta -->
+</article><!-- #post-915 -->
+
+					<nav id="nav-below">
+		<h1 class="assistive-text section-heading">Post navigation</h1>
+
+	
+		<div class="nav-previous" title="上一篇"><a href="http://shiyanjun.cn/archives/925.html" rel="prev"><span class="meta-nav">←</span> HDFS读文件过程分析：获取文件对应的Block列表</a></div>		<div class="nav-next" title="下一篇"><a href="http://shiyanjun.cn/archives/934.html" rel="next">Kafka+Storm+HDFS整合实践 <span class="meta-nav">→</span></a></div>
+	
+	</nav><!-- #nav-below -->
+	
+					<div id="comments">
+	
+	
+			<h2 id="comments-title">
+			评论(22)： “<span>Flume(NG)架构设计要点及配置实践</span>”		</h2>
+
+
+		<ol class="commentlist">
+				<li class="comment even thread-even depth-1" id="li-comment-26027">
+		<article id="comment-26027" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">Filix</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-26027"><time pubdate="" datetime="2014-10-16T10:00:58+00:00">
+					2014-10-16 10:00:58					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>哥，你这文章的日期不太对啊。。。。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=26027#respond" onclick='return addComment.moveForm("comment-26027", "26027", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-2" id="li-comment-26520">
+		<article id="comment-26520" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-26520"><time pubdate="" datetime="2014-10-17T10:46:40+00:00">
+					2014-10-17 10:46:40					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>什么意思？</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=26520#respond" onclick='return addComment.moveForm("comment-26520", "26520", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-34365">
+		<article id="comment-34365" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">app</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-34365"><time pubdate="" datetime="2014-11-10T13:20:33+00:00">
+					2014-11-10 13:20:33					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>生怕flume agent在实时收集时down掉<br>
+所以写了一个脚本来重启<br>
+请问,这个agent有原生的自愈功能吗?</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=34365#respond" onclick='return addComment.moveForm("comment-34365", "34365", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-admin odd alt depth-2" id="li-comment-34633">
+		<article id="comment-34633" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-34633"><time pubdate="" datetime="2014-11-11T13:41:25+00:00">
+					2014-11-11 13:41:25					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>实时收集过程中，最好使用file类型的channel，即使Flume挂掉
+了，也不会丢失数据，当然也不会重复，只需重启agent即可。另外，Flume支持failover功能，这个特性很好，比如
+agent1-&gt;agent2 + 
+agent3，agent2和agent3“对等”，如果agent2挂了，agent1的sink无法连接到agent2的source，如果
+agent3正常，整体还会正常实时收集。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=34633#respond" onclick='return addComment.moveForm("comment-34633", "34633", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment even depth-3" id="li-comment-57117">
+		<article id="comment-57117" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">222</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57117"><time pubdate="" datetime="2016-02-23T22:48:50+00:00">
+					2016-02-23 22:48:50					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>请问有flume集群的介绍吗</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57117#respond" onclick='return addComment.moveForm("comment-57117", "57117", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-4" id="li-comment-57118">
+		<article id="comment-57118" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57118"><time pubdate="" datetime="2016-02-24T10:17:32+00:00">
+					2016-02-24 10:17:32					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>其实上面我描述的，就算是一个Flume分层架构的实例了。看看，如果有时间，我可以写一篇Flume分层架构应用实践的文章。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57118#respond" onclick='return addComment.moveForm("comment-57118", "57118", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even depth-3" id="li-comment-57141">
+		<article id="comment-57141" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">Mrl</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57141"><time pubdate="" datetime="2016-03-07T10:52:55+00:00">
+					2016-03-07 10:52:55					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>如果agent1节点挂了怎么办？有什么容错机制吗？</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57141#respond" onclick='return addComment.moveForm("comment-57141", "57141", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-4" id="li-comment-57146">
+		<article id="comment-57146" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57146"><time pubdate="" datetime="2016-03-08T22:00:34+00:00">
+					2016-03-08 22:00:34					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>Flume内置没有很好地容错机制，不过你可以自己开发一个Source组件， 使它具备容错功能，就是实现这个可能相对复杂一些。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57146#respond" onclick='return addComment.moveForm("comment-57146", "57146", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even depth-3" id="li-comment-57543">
+		<article id="comment-57543" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">xiaobin</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57543"><time pubdate="" datetime="2016-06-16T16:03:13+00:00">
+					2016-06-16 16:03:13					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>agent使用filechannel的时候出现ERROR 
+channel.ChannelProcessor: Error while writing to required channel: 
+FileChannel c1 java.lang.OutOfMemoryError: Java heap space<br>
+然后我agent进程干掉重启，多次出现这种情况，最后收到的数据比元数据（一百万条）还要多一百多条，这是什么情况，一般filechannel 
+内存溢出的问题如何解决，有什么参数可调；还有就是agent中的”ChannelSize”:”526999″
+,”EventTakeSuccessCount”:”95200″，在filechannel中堆积了大量数据，这可能就是内存溢出的原因吧，可是一直
+没有解决思路，请楼主赐教</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57543#respond" onclick='return addComment.moveForm("comment-57543", "57543", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-55019">
+		<article id="comment-55019" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">frank</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55019"><time pubdate="" datetime="2015-06-22T23:06:19+00:00">
+					2015-06-22 23:06:19					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>详细，攒</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55019#respond" onclick='return addComment.moveForm("comment-55019", "55019", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-55516">
+		<article id="comment-55516" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">王文诗</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55516"><time pubdate="" datetime="2015-07-27T14:46:44+00:00">
+					2015-07-27 14:46:44					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>你好：<br>
+Avro Source+Memory Channel+Logger Sink<br>
+想问一下这个的日志文件在哪里存储啊。<br>
+我是这方面的小白，请问一下应用到真是环境里边怎么部署，多多指教</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55516#respond" onclick='return addComment.moveForm("comment-55516", "55516", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-2" id="li-comment-55520">
+		<article id="comment-55520" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55520"><time pubdate="" datetime="2015-07-28T09:53:14+00:00">
+					2015-07-28 09:53:14					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>既然是Logger Sink，需要配置Logger的appender，和你配置log4j类似，可以输出到文件，或者控制台。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55520#respond" onclick='return addComment.moveForm("comment-55520", "55520", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment even depth-3" id="li-comment-55525">
+		<article id="comment-55525" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">王文诗</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55525"><time pubdate="" datetime="2015-07-28T16:07:54+00:00">
+					2015-07-28 16:07:54					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>是直接输出在控制台了，怎么保存到日志文件呢。<br>
+我想在线上应用flume日志服务器。具体环境如下：<br>
+有7台应用服务器一台存储服务器，flume需要做的就是7台应用服务器上的日志实时传输到存储服务器上去，我的想法是，每台应用服务器作为Agent 
+存储服务器做File/HDFS 具体怎么连接/配置我就有点迷糊了，能否给点建议，现在还没有理清楚flume整体怎么运行的了。感谢！！！</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55525#respond" onclick='return addComment.moveForm("comment-55525", "55525", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-4" id="li-comment-55529">
+		<article id="comment-55529" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55529"><time pubdate="" datetime="2015-07-28T18:53:36+00:00">
+					2015-07-28 18:53:36					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>file类型的Logger Sink，应该在log4j配置文件中指定。或者，使用file_roll sink。<br>
+两种方法：第一，7台机器都配置一个hdfs sink，直接写到HDFS，注意路径，之后再在HDFS上做合并。第二，增加一台机器，安装flume agent，7台机器上同步到这一台上做汇聚，再由这一台写入到HDFS。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55529#respond" onclick='return addComment.moveForm("comment-55529", "55529", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment even depth-5" id="li-comment-55533">
+		<article id="comment-55533" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">王文诗</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55533"><time pubdate="" datetime="2015-07-29T09:25:08+00:00">
+					2015-07-29 09:25:08					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>webserver                |                        |<br>
+webserver  agent client  |  source          sink  |<br>
+webserver  ————–|                        |—HDFS<br>
+webserver                |         channel        |<br>
+webserver                |                   Agent|<br>
+                         ————————–<br>
+是不是这样的部署。<br>
+但是我不清楚他们之间怎么调度的，是通过IP+端口号吗？</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55533#respond" onclick='return addComment.moveForm("comment-55533", "55533", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-55545">
+		<article id="comment-55545" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">llp</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-55545"><time pubdate="" datetime="2015-07-30T15:27:24+00:00">
+					2015-07-30 15:27:24					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>flume这边的配置按您说的可以完成    但是在spark streaming 这边，为什么我收不到flume送过来的数据？？   请教</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=55545#respond" onclick='return addComment.moveForm("comment-55545", "55545", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-57180">
+		<article id="comment-57180" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">zht</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57180"><time pubdate="" datetime="2016-03-25T17:51:35+00:00">
+					2016-03-25 17:51:35					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>多路（Multiplexing）Agent这个中，那个someheader怎么配置，是数据里的什么吗？？？</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57180#respond" onclick='return addComment.moveForm("comment-57180", "57180", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-2" id="li-comment-57193">
+		<article id="comment-57193" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57193"><time pubdate="" datetime="2016-04-01T17:43:24+00:00">
+					2016-04-01 17:43:24					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>这个官方文档描述的确实不太清楚。这个Header，是通过Interceptor在Source上进行设置的，可以查看官网文档中Static interceptor一节，里面告诉了你该如何将Header加到event中去。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57193#respond" onclick='return addComment.moveForm("comment-57193", "57193", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-57434">
+		<article id="comment-57434" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">weaponlau</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57434"><time pubdate="" datetime="2016-05-11T21:09:13+00:00">
+					2016-05-11 21:09:13					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>请问大伽，能提供一个接入activeMQ的DEMO吗？谢谢！</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57434#respond" onclick='return addComment.moveForm("comment-57434", "57434", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-yanjun bypostauthor odd alt depth-2" id="li-comment-57443">
+		<article id="comment-57443" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/alien_gray.png" alt="Yanjun" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo" width="40" height="40">					<cite class="fn"><a href="http://www.shiyanjun.cn/" rel="external nofollow" class="url">Yanjun</a></cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57443"><time pubdate="" datetime="2016-05-19T00:04:04+00:00">
+					2016-05-19 00:04:04					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>最近比较忙，等过段时间方便的话可以考虑实现一个。</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57443#respond" onclick='return addComment.moveForm("comment-57443", "57443", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-57539">
+		<article id="comment-57539" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">carlhe</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57539"><time pubdate="" datetime="2016-06-12T15:25:20+00:00">
+					2016-06-12 15:25:20					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>使用kafka-source, memory-channel, hdfs-sink。如果flume挂了的话，拉起来之后能从挂时候的offset继续消费么；或者启多个flume-ng，它们是在同一个消费组中groupID一样，通过这样来保证高可用？</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57539#respond" onclick='return addComment.moveForm("comment-57539", "57539", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="li-comment-57587">
+		<article id="comment-57587" class="comment">
+			<footer class="clearfix comment-head">
+				<div class="comment-author vcard">
+					<img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/User.png" alt="" class="avatar avatar-40 wp-user-avatar wp-user-avatar-40 alignnone photo avatar-default" width="40" height="40">					<cite class="fn">bobi</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://shiyanjun.cn/archives/915.html#comment-57587"><time pubdate="" datetime="2016-06-22T17:27:02+00:00">
+					2016-06-22 17:27:02					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>agent1到agent2,agent3,agent4中数据会有重复吗</p>
+</div>
+
+			<div class="reply">
+				<a class="comment-reply-link" href="http://shiyanjun.cn/archives/915.html?replytocom=57587#respond" onclick='return addComment.moveForm("comment-57587", "57587", "respond", "915")'>回复</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+		</ol>
+
+		
+	
+	
+									<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">发表评论 <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://shiyanjun.cn/archives/915.html#respond" style="display:none;">取消回复</a></small></h3>
+									<form action="http://shiyanjun.cn/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">电子邮件地址不会被公开。 必填项已用<span class="required">*</span>标注</p>							<p class="comment-form-author"><label for="author">姓名 <span class="required">*</span></label> <input id="author" name="author" size="30" aria-required="true" type="text"></p>
+<p class="comment-form-email"><label for="email">电子邮件 <span class="required">*</span></label> <input id="email" name="email" size="30" aria-required="true" type="text"></p>
+<p class="comment-form-url"><label for="url">站点</label> <input id="url" name="url" size="30" type="text"></p>
+												<p class="comment-form-comment"><label for="comment">评论</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">您可以使用这些<abbr title="HyperText Markup Language">HTML</abbr>标签和属性： <code>&lt;a
+ href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; 
+&lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del 
+datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; 
+&lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" id="submit" value="发表评论" type="submit">
+							<input name="comment_post_ID" value="915" id="comment_post_ID" type="hidden">
+<input name="comment_parent" id="comment_parent" value="0" type="hidden">
+						</p>
+						<p style="display: none;"><input id="akismet_comment_nonce" name="akismet_comment_nonce" value="d3cedf61e6" type="hidden"></p><p style="display: none;"></p>					<input id="ak_js" name="ak_js" value="1479045831184" type="hidden"></form>
+							</div><!-- #respond -->
+			
+</div><!-- #comments -->
+			
+        </div> <!-- end #main -->
+
+        		<div id="sidebar" class="widget-area col300" role="complementary">
+					<div class="widget-wrap"><aside id="recent-posts-2" class="widget widget_recent_entries">		<h2 class="widget-title">最新文章</h2>		<ul>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1536.html">Spark RPC通信层设计原理分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1508.html">Apache Flink：特性、概念、组件栈、架构及原理分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1497.html">Flume日志收集分层架构应用实践</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1472.html">Apache Storm内部原理分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1457.html">MapReduce V1：MapTask执行流程分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1429.html">基于协同过滤的推荐方法</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1418.html">MapReduce V1：TaskTracker端启动Task流程分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1408.html">MapReduce V1：TaskTracker设计要点概要分析</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1398.html">k-medoids聚类算法实现</a>
+						</li>
+					<li>
+				<a href="http://shiyanjun.cn/archives/1388.html">Bisecting k-means聚类算法实现</a>
+						</li>
+				</ul>
+		</aside></div><div class="widget-wrap"><aside id="categories-2" class="widget widget_categories"><h2 class="widget-title">文章分类</h2>		<ul>
+	<li class="cat-item cat-item-8"><a href="http://shiyanjun.cn/archives/category/opensource" title="查看开源技术下的所有文章">开源技术</a> (82)
+<ul class="children">
+	<li class="cat-item cat-item-86"><a href="http://shiyanjun.cn/archives/category/opensource/akka" title="查看Akka下的所有文章">Akka</a> (3)
+</li>
+	<li class="cat-item cat-item-84"><a href="http://shiyanjun.cn/archives/category/opensource/crunch" title="查看Crunch下的所有文章">Crunch</a> (1)
+</li>
+	<li class="cat-item cat-item-36"><a href="http://shiyanjun.cn/archives/category/opensource/dubbo" title="查看Dubbo下的所有文章">Dubbo</a> (4)
+</li>
+	<li class="cat-item cat-item-88"><a href="http://shiyanjun.cn/archives/category/opensource/elasticsearch" title="查看ElasticSearch下的所有文章">ElasticSearch</a> (1)
+</li>
+	<li class="cat-item cat-item-95"><a href="http://shiyanjun.cn/archives/category/opensource/flink" title="查看Flink下的所有文章">Flink</a> (1)
+</li>
+	<li class="cat-item cat-item-79"><a href="http://shiyanjun.cn/archives/category/opensource/flume" title="查看Flume下的所有文章">Flume</a> (2)
+</li>
+	<li class="cat-item cat-item-9"><a href="http://shiyanjun.cn/archives/category/opensource/hadoop" title="查看Hadoop下的所有文章">Hadoop</a> (23)
+</li>
+	<li class="cat-item cat-item-62"><a href="http://shiyanjun.cn/archives/category/opensource/hive" title="查看Hive下的所有文章">Hive</a> (2)
+</li>
+	<li class="cat-item cat-item-82"><a href="http://shiyanjun.cn/archives/category/opensource/hue" title="查看Hue下的所有文章">Hue</a> (1)
+</li>
+	<li class="cat-item cat-item-61"><a href="http://shiyanjun.cn/archives/category/opensource/impala" title="查看Impala下的所有文章">Impala</a> (2)
+</li>
+	<li class="cat-item cat-item-93"><a href="http://shiyanjun.cn/archives/category/opensource/mahout" title="查看Mahout下的所有文章">Mahout</a> (1)
+</li>
+	<li class="cat-item cat-item-29"><a href="http://shiyanjun.cn/archives/category/opensource/maven" title="查看Maven下的所有文章">Maven</a> (1)
+</li>
+	<li class="cat-item cat-item-30"><a href="http://shiyanjun.cn/archives/category/opensource/mina" title="查看Mina下的所有文章">Mina</a> (6)
+</li>
+	<li class="cat-item cat-item-73"><a href="http://shiyanjun.cn/archives/category/opensource/mybatis" title="查看Mybatis下的所有文章">Mybatis</a> (1)
+</li>
+	<li class="cat-item cat-item-15"><a href="http://shiyanjun.cn/archives/category/opensource/oozie" title="查看Oozie下的所有文章">Oozie</a> (4)
+</li>
+	<li class="cat-item cat-item-85"><a href="http://shiyanjun.cn/archives/category/opensource/pig" title="查看Pig下的所有文章">Pig</a> (1)
+</li>
+	<li class="cat-item cat-item-11"><a href="http://shiyanjun.cn/archives/category/opensource/solr" title="查看Solr下的所有文章">Solr</a> (5)
+</li>
+	<li class="cat-item cat-item-68"><a href="http://shiyanjun.cn/archives/category/opensource/spark" title="查看Spark下的所有文章">Spark</a> (7)
+</li>
+	<li class="cat-item cat-item-67"><a href="http://shiyanjun.cn/archives/category/opensource/sqoop" title="查看Sqoop下的所有文章">Sqoop</a> (3)
+</li>
+	<li class="cat-item cat-item-35"><a href="http://shiyanjun.cn/archives/category/opensource/storm" title="查看Storm下的所有文章">Storm</a> (5)
+</li>
+	<li class="cat-item cat-item-22"><a href="http://shiyanjun.cn/archives/category/opensource/thrift" title="查看Thrift下的所有文章">Thrift</a> (2)
+</li>
+	<li class="cat-item cat-item-38"><a href="http://shiyanjun.cn/archives/category/opensource/webservices" title="查看Web Services下的所有文章">Web Services</a> (1)
+</li>
+	<li class="cat-item cat-item-23"><a href="http://shiyanjun.cn/archives/category/opensource/zookeeper" title="查看ZooKeeper下的所有文章">ZooKeeper</a> (3)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-18"><a href="http://shiyanjun.cn/archives/category/database" title="查看数据库下的所有文章">数据库</a> (5)
+<ul class="children">
+	<li class="cat-item cat-item-20"><a href="http://shiyanjun.cn/archives/category/database/nosql" title="查看NoSQL数据库下的所有文章">NoSQL数据库</a> (4)
+	<ul class="children">
+	<li class="cat-item cat-item-10"><a href="http://shiyanjun.cn/archives/category/database/nosql/hbase" title="查看HBase下的所有文章">HBase</a> (3)
+</li>
+	<li class="cat-item cat-item-21"><a href="http://shiyanjun.cn/archives/category/database/nosql/redis" title="查看Redis下的所有文章">Redis</a> (1)
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-19"><a href="http://shiyanjun.cn/archives/category/database/rdb" title="查看关系数据库下的所有文章">关系数据库</a> (1)
+	<ul class="children">
+	<li class="cat-item cat-item-49"><a href="http://shiyanjun.cn/archives/category/database/rdb/mysql" title="查看MySQL下的所有文章">MySQL</a> (1)
+</li>
+	</ul>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-12"><a href="http://shiyanjun.cn/archives/category/datamining" title="查看数据挖掘下的所有文章">数据挖掘</a> (10)
+</li>
+	<li class="cat-item cat-item-16"><a href="http://shiyanjun.cn/archives/category/server" title="查看服务器下的所有文章">服务器</a> (4)
+<ul class="children">
+	<li class="cat-item cat-item-78"><a href="http://shiyanjun.cn/archives/category/server/ganglia" title="查看Ganglia下的所有文章">Ganglia</a> (1)
+</li>
+	<li class="cat-item cat-item-37"><a href="http://shiyanjun.cn/archives/category/server/haproxy" title="查看HAProxy下的所有文章">HAProxy</a> (1)
+</li>
+	<li class="cat-item cat-item-76"><a href="http://shiyanjun.cn/archives/category/server/memcached" title="查看Memcached下的所有文章">Memcached</a> (1)
+</li>
+	<li class="cat-item cat-item-17"><a href="http://shiyanjun.cn/archives/category/server/nginx" title="查看Nginx下的所有文章">Nginx</a> (1)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-70"><a href="http://shiyanjun.cn/archives/category/algorithm" title="查看算法下的所有文章">算法</a> (8)
+</li>
+	<li class="cat-item cat-item-2"><a href="http://shiyanjun.cn/archives/category/programming" title="查看编程语言下的所有文章">编程语言</a> (4)
+<ul class="children">
+	<li class="cat-item cat-item-3"><a href="http://shiyanjun.cn/archives/category/programming/java" title="查看Java下的所有文章">Java</a> (2)
+</li>
+	<li class="cat-item cat-item-74"><a href="http://shiyanjun.cn/archives/category/programming/nodejs" title="查看Node.js下的所有文章">Node.js</a> (1)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://shiyanjun.cn/archives/category/programming/php" title="查看PHP下的所有文章">PHP</a> (1)
+</li>
+</ul>
+</li>
+		</ul>
+</aside></div><div class="widget-wrap"><aside id="archives-2" class="widget widget_archive"><h2 class="widget-title">文章存档</h2>		<ul>
+	<li><a href="http://shiyanjun.cn/archives/date/2016/09">2016年九月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2016/04">2016年四月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2016/02">2016年二月</a>&nbsp;(3)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/12">2015年十二月</a>&nbsp;(5)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/11">2015年十一月</a>&nbsp;(4)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/10">2015年十月</a>&nbsp;(2)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/09">2015年九月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/08">2015年八月</a>&nbsp;(3)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/07">2015年七月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/06">2015年六月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/05">2015年五月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/04">2015年四月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/03">2015年三月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/02">2015年二月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2015/01">2015年一月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/12">2014年十二月</a>&nbsp;(2)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/11">2014年十一月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/10">2014年十月</a>&nbsp;(3)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/09">2014年九月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/08">2014年八月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/07">2014年七月</a>&nbsp;(2)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/06">2014年六月</a>&nbsp;(2)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/05">2014年五月</a>&nbsp;(2)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/04">2014年四月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/03">2014年三月</a>&nbsp;(14)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/02">2014年二月</a>&nbsp;(4)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2014/01">2014年一月</a>&nbsp;(1)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2013/12">2013年十二月</a>&nbsp;(3)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2013/11">2013年十一月</a>&nbsp;(5)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2013/10">2013年十月</a>&nbsp;(6)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2013/09">2013年九月</a>&nbsp;(13)</li>
+	<li><a href="http://shiyanjun.cn/archives/date/2013/08">2013年八月</a>&nbsp;(21)</li>
+		</ul>
+</aside></div><div class="widget-wrap"><aside id="colorful_tag_cloud-2" class="widget widget_colorful_tag_cloud"><h2 class="widget-title">全站标签</h2><a href="http://shiyanjun.cn/archives/tag/pig" class="tag-link-85" title="1" style="font-size: 12pt; color: #00a650">Pig</a>
+<a href="http://shiyanjun.cn/archives/tag/nginx" class="tag-link-17" title="1" style="font-size: 12pt; color: #00a650">Nginx</a>
+<a href="http://shiyanjun.cn/archives/tag/sql" class="tag-link-24" title="1" style="font-size: 12pt; color: #00a650">SQL</a>
+<a href="http://shiyanjun.cn/archives/tag/spring" class="tag-link-46" title="1" style="font-size: 12pt; color: #00a650">Spring</a>
+<a href="http://shiyanjun.cn/archives/tag/jvm" class="tag-link-42" title="1" style="font-size: 12pt; color: #00a650">JVM</a>
+<a href="http://shiyanjun.cn/archives/tag/impala" class="tag-link-61" title="2" style="font-size: 14.7931034483pt; color: #f16522">Impala</a>
+<a href="http://shiyanjun.cn/archives/tag/hessian" class="tag-link-41" title="1" style="font-size: 12pt; color: #00a650">Hessian</a>
+<a href="http://shiyanjun.cn/archives/tag/spark" class="tag-link-68" title="7" style="font-size: 21.3103448276pt; color: #f0f">Spark</a>
+<a href="http://shiyanjun.cn/archives/tag/jax-ws" class="tag-link-39" title="1" style="font-size: 12pt; color: #00a650">JAX-WS</a>
+<a href="http://shiyanjun.cn/archives/tag/spark-2-0-0" class="tag-link-96" title="1" style="font-size: 12pt; color: #00a650">Spark-2.0.0</a>
+<a href="http://shiyanjun.cn/archives/tag/node-js" class="tag-link-75" title="1" style="font-size: 12pt; color: #00a650">Node.js</a>
+<a href="http://shiyanjun.cn/archives/tag/k-means" class="tag-link-64" title="2" style="font-size: 14.7931034483pt; color: #f16522">K-means</a>
+<a href="http://shiyanjun.cn/archives/tag/%e5%88%86%e7%b1%bb" class="tag-link-90" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">分类</a>
+<a href="http://shiyanjun.cn/archives/tag/storm" class="tag-link-35" title="5" style="font-size: 19.4482758621pt; color: #2f3192">Storm</a>
+<a href="http://shiyanjun.cn/archives/tag/elasticsearch" class="tag-link-88" title="1" style="font-size: 12pt; color: #00a650">ElasticSearch</a>
+<a href="http://shiyanjun.cn/archives/tag/yarn" class="tag-link-65" title="2" style="font-size: 14.7931034483pt; color: #f16522">YARN</a>
+<a href="http://shiyanjun.cn/archives/tag/java" class="tag-link-3" title="2" style="font-size: 14.7931034483pt; color: #f16522">Java</a>
+<a href="http://shiyanjun.cn/archives/tag/tomcat" class="tag-link-28" title="1" style="font-size: 12pt; color: #00a650">Tomcat</a>
+<a href="http://shiyanjun.cn/archives/tag/solrcloud" class="tag-link-27" title="1" style="font-size: 12pt; color: #00a650">SolrCloud</a>
+<a href="http://shiyanjun.cn/archives/tag/id3" class="tag-link-57" title="1" style="font-size: 12pt; color: #00a650">ID3</a>
+<a href="http://shiyanjun.cn/archives/tag/dbscan" class="tag-link-87" title="1" style="font-size: 12pt; color: #00a650">DBSCAN</a>
+<a href="http://shiyanjun.cn/archives/tag/%e5%86%b3%e7%ad%96%e6%a0%91" class="tag-link-58" title="2" style="font-size: 14.7931034483pt; color: #f16522">决策树</a>
+<a href="http://shiyanjun.cn/archives/tag/svm" class="tag-link-33" title="1" style="font-size: 12pt; color: #00a650">SVM</a>
+<a href="http://shiyanjun.cn/archives/tag/%e6%8e%92%e5%ba%8f" class="tag-link-71" title="8" style="font-size: 22.0862068966pt; color: #16bcb4">排序</a>
+<a href="http://shiyanjun.cn/archives/tag/hadoop2" class="tag-link-25" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">Hadoop2</a>
+<a href="http://shiyanjun.cn/archives/tag/oozie" class="tag-link-15" title="4" style="font-size: 18.2068965517pt; color: #0f0">Oozie</a>
+<a href="http://shiyanjun.cn/archives/tag/mahout" class="tag-link-93" title="1" style="font-size: 12pt; color: #00a650">Mahout</a>
+<a href="http://shiyanjun.cn/archives/tag/haproxy" class="tag-link-37" title="1" style="font-size: 12pt; color: #00a650">HAProxy</a>
+<a href="http://shiyanjun.cn/archives/tag/dubbo" class="tag-link-36" title="4" style="font-size: 18.2068965517pt; color: #0f0">Dubbo</a>
+<a href="http://shiyanjun.cn/archives/tag/%e8%81%9a%e7%b1%bb" class="tag-link-89" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">聚类</a>
+<a href="http://shiyanjun.cn/archives/tag/maven" class="tag-link-29" title="1" style="font-size: 12pt; color: #00a650">Maven</a>
+<a href="http://shiyanjun.cn/archives/tag/mysql" class="tag-link-49" title="1" style="font-size: 12pt; color: #00a650">MySQL</a>
+<a href="http://shiyanjun.cn/archives/tag/hwi" class="tag-link-77" title="1" style="font-size: 12pt; color: #00a650">HWI</a>
+<a href="http://shiyanjun.cn/archives/tag/mapreduce" class="tag-link-34" title="13" style="font-size: 25.1896551724pt; color: #f49bc1">MapReduce</a>
+<a href="http://shiyanjun.cn/archives/tag/web-services" class="tag-link-40" title="1" style="font-size: 12pt; color: #00a650">Web Services</a>
+<a href="http://shiyanjun.cn/archives/tag/ganglia" class="tag-link-78" title="1" style="font-size: 12pt; color: #00a650">Ganglia</a>
+<a href="http://shiyanjun.cn/archives/tag/thrift" class="tag-link-22" title="4" style="font-size: 18.2068965517pt; color: #0f0">Thrift</a>
+<a href="http://shiyanjun.cn/archives/tag/libsvm" class="tag-link-32" title="2" style="font-size: 14.7931034483pt; color: #f16522">libsvm</a>
+<a href="http://shiyanjun.cn/archives/tag/redis" class="tag-link-21" title="1" style="font-size: 12pt; color: #00a650">Redis</a>
+<a href="http://shiyanjun.cn/archives/tag/memcached" class="tag-link-76" title="1" style="font-size: 12pt; color: #00a650">Memcached</a>
+<a href="http://shiyanjun.cn/archives/tag/kafka" class="tag-link-81" title="1" style="font-size: 12pt; color: #00a650">Kafka</a>
+<a href="http://shiyanjun.cn/archives/tag/sqoop" class="tag-link-67" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">Sqoop</a>
+<a href="http://shiyanjun.cn/archives/tag/hadoop-1-2-1" class="tag-link-80" title="11" style="font-size: 24.1034482759pt; color: #005b7e">Hadoop-1.2.1</a>
+<a href="http://shiyanjun.cn/archives/tag/jstorm" class="tag-link-83" title="1" style="font-size: 12pt; color: #00a650">JStorm</a>
+<a href="http://shiyanjun.cn/archives/tag/flume" class="tag-link-79" title="2" style="font-size: 14.7931034483pt; color: #f16522">Flume</a>
+<a href="http://shiyanjun.cn/archives/tag/flink" class="tag-link-95" title="1" style="font-size: 12pt; color: #00a650">Flink</a>
+<a href="http://shiyanjun.cn/archives/tag/k-medoids" class="tag-link-91" title="1" style="font-size: 12pt; color: #00a650">k-medoids</a>
+<a href="http://shiyanjun.cn/archives/tag/mina-2" class="tag-link-31" title="6" style="font-size: 20.5344827586pt; color: #00f">Mina</a>
+<a href="http://shiyanjun.cn/archives/tag/php" class="tag-link-5" title="1" style="font-size: 12pt; color: #00a650">PHP</a>
+<a href="http://shiyanjun.cn/archives/tag/mybatis" class="tag-link-73" title="1" style="font-size: 12pt; color: #00a650">Mybatis</a>
+<a href="http://shiyanjun.cn/archives/tag/hdfs" class="tag-link-72" title="5" style="font-size: 19.4482758621pt; color: #2f3192">HDFS</a>
+<a href="http://shiyanjun.cn/archives/tag/akka" class="tag-link-86" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">Akka</a>
+<a href="http://shiyanjun.cn/archives/tag/solr" class="tag-link-11" title="5" style="font-size: 19.4482758621pt; color: #2f3192">Solr</a>
+<a href="http://shiyanjun.cn/archives/tag/zookeeper" class="tag-link-23" title="4" style="font-size: 18.2068965517pt; color: #0f0">ZooKeeper</a>
+<a href="http://shiyanjun.cn/archives/tag/cf" class="tag-link-92" title="1" style="font-size: 12pt; color: #00a650">CF</a>
+<a href="http://shiyanjun.cn/archives/tag/hbase" class="tag-link-10" title="4" style="font-size: 18.2068965517pt; color: #0f0">HBase</a>
+<a href="http://shiyanjun.cn/archives/tag/hadoop" class="tag-link-9" title="28" style="font-size: 30pt; color: #ee1d24">Hadoop</a>
+<a href="http://shiyanjun.cn/archives/tag/crunch" class="tag-link-84" title="1" style="font-size: 12pt; color: #00a650">Crunch</a>
+<a href="http://shiyanjun.cn/archives/tag/jregex" class="tag-link-26" title="1" style="font-size: 12pt; color: #00a650">JRegex</a>
+<a href="http://shiyanjun.cn/archives/tag/hive" class="tag-link-62" title="3" style="font-size: 16.6551724138pt; color: #bc8cbf">Hive</a>
+<a href="http://shiyanjun.cn/archives/tag/c4-5" class="tag-link-60" title="1" style="font-size: 12pt; color: #00a650">C4.5</a>
+<a href="http://shiyanjun.cn/archives/tag/hue" class="tag-link-82" title="1" style="font-size: 12pt; color: #00a650">Hue</a></aside></div><div class="widget-wrap"><aside id="get-recent-comments" class="widget widget_get_recent_comments"><h2 class="widget-title">最新评论</h2><div id="get_recent_comments_wrap"><ul>	<li><a href="http://shiyanjun.cn/archives/291.html#comment-57952" title="Hadoop MapReduce处理海量小文件：自定义InputFormat和RecordReader, 2013-09-01 15:18:00">James</a>: 那如果是mapreduce 有一个文件夹的下得多个文档需要处理 但是需要单独处理怎么办呢？ 意思是每读取一个文档做一次Mapreduce然后输出 然后处理下一个文档</li>
+	<li><a href="http://shiyanjun.cn/archives/934.html#comment-57944" title="Kafka+Storm+HDFS整合实践, 2014-10-21 19:24:19">安静</a>: 想问一下，您使用common-logging把日志记录在哪里 了，本地文件吗</li>
+	<li><a href="http://shiyanjun.cn/archives/934.html#comment-57941" title="Kafka+Storm+HDFS整合实践, 2014-10-21 19:24:19">无敌小坑妞</a>: 没在右上角看到您的联系方式，没想到您回的这么及时，我的qq是 151487510 网名：七个猕猴桃 若不嫌打扰，请加下我，谢谢！！</li>
+	<li><a href="http://shiyanjun.cn/archives/934.html#comment-57940" title="Kafka+Storm+HDFS整合实践, 2014-10-21 19:24:19">无敌小坑妞</a>: 三台内网服务器防火墙都是关闭的 iptables 0:off 1:off 2:off 3:off 4:off 5:off 6:off</li>
+	<li><a href="http://shiyanjun.cn/archives/934.html#comment-57933" title="Kafka+Storm+HDFS整合实践, 2014-10-21 19:24:19">无敌小坑妞</a>: 楼主，我使用的版本如下 storm-core 1.0.2 storm-kafka 1.0.2 kafka_2.10 0.10.1.0 配置文件如下 kafka server.properties...</li>
+	<li><a href="http://shiyanjun.cn/archives/548.html#comment-57929" title="使用libsvm实现文本分类, 2013-12-13 23:43:05">alxor</a>: 想请教楼主： 1.输出量化数据文件是单个文件还是每个文档一个文件。 2.train.txt是文档集合处理完生成的吗？ 3.libsvm训练的是label.txt还是train.t xt...</li>
+	<li><a href="http://shiyanjun.cn/archives/336.html#comment-57905" title="Hadoop Streaming原理及实践, 2013-09-04 20:52:16">feaw</a>: 要写成 python file.py</li>
+	<li><a href="http://shiyanjun.cn/archives/1113.html#comment-57900" title="Spark-1.3.1与Hive整合实现查询分析, 2015-05-14 21:42:08">ZhangDelin</a>: mysql是为了存储元数据的</li>
+	<li><a href="http://shiyanjun.cn/archives/548.html#comment-57886" title="使用libsvm实现文本分类, 2013-12-13 23:43:05">朱哑娜</a>: 请问楼主，这些语料资源是需要我们自己添加的吗？还是不需要添加 的？然后，我运行了TrainDocumentProcesso rDriver.java 文件显示如下错误，不知道是什么原因，已经将Data的文...</li>
+	<li><a href="http://shiyanjun.cn/archives/180.html#comment-57885" title="Maven构建应用程序常用配置, 2013-08-27 16:11:02">胖哥</a>: 撸主，你编译打包成jar文件前面多了个标点</li>
+</ul></div></aside></div><div class="widget-wrap"><aside id="meta-2" class="widget widget_meta"><h2 class="widget-title">站点管理</h2>			<ul>
+						<li><a href="http://shiyanjun.cn/wp-login.php">登录</a></li>
+			<li><a href="http://shiyanjun.cn/feed" title="使用RSS 2.0订阅本站点内容">文章<abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://shiyanjun.cn/comments/feed" title="使用RSS订阅本站点的所有文章的近期评论">评论<abbr title="Really Simple Syndication">RSS</abbr></a></li>
+<li><a href="https://cn.wordpress.org/" title="基于WordPress，一个优美、先进的个人信息发布平台。">WordPress.org</a></li>			</ul>
+</aside></div><div class="widget-wrap"><aside id="text-4" class="widget widget_text"><h2 class="widget-title">  </h2>			<div class="textwidget"><p><script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000041007'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000041007%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));</script><span id="cnzz_stat_icon_1000041007"><a href="http://www.cnzz.com/stat/website.php?web_id=1000041007" target="_blank">站长统计</a><a href="http://www.cnzz.com/stat/website.php?web_id=1000041007" target="_blank"> |  今日IP[616] | 今日PV[926] | 昨日IP[662] |  昨日PV[951] | </a><a href="http://www.cnzz.com/stat/website.php?web_id=1000041007&amp;method=online" target="_blank">当前在线[13]</a></span><script src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/z_stat.php" type="text/javascript"></script><script src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/core.php" charset="utf-8" type="text/javascript"></script><br>
+<!--<br />
+<a target="_blank" href="https://www.upyun.com/"><img src="http://upfiles.b0.upaiyun.com/logo/180x90.png" alt="UPYUN"></a><br />
+--></p>
+</div>
+		</aside></div>		</div><!-- #secondary .widget-area -->
+
+    </div> <!-- end #content -->
+        
+	<footer id="colophon" role="contentinfo">
+		<div id="site-generator">
+			COPYRIGHT © 2013-2018 <a href="http://www.shiyanjun.cn/" rel="designer"><strong>简单之美</strong></a>            <span class="sep"> | </span>
+             Powered by <a href="http://wordpress.org/" title="Semantic Personal Publishing Platform">WORDPRESS</a>
+<span class="sep"> | </span>
+			 <a href="http://www.miitbeian.gov.cn/">京ICP备14038454号</a>
+            		</div>
+		<div id="partnership">
+			<a target="_blank" href="https://www.upyun.com/"><img src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/90X45.png" title="UPYUN"></a>
+		</div>
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+<div id="wp-auto-top"><div id="wp-auto-top-top"></div><div id="wp-auto-top-comment"></div><div id="wp-auto-top-bottom"></div></div>
+<script> var commentPositionId = '#comments';var wpAutoTopSpeed = 5;</script><style>
+   #wp-auto-top{position:fixed;top:85%;right:50%;display:block;margin-right:-49%; z-index:9999;}
+   #wp-auto-top-top,#wp-auto-top-comment,#wp-auto-top-bottom{background:url(http://shiyanjun.cn/wp-content/plugins/wp-auto-top/img/29.png) no-repeat;position:relative;cursor:pointer;height:25px;width:29px;margin:10px 0 0;}
+   #wp-auto-top-comment{background-position:left -30px;height:32px;}#wp-auto-top-bottom{background-position:left -68px;}
+   #wp-auto-top-comment:hover{background-position:right -30px;}
+   #wp-auto-top-top:hover{background-position:right 0;}
+   #wp-auto-top-bottom:hover{background-position:right -68px ;}
+   </style><script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/form.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/shCore.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/shBrushPlain.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/shBrushBash.js"></script>
+<script type="text/javascript">
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://shiyanjun.cn/wp-content/plugins/syntaxhighlighter/syntaxhighlighter2/styles/shCore.css?ver=2.1.364";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://shiyanjun.cn/wp-content/plugins/syntaxhighlighter/syntaxhighlighter2/styles/shThemeDefault.css?ver=2.1.364";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.clipboardSwf = 'http://shiyanjun.cn/wp-content/plugins/syntaxhighlighter/syntaxhighlighter2/scripts/clipboard.swf';
+	SyntaxHighlighter.config.strings.expandSource = 'show source';
+	SyntaxHighlighter.config.strings.viewSource = '查看源代码';
+	SyntaxHighlighter.config.strings.copyToClipboard = '复制到剪贴板';
+	SyntaxHighlighter.config.strings.copyToClipboardConfirmation = '代码现在在你的剪贴板';
+	SyntaxHighlighter.config.strings.print = '打印';
+	SyntaxHighlighter.config.strings.help = '帮助';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = '无法找到Brush：';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush不能设置 html-script选项';
+	SyntaxHighlighter.defaults['pad-line-numbers'] = 1;
+	SyntaxHighlighter.all();
+</script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/comment-reply.js"></script>
+<script type="text/javascript" src="%E7%AE%80%E5%8D%95%E4%B9%8B%E7%BE%8E%20_%20Flume%28NG%29%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9%E5%8F%8A%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5_files/wp-auto-top.js"></script>
+
+
+</body></html>
