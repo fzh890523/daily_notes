@@ -1,0 +1,2362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!-- saved from url=(0039)http://coolshell.cn/articles/11609.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head profile="http://gmpg.org/xfn/11"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shares.php" charset="utf-8"></script><script type="text/javascript" async="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/ga.js.下载"></script><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/id.php" charset="utf-8"></script>
+	
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+
+	<title>TCP 的那些事儿（下） | 酷 壳 - CoolShell.cn</title>
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - 所有文章" href="http://coolshell.cn/feed">
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - 所有评论" href="http://coolshell.cn/comments/feed">
+	<link rel="pingback" href="http://coolshell.cn/xmlrpc.php">
+
+	<!-- style START -->
+	<!-- default style -->
+	<style type="text/css" media="screen">@import url( http://coolshell.cn/wp-content/themes/inove/style.css );</style>
+	<link rel="stylesheet" id="open-sans-css" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/google-font.css" type="text/css" media="all">
+	<!-- for translations -->
+			<link rel="stylesheet" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/chinese.css" type="text/css" media="screen">
+		<!--[if IE]>
+		<link rel="stylesheet" href="http://coolshell.cn/wp-content/themes/inove/ie.css" type="text/css" media="screen" />
+	<![endif]-->
+	<!-- style END -->
+
+	<!-- script START -->
+	<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/base.js.下载"></script>
+	<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/menu.js.下载"></script>
+	<!-- script END -->
+
+	
+<!-- All in One SEO Pack 2.3.11 by Michael Torbert of Semper Fi Web Design[326,378] -->
+<meta name="keywords" content="congestion avoidance,fast recovery,rto,rtt,tcp,window,程序设计,编程语言,网络安全">
+
+<link rel="canonical" href="http://coolshell.cn/articles/11609.html">
+<meta property="og:title" content="TCP 的那些事儿（下） | 酷 壳 - CoolShell.cn">
+<meta property="og:type" content="activity">
+<meta property="og:url" content="http://coolshell.cn/articles/11609.html">
+<meta property="og:image" content="http://coolshell.cn/wp-content/plugins/all-in-one-seo-pack/images/default-user-image.png">
+<meta property="og:site_name" content="酷 壳 - CoolShell.cn">
+<meta property="og:description" content="这篇文章是下篇，所以如果你对TCP不熟悉的话，还请你先看看上篇《TCP的那些事儿（上）》 上篇中，我们介绍了TCP的协议头、状态机、数据重传中的东西。但是TCP要解决一个很大的事，那就是要在一个网络根据不同的情况来动态调整自己的发包的速度，小则让自己的连接更稳定，大则让整个网络更稳定。在你阅读下篇之前，你需要做好准备，本篇文章有好些算法和策略，可能会引发你的各种思考，让你的大脑分配很多内存和计算资源，所以，不适合在厕所中阅读。 TCP的RTT算法 从前面的TCP重传机制我们知道Timeout的设置对于重传非常重要。  设长了，重发就慢，丢了老半天才重发，没有效率，性能差； 设短了，会导致可能并没有丢就重发。于是重发的就快，会增加网络拥塞，导致更多的超时，更多的超时导致更多的重发。  而且，这个超时时间在不同的网络的情况下，根本没有办法设置一个死的值。只能动态地设置。 为了动态地设置，TCP引入了RTT——Round Trip Time，也就是一个数据包从发出去到回来的时间。这样发送端就大约知道需要多少的时间，从而可以方便地设置Timeout——RTO（Retransmission TimeOut），以让我们的重传机制更高效。 听起来似乎很简单，好像就是在发送端发包时记下t0，然后接收端再把这个ack回来时再记一个t1，于是RTT = t1 - t0。没那么简单，这只是一个采样，不能代表普遍情况。  经典算法 RFC793 中定义的经典算法是这样的： 1）首先，先采样RTT，记下最近好几次的RTT值。 2）然后做平滑计算SRTT（ Smoothed RTT）。公式为：（其中的 α 取值在0.8 到 0.9之间，这个算法英文叫Exponential weighted moving average，中文叫：加权移动平均） SRTT = ( α * SRTT ) + ((1- α) * RTT) 3）开始计算RTO。公式如下： RTO = min   ] 其中：  UBOUND是最大的timeout时间，上限值 LBOUND是最小的timeout时间，下限值 β 值一般在1.3到2.0之间。  Karn / Partridge 算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TCP 的那些事儿（下） | 酷 壳 - CoolShell.cn">
+<meta name="twitter:description" content="这篇文章是下篇，所以如果你对TCP不熟悉的话，还请你先看看上篇《TCP的那些事儿（上）》 上篇中，我们介绍了TCP的协议头、状态机、数据重传中的东西。但是TCP要解决一个很大的事，那就是要在一个网络根据不同的情况来动态调整自己的发包的速度，小则让自己的连接更稳定，大则让整个网络更稳定。在你阅读下篇之前，你需要做好准备，本篇文章有好些算法和策略，可能会引发你的各种思考，让你的大脑分配很多内存和计算资源，所以，不适合在厕所中阅读。 TCP的RTT算法 从前面的TCP重传机制我们知道Timeout的设置对于重传非常重要。  设长了，重发就慢，丢了老半天才重发，没有效率，性能差； 设短了，会导致可能并没有丢就重发。于是重发的就快，会增加网络拥塞，导致更多的超时，更多的超时导致更多的重发。  而且，这个超时时间在不同的网络的情况下，根本没有办法设置一个死的值。只能动态地设置。 为了动态地设置，TCP引入了RTT——Round Trip Time，也就是一个数据包从发出去到回来的时间。这样发送端就大约知道需要多少的时间，从而可以方便地设置Timeout——RTO（Retransmission TimeOut），以让我们的重传机制更高效。 听起来似乎很简单，好像就是在发送端发包时记下t0，然后接收端再把这个ack回来时再记一个t1，于是RTT = t1 - t0。没那么简单，这只是一个采样，不能代表普遍情况。  经典算法 RFC793 中定义的经典算法是这样的： 1）首先，先采样RTT，记下最近好几次的RTT值。 2）然后做平滑计算SRTT（ Smoothed RTT）。公式为：（其中的 α 取值在0.8 到 0.9之间，这个算法英文叫Exponential weighted moving average，中文叫：加权移动平均） SRTT = ( α * SRTT ) + ((1- α) * RTT) 3）开始计算RTO。公式如下： RTO = min   ] 其中：  UBOUND是最大的timeout时间，上限值 LBOUND是最小的timeout时间，下限值 β 值一般在1.3到2.0之间。  Karn / Partridge 算法">
+<meta name="twitter:image" content="http://coolshell.cn/wp-content/plugins/all-in-one-seo-pack/images/default-user-image.png">
+<!-- /all in one seo pack -->
+<link rel="dns-prefetch" href="http://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="酷 壳 - CoolShell.cn » TCP 的那些事儿（下）评论Feed" href="http://coolshell.cn/articles/11609.html/feed">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/coolshell.cn\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.6.1"}};
+			!function(a,b,c){function d(a){var c,d,e,f,g,h=b.createElement("canvas"),i=h.getContext&&h.getContext("2d"),j=String.fromCharCode;if(!i||!i.fillText)return!1;switch(i.textBaseline="top",i.font="600 32px Arial",a){case"flag":return i.fillText(j(55356,56806,55356,56826),0,0),!(h.toDataURL().length<3e3)&&(i.clearRect(0,0,h.width,h.height),i.fillText(j(55356,57331,65039,8205,55356,57096),0,0),c=h.toDataURL(),i.clearRect(0,0,h.width,h.height),i.fillText(j(55356,57331,55356,57096),0,0),d=h.toDataURL(),c!==d);case"diversity":return i.fillText(j(55356,57221),0,0),e=i.getImageData(16,16,1,1).data,f=e[0]+","+e[1]+","+e[2]+","+e[3],i.fillText(j(55356,57221,55356,57343),0,0),e=i.getImageData(16,16,1,1).data,g=e[0]+","+e[1]+","+e[2]+","+e[3],f!==g;case"simple":return i.fillText(j(55357,56835),0,0),0!==i.getImageData(16,16,1,1).data[0];case"unicode8":return i.fillText(j(55356,57135),0,0),0!==i.getImageData(16,16,1,1).data[0];case"unicode9":return i.fillText(j(55358,56631),0,0),0!==i.getImageData(16,16,1,1).data[0]}return!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i;for(i=Array("simple","flag","unicode8","diversity","unicode9"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/wp-emoji-release.min.js.下载" type="text/javascript"></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="wp-postratings-css" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/postratings-css.css" type="text/css" media="all">
+<link rel="stylesheet" id="wp-pagenavi-css" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/pagenavi-css.css" type="text/css" media="all">
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jquery.js.下载"></script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jquery-migrate.min.js.下载"></script>
+<link rel="https://api.w.org/" href="http://coolshell.cn/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://coolshell.cn/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://coolshell.cn/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="TCP 的那些事儿（上）" href="http://coolshell.cn/articles/11564.html">
+<link rel="next" title="开发团队的效率" href="http://coolshell.cn/articles/11656.html">
+<meta name="generator" content="WordPress 4.6.1">
+<link rel="shortlink" href="http://coolshell.cn/?p=11609">
+<link rel="alternate" type="application/json+oembed" href="http://coolshell.cn/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fcoolshell.cn%2Farticles%2F11609.html">
+<link rel="alternate" type="text/xml+oembed" href="http://coolshell.cn/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fcoolshell.cn%2Farticles%2F11609.html&amp;format=xml">
+	<link href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/SyntaxHighlighter.css" type="text/css" rel="stylesheet">
+			<script type="text/javascript">
+            var _statcounter = _statcounter || [];
+            _statcounter.push({"tags": {"author": "陈皓"}});
+        </script>
+	   <script type="text/javascript">
+	window._wp_rp_static_base_url = 'https://wprp.zemanta.com/static/';
+	window._wp_rp_wp_ajax_url = "http://coolshell.cn/wp-admin/admin-ajax.php";
+	window._wp_rp_plugin_version = '3.6.1';
+	window._wp_rp_post_id = '11609';
+	window._wp_rp_num_rel_posts = '8';
+	window._wp_rp_thumbnails = false;
+	window._wp_rp_post_title = 'TCP+%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF%EF%BC%88%E4%B8%8B%EF%BC%89';
+	window._wp_rp_post_tags = ['rtt', 'congestion+avoidance', 'rto', 'tcp', 'window', 'fast+recovery', '%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8', '%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1', '%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80', 'partridg', 'min', 'ul', 'weight', 'smooth', 'trip', 'alt', 'li', 'window', 'max', 'work', '4', 'lili', 'move', '1'];
+	window._wp_rp_promoted_content = false;
+</script>
+<link rel="stylesheet" type="text/css" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shCore.css"><link rel="stylesheet" type="text/css" href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shThemeDefault.css"><style type="text/css" id="syntaxhighlighteranchor"></style>
+<link rel="icon" href="http://coolshell.cn/wp-content/uploads/2016/09/coolshell.2-144x144.jpg" sizes="32x32">
+<link rel="icon" href="http://coolshell.cn/wp-content/uploads/2016/09/coolshell.2-200x200.jpg" sizes="192x192">
+<link rel="apple-touch-icon-precomposed" href="http://coolshell.cn/wp-content/uploads/2016/09/coolshell.2-200x200.jpg">
+<meta name="msapplication-TileImage" content="http://coolshell.cn/wp-content/uploads/2016/09/coolshell.2-300x300.jpg">
+<style>.ios7.web-app-mode.has-fixed header{ background-color: rgba(53,72,89,.88);}</style></head>
+
+
+<body mycollectionplug="bind" style="zoom: 1;"><link href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jiathis_counter.css" rel="stylesheet" type="text/css"><link href="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jiathis_share.css" rel="stylesheet" type="text/css"><iframe frameborder="0" style="position: absolute; display: none; opacity: 0;" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/saved_resource.html"></iframe><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; top: 50%; left: 50%; overflow: auto;"></div><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; overflow: auto;"></div><iframe frameborder="0" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jiathis_utility.html" style="display: none;"></iframe>
+<!-- wrap START -->
+<div id="wrap">
+
+<!-- container START -->
+<div id="container">
+
+<!-- header START -->
+<div id="header">
+
+	<!-- banner START -->
+			<div class="banner">
+			<a title="把这个链接拖到你的Chrome收藏夹工具栏中" href="javascript:(function(){function c(){var e=document.createElement(&quot;link&quot;);e.setAttribute(&quot;type&quot;,&quot;text/css&quot;);e.setAttribute(&quot;rel&quot;,&quot;stylesheet&quot;);e.setAttribute(&quot;href&quot;,f);e.setAttribute(&quot;class&quot;,l);document.body.appendChild(e)}function h(){var e=document.getElementsByClassName(l);for(var t=0;t&lt;e.length;t++){document.body.removeChild(e[t])}}function p(){var e=document.createElement(&quot;div&quot;);e.setAttribute(&quot;class&quot;,a);document.body.appendChild(e);setTimeout(function(){document.body.removeChild(e)},100)}function d(e){return{height:e.offsetHeight,width:e.offsetWidth}}function v(i){var s=d(i);return s.height&gt;e&amp;&amp;s.height&lt;n&amp;&amp;s.width&gt;t&amp;&amp;s.width&lt;r}function m(e){var t=e;var n=0;while(!!t){n+=t.offsetTop;t=t.offsetParent}return n}function g(){var e=document.documentElement;if(!!window.innerWidth){return window.innerHeight}else if(e&amp;&amp;!isNaN(e.clientHeight)){return e.clientHeight}return 0}function y(){if(window.pageYOffset){return window.pageYOffset}return Math.max(document.documentElement.scrollTop,document.body.scrollTop)}function E(e){var t=m(e);return t&gt;=w&amp;&amp;t&lt;=b+w}function S(){var e=document.createElement(&quot;audio&quot;);e.setAttribute(&quot;class&quot;,l);e.src=i;e.loop=false;e.addEventListener(&quot;canplay&quot;,function(){setTimeout(function(){x(k)},500);setTimeout(function(){N();p();for(var e=0;e&lt;O.length;e++){T(O[e])}},15500)},true);e.addEventListener(&quot;ended&quot;,function(){N();h()},true);e.innerHTML=&quot; &lt;p&gt;If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.&lt;/p&gt; &lt;p&gt;&quot;;document.body.appendChild(e);e.play()}function x(e){e.className+=&quot; &quot;+s+&quot; &quot;+o}function T(e){e.className+=&quot; &quot;+s+&quot; &quot;+u[Math.floor(Math.random()*u.length)]}function N(){var e=document.getElementsByClassName(s);var t=new RegExp(&quot;\\b&quot;+s+&quot;\\b&quot;);for(var n=0;n&lt;e.length;){e[n].className=e[n].className.replace(t,&quot;&quot;)}}var e=30;var t=30;var n=350;var r=350;var i=&quot;//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake.mp3&quot;;var s=&quot;mw-harlem_shake_me&quot;;var o=&quot;im_first&quot;;var u=[&quot;im_drunk&quot;,&quot;im_baked&quot;,&quot;im_trippin&quot;,&quot;im_blown&quot;];var a=&quot;mw-strobe_light&quot;;var f=&quot;//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css&quot;;var l=&quot;mw_added_css&quot;;var b=g();var w=y();var C=document.getElementsByTagName(&quot;*&quot;);var k=null;for(var L=0;L&lt;C.length;L++){var A=C[L];if(v(A)){if(E(A)){k=A;break}}}if(A===null){console.warn(&quot;Could not find a node of the right size. Please try a different page.&quot;);return}c();S();var O=[];for(var L=0;L&lt;C.length;L++){var A=C[L];if(v(A)){O.push(A)}}})()    ">High一下!</a>		</div>
+		<!-- banner END -->
+
+	<div id="caption">
+		<h1 id="title"><a href="http://coolshell.cn/">酷 壳 – CoolShell.cn</a></h1>
+		<div id="tagline">享受编程和技术所带来的快乐 – http://coolshell.cn</div>
+	</div>
+
+	<div class="fixed"></div>
+</div>
+<!-- header END -->
+
+<!-- navigation START -->
+<div id="navigation">
+	<!-- menus START -->
+	<ul id="menus">
+		<li class="page_item"><a class="home" title="首页" href="http://coolshell.cn/">首页</a></li>
+		<li class="page_item page-item-4194"><a href="http://coolshell.cn/featured">推荐文章</a></li>
+<li class="page_item page-item-3839"><a href="http://coolshell.cn/plugins">本站插件</a></li>
+<li class="page_item page-item-2"><a href="http://coolshell.cn/guestbook">留言小本</a></li>
+<li class="page_item page-item-368"><a href="http://coolshell.cn/about">关于酷壳</a></li>
+<li class="page_item page-item-4470"><a href="http://coolshell.cn/haoel">关于陈皓</a></li>
+		<li><a class="lastmenu" href="javascript:void(0);"></a></li>
+	</ul>
+	<!-- menus END -->
+
+	<!-- searchbox START -->
+	<div id="searchbox">
+					<form action="http://coolshell.cn/" method="get">
+				<div class="content">
+					<input type="text" class="textfield searchtip" name="s" size="24" value="">
+					<input type="submit" class="button" value="">
+				</div>
+			</form>
+			</div>
+<script type="text/javascript">
+//<![CDATA[
+	var searchbox = MGJS.$("searchbox");
+	var searchtxt = MGJS.getElementsByClassName("textfield", "input", searchbox)[0];
+	var searchbtn = MGJS.getElementsByClassName("button", "input", searchbox)[0];
+	var tiptext = "请输入关键字...";
+	if(searchtxt.value == "" || searchtxt.value == tiptext) {
+		searchtxt.className += " searchtip";
+		searchtxt.value = tiptext;
+	}
+	searchtxt.onfocus = function(e) {
+		if(searchtxt.value == tiptext) {
+			searchtxt.value = "";
+			searchtxt.className = searchtxt.className.replace(" searchtip", "");
+		}
+	}
+	searchtxt.onblur = function(e) {
+		if(searchtxt.value == "") {
+			searchtxt.className += " searchtip";
+			searchtxt.value = tiptext;
+		}
+	}
+	searchbtn.onclick = function(e) {
+		if(searchtxt.value == "" || searchtxt.value == tiptext) {
+			return false;
+		}
+	}
+//]]>
+</script>
+	<!-- searchbox END -->
+
+	<div class="fixed"></div>
+</div>
+<!-- navigation END -->
+
+<!-- content START -->
+<div id="content">
+
+	<!-- main START -->
+	<div id="main">
+
+
+	<div id="postpath">
+		<a title="转到首页" href="http://coolshell.cn/">首页</a>
+		 &gt; <a href="http://coolshell.cn/category/progdesign" rel="category tag">程序设计</a>, <a href="http://coolshell.cn/category/proglanguage" rel="category tag">编程语言</a>, <a href="http://coolshell.cn/category/netsecurity" rel="category tag">网络安全</a>		 &gt; TCP 的那些事儿（下）	</div>
+
+	<div class="post" id="post-11609">
+		<h2>TCP 的那些事儿（下）</h2>
+		<div class="info">
+			<span class="date">2014年5月28日</span>
+			<span class="author"><a href="http://coolshell.cn/articles/author/haoel" title="由陈皓发布" rel="author">陈皓</a></span>										<span class="addcomment"><a href="http://coolshell.cn/articles/11609.html#respond">发表评论</a></span>
+				<span class="comments"><a href="http://coolshell.cn/articles/11609.html#comments">阅读评论</a></span>
+						<span class="comments"> 98,949 人阅读  &nbsp;  &nbsp;</span>
+			<div class="fixed"></div>
+		</div>
+		<div class="content">
+			<p><img class="alignright wp-image-11641" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/xin_2001040422167711230318.jpg" alt="" width="360" height="244" srcset="http://coolshell.cn/wp-content/uploads/2014/05/xin_2001040422167711230318.jpg 400w, http://coolshell.cn/wp-content/uploads/2014/05/xin_2001040422167711230318-300x203.jpg 300w" sizes="(max-width: 360px) 100vw, 360px">这篇文章是下篇，所以如果你对TCP不熟悉的话，还请你先看看上篇《<a href="http://coolshell.cn/articles/11564.html" target="_blank">TCP的那些事儿（上）</a>》 上篇中，我们介绍了TCP的协议头、状态机、数据重传中的东西。但是TCP要解决一个很大的事，那就是要在一个网络根据不同的情况来动态调整自己的发包的速度，小则让自己的连接更稳定，大则让整个网络更稳定。在你阅读下篇之前，你需要做好准备，本篇文章有好些算法和策略，可能会引发你的各种思考，让你的大脑分配很多内存和计算资源，所以，不适合在厕所中阅读。</p>
+<h4>TCP的RTT算法</h4>
+<p>从前面的TCP重传机制我们知道Timeout的设置对于重传非常重要。</p>
+<ul>
+<li>设长了，重发就慢，丢了老半天才重发，没有效率，性能差；</li>
+<li>设短了，会导致可能并没有丢就重发。于是重发的就快，会增加网络拥塞，导致更多的超时，更多的超时导致更多的重发。</li>
+</ul>
+<p>而且，这个超时时间在不同的网络的情况下，根本没有办法设置一个死的值。只能动态地设置。 为了动态地设置，TCP引入了RTT——Round Trip Time，也就是一个数据包从发出去到回来的时间。这样发送端就大约知道需要多少的时间，从而可以方便地设置Timeout——RTO（Retransmission TimeOut），以让我们的重传机制更高效。 听起来似乎很简单，好像就是在发送端发包时记下t0，然后接收端再把这个ack回来时再记一个t1，于是RTT = t1 – t0。没那么简单，这只是一个采样，不能代表普遍情况。</p>
+<p><span id="more-11609"></span></p>
+<h5>经典算法</h5>
+<p><a href="http://tools.ietf.org/html/rfc793" target="_blank">RFC793</a>&nbsp;中定义的经典算法是这样的：</p>
+<p style="padding-left: 30px;">1）首先，先采样RTT，记下最近好几次的RTT值。</p>
+<p style="padding-left: 30px;">2）然后做平滑计算SRTT（ Smoothed RTT）。公式为：（其中的 α 取值在0.8 到 0.9之间，这个算法英文叫Exponential weighted moving average，中文叫：加权移动平均）</p>
+<p style="text-align: center;"><strong>SRTT =&nbsp;( α * SRTT ) + ((1- α) * RTT)</strong></p>
+<p style="padding-left: 30px;">3）开始计算RTO。公式如下：</p>
+<p style="text-align: center;"><strong>RTO = min [ UBOUND, &nbsp;max [ LBOUND, &nbsp; (β * SRTT) ] &nbsp;]</strong></p>
+<p>其中：</p>
+<ul>
+<li>UBOUND是最大的timeout时间，上限值</li>
+<li>LBOUND是最小的timeout时间，下限值</li>
+<li>β 值一般在1.3到2.0之间。</li>
+</ul>
+<h5>Karn / Partridge 算法</h5>
+<p>但是上面的这个算法在重传的时候会出有一个终极问题——你是用第一次发数据的时间和ack回来的时间做RTT样本值，还是用重传的时间和ACK回来的时间做RTT样本值？</p>
+<p>这个问题无论你选那头都是按下葫芦起了瓢。 如下图所示：</p>
+<ul>
+<li>情况（a）是ack没回来，所以重传。如果你计算第一次发送和ACK的时间，那么，明显算大了。</li>
+<li>情况（b）是ack回来慢了，但是导致了重传，但刚重传不一会儿，之前ACK就回来了。如果你是算重传的时间和ACK回来的时间的差，就会算短了。</li>
+</ul>
+<p><img class="aligncenter wp-image-11605" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/Karn-Partridge-Algorithm.jpg" alt="" width="545" height="243" srcset="http://coolshell.cn/wp-content/uploads/2014/05/Karn-Partridge-Algorithm.jpg 745w, http://coolshell.cn/wp-content/uploads/2014/05/Karn-Partridge-Algorithm-300x133.jpg 300w" sizes="(max-width: 545px) 100vw, 545px"></p>
+<p>所以1987年的时候，搞了一个叫<a href="http://en.wikipedia.org/wiki/Karn&#39;s_Algorithm" target="_blank">Karn / Partridge Algorithm</a>，这个算法的最大特点是——<strong>忽略重传，不把重传的RTT做采样</strong>（你看，你不需要去解决不存在的问题）。</p>
+<p>但是，这样一来，又会引发一个大BUG——<strong>如果在某一时间，网络闪动，突然变慢了，产生了比较大的延时，这个延时导致要重转所有的包（因为之前的RTO很小），于是，因为重转的不算，所以，RTO就不会被更新，这是一个灾难</strong>。 于是Karn算法用了一个取巧的方式——只要一发生重传，就对现有的RTO值翻倍（这就是所谓的&nbsp;Exponential backoff），很明显，这种死规矩对于一个需要估计比较准确的RTT也不靠谱。</p>
+<h5>Jacobson / Karels 算法</h5>
+<p>前面两种算法用的都是“加权移动平均”，这种方法最大的毛病就是如果RTT有一个大的波动的话，很难被发现，因为被平滑掉了。所以，1988年，又有人推出来了一个新的算法，这个算法叫Jacobson / Karels Algorithm（参看<a href="http://tools.ietf.org/html/rfc6298" target="_blank">RFC6289</a>）。这个算法引入了最新的RTT的采样和平滑过的SRTT的差距做因子来计算。 公式如下：（其中的DevRTT是Deviation RTT的意思）</p>
+<p style="padding-left: 30px;"><b>SRTT</b><b>&nbsp;= S</b><b>RTT</b><b>&nbsp;+ α</b><b>&nbsp;</b><b>(</b><b>RTT</b><b>&nbsp;– S</b><b>RTT</b><b>) &nbsp;</b>—— 计算平滑RTT</p>
+<p style="padding-left: 30px;"><b>DevRTT</b><b>&nbsp;= (1-β</b><b>)*</b><b>DevRTT</b><b>&nbsp;+ β</b><b>*(|</b><b>RTT-SRTT</b><b>|) </b>——计算平滑RTT和真实的差距（加权移动平均）</p>
+<p style="padding-left: 30px;"><strong>RTO= µ *&nbsp;SRTT + ∂ *DevRTT </strong>—— 神一样的公式</p>
+<p>（其中：在Linux下，α = 0.125，β = 0.25， μ = 1，∂&nbsp;= 4 ——这就是算法中的“调得一手好参数”，nobody knows why, it just works…） 最后的这个算法在被用在今天的TCP协议中（Linux的源代码在：<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_input.c?v=2.6.32#L609" target="_blank">tcp_rtt_estimator</a>）。</p>
+<h4>TCP滑动窗口</h4>
+<p>需要说明一下，如果你不了解TCP的滑动窗口这个事，你等于不了解TCP协议。我们都知道，<strong>TCP必需要解决的可靠传输以及包乱序（reordering）的问题</strong>，所以，TCP必需要知道网络实际的数据处理带宽或是数据处理速度，这样才不会引起网络拥塞，导致丢包。</p>
+<p>所以，TCP引入了一些技术和设计来做网络流控，Sliding Window是其中一个技术。 前面我们说过，<strong>TCP头里有一个字段叫Window，又叫Advertised-Window，这个字段是接收端告诉发送端自己还有多少缓冲区可以接收数据</strong>。<strong>于是发送端就可以根据这个接收端的处理能力来发送数据，而不会导致接收端处理不过来</strong>。 为了说明滑动窗口，我们需要先看一下TCP缓冲区的一些数据结构：</p>
+<p><img class="aligncenter wp-image-11594" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/sliding_window.jpg" alt="" width="450" height="179" srcset="http://coolshell.cn/wp-content/uploads/2014/05/sliding_window.jpg 906w, http://coolshell.cn/wp-content/uploads/2014/05/sliding_window-300x119.jpg 300w, http://coolshell.cn/wp-content/uploads/2014/05/sliding_window-900x358.jpg 900w" sizes="(max-width: 450px) 100vw, 450px"></p>
+<p>上图中，我们可以看到：</p>
+<ul>
+<li>接收端LastByteRead指向了TCP缓冲区中读到的位置，NextByteExpected指向的地方是收到的连续包的最后一个位置，LastByteRcved指向的是收到的包的最后一个位置，我们可以看到中间有些数据还没有到达，所以有数据空白区。</li>
+</ul>
+<ul>
+<li>发送端的LastByteAcked指向了被接收端Ack过的位置（表示成功发送确认），LastByteSent表示发出去了，但还没有收到成功确认的Ack，LastByteWritten指向的是上层应用正在写的地方。</li>
+</ul>
+<p>于是：</p>
+<ul>
+<li>接收端在给发送端回ACK中会汇报自己的AdvertisedWindow = MaxRcvBuffer – LastByteRcvd – 1;</li>
+</ul>
+<ul>
+<li>而发送方会根据这个窗口来控制发送数据的大小，以保证接收方可以处理。</li>
+</ul>
+<p>下面我们来看一下发送方的滑动窗口示意图：</p>
+<p><img class="aligncenter size-full wp-image-11596" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcpswwindows.png" alt="" width="660" height="270" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcpswwindows.png 660w, http://coolshell.cn/wp-content/uploads/2014/05/tcpswwindows-300x122.png 300w" sizes="(max-width: 660px) 100vw, 660px"></p>
+<p style="text-align: center;">（<a href="http://www.tcpipguide.com/free/t_TCPSlidingWindowAcknowledgmentSystemForDataTranspo-6.htm" target="_blank">图片来源</a>）</p>
+<p>上图中分成了四个部分，分别是：（其中那个黑模型就是滑动窗口）</p>
+<ul>
+<li>#1已收到ack确认的数据。</li>
+<li>#2发还没收到ack的。</li>
+<li>#3在窗口中还没有发出的（接收方还有空间）。</li>
+<li>#4窗口以外的数据（接收方没空间）</li>
+</ul>
+<p>下面是个滑动后的示意图（收到36的ack，并发出了46-51的字节）：</p>
+<p><img class="aligncenter size-full wp-image-11597" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcpswslide.png" alt="" width="660" height="210" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcpswslide.png 660w, http://coolshell.cn/wp-content/uploads/2014/05/tcpswslide-300x95.png 300w" sizes="(max-width: 660px) 100vw, 660px"></p>
+<p>下面我们来看一个接受端控制发送端的图示：</p>
+<p><img class="aligncenter size-full wp-image-11617" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcpswflow.png" alt="" width="666" height="836" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcpswflow.png 666w, http://coolshell.cn/wp-content/uploads/2014/05/tcpswflow-238x300.png 238w" sizes="(max-width: 666px) 100vw, 666px"></p>
+<p style="text-align: center;">（<a href="http://www.tcpipguide.com/free/t_TCPWindowSizeAdjustmentandFlowControl-2.htm" target="_blank">图片来源</a>）</p>
+<h5 style="text-align: left;">Zero Window</h5>
+<p style="text-align: left;">上图，我们可以看到一个处理缓慢的Server（接收端）是怎么把Client（发送端）的TCP Sliding Window给降成0的。此时，你一定会问，如果Window变成0了，TCP会怎么样？是不是发送端就不发数据了？是的，发送端就不发数据了，你可以想像成“Window Closed”，那你一定还会问，如果发送端不发数据了，接收方一会儿Window size 可用了，怎么通知发送端呢？</p>
+<p style="text-align: left;">解决这个问题，TCP使用了Zero Window Probe技术，缩写为ZWP，也就是说，发送端在窗口变成0后，会发ZWP的包给接收方，让接收方来ack他的Window尺寸，一般这个值会设置成3次，第次大约30-60秒（不同的实现可能会不一样）。如果3次过后还是0的话，有的TCP实现就会发RST把链接断了。</p>
+<p style="text-align: left;"><strong>注意</strong>：只要有等待的地方都可能出现DDoS攻击，Zero Window也不例外，一些攻击者会在和HTTP建好链发完GET请求后，就把Window设置为0，然后服务端就只能等待进行ZWP，于是攻击者会并发大量的这样的请求，把服务器端的资源耗尽。（关于这方面的攻击，大家可以移步看一下<a href="http://en.wikipedia.org/wiki/Sockstress" target="_blank">Wikipedia的SockStress词条</a>）</p>
+<p style="text-align: left;">另外，Wireshark中，你可以使用tcp.analysis.zero_window来过滤包，然后使用右键菜单里的follow TCP stream，你可以看到ZeroWindowProbe及ZeroWindowProbeAck的包。</p>
+<h5 style="text-align: left;">Silly Window Syndrome</h5>
+<p>Silly Window Syndrome翻译成中文就是“糊涂窗口综合症”。正如你上面看到的一样，如果我们的接收方太忙了，来不及取走Receive Windows里的数据，那么，就会导致发送方越来越小。到最后，如果接收方腾出几个字节并告诉发送方现在有几个字节的window，而我们的发送方会义无反顾地发送这几个字节。</p>
+<p>要知道，我们的TCP+IP头有40个字节，为了几个字节，要达上这么大的开销，这太不经济了。</p>
+<p>另外，你需要知道网络上有个MTU，对于以太网来说，MTU是1500字节，除去TCP+IP头的40个字节，真正的数据传输可以有1460，这就是所谓的MSS（Max Segment Size）注意，TCP的RFC定义这个MSS的默认值是536，这是因为<span style="color: #252525;">&nbsp;</span><span class="reference-text" style="color: #252525;"><a class="external mw-magiclink-rfc" style="color: #663366;" href="http://tools.ietf.org/html/rfc791" rel="nofollow">RFC 791</a>里说了任何一个</span>IP设备都得最少接收576尺寸的大小（实际上来说576是拨号的网络的MTU，而576减去IP头的20个字节就是536）。</p>
+<p><strong>如果你的网络包可以塞满MTU，那么你可以用满整个带宽，如果不能，那么你就会浪费带宽</strong>。（大于MTU的包有两种结局，一种是直接被丢了，另一种是会被重新分块打包发送） 你可以想像成一个MTU就相当于一个飞机的最多可以装的人，如果这飞机里满载的话，带宽最高，如果一个飞机只运一个人的话，无疑成本增加了，也而相当二。</p>
+<p>所以，<strong>Silly Windows Syndrome这个现像就像是你本来可以坐200人的飞机里只做了一两个人</strong>。 要解决这个问题也不难，就是避免对小的window size做出响应，直到有足够大的window size再响应，这个思路可以同时实现在sender和receiver两端。</p>
+<ul>
+<li>如果这个问题是由Receiver端引起的，那么就会使用&nbsp;David D Clark’s 方案。在receiver端，如果收到的数据导致window size小于某个值，可以直接ack(0)回sender，这样就把window给关闭了，也阻止了sender再发数据过来，等到receiver端处理了一些数据后windows size 大于等于了MSS，或者，receiver buffer有一半为空，就可以把window打开让send 发送数据过来。</li>
+</ul>
+<ul>
+<li>如果这个问题是由Sender端引起的，那么就会使用著名的<span style="color: #252525;">&nbsp;</span><a style="color: #0b0080;" title="Nagle&#39;s algorithm" href="http://en.wikipedia.org/wiki/Nagle%27s_algorithm" target="_blank">Nagle’s algorithm</a>。这个算法的思路也是延时处理，他有两个主要的条件：1）要等到 Window Size&gt;=MSS 或是 Data Size &gt;=MSS，2）收到之前发送数据的ack回包，他才会发数据，否则就是在攒数据。</li>
+</ul>
+<p>另外，Nagle算法默认是打开的，所以，对于一些需要小包场景的程序——<strong>比如像telnet或ssh这样的交互性比较强的程序，你需要关闭这个算法</strong>。你可以在Socket设置TCP_NODELAY选项来关闭这个算法（关闭Nagle算法没有全局参数，需要根据每个应用自己的特点来关闭）</p>
+<div><div id="highlighter_295609" class="syntaxhighlighter coolshell_syntaxhighlighter cpp"><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="cpp plain">setsockopt(sock_fd, IPPROTO_TCP, TCP_NODELAY, (</code><code class="cpp color1 bold">char</code> <code class="cpp plain">*)&amp;value,</code><code class="cpp keyword bold">sizeof</code><code class="cpp plain">(</code><code class="cpp color1 bold">int</code><code class="cpp plain">));</code></div></div></td></tr></tbody></table></div></div>
+<p>另外，网上有些文章说<span style="color: #000000;">TCP_CORK的socket option是也关闭Nagle算法，这不对。<strong>TCP_CORK其实是更新激进的Nagle算汉，完全禁止小包发送，而Nagle算法没有禁止小包发送，只是禁止了大量的小包发送</strong>。最好不要两个选项都设置。</span></p>
+<h4>TCP的拥塞处理 –&nbsp;Congestion Handling</h4>
+<p>上面我们知道了，TCP通过Sliding Window来做流控（Flow Control），但是TCP觉得这还不够，因为Sliding Window需要依赖于连接的发送端和接收端，其并不知道网络中间发生了什么。TCP的设计者觉得，一个伟大而牛逼的协议仅仅做到流控并不够，因为流控只是网络模型4层以上的事，TCP的还应该更聪明地知道整个网络上的事。</p>
+<p>具体一点，我们知道TCP通过一个timer采样了RTT并计算RTO，但是，<strong>如果网络上的延时突然增加，那么，TCP对这个事做出的应对只有重传数据，但是，重传会导致网络的负担更重，于是会导致更大的延迟以及更多的丢包，于是，这个情况就会进入恶性循环被不断地放大。试想一下，如果一个网络内有成千上万的TCP连接都这么行事，那么马上就会形成“网络风暴”，TCP这个协议就会拖垮整个网络。</strong>这是一个灾难。</p>
+<p>所以，TCP不能忽略网络上发生的事情，而无脑地一个劲地重发数据，对网络造成更大的伤害。对此TCP的设计理念是：<span style="color: #cc0000;"><strong>TCP不是一个自私的协议，当拥塞发生的时候，要做自我牺牲。就像交通阻塞一样，每个车都应该把路让出来，而不要再去抢路了。</strong></span></p>
+<p>关于拥塞控制的论文请参看《<a href="http://ee.lbl.gov/papers/congavoid.pdf" target="_blank">Congestion Avoidance and Control</a>》(PDF)</p>
+<p>拥塞控制主要是四个算法：<strong>1）慢启动</strong>，<strong>2）拥塞避免</strong>，<strong>3）拥塞发生</strong>，<strong>4）快速恢复</strong>。这四个算法不是一天都搞出来的，这个四算法的发展经历了很多时间，到今天都还在优化中。 备注:</p>
+<ul>
+<li>1988年，TCP-Tahoe 提出了1）慢启动，2）拥塞避免，3）拥塞发生时的快速重传</li>
+<li>1990年，TCP Reno 在Tahoe的基础上增加了4）快速恢复</li>
+</ul>
+<h5>慢热启动算法 – Slow Start</h5>
+<p>首先，我们来看一下TCP的慢热启动。慢启动的意思是，刚刚加入网络的连接，一点一点地提速，不要一上来就像那些特权车一样霸道地把路占满。新同学上高速还是要慢一点，不要把已经在高速上的秩序给搞乱了。</p>
+<p>慢启动的算法如下(cwnd全称Congestion Window)：</p>
+<p style="padding-left: 30px;">1）连接建好的开始先初始化cwnd = 1，表明可以传一个MSS大小的数据。</p>
+<p style="padding-left: 30px;">2）每当收到一个ACK，cwnd++; 呈线性上升</p>
+<p style="padding-left: 30px;">3）每当过了一个RTT，cwnd = cwnd*2; 呈指数让升</p>
+<p style="padding-left: 30px;">4）还有一个ssthresh（slow start threshold），是一个上限，当cwnd &gt;= ssthresh时，就会进入“拥塞避免算法”（后面会说这个算法）</p>
+<p>所以，我们可以看到，如果网速很快的话，ACK也会返回得快，RTT也会短，那么，这个慢启动就一点也不慢。下图说明了这个过程。</p>
+<p><img class="aligncenter size-full wp-image-11619" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcp.slow_.start_.jpg" alt="" width="662" height="388" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcp.slow_.start_.jpg 662w, http://coolshell.cn/wp-content/uploads/2014/05/tcp.slow_.start_-300x175.jpg 300w" sizes="(max-width: 662px) 100vw, 662px"></p>
+<p>这里，我需要提一下的是一篇Google的论文<span style="color: #000000;">《<a href="http://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/36640.pdf" target="_blank">An Argument for Increasing TCP’s Initial Congestion Window</a>》Linux 3.0后采用了这篇论文的建议——把cwnd 初始化成了 10个MSS。</span> <span style="color: #000000;">而Linux 3.0以前，比如2.6，Linux采用了<a href="http://www.rfc-editor.org/rfc/rfc3390.txt" target="_blank">RFC3390</a>，cwnd是跟MSS的值来变的，如果MSS&lt; 1095，则cwnd = 4；如果MSS&gt;2190，则cwnd=2；其它情况下，则是3。</span></p>
+<h5>&nbsp;拥塞避免算法 –&nbsp;Congestion Avoidance</h5>
+<p>前面说过，还有一个ssthresh（slow start threshold），是一个上限，当cwnd &gt;= ssthresh时，就会进入“拥塞避免算法”。一般来说ssthresh的值是65535，单位是字节，当cwnd达到这个值时后，算法如下：</p>
+<p style="padding-left: 30px;">1）收到一个ACK时，cwnd = cwnd + 1/cwnd</p>
+<p style="padding-left: 30px;">2）当每过一个RTT时，cwnd = cwnd + 1</p>
+<p>这样就可以避免增长过快导致网络拥塞，慢慢的增加调整到网络的最佳值。很明显，是一个线性上升的算法。</p>
+<h5>拥塞状态时的算法</h5>
+<p>前面我们说过，当丢包的时候，会有两种情况：</p>
+<p style="padding-left: 30px;">1）等到RTO超时，重传数据包。TCP认为这种情况太糟糕，反应也很强烈。</p>
+<ul>
+<ul>
+<li>sshthresh = &nbsp;cwnd /2</li>
+<li>cwnd 重置为 1</li>
+<li>进入慢启动过程</li>
+</ul>
+</ul>
+<p style="padding-left: 30px;">2）Fast Retransmit算法，也就是在收到3个duplicate ACK时就开启重传，而不用等到RTO超时。</p>
+<ul>
+<ul>
+<li>TCP Tahoe的实现和RTO超时一样。</li>
+</ul>
+</ul>
+<ul>
+<ul>
+<li>TCP Reno的实现是：
+<ul>
+<li>cwnd = cwnd /2</li>
+<li>sshthresh = cwnd</li>
+<li>进入快速恢复算法——Fast Recovery</li>
+</ul>
+</li>
+</ul>
+</ul>
+<p>上面我们可以看到RTO超时后，sshthresh会变成cwnd的一半，这意味着，如果cwnd&lt;=sshthresh时出现的丢包，那么TCP的sshthresh就会减了一半，然后等cwnd又很快地以指数级增涨爬到这个地方时，就会成慢慢的线性增涨。我们可以看到，TCP是怎么通过这种强烈地震荡快速而小心得找到网站流量的平衡点的。</p>
+<h5>快速恢复算法 – Fast Recovery</h5>
+<p><span style="text-decoration: underline;"><strong>TCP Reno</strong></span></p>
+<p><span style="color: #000000;">这个算法定义在</span><a title="&quot;TCP Congestion Control&quot;" href="http://tools.ietf.org/html/rfc5681">RFC5681</a>。快速重传和快速恢复算法一般同时使用。快速恢复算法是认为，你还有3个Duplicated Acks说明网络也不那么糟糕，所以没有必要像RTO超时那么强烈。 <span style="color: #000000;">注意，正如前面所说，进入Fast Recovery之前，cwnd 和 sshthresh已被更新：</span></p>
+<ul>
+<li>cwnd = cwnd /2</li>
+<li>sshthresh = cwnd</li>
+</ul>
+<p><span style="color: #000000;">然后，真正的Fast Recovery算法如下：</span></p>
+<ul>
+<li>cwnd = sshthresh &nbsp;+ 3 * MSS （3的意思是确认有3个数据包被收到了）</li>
+<li>重传Duplicated ACKs指定的数据包</li>
+<li>如果再收到 duplicated Acks，那么cwnd = cwnd +1</li>
+<li>如果收到了新的Ack，那么，cwnd = sshthresh ，然后就进入了拥塞避免的算法了。</li>
+</ul>
+<p>如果你仔细思考一下上面的这个算法，你就会知道，<strong>上面这个算法也有问题，那就是——它依赖于3个重复的Acks</strong>。注意，3个重复的Acks并不代表只丢了一个数据包，很有可能是丢了好多包。但这个算法只会重传一个，而剩下的那些包只能等到RTO超时，于是，进入了恶梦模式——超时一个窗口就减半一下，多个超时会超成TCP的传输速度呈级数下降，而且也不会触发Fast Recovery算法了。</p>
+<p>通常来说，正如我们前面所说的，SACK或D-SACK的方法可以让Fast Recovery或Sender在做决定时更聪明一些，但是并不是所有的TCP的实现都支持SACK（SACK需要两端都支持），所以，需要一个没有SACK的解决方案。而通过SACK进行拥塞控制的算法是FACK（后面会讲）</p>
+<p><span style="text-decoration: underline;"><strong>TCP New Reno</strong></span></p>
+<p><span style="color: #252525;">于是，1995年，TCP New Reno（参见&nbsp;</span><a class="external mw-magiclink-rfc" style="color: #663366;" href="http://tools.ietf.org/html/rfc6582" rel="nofollow">RFC 6582</a>&nbsp;）算法提出来，主要就是在没有SACK的支持下改进Fast Recovery算法的——</p>
+<ul>
+<li>当sender这边收到了3个Duplicated Acks，进入Fast Retransimit模式，开发重传重复Acks指示的那个包。如果只有这一个包丢了，那么，重传这个包后回来的Ack会把整个已经被sender传输出去的数据ack回来。如果没有的话，说明有多个包丢了。我们叫这个ACK为Partial ACK。</li>
+</ul>
+<ul>
+<li>一旦Sender这边发现了Partial ACK出现，那么，sender就可以推理出来有多个包被丢了，于是乎继续重传sliding window里未被ack的第一个包。直到再也收不到了Partial Ack，才真正结束Fast Recovery这个过程</li>
+</ul>
+<p>我们可以看到，这个“Fast Recovery的变更”是一个非常激进的玩法，他同时延长了Fast Retransmit和Fast Recovery的过程。</p>
+<h5>算法示意图</h5>
+<p>下面我们来看一个简单的图示以同时看一下上面的各种算法的样子：</p>
+<p><img class="aligncenter wp-image-11621" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcp.fr_-1024x359.jpg" alt="" width="680" height="239" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcp.fr_-1024x359.jpg 1024w, http://coolshell.cn/wp-content/uploads/2014/05/tcp.fr_-300x105.jpg 300w, http://coolshell.cn/wp-content/uploads/2014/05/tcp.fr_-900x315.jpg 900w, http://coolshell.cn/wp-content/uploads/2014/05/tcp.fr_.jpg 1410w" sizes="(max-width: 680px) 100vw, 680px"></p>
+<p>&nbsp;</p>
+<h5>FACK算法</h5>
+<p>FACK全称Forward Acknowledgment 算法，论文地址在这里（PDF）<a href="http://conferences.sigcomm.org/sigcomm/1996/papers/mathis.pdf" target="_blank">Forward Acknowledgement: Refining TCP Congestion Control</a> 这个算法是其于SACK的，前面我们说过SACK是使用了TCP扩展字段Ack了有哪些数据收到，哪些数据没有收到，他比Fast Retransmit的3 个duplicated acks好处在于，前者只知道有包丢了，不知道是一个还是多个，而SACK可以准确的知道有哪些包丢了。 所以，SACK可以让发送端这边在重传过程中，把那些丢掉的包重传，而不是一个一个的传，但这样的一来，如果重传的包数据比较多的话，又会导致本来就很忙的网络就更忙了。所以，FACK用来做重传过程中的拥塞流控。</p>
+<ul>
+<li>这个算法会把SACK中最大的Sequence Number 保存在<strong>snd.fack</strong>这个变量中，snd.fack的更新由ack带秋，如果网络一切安好则和snd.una一样（snd.una就是还没有收到ack的地方，也就是前面sliding window里的category #2的第一个地方）</li>
+</ul>
+<ul>
+<li>然后定义一个<strong>awnd = snd.nxt – snd.fack</strong>（snd.nxt指向发送端sliding window中正在要被发送的地方——前面sliding windows图示的category#3第一个位置），这样awnd的意思就是在网络上的数据。（所谓awnd意为：actual quantity of data outstanding in the network）</li>
+</ul>
+<ul>
+<li>如果需要重传数据，那么，<strong>awnd =&nbsp;snd.nxt – snd.fack + retran_data</strong>，也就是说，awnd是传出去的数据 + 重传的数据。</li>
+</ul>
+<ul>
+<li>然后触发Fast Recovery 的条件是：&nbsp;(<strong>&nbsp;( snd.fack – snd.una ) &gt; (3*MSS)&nbsp;</strong>) || (dupacks == 3) ) 。这样一来，就不需要等到3个duplicated acks才重传，而是只要sack中的最大的一个数据和ack的数据比较长了（3个MSS），那就触发重传。在整个重传过程中cwnd不变。直到当第一次丢包的snd.nxt&lt;=snd.una（也就是重传的数据都被确认了），然后进来拥塞避免机制——cwnd线性上涨。</li>
+</ul>
+<p>我们可以看到如果没有FACK在，那么在丢包比较多的情况下，原来保守的算法会低估了需要使用的window的大小，而需要几个RTT的时间才会完成恢复，而FACK会比较激进地来干这事。 但是，FACK如果在一个网络包会被 reordering的网络里会有很大的问题。</p>
+<h4>其它拥塞控制算法简介</h4>
+<h5><strong>TCP Vegas 拥塞控制算法</strong></h5>
+<p>这个算法1994年被提出，它主要对TCP Reno 做了些修改。这个算法通过对RTT的非常重的监控来计算一个基准RTT。然后通过这个基准RTT来估计当前的网络实际带宽，如果实际带宽比我们的期望的带宽要小或是要多的活，那么就开始线性地减少或增加cwnd的大小。如果这个计算出来的RTT大于了Timeout后，那么，不等ack超时就直接重传。（Vegas 的核心思想是用RTT的值来影响拥塞窗口，而不是通过丢包） 这个算法的论文是《<a class="external text" style="color: #663366;" href="http://www.cs.cmu.edu/~srini/15-744/F02/readings/BP95.pdf" target="_blank" rel="nofollow">TCP Vegas: End to End Congestion Avoidance on a Global Internet</a>》这篇论文给了Vegas和 New Reno的对比：</p>
+<p><img class="aligncenter wp-image-11626" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/tcp_vegas_newreno-1024x555.jpg" alt="" width="680" height="369" srcset="http://coolshell.cn/wp-content/uploads/2014/05/tcp_vegas_newreno-1024x555.jpg 1024w, http://coolshell.cn/wp-content/uploads/2014/05/tcp_vegas_newreno-300x162.jpg 300w, http://coolshell.cn/wp-content/uploads/2014/05/tcp_vegas_newreno-900x487.jpg 900w, http://coolshell.cn/wp-content/uploads/2014/05/tcp_vegas_newreno.jpg 1500w" sizes="(max-width: 680px) 100vw, 680px"></p>
+<p>关于这个算法实现，你可以参看Linux源码：<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_vegas.h" target="_blank">/net/ipv4/tcp_vegas.h</a>，&nbsp;<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_vegas.c" target="_blank">/net/ipv4/tcp_vegas.c</a></p>
+<h5></h5>
+<h5 style="color: #000000;">HSTCP(High Speed TCP) 算法</h5>
+<p>这个算法来自<a href="http://tools.ietf.org/html/rfc3649" target="_blank">RFC 3649</a>（<a href="http://en.wikipedia.org/wiki/HSTCP" target="_blank">Wikipedia词条</a>）。其对最基础的算法进行了更改，他使得Congestion Window涨得快，减得慢。其中：</p>
+<ul>
+<li>拥塞避免时的窗口增长方式： cwnd = cwnd + α(cwnd) / cwnd</li>
+<li>丢包后窗口下降方式：cwnd = (1- β(cwnd))*cwnd</li>
+</ul>
+<p>注：α(cwnd)和β(cwnd)都是函数，如果你要让他们和标准的TCP一样，那么让α(cwnd)=1，β(cwnd)=0.5就可以了。 对于α(cwnd)和β(cwnd)的值是个动态的变换的东西。 关于这个算法的实现，你可以参看Linux源码：<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_highspeed.c" target="_blank">/net/ipv4/tcp_highspeed.c</a></p>
+<h5>&nbsp;TCP BIC 算法</h5>
+<p>2004年，产内出BIC算法。现在你还可以查得到相关的新闻《Google：<a href="https://www.google.com/search?lr=lang_zh-CN%7Clang_zh-TW&amp;newwindow=1&amp;biw=1366&amp;bih=597&amp;tbs=lr%3Alang_1zh-CN%7Clang_1zh-TW&amp;q=%E7%BE%8E%E7%A7%91%E5%AD%A6%E5%AE%B6%E7%A0%94%E5%8F%91BIC-TCP%E5%8D%8F%E8%AE%AE+%E9%80%9F%E5%BA%A6%E6%98%AFDSL%E5%85%AD%E5%8D%83%E5%80%8D&amp;oq=%E7%BE%8E%E7%A7%91%E5%AD%A6%E5%AE%B6%E7%A0%94%E5%8F%91BIC-TCP%E5%8D%8F%E8%AE%AE+%E9%80%9F%E5%BA%A6%E6%98%AFDSL%E5%85%AD%E5%8D%83%E5%80%8D" target="_blank">美科学家研发BIC-TCP协议 速度是DSL六千倍</a>》 BIC全称<a href="http://research.csc.ncsu.edu/netsrv/?q=content/bic-and-cubic" target="_blank">Binary Increase Congestion control</a>，在Linux 2.6.8中是默认拥塞控制算法。BIC的发明者发这么多的拥塞控制算法都在努力找一个合适的cwnd – Congestion Window，而且BIC-TCP的提出者们看穿了事情的本质，其实这就是一个搜索的过程，所以BIC这个算法主要用的是Binary Search——二分查找来干这个事。 关于这个算法实现，你可以参看Linux源码：<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_bic.c" target="_blank">/net/ipv4/tcp_bic.c</a></p>
+<h5>TCP WestWood算法</h5>
+<p><span style="color: #000000;">westwood采用和Reno相同的慢启动算法、拥塞避免算法。</span><span style="color: #000000;">westwood的主要改进方面：在发送端做带宽估计，当探测到丢包时，根据带宽值来设置拥塞窗口、</span><span style="color: #000000;">慢启动阈值。</span> 那么，这个算法是怎么测量带宽的？每个RTT时间，会测量一次带宽，测量带宽的公式很简单，就是这段RTT内成功被ack了多少字节。因为，这个带宽和用RTT计算RTO一样，也是需要从每个样本来平滑到一个值的——也是用一个加权移平均的公式。 另外，我们知道，如果一个网络的带宽是每秒可以发送X个字节，而RTT是一个数据发出去后确认需要的时候，所以，X * RTT应该是我们缓冲区大小。所以，在这个算法中，ssthresh的值就是est_BD * min-RTT(最小的RTT值)，如果丢包是Duplicated ACKs引起的，那么如果cwnd &gt; ssthresh，则 cwin = ssthresh。如果是RTO引起的，cwnd = 1，进入慢启动。 &nbsp; 关于这个算法实现，你可以参看Linux源码：&nbsp;<a href="http://lxr.free-electrons.com/source/net/ipv4/tcp_westwood.c" target="_blank">/net/ipv4/tcp_westwood.c</a></p>
+<h5>其它</h5>
+<p>更多的算法，你可以从Wikipedia的&nbsp;<a href="http://en.wikipedia.org/wiki/TCP_congestion-avoidance_algorithm" target="_blank">TCP Congestion Avoidance Algorithm</a> 词条中找到相关的线索</p>
+<h4>&nbsp;后记</h4>
+<p>好了，到这里我想可以结束了，TCP发展到今天，里面的东西可以写上好几本书。本文主要目的，还是把你带入这些古典的基础技术和知识中，希望本文能让你了解TCP，更希望本文能让你开始有学习这些基础或底层知识的兴趣和信心。</p>
+<p>当然，TCP东西太多了，不同的人可能有不同的理解，而且本文可能也会有一些荒谬之言甚至错误，还希望得到您的反馈和批评。</p>
+<p style="text-align: left;">（全文完）</p>
+<p>&nbsp;
+</p><p align="center"><img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/qrcode_for_gh_dd9d8c843f20_860-300x300.jpg"><br>关注CoolShell微信公众账号可以在手机端搜索文章</p>
+<div style="margin-top: 15px; font-size: 11px;color: #cc0000;">
+<p align="center"><strong>（转载本站文章请注明作者和出处 <a href="http://coolshell.cn/">酷 壳 – CoolShell.cn</a> ，请勿用于任何商业用途）</strong></p></div>
+<div style="text-align:center;padding:0px;font-size: 14px;margin-bottom: 50px;">——=== <b>访问 <a href="http://coolshell.cn/404/" target="_blank">酷壳404页面</a> 寻找遗失儿童。</b> ===——</div>
+<p align="center"><a href="http://gold.xitu.io/welcome/?utm_source=coolshell&amp;utm_medium=banner&amp;utm_content=gaoshou&amp;utm_campaign=q3_website" target="_blank"><img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/xitu.io_.jpg"></a><br><span style="font-size: 12px;">本广告收入已由广告主捐给Wikipedia</span></p>
+<div style="clear:both; margin-top:5px; margin-bottom:5px;"></div><div style="float:left"><!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<a class="jiathis_button_tsina" title="分享到微博"><span class="jiathis_txt jtico jtico_tsina"></span></a>
+<a class="jiathis_button_tqq" title="分享到腾讯微博"><span class="jiathis_txt jtico jtico_tqq"></span></a>
+<a class="jiathis_button_tsohu"></a>
+<a class="jiathis_button_t163"></a>
+<a class="jiathis_button_douban" title="分享到豆瓣"><span class="jiathis_txt jtico jtico_douban"></span></a>
+<a class="jiathis_button_renren" title="分享到人人网"><span class="jiathis_txt jtico jtico_renren"></span></a>
+<a class="jiathis_button_zhuaxia"></a>
+<a class="jiathis_button_fanfou" title="分享到饭否"><span class="jiathis_txt jtico jtico_fanfou"></span></a>
+<a class="jiathis_button_twitter" title="分享到Twitter"><span class="jiathis_txt jtico jtico_twitter"></span></a>
+<a class="jiathis_button_fb" title="分享到Facebook"><span class="jiathis_txt jtico jtico_fb"></span></a>
+<a class="jiathis_button_gmail" title="分享到Gmail邮箱"><span class="jiathis_txt jtico jtico_gmail"></span></a>
+<a class="jiathis_button_linkedin" title="分享到领英"><span class="jiathis_txt jtico jtico_linkedin"></span></a>
+<a class="jiathis_button_friendfeed" title="分享到FriendFeed"><span class="jiathis_txt jtico jtico_friendfeed"></span></a>
+<a class="jiathis_button_digg" title="分享到Digg"><span class="jiathis_txt jtico jtico_digg"></span></a>
+<a href="http://www.jiathis.com/share?uid=1541368" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+<a class="jiathis_counter_style"><span class="jiathis_button_expanded jiathis_counter jiathis_bubble_style" id="jiathis_counter_62" title="累计分享87次">87</span></a>
+</div>
+<script type="text/javascript">
+var jiathis_config={
+	data_track_clickback:true,
+	summary:"",
+	hideMore:false
+}
+</script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jia.js.下载" charset="utf-8"></script><script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/plugin.client.js.下载" charset="utf-8"></script>
+<!-- JiaThis Button END --></div><div style="clear:both; margin-top:5px; margin-bottom:5px;"></div>			<div class="fixed"></div>
+		</div>
+		<div class="under">
+			<span class="categories">分类: </span><span><a href="http://coolshell.cn/category/progdesign" rel="category tag">程序设计</a>, <a href="http://coolshell.cn/category/proglanguage" rel="category tag">编程语言</a>, <a href="http://coolshell.cn/category/netsecurity" rel="category tag">网络安全</a></span>			<span class="tags">标签: </span><span><a href="http://coolshell.cn/tag/congestion-avoidance" rel="tag">Congestion Avoidance</a>, <a href="http://coolshell.cn/tag/fast-recovery" rel="tag">Fast Recovery</a>, <a href="http://coolshell.cn/tag/rto" rel="tag">RTO</a>, <a href="http://coolshell.cn/tag/rtt" rel="tag">RTT</a>, <a href="http://coolshell.cn/tag/tcp" rel="tag">TCP</a>, <a href="http://coolshell.cn/tag/window" rel="tag">Window</a></span>		</div>
+<div id="post-ratings-11609" class="post-ratings" itemscope="" itemtype="http://schema.org/Article" data-nonce="ae0d0fddd9"><img id="rating_11609_1" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/rating_on.gif" alt="好烂啊" title="好烂啊" onmouseover="current_rating(11609, 1, &#39;好烂啊&#39;);" onmouseout="ratings_off(5, 5, 0);" onclick="rate_post();" onkeypress="rate_post();" style="cursor: pointer; border: 0px;"><img id="rating_11609_2" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/rating_on.gif" alt="有点差" title="有点差" onmouseover="current_rating(11609, 2, &#39;有点差&#39;);" onmouseout="ratings_off(5, 5, 0);" onclick="rate_post();" onkeypress="rate_post();" style="cursor: pointer; border: 0px;"><img id="rating_11609_3" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/rating_on.gif" alt="凑合看看" title="凑合看看" onmouseover="current_rating(11609, 3, &#39;凑合看看&#39;);" onmouseout="ratings_off(5, 5, 0);" onclick="rate_post();" onkeypress="rate_post();" style="cursor: pointer; border: 0px;"><img id="rating_11609_4" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/rating_on.gif" alt="还不错" title="还不错" onmouseover="current_rating(11609, 4, &#39;还不错&#39;);" onmouseout="ratings_off(5, 5, 0);" onclick="rate_post();" onkeypress="rate_post();" style="cursor: pointer; border: 0px;"><img id="rating_11609_5" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/rating_on.gif" alt="很精彩" title="很精彩" onmouseover="current_rating(11609, 5, &#39;很精彩&#39;);" onmouseout="ratings_off(5, 5, 0);" onclick="rate_post();" onkeypress="rate_post();" style="cursor: pointer; border: 0px;"> (<strong>44</strong> 人打了分，平均分： <strong>4.98</strong> )<br><span class="post-ratings-text" id="ratings_11609_text"></span><meta itemprop="headline" content="TCP 的那些事儿（下）"><meta itemprop="description" content="这篇文章是下篇，所以如果你对TCP不熟悉的话，还请你先看看上篇《TCP的那些事儿（上）》 上篇中，我们介绍了TCP的协议头、状态机、数据重传中的东西。但是TCP要解决一个很大的事，那就是要在一个网络根据不同的情况来动态调整自己的发包的速度，小则让自己的连接更稳定，大则让整个网络更稳定。在你阅读下篇之前，你需要做好准备，本篇文章有好些算法和策略，可能会引发你的各种思考，让你的大脑分配很多内存和计算资..."><meta itemprop="datePublished" content="2014-05-28T08:20:32+00:00"><meta itemprop="url" content="http://coolshell.cn/articles/11609.html"><div style="display: none;" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating"><meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1"><meta itemprop="ratingValue" content="4.98"><meta itemprop="ratingCount" content="44"></div></div><div id="post-ratings-11609-loading" class="post-ratings-loading">
+			<img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/loading.gif" width="16" height="16" class="post-ratings-image">Loading...</div> 
+	</div>
+
+	<!-- related posts START -->
+	<div id="related_posts">
+<div class="wp_rp_wrap  wp_rp_plain" id="wp_rp_first"><div class="wp_rp_content"><h3 class="related_post_title">相关文章</h3><ul class="related_post wp_rp"><li data-position="0" data-poid="in-11564" data-post-type="none"><small class="wp_rp_publish_date">2014年05月28日</small> <a href="http://coolshell.cn/articles/11564.html" class="wp_rp_title">TCP 的那些事儿（上）</a></li><li data-position="1" data-poid="in-7490" data-post-type="none"><small class="wp_rp_publish_date">2012年06月20日</small> <a href="http://coolshell.cn/articles/7490.html" class="wp_rp_title">性能调优攻略</a></li><li data-position="2" data-poid="in-1484" data-post-type="none"><small class="wp_rp_publish_date">2009年09月27日</small> <a href="http://coolshell.cn/articles/1484.html" class="wp_rp_title">TCP网络关闭的状态变换时序图</a></li><li data-position="3" data-poid="in-9859" data-post-type="none"><small class="wp_rp_publish_date">2013年06月30日</small> <a href="http://coolshell.cn/articles/9859.html" class="wp_rp_title">Alan Cox：单向链表中prev指针的妙用</a></li><li data-position="4" data-poid="in-11466" data-post-type="none"><small class="wp_rp_publish_date">2014年04月21日</small> <a href="http://coolshell.cn/articles/11466.html" class="wp_rp_title">C语言的整型溢出问题</a></li><li data-position="5" data-poid="in-5709" data-post-type="none"><small class="wp_rp_publish_date">2011年10月31日</small> <a href="http://coolshell.cn/articles/5709.html" class="wp_rp_title">API设计：用流畅接口构造内部DSL</a></li><li data-position="6" data-poid="in-10822" data-post-type="none"><small class="wp_rp_publish_date">2013年12月27日</small> <a href="http://coolshell.cn/articles/10822.html" class="wp_rp_title">函数式编程</a></li><li data-position="7" data-poid="in-8387" data-post-type="none"><small class="wp_rp_publish_date">2012年10月14日</small> <a href="http://coolshell.cn/articles/8387.html" class="wp_rp_title">Bret Victor – Learnable Programming</a></li></ul></div></div>
+</div><div class="fixed"></div>	<!-- related posts END -->
+
+	<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/comment.js.下载"></script>
+
+
+
+<div id="comments">
+
+<div id="cmtswitcher">
+			<a id="commenttab" class="curtab" href="javascript:void(0);" onclick="MGJS.switchTab(&#39;thecomments,commentnavi&#39;, &#39;thetrackbacks&#39;, &#39;commenttab&#39;, &#39;curtab&#39;, &#39;trackbacktab&#39;, &#39;tab&#39;);">评论 (33)</a>
+		<a id="trackbacktab" class="tab" href="javascript:void(0);" onclick="MGJS.switchTab(&#39;thetrackbacks&#39;, &#39;thecomments,commentnavi&#39;, &#39;trackbacktab&#39;, &#39;curtab&#39;, &#39;commenttab&#39;, &#39;tab&#39;);">Trackbacks (14)</a>
+				<span class="addcomment"><a href="http://coolshell.cn/articles/11609.html#respond">发表评论</a></span>
+				<span class="addtrackback"><a href="http://coolshell.cn/articles/11609.html/trackback">Trackback</a></span>
+		<div class="fixed"></div>
+</div>
+
+<div id="commentlist">
+	<!-- comments START -->
+	<ol id="thecomments">
+		<li class="comment regularcomment" id="comment-1488852">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/8c281251e63af0f74fe3360e02d1de7d" srcset="http://2.gravatar.com/avatar/8c281251e63af0f74fe3360e02d1de7d?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1488852">
+				
+				coderchen
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年6月30日18:29					 | <a href="http://coolshell.cn/articles/11609.html#comment-1488852">#1</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1488852&#39;, &#39;comment-1488852&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1488852&#39;, &#39;comment-1488852&#39;, &#39;commentbody-1488852&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1488852">
+					<blockquote cite="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/11609.html"><p>
+<strong><a href="http://coolshell.cn/articles/11609.html#comment-1471442" rel="nofollow">杨博</a> :</strong><br>
+不好意思，博主可能你对Nagle理解错了。<br>
+据我所知，Nagle是说如果发送方有数据准备发送，那么它不会马上发送，而会等到接了对端传来的数据，自己需要发ACK的时候在同一个IP包里面发数据。如果一段时间等不到对端传来的数据，那么就不等了发ACK的机会了，直接单独发数据。<br>
+是否禁用Nagle，取决于你的应用类型。如果需要服务端推送通知给客户端，而这个通知延时越低越好，比如你做一个MMORPG，服务器广播NPC状态，那么一定要禁用Nagle。如果是请求回应模型，就不需要禁用Nagle.
+</p></blockquote>
+<p>@杨博，您好。我先说下自己关于Nagle算法的理解。<br>
+Nagle算法就是发送方至多只能有一个未被接收方确认的包，所以即使发送方有数据(大量小包)要发送，也要等到接收方确认了上次发送的数据。而您的说的等待和ACK一起发送，我认为这牵扯到另一个算法即ACK延迟算法，即接收方收到数据后并非立马回复ACK，而是会等待一段时间(如200ms)，因为内核认为收到数据后应该会有回复，所有其实也就是在等待回复数据然后和ACK一起发送。</p>
+<p>我觉得您把Nagle算法和ACK延迟算法混在一起了。</p>
+<p>我的一点愚见，望指教。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1491972">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/ed843d292607610bcd60572fa0d91df3" srcset="http://2.gravatar.com/avatar/ed843d292607610bcd60572fa0d91df3?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1491972">
+				
+				czw
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年7月7日16:10					 | <a href="http://coolshell.cn/articles/11609.html#comment-1491972">#2</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1491972&#39;, &#39;comment-1491972&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1491972&#39;, &#39;comment-1491972&#39;, &#39;commentbody-1491972&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1491972">
+					<p>非常棒！能写出这样的文章的人的知识必然比此文章所包含的内容渊博的多</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1493849">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/95efaf6e8749f2fcf457c46942273410" srcset="http://0.gravatar.com/avatar/95efaf6e8749f2fcf457c46942273410?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1493849">
+				
+				jackydi
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年7月11日16:53					 | <a href="http://coolshell.cn/articles/11609.html#comment-1493849">#3</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1493849&#39;, &#39;comment-1493849&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1493849&#39;, &#39;comment-1493849&#39;, &#39;commentbody-1493849&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1493849">
+					<p>写的挺好，对TCP的机制有了一些了解，不过可能博主写的太多的缘故，有两个地方我觉得有待商榷。</p>
+<p>1. 接受(收)端控制发送端的图示，图里面的数据错了，有点糊涂第一次发送的到底是140还是100字节。还有那个窗口到底是多大的？</p>
+<p>2. “MTU是1500字节，除去TCP+IP头的40个字节，真正的数据传输可以有1460”。<br>
+     我觉得还需要去掉MAC首部的14个字节，实际可用的只有1446字节。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1496567">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/b9e28440dd3567166d2e0686691e2f88" srcset="http://2.gravatar.com/avatar/b9e28440dd3567166d2e0686691e2f88?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<a id="commentauthor-1496567" class="url" href="http://lippiouyangonline.info/" rel="external nofollow">
+				
+				Lippi
+									</a>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年7月18日12:56					 | <a href="http://coolshell.cn/articles/11609.html#comment-1496567">#4</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1496567&#39;, &#39;comment-1496567&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1496567&#39;, &#39;comment-1496567&#39;, &#39;commentbody-1496567&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1496567">
+					<p>这个网站介绍的不错lippiouyangonline.info</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1502546">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/de565a87b8739dd40a686a199e8beaef" srcset="http://1.gravatar.com/avatar/de565a87b8739dd40a686a199e8beaef?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1502546">
+				
+				pzhdfy
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年7月28日15:20					 | <a href="http://coolshell.cn/articles/11609.html#comment-1502546">#5</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1502546&#39;, &#39;comment-1502546&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1502546&#39;, &#39;comment-1502546&#39;, &#39;commentbody-1502546&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1502546">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1471199" rel="nofollow">@不会便问 </a><br>
+这是一个迭代公式<br>
+SRTT（将使用的新值） = ( α * SRTT（当前的值） ) + ((1- α) * RTT)”</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1508541">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/a14a13e6c5157034adfb96f71f715aab" srcset="http://1.gravatar.com/avatar/a14a13e6c5157034adfb96f71f715aab?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1508541">
+				
+				yanfengt
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月6日18:03					 | <a href="http://coolshell.cn/articles/11609.html#comment-1508541">#6</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1508541&#39;, &#39;comment-1508541&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1508541&#39;, &#39;comment-1508541&#39;, &#39;commentbody-1508541&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1508541">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1482895" rel="nofollow">@drinkthere </a> 两条说的其实是一回事，每当收到一个ACK，cwnd++，其实每次收到的ACK相对上一次都是翻倍的， 所以每当过了一个RTT，cwnd = cwnd*2; 呈指数让升。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1508547">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/a14a13e6c5157034adfb96f71f715aab" srcset="http://1.gravatar.com/avatar/a14a13e6c5157034adfb96f71f715aab?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1508547">
+				
+				yanfengt
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月6日18:11					 | <a href="http://coolshell.cn/articles/11609.html#comment-1508547">#7</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1508547&#39;, &#39;comment-1508547&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1508547&#39;, &#39;comment-1508547&#39;, &#39;commentbody-1508547&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1508547">
+					<p>中间算法示意图貌似错了，参考http://book.2cto.com/201212/12719.html 图3.7.1</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1508564">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/a14a13e6c5157034adfb96f71f715aab" srcset="http://1.gravatar.com/avatar/a14a13e6c5157034adfb96f71f715aab?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1508564">
+				
+				yanfengt
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月6日18:44					 | <a href="http://coolshell.cn/articles/11609.html#comment-1508564">#8</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1508564&#39;, &#39;comment-1508564&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1508564&#39;, &#39;comment-1508564&#39;, &#39;commentbody-1508564&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1508564">
+					<p>另外上面的网址一文来自 《计算机网络教程：自顶向下方法》，里面Reno TCP介绍，提到了“新的（非重复）ACK到达，TCP进入拥塞避免阶段“，意思是并不会出现你所说”3个重复的Acks并不代表只丢了一个数据包，很有可能是丢了好多包。但这个算法只会重传一个，而剩下的那些包只能等到RTO超时“，不知道我这样理解是否正确，求证。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1509414">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/ec921affb35c28fe6ab287b4fe936e94" srcset="http://2.gravatar.com/avatar/ec921affb35c28fe6ab287b4fe936e94?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1509414">
+				
+				ashtoash
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月8日14:39					 | <a href="http://coolshell.cn/articles/11609.html#comment-1509414">#9</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1509414&#39;, &#39;comment-1509414&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1509414&#39;, &#39;comment-1509414&#39;, &#39;commentbody-1509414&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1509414">
+					<p>SRTT = ( α * SRTT ) + ((1- α) * RTT)</p>
+<p>嗯….这样不就是 srtt=rtt 么?</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1512801">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/9cb9489b2f418884dbbf8fc34faf1fa2" srcset="http://0.gravatar.com/avatar/9cb9489b2f418884dbbf8fc34faf1fa2?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1512801">
+				
+				nnkken
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月15日00:44					 | <a href="http://coolshell.cn/articles/11609.html#comment-1512801">#10</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1512801&#39;, &#39;comment-1512801&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1512801&#39;, &#39;comment-1512801&#39;, &#39;commentbody-1512801&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1512801">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1509414" rel="nofollow">@ashtoash </a><br>
+一個是SRTT，另一個是RTT</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1517701">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/43c920cd574b907e5242b2484afeb836" srcset="http://1.gravatar.com/avatar/43c920cd574b907e5242b2484afeb836?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1517701">
+				
+				Superpig0501
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年8月23日16:06					 | <a href="http://coolshell.cn/articles/11609.html#comment-1517701">#11</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1517701&#39;, &#39;comment-1517701&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1517701&#39;, &#39;comment-1517701&#39;, &#39;commentbody-1517701&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1517701">
+					<p>皓哥~我对滑动窗口与缓存区那部分的描述有疑惑啊~我觉得接收端窗口是不是这么算呢？<br>
+AdvertisedWindow = MaxBufferSize – (AlreadyReceivedNotYetRead) + 1;<br>
+其中AlreadyReceivedNotYetRead = NextByteExpected – LastByteRead;<br>
+另外您提到的MaxRcvBuffer指的到底是buffer的大小呢还是buffer结束位置的序号呢？还有其他几个指针位置的细节信息您也没有在文中明确提及啊~</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1525183">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/f50d7df0cd33833a422220e9d578bf37" srcset="http://0.gravatar.com/avatar/f50d7df0cd33833a422220e9d578bf37?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1525183">
+				
+				kevin
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年9月3日18:26					 | <a href="http://coolshell.cn/articles/11609.html#comment-1525183">#12</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1525183&#39;, &#39;comment-1525183&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1525183&#39;, &#39;comment-1525183&#39;, &#39;commentbody-1525183&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1525183">
+					<p>Silly Window Syndrome<br>
+….<br>
+（实际上来说576是拨号的网络的MTU，而576减去IP头的20个字节就是536）。<br>
+不是20，而是40吧<br>
+整个两篇文章都看完了，上篇看的很轻松，也很清楚，但是下篇前面还是比较清楚，到最后，头有点涨了，有点模糊，脑子一下子接受不了真么多的内容，下次再来看。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1529953">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/cd028a9162f95539c8c90e7c1ffdd1c4" srcset="http://0.gravatar.com/avatar/cd028a9162f95539c8c90e7c1ffdd1c4?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1529953">
+				
+				marlonyao
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年9月10日00:15					 | <a href="http://coolshell.cn/articles/11609.html#comment-1529953">#13</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1529953&#39;, &#39;comment-1529953&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1529953&#39;, &#39;comment-1529953&#39;, &#39;commentbody-1529953&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1529953">
+					<p>他有两个主要的条件（更多的条件可以看一下tcp_nagle_check函数）：1）要等到 Window Size&gt;=MSS 或是 Data Size &gt;=MSS，2）等待时间或是超时200ms，这两个条件有一个满足，他才会发数据，否则就是在攒数据。</p>
+<p>上面有几个问题：1) tcp_nagle_check函数的链接行数给错了，应该是1463行。2) Window Size&gt;=MSS和Data Size &gt;= MSS之间应该是与的关系，有窗口没数据或者有数据没窗口都是白搭。 3) “等待时间或是超时200ms” 没看懂，如果照wikipedia上理解应该是：所有发送的数据都已经ack了，即category #2的长度为0；200ms是指延迟确认时间吧，应该跟nagle算法没有关系。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1566648">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/54826c1578492504342b68a68f6ff6fc" srcset="http://2.gravatar.com/avatar/54826c1578492504342b68a68f6ff6fc?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1566648">
+				
+				pangpangniao
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年10月9日11:06					 | <a href="http://coolshell.cn/articles/11609.html#comment-1566648">#14</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1566648&#39;, &#39;comment-1566648&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1566648&#39;, &#39;comment-1566648&#39;, &#39;commentbody-1566648&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1566648">
+					<p>这个图是厦门的环岛，我以为只有我们交通工程的人才用。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1578036">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/beb56d2cd9456fa5c323da36df91e33e" srcset="http://2.gravatar.com/avatar/beb56d2cd9456fa5c323da36df91e33e?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1578036">
+				
+				youngky
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年10月20日20:09					 | <a href="http://coolshell.cn/articles/11609.html#comment-1578036">#15</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1578036&#39;, &#39;comment-1578036&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1578036&#39;, &#39;comment-1578036&#39;, &#39;commentbody-1578036&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1578036">
+					<p>你是用代数的方法进行计算，应该用计算机的代码思维来思考这个公式<a href="http://coolshell.cn/articles/11609.html#comment-1509414" rel="nofollow">@ashtoash  </a></p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1598937">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/cf873b902e7a9bf9ca2279a236d3a49c" srcset="http://0.gravatar.com/avatar/cf873b902e7a9bf9ca2279a236d3a49c?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1598937">
+				
+				wander
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年11月10日11:59					 | <a href="http://coolshell.cn/articles/11609.html#comment-1598937">#16</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1598937&#39;, &#39;comment-1598937&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1598937&#39;, &#39;comment-1598937&#39;, &#39;commentbody-1598937&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1598937">
+					<p>很好的博客，支持</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1618745">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/c3f8822eb66ff0df26689d589f4edfdc" srcset="http://0.gravatar.com/avatar/c3f8822eb66ff0df26689d589f4edfdc?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1618745">
+				
+				品月
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年12月1日16:53					 | <a href="http://coolshell.cn/articles/11609.html#comment-1618745">#17</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1618745&#39;, &#39;comment-1618745&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1618745&#39;, &#39;comment-1618745&#39;, &#39;commentbody-1618745&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1618745">
+					<p>第一篇看懂了。。第二篇有难度。。继续学习。。。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1619563">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/13b3c06908f6277c489783536a0503d2" srcset="http://1.gravatar.com/avatar/13b3c06908f6277c489783536a0503d2?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1619563">
+				
+				web
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年12月2日16:41					 | <a href="http://coolshell.cn/articles/11609.html#comment-1619563">#18</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1619563&#39;, &#39;comment-1619563&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1619563&#39;, &#39;comment-1619563&#39;, &#39;commentbody-1619563&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1619563">
+					<p>Jacobson / Karels Algorithm（参看RFC6289）</p>
+<p>这句写错了,应该是6298</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1619568">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/13b3c06908f6277c489783536a0503d2" srcset="http://1.gravatar.com/avatar/13b3c06908f6277c489783536a0503d2?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1619568">
+				
+				web
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2014年12月2日16:49					 | <a href="http://coolshell.cn/articles/11609.html#comment-1619568">#19</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1619568&#39;, &#39;comment-1619568&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1619568&#39;, &#39;comment-1619568&#39;, &#39;commentbody-1619568&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1619568">
+					<p>目前Linux上的拥塞算法已经不是BIC-TCP,而是CUBIC了,浩哥其实可以介绍一下CUBIC</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1666574">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/f4a136d92ca7d59467fb8bf30713c638" srcset="http://0.gravatar.com/avatar/f4a136d92ca7d59467fb8bf30713c638?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1666574">
+				
+				临江仙
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年2月24日10:29					 | <a href="http://coolshell.cn/articles/11609.html#comment-1666574">#20</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1666574&#39;, &#39;comment-1666574&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1666574&#39;, &#39;comment-1666574&#39;, &#39;commentbody-1666574&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1666574">
+					<p>恩，就是这个意思，接收端处理的比较慢，只读取了40个字节，接收缓冲区中剩余100字节数据未读取，所以窗口减小100，参阅http://www.tcpipguide.com/free/t_TCPWindowSizeAdjustmentandFlowControl-2.htm<a href="http://coolshell.cn/articles/11609.html#comment-1472775" rel="nofollow">@WKPlus </a></p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1673267">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/f4a136d92ca7d59467fb8bf30713c638" srcset="http://0.gravatar.com/avatar/f4a136d92ca7d59467fb8bf30713c638?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1673267">
+				
+				临江仙
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年3月11日10:26					 | <a href="http://coolshell.cn/articles/11609.html#comment-1673267">#21</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1673267&#39;, &#39;comment-1673267&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1673267&#39;, &#39;comment-1673267&#39;, &#39;commentbody-1673267&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1673267">
+					<p>连接建好的开始先初始化cwnd = 1，表明可以传一个MSS大小的数据;<br>
+cwnd = sshthresh  + 3 * MSS;<br>
+cwnd的单位到底是什么？</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1690733">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/7d3e322875adfdb46253edcad2ca7295" srcset="http://1.gravatar.com/avatar/7d3e322875adfdb46253edcad2ca7295?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1690733">
+				
+				housable
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年4月15日10:19					 | <a href="http://coolshell.cn/articles/11609.html#comment-1690733">#22</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1690733&#39;, &#39;comment-1690733&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1690733&#39;, &#39;comment-1690733&#39;, &#39;commentbody-1690733&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1690733">
+					<p>而576减去IP头的20个字节就是536。。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1694843">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/1b903543503c6ab113b68b299602b4a2" srcset="http://1.gravatar.com/avatar/1b903543503c6ab113b68b299602b4a2?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1694843">
+				
+				沐风
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年4月21日22:53					 | <a href="http://coolshell.cn/articles/11609.html#comment-1694843">#23</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1694843&#39;, &#39;comment-1694843&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1694843&#39;, &#39;comment-1694843&#39;, &#39;commentbody-1694843&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1694843">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1509414" rel="nofollow">@ashtoash </a><br>
+等式左边的SRTT是新的，右边的SRTT是上一次的SRTT，不是一个。我看好多资料上都是写这个等式，确实容易让人迷惑</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1751166">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/f5ee24f82083a2e62b3be66abfd41689" srcset="http://0.gravatar.com/avatar/f5ee24f82083a2e62b3be66abfd41689?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<a id="commentauthor-1751166" class="url" href="http://0.0.0.3/" rel="external nofollow">
+				
+				1
+									</a>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年8月28日15:53					 | <a href="http://coolshell.cn/articles/11609.html#comment-1751166">#24</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1751166&#39;, &#39;comment-1751166&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1751166&#39;, &#39;comment-1751166&#39;, &#39;commentbody-1751166&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1751166">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1509414" rel="nofollow">@ashtoash </a><br>
+右值是引用上一次的SRTT</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1766935">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/cf07f22d3dedfa752fc4fc0ccf12e2fb" srcset="http://0.gravatar.com/avatar/cf07f22d3dedfa752fc4fc0ccf12e2fb?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1766935">
+				
+				zyhSysu
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年10月2日22:31					 | <a href="http://coolshell.cn/articles/11609.html#comment-1766935">#25</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1766935&#39;, &#39;comment-1766935&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1766935&#39;, &#39;comment-1766935&#39;, &#39;commentbody-1766935&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1766935">
+					<p>浩哥，你好。<br>
+有关“慢启动算法”那部分的算法描述：</p>
+<p>1）连接建好的开始先初始化cwnd = 1，表明可以传一个MSS大小的数据。<br>
+2）每当收到一个ACK，cwnd++; 呈线性上升<br>
+3）每当过了一个RTT，cwnd = cwnd*2; 呈指数让升<br>
+4）还有一个ssthresh（slow start threshold），是一个上限，当cwnd &gt;= ssthresh时，就会进入“拥塞避免算法”（后面会说这个算法）</p>
+<p>我个人觉得第3点写的具有二义性。<br>
+乍一看，我以为每经过一个RTT，TCP就会将现有的拥塞窗口大小x2（这样其实是有矛盾的，比如：一开始cwnd是1，当接收到一个ack后（满足第二点），cwnd+1。但是，此时也能够算作经历了一个RTT（满足第三点），那么也需要将cwnd*2。）.</p>
+<p>后来，经过思考后才发现，你的意思是：<br>
+每接受到一个ACK，cwnd+1（算法操作）。<br>
+这样每经过一个RTT，cwnd就变成了之前cwnd值的两倍（cwnd状态变化）。</p>
+<p>因此，我个人认为，不应该将第三点写在算法步骤中。而应该算作算法产生的效果。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1802565">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/5dddf24cfb04de6fde050238c1da7afa" srcset="http://2.gravatar.com/avatar/5dddf24cfb04de6fde050238c1da7afa?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1802565">
+				
+				noma
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2015年12月28日09:45					 | <a href="http://coolshell.cn/articles/11609.html#comment-1802565">#26</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1802565&#39;, &#39;comment-1802565&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1802565&#39;, &#39;comment-1802565&#39;, &#39;commentbody-1802565&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1802565">
+					<p>浩哥，你好！感谢你写的这些有关TCP的文章，非常通俗易懂。不过有关FACK,有个问题需要指出一下。<br>
+计算还在网络中包数awnd = snd.nxt – snd.fack + retrans_data,这个式子成立的条件是假设所有没有收到确认的包都已经离开了网络，这在那篇论文中也有提到。实际上这在有乱序的网络中基本是不成立的，序列号大的包很有可能比序列号小的包先到达接收方，snd.fack代表的是接收到的包的最大序列号，很有可能这时候序列号比它小的包还在网络中。所以这样算出来的awnd会偏小。<br>
+由于在现实网络中，包乱序是普遍存在的，所以在linux内核中没有这样来算awnd.</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1807765">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/5b62be0e020dd8c62296341383a59f8e" srcset="http://2.gravatar.com/avatar/5b62be0e020dd8c62296341383a59f8e?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1807765">
+				
+				tourist
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年1月25日12:46					 | <a href="http://coolshell.cn/articles/11609.html#comment-1807765">#27</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1807765&#39;, &#39;comment-1807765&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1807765&#39;, &#39;comment-1807765&#39;, &#39;commentbody-1807765&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1807765">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1482976" rel="nofollow">@mason </a><br>
+这个地方很容易被误解。慢启动算法就是收到一个Good ACK之后将cwnd加1。这样做的结果是，在没有报文段丢失的情况，经过一个RTT之后cwnd增加一倍。所以说慢启动在理想情况下就是指数增长的，不是线性增长的。<br>
+另外sshthresh是个typo错误。非常感谢皓哥的文章。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1840665">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/792a7bac81582c4cc856ac7fb977dd44" srcset="http://1.gravatar.com/avatar/792a7bac81582c4cc856ac7fb977dd44?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1840665">
+				
+				chh
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年6月1日14:46					 | <a href="http://coolshell.cn/articles/11609.html#comment-1840665">#28</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1840665&#39;, &#39;comment-1840665&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1840665&#39;, &#39;comment-1840665&#39;, &#39;commentbody-1840665&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1840665">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1493849" rel="nofollow">@jackydi </a><br>
+MTU不包含MAC帧的头尾吧</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1859316">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/8a9c89deebe21b200b37e9535e4c13dd" srcset="http://2.gravatar.com/avatar/8a9c89deebe21b200b37e9535e4c13dd?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1859316">
+				
+				duj4
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年7月18日15:17					 | <a href="http://coolshell.cn/articles/11609.html#comment-1859316">#29</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1859316&#39;, &#39;comment-1859316&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1859316&#39;, &#39;comment-1859316&#39;, &#39;commentbody-1859316&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1859316">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1493849" rel="nofollow">@jackydi </a><br>
+这里你提到的14个byte，应该指的是802.3标准以太网帧头部大小，在计算MTU/MSS的时候没有必要减去，因为以太网帧用于存放data的部分的大小就是46-1500byte（802.3标准），减去IP头部的20个byte和TCP头部的20个byte，正好就是1460byte</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1867920">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/bea534291e039984e1177764cfee5901" srcset="http://2.gravatar.com/avatar/bea534291e039984e1177764cfee5901?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1867920">
+				
+				Tinyhui.Wang
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年8月12日16:34					 | <a href="http://coolshell.cn/articles/11609.html#comment-1867920">#30</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1867920&#39;, &#39;comment-1867920&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1867920&#39;, &#39;comment-1867920&#39;, &#39;commentbody-1867920&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1867920">
+					<p>因为重转的不算–&gt;因为重传的不算</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1879887">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/40391db38689bdc25f57ffee90fe065d" srcset="http://1.gravatar.com/avatar/40391db38689bdc25f57ffee90fe065d?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1879887">
+				
+				君升
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年9月9日20:30					 | <a href="http://coolshell.cn/articles/11609.html#comment-1879887">#31</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1879887&#39;, &#39;comment-1879887&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1879887&#39;, &#39;comment-1879887&#39;, &#39;commentbody-1879887&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1879887">
+					<p>浩哥你好，BSD Socket有并发的概念吗？如果并发的操作一个socket文件新能有瓶颈吗？<br>
+在并发读写时我的一个socket耗时达到1.8s，请求指点：<br>
+connect(60, {sa_family=AF_FILE, path=”/var/run/nutcracker/nutcracker_goshop.redis-s0100.51fanli.it_6605.sock”}, 72) = 0<br>
+fcntl(60, F_SETFL, O_RDWR) = 0<br>
+setsockopt(60, SOL_TCP, TCP_NODELAY, [1], 4) = -1 EOPNOTSUPP (Operation not supported)<br>
+poll([{fd=60, events=POLLIN|POLLPRI|POLLERR|POLLHUP}], 1, 0) = 0 (Timeout)<br>
+sendto(60, “*2\r\n$7\r\nHGETALL\r\n$41\r\ngoshop:secondtaoke:item:time:521832288205\r\n”, 65, MSG_DONTWAIT, NULL, 0) = 65<br>
+poll([{fd=60, events=POLLIN|POLLPRI|POLLERR|POLLHUP}], 1, 0) = 0 (Timeout)<br>
+poll([{fd=60, events=POLLIN|POLLERR|POLLHUP}], 1, 120000) = 1 ([{fd=60, revents=POLLIN}])<br>
+recvfrom(60, “*0\r\n”, 8192, MSG_DONTWAIT, NULL, NULL) = 4 </p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1897862">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/26194ad30b85e9550a51983d9d92c790" srcset="http://2.gravatar.com/avatar/26194ad30b85e9550a51983d9d92c790?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1897862">
+				
+				nestle
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年11月9日23:42					 | <a href="http://coolshell.cn/articles/11609.html#comment-1897862">#32</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1897862&#39;, &#39;comment-1897862&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1897862&#39;, &#39;comment-1897862&#39;, &#39;commentbody-1897862&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1897862">
+					<p>TCP Reno的实现是：<br>
+    1. cwnd = cwnd /2<br>
+    2. sshthresh = cwnd<br>
+    3. 进入快速恢复算法——Fast Recovery</p>
+<p>第一步有一定的误导性，实际的cwnd并不是减半哈。</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	<li class="comment regularcomment" id="comment-1898254">
+		<div class="author">
+			<div class="pic">
+				<img alt="" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/4b46f1eb4eb148ab23ff72f963729947" srcset="http://1.gravatar.com/avatar/4b46f1eb4eb148ab23ff72f963729947?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">			</div>
+			<div class="name">
+									<span id="commentauthor-1898254">
+				
+				前往
+									</span>
+							</div>
+		</div>
+
+		<div class="info">
+			<div class="date">
+				2016年11月12日15:01					 | <a href="http://coolshell.cn/articles/11609.html#comment-1898254">#33</a>
+			</div>
+			<div class="act">
+				<a href="javascript:void(0);" onclick="MGJS_CMT.reply(&#39;commentauthor-1898254&#39;, &#39;comment-1898254&#39;, &#39;comment&#39;);">回复</a> | 
+				<a href="javascript:void(0);" onclick="MGJS_CMT.quote(&#39;commentauthor-1898254&#39;, &#39;comment-1898254&#39;, &#39;commentbody-1898254&#39;, &#39;comment&#39;);">引用</a>
+							</div>
+			<div class="fixed"></div>
+			<div class="content">
+				
+				<div id="commentbody-1898254">
+					<p><a href="http://coolshell.cn/articles/11609.html#comment-1493849" rel="nofollow">@jackydi </a><br>
+MTU是frame的净负荷数据</p>
+				</div>
+			</div>
+		</div>
+		<div class="fixed"></div>
+
+</li><!-- #comment-## -->
+	</ol>
+	<!-- comments END -->
+
+		<div id="commentnavi">
+			<span class="pages">评论分页</span>
+			<div id="commentpager">
+				<a class="prev page-numbers" href="http://coolshell.cn/articles/11609.html/comment-page-1#comments">« 上一页</a>
+<a class="page-numbers" href="http://coolshell.cn/articles/11609.html/comment-page-1#comments">1</a>
+<span class="page-numbers current">2</span>				<span id="cp_post_id">11609</span>
+			</div>
+			<div class="fixed"></div>
+		</div>
+
+	<!-- trackbacks START -->
+			<ol id="thetrackbacks">
+												<li class="trackback">
+						<div class="date">
+							2014年6月22日06:45							 | <a href="http://coolshell.cn/articles/11609.html#comment-1485134">#1</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://makaidong.com/10942.html">
+								TCP 的那些事儿（上） – IT牛人博客聚合							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2014年7月2日00:46							 | <a href="http://coolshell.cn/articles/11609.html#comment-1489479">#2</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://cricode.com/2720.html">
+								程序员的自我修养(2)——计算机网络 | 快课网							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2014年7月5日01:28							 | <a href="http://coolshell.cn/articles/11609.html#comment-1490885">#3</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://skynetdoc.com/?p=67">
+								了解TCP/IP | skynetdoc							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2014年7月10日16:07							 | <a href="http://coolshell.cn/articles/11609.html#comment-1493381">#4</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://guanmian.net/?p=3073">
+								一个程序员的自我修养 | Steve Guan							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2014年9月18日18:26							 | <a href="http://coolshell.cn/articles/11609.html#comment-1537644">#5</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.cricode.com/3568.html">
+								图解TCP-IP协议 – 快课网							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2014年12月3日12:17							 | <a href="http://coolshell.cn/articles/11609.html#comment-1620075">#6</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://vfcool.wordpress.com/2014/12/03/%e4%b9%9f%e6%9d%a5%e8%81%8a%e4%b8%80%e8%81%8atcp%e5%92%8cudp/">
+								也来聊一聊TCP和UDP | Vector的博客							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2015年2月28日11:38							 | <a href="http://coolshell.cn/articles/11609.html#comment-1668785">#7</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.code123.cc/114.html">
+								图解TCP-IP协议 | Code123							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2015年4月1日22:08							 | <a href="http://coolshell.cn/articles/11609.html#comment-1684499">#8</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.178linux.com/archives/2086">
+								TCP 的那些事儿（上） – 运维部落							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2015年7月18日11:27							 | <a href="http://coolshell.cn/articles/11609.html#comment-1737333">#9</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.programerhome.com/?p=27279">
+								TCP详解（3）：重传、流量控制、拥塞控制…… | 程序员之家							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2015年7月18日17:11							 | <a href="http://coolshell.cn/articles/11609.html#comment-1737453">#10</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.aliog.com/43177.html">
+								TCP详解（3）：重传、流量控制、拥塞控制…… - 编程语言 - 阿里欧歌							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2015年9月29日05:42							 | <a href="http://coolshell.cn/articles/11609.html#comment-1763755">#11</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.xiaoyaochong.net/wordpress/index.php/2015/01/12/2014%e6%8a%80%e6%9c%af%e6%96%87%e7%ab%a0%e9%9b%86%e9%94%a6/">
+								2014技术文章集锦 | 逍遥冲							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2016年1月8日19:44							 | <a href="http://coolshell.cn/articles/11609.html#comment-1805020">#12</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.fewcoo.com/2015/04/14/%e5%85%b3%e4%ba%8e%e7%a7%bb%e5%8a%a8%e7%ab%af%e7%9a%84%e9%92%93%e9%b1%bc%e5%bc%8f%e6%94%bb%e5%87%bb/">
+								关于移动端的钓鱼式攻击 | 大耳门							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2016年3月6日12:25							 | <a href="http://coolshell.cn/articles/11609.html#comment-1811504">#13</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.itdadao.com/article/512183/">
+								TCP 的那些事儿（下）(转) – IT大道							</a>
+						</div>
+					</li>
+									<li class="trackback">
+						<div class="date">
+							2016年11月12日19:20							 | <a href="http://coolshell.cn/articles/11609.html#comment-1898281">#14</a>
+						</div>
+						<div class="act">
+													</div>
+						<div class="fixed"></div>
+						<div class="title">
+							<a href="http://www.bugjc.com/2016/11/12/tcp-%e7%9a%84%e9%82%a3%e4%ba%9b%e4%ba%8b%e5%84%bf%ef%bc%88%e4%b8%8b%ef%bc%89-%e9%85%b7-%e5%a3%b3-coolshell-cn/">
+								TCP 的那些事儿（下） | 酷 壳 – CoolShell.cn – Aoki自留地							</a>
+						</div>
+					</li>
+				
+					</ol>
+		<div class="fixed"></div>
+	<!-- trackbacks END -->
+</div>
+
+</div>
+
+	<form action="http://coolshell.cn/wp-comments-post.php" method="post" id="commentform">
+	<div id="respond">
+
+					
+			<div id="author_info">
+				<div class="row">
+					<input type="text" name="author" id="author" class="textfield" value="" size="24" tabindex="1">
+					<label for="author" class="small">昵称 (必填)</label>
+				</div>
+				<div class="row">
+					<input type="text" name="email" id="email" class="textfield" value="" size="24" tabindex="2">
+					<label for="email" class="small">电子邮箱 (我们会为您保密) (必填)</label>
+				</div>
+				<div class="row">
+					<input type="text" name="url" id="url" class="textfield" value="" size="24" tabindex="3">
+					<label for="url" class="small">网址</label>
+				</div>
+			</div>
+
+			
+		
+		<!-- comment input -->
+		<div class="row">
+			<textarea name="comment" id="comment" tabindex="4" rows="8" cols="50"></textarea>
+		</div>
+
+		<!-- comment submit and rss -->
+		<div id="submitbox">
+			<a class="feed" href="http://coolshell.cn/comments/feed">订阅评论</a>
+			<div class="submitbutton">
+				<input name="submit" type="submit" id="submit" class="button" tabindex="5" value="提交评论">
+			</div>
+						<input type="hidden" name="comment_post_ID" value="11609">
+			<div class="fixed"></div>
+		</div>
+
+	</div>
+	<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="65a133a456"></p><p style="display: none;"></p>	<input type="hidden" id="ak_js" name="ak_js" value="1479308310223"></form>
+
+	
+
+	<div id="postnavi">
+		<span class="prev"><a href="http://coolshell.cn/articles/11656.html" rel="next">开发团队的效率</a></span>
+		<span class="next"><a href="http://coolshell.cn/articles/11564.html" rel="prev">TCP 的那些事儿（上）</a></span>
+		<div class="fixed"></div>
+	</div>
+
+
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-7486123-1']);
+_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+	</div>
+	<!-- main END -->
+
+	
+<!-- sidebar START -->
+<div id="sidebar">
+
+<!-- sidebar north START -->
+<div id="northsidebar" class="sidebar">
+
+	<!-- feeds -->
+	<div class="widget widget_feeds">
+		<div class="content">
+			<div id="subscribe"><a rel="external nofollow" id="feedrss" title="订阅这个博客的文章" href="http://coolshell.cn/feed">订阅</a><ul id="feed_readers" style="visibility: hidden; display: block;"><li id="google_reader"><a rel="external nofollow" class="reader" title="订阅到 Google" href="http://fusion.google.com/add?feedurl=http://coolshell.cn/feed"><span> Google</span></a></li><li id="youdao_reader"><a rel="external nofollow" class="reader" title="订阅到有道" href="http://reader.youdao.com/#url=http://coolshell.cn/feed"><span>有道</span></a></li><li id="xianguo_reader"><a rel="external nofollow" class="reader" title="订阅到鲜果" href="http://www.xianguo.com/subscribe.php?url=http://coolshell.cn/feed"><span>鲜果</span></a></li><li id="zhuaxia_reader"><a rel="external nofollow" class="reader" title="订阅到抓虾" href="http://www.zhuaxia.com/add_channel.php?url=http://coolshell.cn/feed"><span>抓虾</span></a></li><li id="yahoo_reader"><a rel="external nofollow" class="reader" title="订阅到 My Yahoo!" href="http://add.my.yahoo.com/rss?url=http://coolshell.cn/feed"><span> My Yahoo!</span></a></li><li id="newsgator_reader"><a rel="external nofollow" class="reader" title="订阅到 newsgator" href="http://www.newsgator.com/ngs/subscriber/subfext.aspx?url=http://coolshell.cn/feed"><span> newsgator</span></a></li><li id="bloglines_reader"><a rel="external nofollow" class="reader" title="订阅到 Bloglines" href="http://www.bloglines.com/sub/http://coolshell.cn/feed"><span> Bloglines</span></a></li><li id="inezha_reader"><a rel="external nofollow" class="reader" title="订阅到哪吒" href="http://inezha.com/add?url=http://coolshell.cn/feed"><span>哪吒</span></a></li><li id="qq_reader"><a class="reader" title="订阅到QQ Mail" onclick="window.open(this.href);return false;" rel="external nofollow" href="http://mail.qq.com/cgi-bin/feed?u=http://coolshell.cn/feed"><span>
+			QQ Mail            </span></a></li><li id="douban_reader"><a class="reader" title="订阅到Douban" onclick="window.open(this.href);return false;" rel="external nofollow" href="http://9.douban.com/reader/subscribe?url=http://coolshell.cn/feed"><span>
+			Douban            </span></a></li><li id="rojo_reader"><a class="reader" title="订阅到Rojo" onclick="window.open(this.href);return false;" rel="external nofollow" href="http://www.rojo.com/add-subscription?resource=http://coolshell.cn/feed"><span>
+            Rojo            </span></a></li><li id="pageflakes_reader"><a class="reader last" title="订阅到Pageflakes" onclick="window.open(this.href);return false;" rel="external nofollow" href="http://www.pageflakes.com/subscribe.aspx?url=http://coolshell.cn/feed"><span>
+            Pageflakes            </span></a></li></ul></div>
+							<a id="followme" title="Follow me!" href="http://twitter.com/haoel/">Twitter</a>
+						<div class="fixed"></div>
+		</div>
+	</div>
+
+	<!-- showcase -->
+			<div class="widget">
+							<h3>本站公告</h3>
+						<div class="content">
+				<p align="center"><a href="https://www.julyedu.com/course/getDetail/49" target="_blank"><img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/81a5de571d212ac70a57762cfda2a055.png" height="300" width="300" alt="七月在线 - 11月深度学习班 （注：本广告费用已由广告主捐给了Wikipedia）" title="七月在线 - 11月深度学习班 （注：本广告费用已由广告主捐给了Wikipedia）"></a></p>
+
+
+<p align="center" style="background-color: #777;padding: 5px;color: white;font-weight: bold;border: solid 1px black;text-shadow: 0px 0px 3px black;">访问 <a href="http://coolshell.cn/404/" target="_blank" style="color: #FFE249;">酷壳404页面</a> 寻找遗失儿童！</p>
+
+<p align="center"><img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/qrcode_for_gh_dd9d8c843f20_860-300x300.jpg" height="280" weight="280" alt="微信公众号" title="微信公众号"></p>
+
+<p>酷壳建议大家多使用RSS访问阅读（本站已经是全文输出，推荐使用cloud.feedly.com 或 digg.com）。有相关事宜欢迎电邮：haoel(at)hotmail.com。最后，感谢大家对酷壳的支持和体谅！</p>			</div>
+		</div>
+	
+		<div id="recent-posts-2" class="widget widget_recent_entries">		<h3>最新文章</h3>		<ul>
+					<li>
+				<a href="http://coolshell.cn/articles/17524.html">如何读懂并写出装逼的函数式代码</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17497.html">什么是工程师文化？</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17459.html">关于高可用的系统</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17446.html">这多年来我一直在钻研的技术</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17416.html">缓存更新的套路</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17391.html">为什么我不在微信公众号上写文章</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17381.html">性能测试应该怎么做？</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17295.html">让我们来谈谈分工</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17225.html">Cuckoo Filter：设计与实现</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17200.html">Docker基础技术：DeviceMapper</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17061.html">Docker基础技术：AUFS</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17049.html">Docker基础技术：Linux CGroup</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17010.html">Docker基础技术：Linux Namespace（上）</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17029.html">Docker基础技术：Linux Namespace（下）</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/17066.html">关于移动端的钓鱼式攻击</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/16910.html">Linus：为何对象引用计数必须是原子的</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12225.html">DHH 谈混合移动应用开发</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12206.html">HTML6 展望</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12136.html">Google Inbox如何跨平台重用代码？</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12103.html">vfork 挂掉的一个问题</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12052.html">Leetcode 编程训练</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/12012.html">State Threads 回调终结者</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11973.html">bash代码注入的安全漏洞</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11928.html">互联网之子 – Aaron Swartz</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11847.html">谜题的答案和活动的心得体会</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11832.html">【活动】解迷题送礼物</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11656.html">开发团队的效率</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11609.html">TCP 的那些事儿（下）</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11564.html">TCP 的那些事儿（上）</a>
+						</li>
+					<li>
+				<a href="http://coolshell.cn/articles/11629.html">「我只是认真」聊聊工匠情怀</a>
+						</li>
+				</ul>
+		</div>		<div id="views-4" class="widget widget_views"><h3>全站热门</h3><ul>
+<li><a href="http://coolshell.cn/articles/4990.html" title="程序员技术练级攻略 - 717,291 人阅读">程序员技术练级攻略</a></li><li><a href="http://coolshell.cn/articles/5426.html" title="简明 Vim 练级攻略 - 663,242 人阅读">简明 Vim 练级攻略</a></li><li><a href="http://coolshell.cn/articles/7186.html" title="做个环保主义的程序员 - 262,265 人阅读">做个环保主义的程序员</a></li><li><a href="http://coolshell.cn/articles/4102.html" title="如何学好C语言 - 223,486 人阅读">如何学好C语言</a></li><li><a href="http://coolshell.cn/articles/9070.html" title="AWK 简明教程 - 215,830 人阅读">AWK 简明教程</a></li><li><a href="http://coolshell.cn/articles/11564.html" title="TCP 的那些事儿（上） - 191,657 人阅读">TCP 的那些事儿（上）</a></li><li><a href="http://coolshell.cn/articles/8883.html" title="应该知道的Linux技巧 - 182,879 人阅读">应该知道的Linux技巧</a></li><li><a href="http://coolshell.cn/articles/2250.html" title="“21天教你学会C++” - 174,089 人阅读">“21天教你学会C++”</a></li><li><a href="http://coolshell.cn/articles/914.html" title="6个变态的C语言Hello World程序 - 169,177 人阅读">6个变态的C语言Hello World程序</a></li><li><a href="http://coolshell.cn/articles/10688.html" title="编程能力与编程年龄 - 161,927 人阅读">编程能力与编程年龄</a></li><li><a href="http://coolshell.cn/articles/6470.html" title="由12306.cn谈谈网站性能技术 - 161,622 人阅读">由12306.cn谈谈网站性能技术</a></li><li><a href="http://coolshell.cn/articles/9104.html" title="sed 简明教程 - 159,990 人阅读">sed 简明教程</a></li><li><a href="http://coolshell.cn/articles/7829.html" title="28个Unix/Linux的命令行神器 - 156,556 人阅读">28个Unix/Linux的命令行神器</a></li><li><a href="http://coolshell.cn/articles/9308.html" title="“作环保的程序员，从不用百度开始” - 153,582 人阅读">“作环保的程序员，从不用百度开始”</a></li><li><a href="http://coolshell.cn/articles/1870.html" title="我是怎么招聘程序员的 - 142,480 人阅读">我是怎么招聘程序员的</a></li><li><a href="http://coolshell.cn/articles/7490.html" title="性能调优攻略 - 135,056 人阅读">性能调优攻略</a></li><li><a href="http://coolshell.cn/articles/10590.html" title="二维码的生成细节和原理 - 132,061 人阅读">二维码的生成细节和原理</a></li><li><a href="http://coolshell.cn/articles/10739.html" title="Lua简明教程 - 129,426 人阅读">Lua简明教程</a></li><li><a href="http://coolshell.cn/articles/1846.html" title="MySQL性能优化的最佳20+条经验 - 127,918 人阅读">MySQL性能优化的最佳20+条经验</a></li><li><a href="http://coolshell.cn/articles/6043.html" title="Web开发中需要了解的东西 - 127,511 人阅读">Web开发中需要了解的东西</a></li><li><a href="http://coolshell.cn/articles/2287.html" title="C++ 程序员自信心曲线图 - 124,660 人阅读">C++ 程序员自信心曲线图</a></li><li><a href="http://coolshell.cn/articles/4119.html" title="如何学好C++语言 - 121,342 人阅读">如何学好C++语言</a></li><li><a href="http://coolshell.cn/articles/3549.html" title="Android将允许纯C/C++开发应用 - 120,848 人阅读">Android将允许纯C/C++开发应用</a></li><li><a href="http://coolshell.cn/articles/11312.html" title="无插件Vim编程技巧 - 118,830 人阅读">无插件Vim编程技巧</a></li><li><a href="http://coolshell.cn/articles/4758.html" title="如何写出无法维护的代码 - 116,530 人阅读">如何写出无法维护的代码</a></li><li><a href="http://coolshell.cn/articles/355.html" title="20本最好的Linux免费书籍 - 109,556 人阅读">20本最好的Linux免费书籍</a></li><li><a href="http://coolshell.cn/articles/3008.html" title="Windows编程革命简史 - 107,679 人阅读">Windows编程革命简史</a></li><li><a href="http://coolshell.cn/articles/10217.html" title="加班与效率 - 107,107 人阅读">加班与效率</a></li><li><a href="http://coolshell.cn/articles/1391.html" title="编程真难啊 - 106,943 人阅读">编程真难啊</a></li><li><a href="http://coolshell.cn/articles/10910.html" title="分布式系统的事务处理 - 105,451 人阅读">分布式系统的事务处理</a></li></ul>
+</div><div id="text-400151743" class="widget widget_text"><h3>新浪微博</h3>			<div class="textwidget"><iframe width="100%" height="120" class="share_self" frameborder="0" scrolling="no" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/index.html"></iframe></div>
+		</div><div id="tag_cloud-2" class="widget widget_tag_cloud"><h3>标签</h3><div class="tagcloud"><a href="http://coolshell.cn/tag/agile" class="tag-link-17 tag-link-position-1" title="15个话题" style="font-size: 11.818181818182pt;">agile</a>
+<a href="http://coolshell.cn/tag/ajax" class="tag-link-34 tag-link-position-2" title="11个话题" style="font-size: 10.290909090909pt;">AJAX</a>
+<a href="http://coolshell.cn/tag/algorithm" class="tag-link-76 tag-link-position-3" title="26个话题" style="font-size: 14.745454545455pt;">Algorithm</a>
+<a href="http://coolshell.cn/tag/android" class="tag-link-145 tag-link-position-4" title="11个话题" style="font-size: 10.290909090909pt;">Android</a>
+<a href="http://coolshell.cn/tag/bash" class="tag-link-190 tag-link-position-5" title="9个话题" style="font-size: 9.2727272727273pt;">Bash</a>
+<a href="http://coolshell.cn/tag/c" class="tag-link-59 tag-link-position-6" title="90个话题" style="font-size: 21.490909090909pt;">C++</a>
+<a href="http://coolshell.cn/tag/coding" class="tag-link-135 tag-link-position-7" title="25个话题" style="font-size: 14.490909090909pt;">Coding</a>
+<a href="http://coolshell.cn/tag/css" class="tag-link-96 tag-link-position-8" title="21个话题" style="font-size: 13.6pt;">CSS</a>
+<a href="http://coolshell.cn/tag/database" class="tag-link-109 tag-link-position-9" title="7个话题" style="font-size: 8pt;">Database</a>
+<a href="http://coolshell.cn/tag/design" class="tag-link-71 tag-link-position-10" title="20个话题" style="font-size: 13.345454545455pt;">Design</a>
+<a href="http://coolshell.cn/tag/design-pattern" class="tag-link-25 tag-link-position-11" title="9个话题" style="font-size: 9.2727272727273pt;">design pattern</a>
+<a href="http://coolshell.cn/tag/ebook" class="tag-link-101 tag-link-position-12" title="15个话题" style="font-size: 11.818181818182pt;">ebook</a>
+<a href="http://coolshell.cn/tag/flash" class="tag-link-98 tag-link-position-13" title="7个话题" style="font-size: 8pt;">Flash</a>
+<a href="http://coolshell.cn/tag/game" class="tag-link-125 tag-link-position-14" title="9个话题" style="font-size: 9.2727272727273pt;">Game</a>
+<a href="http://coolshell.cn/tag/go" class="tag-link-238 tag-link-position-15" title="9个话题" style="font-size: 9.2727272727273pt;">Go</a>
+<a href="http://coolshell.cn/tag/google" class="tag-link-32 tag-link-position-16" title="32个话题" style="font-size: 15.890909090909pt;">Google</a>
+<a href="http://coolshell.cn/tag/html" class="tag-link-38 tag-link-position-17" title="33个话题" style="font-size: 16.018181818182pt;">HTML</a>
+<a href="http://coolshell.cn/tag/ie" class="tag-link-175 tag-link-position-18" title="10个话题" style="font-size: 9.7818181818182pt;">IE</a>
+<a href="http://coolshell.cn/tag/java" class="tag-link-13 tag-link-position-19" title="48个话题" style="font-size: 18.054545454545pt;">Java</a>
+<a href="http://coolshell.cn/tag/javascript" class="tag-link-114 tag-link-position-20" title="52个话题" style="font-size: 18.436363636364pt;">Javascript</a>
+<a href="http://coolshell.cn/tag/jquery" class="tag-link-191 tag-link-position-21" title="11个话题" style="font-size: 10.290909090909pt;">jQuery</a>
+<a href="http://coolshell.cn/tag/linux" class="tag-link-37 tag-link-position-22" title="66个话题" style="font-size: 19.836363636364pt;">Linux</a>
+<a href="http://coolshell.cn/tag/mysql" class="tag-link-106 tag-link-position-23" title="7个话题" style="font-size: 8pt;">MySQL</a>
+<a href="http://coolshell.cn/tag/oop" class="tag-link-245 tag-link-position-24" title="8个话题" style="font-size: 8.6363636363636pt;">OOP</a>
+<a href="http://coolshell.cn/tag/password" class="tag-link-319 tag-link-position-25" title="8个话题" style="font-size: 8.6363636363636pt;">password</a>
+<a href="http://coolshell.cn/tag/performance" class="tag-link-120 tag-link-position-26" title="16个话题" style="font-size: 12.2pt;">Performance</a>
+<a href="http://coolshell.cn/tag/php" class="tag-link-35 tag-link-position-27" title="25个话题" style="font-size: 14.490909090909pt;">PHP</a>
+<a href="http://coolshell.cn/tag/programmer" class="tag-link-70 tag-link-position-28" title="98个话题" style="font-size: 22pt;">Programmer</a>
+<a href="http://coolshell.cn/tag/programming" class="tag-link-499 tag-link-position-29" title="8个话题" style="font-size: 8.6363636363636pt;">Programming</a>
+<a href="http://coolshell.cn/tag/programming-language" class="tag-link-115 tag-link-position-30" title="12个话题" style="font-size: 10.672727272727pt;">programming language</a>
+<a href="http://coolshell.cn/tag/puzzle" class="tag-link-514 tag-link-position-31" title="11个话题" style="font-size: 10.290909090909pt;">Puzzle</a>
+<a href="http://coolshell.cn/tag/pythondev" class="tag-link-791 tag-link-position-32" title="29个话题" style="font-size: 15.381818181818pt;">Python</a>
+<a href="http://coolshell.cn/tag/ruby" class="tag-link-69 tag-link-position-33" title="10个话题" style="font-size: 9.7818181818182pt;">Ruby</a>
+<a href="http://coolshell.cn/tag/sql" class="tag-link-131 tag-link-position-34" title="10个话题" style="font-size: 9.7818181818182pt;">SQL</a>
+<a href="http://coolshell.cn/tag/tdd" class="tag-link-485 tag-link-position-35" title="8个话题" style="font-size: 8.6363636363636pt;">TDD</a>
+<a href="http://coolshell.cn/tag/ui" class="tag-link-47 tag-link-position-36" title="12个话题" style="font-size: 10.672727272727pt;">UI</a>
+<a href="http://coolshell.cn/tag/unix" class="tag-link-21 tag-link-position-37" title="33个话题" style="font-size: 16.018181818182pt;">Unix</a>
+<a href="http://coolshell.cn/tag/vim" class="tag-link-50 tag-link-position-38" title="19个话题" style="font-size: 13.090909090909pt;">vim</a>
+<a href="http://coolshell.cn/tag/web" class="tag-link-30 tag-link-position-39" title="40个话题" style="font-size: 17.036363636364pt;">Web</a>
+<a href="http://coolshell.cn/tag/windows" class="tag-link-49 tag-link-position-40" title="17个话题" style="font-size: 12.581818181818pt;">Windows</a>
+<a href="http://coolshell.cn/tag/xml" class="tag-link-104 tag-link-position-41" title="8个话题" style="font-size: 8.6363636363636pt;">XML</a>
+<a href="http://coolshell.cn/tag/%e5%ae%89%e5%85%a8" class="tag-link-318 tag-link-position-42" title="19个话题" style="font-size: 13.090909090909pt;">安全</a>
+<a href="http://coolshell.cn/tag/%e7%a8%8b%e5%ba%8f%e5%91%98" class="tag-link-58 tag-link-position-43" title="99个话题" style="font-size: 22pt;">程序员</a>
+<a href="http://coolshell.cn/tag/%e7%ae%97%e6%b3%95" class="tag-link-77 tag-link-position-44" title="10个话题" style="font-size: 9.7818181818182pt;">算法</a>
+<a href="http://coolshell.cn/tag/interview" class="tag-link-164 tag-link-position-45" title="16个话题" style="font-size: 12.2pt;">面试</a></div>
+</div></div>
+<!-- sidebar north END -->
+
+<div id="centersidebar">
+
+	<!-- sidebar east START -->
+	<div id="eastsidebar" class="sidebar">
+	<div id="categories-367921423" class="widget widget_categories"><h3>分类目录</h3>		<ul>
+	<li class="cat-item cat-item-189"><a href="http://coolshell.cn/category/proglanguage/dotnet">.NET编程</a> (3)
+</li>
+	<li class="cat-item cat-item-8"><a href="http://coolshell.cn/category/proglanguage/ajaxdev">Ajax开发</a> (9)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://coolshell.cn/category/proglanguage/cplusplus">C/C++语言</a> (71)
+</li>
+	<li class="cat-item cat-item-186"><a href="http://coolshell.cn/category/proglanguage/erlang">Erlang</a> (1)
+</li>
+	<li class="cat-item cat-item-4"><a href="http://coolshell.cn/category/proglanguage/javadev">Java语言</a> (32)
+</li>
+	<li class="cat-item cat-item-11"><a href="http://coolshell.cn/category/proglanguage/phpdev">PHP脚本</a> (11)
+</li>
+	<li class="cat-item cat-item-33"><a href="http://coolshell.cn/category/proglanguage/pythondev">Python</a> (23)
+</li>
+	<li class="cat-item cat-item-100"><a href="http://coolshell.cn/category/proglanguage/rubydev">Ruby</a> (5)
+</li>
+	<li class="cat-item cat-item-20"><a href="http://coolshell.cn/category/operatingsystem/unixlinux">Unix/Linux</a> (75)
+</li>
+	<li class="cat-item cat-item-7"><a href="http://coolshell.cn/category/proglanguage/webdev">Web开发</a> (103)
+</li>
+	<li class="cat-item cat-item-19"><a href="http://coolshell.cn/category/operatingsystem/mswindows">Windows</a> (12)
+</li>
+	<li class="cat-item cat-item-195"><a href="http://coolshell.cn/category/itnews">业界新闻</a> (26)
+</li>
+	<li class="cat-item cat-item-509"><a href="http://coolshell.cn/category/%e4%bc%81%e4%b8%9a%e5%ba%94%e7%94%a8">企业应用</a> (2)
+</li>
+	<li class="cat-item cat-item-9"><a href="http://coolshell.cn/category/technews">技术新闻</a> (33)
+</li>
+	<li class="cat-item cat-item-550"><a href="http://coolshell.cn/category/%e6%8a%80%e6%9c%af%e7%ae%a1%e7%90%86">技术管理</a> (15)
+</li>
+	<li class="cat-item cat-item-12"><a href="http://coolshell.cn/category/techarticle">技术读物</a> (117)
+</li>
+	<li class="cat-item cat-item-18"><a href="http://coolshell.cn/category/operatingsystem">操作系统</a> (49)
+</li>
+	<li class="cat-item cat-item-105"><a href="http://coolshell.cn/category/datebase">数据库</a> (11)
+</li>
+	<li class="cat-item cat-item-10"><a href="http://coolshell.cn/category/misc">杂项资源</a> (271)
+</li>
+	<li class="cat-item cat-item-15"><a href="http://coolshell.cn/category/process">流程方法</a> (48)
+</li>
+	<li class="cat-item cat-item-23"><a href="http://coolshell.cn/category/progdesign">程序设计</a> (88)
+</li>
+	<li class="cat-item cat-item-602"><a href="http://coolshell.cn/category/%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84">系统架构</a> (9)
+</li>
+	<li class="cat-item cat-item-1"><a href="http://coolshell.cn/category/tools">编程工具</a> (65)
+</li>
+	<li class="cat-item cat-item-3"><a href="http://coolshell.cn/category/proglanguage">编程语言</a> (175)
+</li>
+	<li class="cat-item cat-item-6"><a href="http://coolshell.cn/category/netsecurity">网络安全</a> (27)
+</li>
+	<li class="cat-item cat-item-39"><a href="http://coolshell.cn/category/career">职场生涯</a> (34)
+</li>
+	<li class="cat-item cat-item-271"><a href="http://coolshell.cn/category/funny">趣味问题</a> (19)
+</li>
+	<li class="cat-item cat-item-52"><a href="http://coolshell.cn/category/story">轶事趣闻</a> (147)
+</li>
+		</ul>
+</div>	</div>
+	<!-- sidebar east END -->
+
+	<!-- sidebar west START -->
+	<div id="westsidebar" class="sidebar">
+	<div id="archives-2" class="widget widget_archive"><h3>归档</h3>		<ul>
+			<li><a href="http://coolshell.cn/articles/date/2016/10">2016年十月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2016/09">2016年九月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2016/08">2016年八月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2016/07">2016年七月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2015/12">2015年十二月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2015/09">2015年九月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2015/08">2015年八月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2015/04">2015年四月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/12">2014年十二月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/11">2014年十一月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/10">2014年十月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/09">2014年九月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/08">2014年八月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/06">2014年六月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/05">2014年五月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/04">2014年四月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/03">2014年三月</a>&nbsp;(5)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/02">2014年二月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2014/01">2014年一月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/12">2013年十二月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/11">2013年十一月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/10">2013年十月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/08">2013年八月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/07">2013年七月</a>&nbsp;(8)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/06">2013年六月</a>&nbsp;(2)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/05">2013年五月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/04">2013年四月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/03">2013年三月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/02">2013年二月</a>&nbsp;(5)</li>
+	<li><a href="http://coolshell.cn/articles/date/2013/01">2013年一月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/12">2012年十二月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/11">2012年十一月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/10">2012年十月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/09">2012年九月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/08">2012年八月</a>&nbsp;(8)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/07">2012年七月</a>&nbsp;(4)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/06">2012年六月</a>&nbsp;(7)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/05">2012年五月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/04">2012年四月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/03">2012年三月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/02">2012年二月</a>&nbsp;(3)</li>
+	<li><a href="http://coolshell.cn/articles/date/2012/01">2012年一月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/12">2011年十二月</a>&nbsp;(5)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/11">2011年十一月</a>&nbsp;(9)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/10">2011年十月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/09">2011年九月</a>&nbsp;(5)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/08">2011年八月</a>&nbsp;(14)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/07">2011年七月</a>&nbsp;(6)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/06">2011年六月</a>&nbsp;(12)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/05">2011年五月</a>&nbsp;(5)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/04">2011年四月</a>&nbsp;(18)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/03">2011年三月</a>&nbsp;(16)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/02">2011年二月</a>&nbsp;(16)</li>
+	<li><a href="http://coolshell.cn/articles/date/2011/01">2011年一月</a>&nbsp;(18)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/12">2010年十二月</a>&nbsp;(11)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/11">2010年十一月</a>&nbsp;(11)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/10">2010年十月</a>&nbsp;(19)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/09">2010年九月</a>&nbsp;(15)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/08">2010年八月</a>&nbsp;(10)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/07">2010年七月</a>&nbsp;(20)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/06">2010年六月</a>&nbsp;(9)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/05">2010年五月</a>&nbsp;(13)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/04">2010年四月</a>&nbsp;(12)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/03">2010年三月</a>&nbsp;(11)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/02">2010年二月</a>&nbsp;(7)</li>
+	<li><a href="http://coolshell.cn/articles/date/2010/01">2010年一月</a>&nbsp;(9)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/12">2009年十二月</a>&nbsp;(22)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/11">2009年十一月</a>&nbsp;(27)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/10">2009年十月</a>&nbsp;(17)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/09">2009年九月</a>&nbsp;(14)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/08">2009年八月</a>&nbsp;(21)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/07">2009年七月</a>&nbsp;(18)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/06">2009年六月</a>&nbsp;(19)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/05">2009年五月</a>&nbsp;(27)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/04">2009年四月</a>&nbsp;(53)</li>
+	<li><a href="http://coolshell.cn/articles/date/2009/03">2009年三月</a>&nbsp;(43)</li>
+	<li><a href="http://coolshell.cn/articles/date/2008/10">2008年十月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2007/12">2007年十二月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2006/11">2006年十一月</a>&nbsp;(1)</li>
+	<li><a href="http://coolshell.cn/articles/date/2004/06">2004年六月</a>&nbsp;(1)</li>
+		</ul>
+		</div>	</div>
+	<!-- sidebar west END -->
+	<div class="fixed"></div>
+</div>
+
+<!-- sidebar south START -->
+<div id="southsidebar" class="sidebar">
+<div id="get-recent-comments" class="widget widget_get_recent_comments"><h3>最新评论</h3><div id="get_recent_comments_wrap"><ul>	<li><a href="http://coolshell.cn/articles/17010.html#comment-1899011" title="Docker基础技术：Linux Namespace（上）, 2015年04月16日">yanse</a>: 看了这篇文章，收获颇丰，顺带贡献一个脚本（脚本虽然比较简单， 但是是之前从网上找的，不是我写的）。 脚本作用很简单。就是拷贝Linux下面的程序和程序所依赖的库 文件到指定的 rootfs 。 #!/bin/bash #...</li>
+	<li><a href="http://coolshell.cn/articles/12199.html#comment-1898995" title="C++ STL string的Copy-On-Write技术, 2004年06月23日">xumenger</a>: 博主说在最新的STL中，string的COW特性被去掉了，大 概对应VC++、g++的哪些版本？ 另外在VC++6.0中如果我想通过指针获取一个string的 引用计数值应该定位到哪个地址？</li>
+	<li><a href="http://coolshell.cn/articles/11377.html#comment-1898960" title="C语言结构体里的成员数组和指针, 2014年04月01日">NoAnyLove</a>: Ubuntu 16.04 x64，gcc 5.4下，char s[0]的例子不再使用lea指令，而是将0x4的偏移加到了r ax上， 0x40052e movq $0x0,-0x8(%rbp) //...</li>
+	<li><a href="http://coolshell.cn/about#comment-1898959" title="关于酷壳, 2009年04月08日">墨梅</a>: 看了您的技术练级攻略，几年前的文章，偶然发现这里，内容不错， 陈老师也是一个用心的人。作为一个干了几年技术，如今对未来有点 手足无措的人，您的文章给我了一起启发，表示感谢。</li>
+	<li><a href="http://coolshell.cn/articles/8619.html#comment-1898767" title="你可能不知道的Shell, 2012年11月23日">zyx954</a>: 试了一下 还真挺管用 -_-!</li>
+	<li><a href="http://coolshell.cn/articles/11454.html#comment-1898529" title="从LongAdder看更高效的无锁实现, 2014年04月17日">xuyue</a>: @andrew_show 有的场景是没法解的，比如要统计单机在高并发下的实时qps。</li>
+	<li><a href="http://coolshell.cn/articles/17446.html#comment-1898448" title="这多年来我一直在钻研的技术, 2016年08月18日">Charlie</a>: 看了博主的文章，深感自己职业生涯混乱，完全没有规划，没有入行 。做过global support，解决问题的思维方式变成了如何快速找到别人曾有 的解决办法和回答客户提的问题，对技术问题缺乏深度研究。...</li>
+	<li><a href="http://coolshell.cn/articles/2424.html#comment-1898431" title="十条不错的编程观点, 2010年05月14日">kd</a>: 对于第六条，StackOverflow原文是： Does it matter if you looked it up in a book, looked it up on Google, or heard it from a...</li>
+	<li><a href="http://coolshell.cn/articles/2424.html#comment-1898430" title="十条不错的编程观点, 2010年05月14日">kd</a>:  wellbalance : 対第六条的理解是不是有歧义，原文的意思是正面的，博主好像写的 是自己的观点。 不能同意你更多</li>
+	<li><a href="http://coolshell.cn/guestbook#comment-1898381" title="留言小本, 2009年03月02日">Inownl</a>: 无意间进入，很有意思的博客，支持支持~</li>
+	<li><a href="http://coolshell.cn/articles/11609.html#comment-1898254" title="TCP 的那些事儿（下）, 2014年05月28日">前往</a>: @jackydi MTU是frame的净负荷数据</li>
+	<li><a href="http://coolshell.cn/articles/17391.html#comment-1898159" title="为什么我不在微信公众号上写文章, 2016年07月11日">harbor</a>: 在物欲横飞的时代，能保持自己的独立性真是难能可贵</li>
+	<li><a href="http://coolshell.cn/articles/17497.html#comment-1898157" title="什么是工程师文化？, 2016年09月18日">harbor</a>: 感谢皓子哥的精彩阐述。持续关注！讨厌强制996的文化</li>
+	<li><a href="http://coolshell.cn/articles/5901.html#comment-1898143" title="腾讯，竞争力 和 用户体验, 2011年11月22日">野龙</a>: 这篇文章也挺老了，不过，现在想来，似乎即时通讯软件里最接近社 区的，还是QQ？虽然很多时候都有一点点力不从心，也就是说，其 实功能之间没有整合得挺好，我的意思是，看看QQ群里面有...</li>
+	<li><a href="http://coolshell.cn/articles/4990.html#comment-1898137" title="程序员技术练级攻略, 2011年07月18日">CodeFaker</a>: 这篇文章什么时候在更新下，好多已经很旧了…</li>
+</ul></div></div><div id="text-2" class="widget widget_text"><h3>友情链接</h3>			<div class="textwidget"><ul class="blogroll">
+<li><a href="http://blog.csdn.net/haoel" target="_blank" onclick="pageTracker._trackPageview(&#39;/outgoing/blog.csdn.net/haoel?referer=http://coolshell.cn&#39;);">陈皓的博客</a></li>
+
+<li><a href="http://ifeve.com/" target="_blank" title="促进并发编程的研究和推广" onclick="pageTracker._trackPageview(&#39;/outgoing/ifeve.com/?referer=http://coolshell.cn&#39;);">并发编程</a></li>
+
+
+<li><a href="http://www.raychase.net/" target="_blank" title="一个啰嗦的程序员" onclick="pageTracker._trackPageview(&#39;/outgoing/www.raychase.net/?referer=http://coolshell.cn&#39;);">四火的唠叨</a></li>
+
+
+
+<li><a href="http://www.hellogcc.org/" target="_blank" title="致力于讨论和学习GNU Toolchain方面的工作组" onclick="pageTracker._trackPageview(&#39;/outgoing/www.hellogcc.org//?referer=http://coolshell.cn/&#39;);">HelloGcc Working Group</a></li>
+
+<li><a href="http://pangee.cn/" target="_blank" title="一名在路上的程序员" onclick="pageTracker._trackPageview(&#39;/outgoing/http://blog.lvscar.info/?referer=http://coolshell.cn/&#39;);">吕毅的Blog</a></li>
+
+<li><a href="http://www.cnblogs.com/weidagang2046/" target="_blank" title="Just for Fun" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.cnblogs.com/weidagang2046/?referer=http://coolshell.cn/&#39;);">Todd Wei的Blog</a></li>
+
+<li><a href="http://www.cppfans.org/" target="_blank" title="记录我们点滴学习工作生活" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.cppfans.org/?referer=http://coolshell.cn/&#39;);">C++爱好者博客</a></li>
+
+<li><a href="http://www.mhtml5.com/" target="_blank" title="致力于HTML5在中国的发展与应用" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.mhtml5.com/?referer=http://coolshell.cn/&#39;);">HTML5研究小组</a></li>
+
+
+<li><a href="http://zhuwenhao.com/" target="_blank" title="朱文昊的中文博客－－专注技术，向往自由" onclick="pageTracker._trackPageview(&#39;/outgoing/http://zhuwenhao.com/?referer=http://coolshell.cn/&#39;);">朱文昊Albert Zhu</a></li>
+
+
+<li><a href="http://www.cguage.com/" target="_blank" title="某VC++软件开发爱好者" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.cguage.com/?referer=http://coolshell.cn/&#39;);">C瓜哥的博客</a></li>
+
+
+<li><a href="http://www.kaiyuanba.cn/" target="_blank" title="汇聚各种开源项目的中英文混合介绍并分类排列，致力于软件项目的开源事业" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.kaiyuanba.cn/?referer=http://coolshell.cn/&#39;);">开源吧</a></li>
+
+
+
+<li><a href="http://helloacm.com/" target="_blank" title="Smart Ideas, Smart Algorithms" onclick="pageTracker._trackPageview(&#39;/outgoing/http://HelloACM.com/?referer=http://coolshell.cn/&#39;);">ACMer</a></li>
+
+<li><a href="http://chenpeng.info/" target="_blank" title="优秀的开源软件让生活更简单" onclick="pageTracker._trackPageview(&#39;/outgoing/http://chenpeng.info/?referer=http://coolshell.cn/&#39;);">陈鹏个人博客</a></li>
+
+<li><a href="http://www.coderli.com/" target="_blank" title="一个普通的coder，coding为了生活，coding因为消遣:-) Just a coder" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.coderli.com/?referer=http://coolshell.cn/&#39;);">OneCoder</a></li>
+
+<li><a href="http://www.vimer.me/" target="_blank" title="Geek for Tech、Design、Product" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.vimer.me/?referer=http://coolshell.cn/&#39;);">More Than Vimer</a></li>
+
+<li><a href="http://www.yunweipai.com/" target="_blank" title="关注IT技术 | 分享 | 交流 | 记录" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.yunweipai.com/?referer=http://coolshell.cn/&#39;);">运维派 </a></li>
+
+<li><a href="http://www.ishuchao.com/" target="_blank" title="闲置纸质书的在线漂流平台" onclick="pageTracker._trackPageview(&#39;/outgoing/http://www.ishuchao.com/?referer=http://coolshell.cn/&#39;);">书巢</a></li></ul></div>
+		</div><div id="meta-3" class="widget widget_meta"><h3>功能</h3>			<ul>
+			<li><a href="http://coolshell.cn/wp-login.php?action=register">注册</a></li>			<li><a href="http://coolshell.cn/wp-login.php">登录</a></li>
+			<li><a href="http://coolshell.cn/feed">文章<abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://coolshell.cn/comments/feed">评论<abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="https://cn.wordpress.org/" title="基于WordPress，一个优美、先进的个人信息发布平台。">WordPress.org</a></li>			</ul>
+			</div><div id="text-400151742" class="widget widget_text">			<div class="textwidget"><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/stat.php" language="JavaScript" charset="gb2312"></script><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/core.php" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=1785679" target="_blank" title="站长统计"><img border="0" hspace="0" vspace="0" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/pic1.gif"></a>
+
+
+
+</div>
+		</div></div>
+<!-- sidebar south END -->
+
+</div>
+<!-- sidebar END -->
+	<div class="fixed"></div>
+</div>
+<!-- content END -->
+
+<!-- footer START -->
+<div id="footer">
+	<a id="gotop" href="http://coolshell.cn/articles/11609.html#" onclick="MGJS.goTop();return false;">回到顶部</a>
+	<a id="powered" href="http://wordpress.org/">WordPress</a>
+	<div id="copyright">
+		版权所有 © 2004-2016 酷 壳 – CoolShell.cn	</div>
+	<div id="themeinfo">
+		主题由 <a href="http://www.neoease.com/">NeoEase</a> 提供, 通过 <a href="http://validator.w3.org/check?uri=referer">XHTML 1.1</a> 和 <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3">CSS 3</a> 验证.	</div>
+</div>
+<!-- footer END -->
+
+</div>
+<!-- container END -->
+</div>
+<!-- wrap END -->
+
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shCore.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushCSharp.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushPhp.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushJScript.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushJava.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushVb.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushSql.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushXml.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushDelphi.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushPython.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushRuby.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushCss.js.下载"></script>
+<script class="javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushCpp.js.下载"></script>
+<script class="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = 'http://coolshell.cn/wp-content/plugins/google-syntax-highlighter/Scripts/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+    <!-- Start of StatCounter Code -->
+    <script>
+    <!-- 
+        var sc_project=8326668; 
+        var sc_security="cccb27f2"; 
+      var sc_invisible=1;
+        var scJsHost = (("https:" == document.location.protocol) ?
+        "https://secure." : "http://www.");
+    //-->
+document.write("<sc"+"ript src='" +scJsHost +"statcounter.com/counter/counter.js'></"+"script>");
+</script><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/counter.js.下载"></script>
+<noscript>&lt;div class="statcounter"&gt;&lt;a title="web analytics" href="https://statcounter.com/"&gt;&lt;img class="statcounter" src="https://c.statcounter.com/8326668/0/cccb27f2/1/" alt="web analytics" /&gt;&lt;/a&gt;&lt;/div&gt;</noscript>   
+    <!-- End of StatCounter Code -->
+<!-- Powered by WPtouch: 4.3.5 --><script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/form.js.下载"></script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shCore.js(1).下载"></script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/shBrushCpp.js(1).下载"></script>
+<script type="text/javascript">
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://coolshell.cn/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.9b";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://coolshell.cn/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeDefault.css?ver=3.0.9b";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '帮助';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = '无法找到Brush：';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush不能设置 html-script选项';
+	SyntaxHighlighter.defaults['class-name'] = 'coolshell_syntaxhighlighter';
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.defaults['toolbar'] = false;
+	SyntaxHighlighter.all();
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var ratingsL10n = {"plugin_url":"http:\/\/coolshell.cn\/wp-content\/plugins\/wp-postratings","ajax_url":"http:\/\/coolshell.cn\/wp-admin\/admin-ajax.php","text_wait":"Please rate only 1 post at a time.","image":"stars_crystal","image_ext":"gif","max":"5","show_loading":"1","show_fading":"1","custom":"0"};
+var ratings_mouseover_image=new Image();ratings_mouseover_image.src=ratingsL10n.plugin_url+"/images/"+ratingsL10n.image+"/rating_over."+ratingsL10n.image_ext;;
+/* ]]> */
+</script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/postratings-js.js.下载"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var viewsCacheL10n = {"admin_ajax_url":"http:\/\/coolshell.cn\/wp-admin\/admin-ajax.php","post_id":"11609"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/postviews-cache.js.下载"></script>
+<script type="text/javascript" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/wp-embed.min.js.下载"></script>
+<script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/stat.php" language="JavaScript" charset="gb2312"></script><script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/core.php" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=1785679" target="_blank" title="站长统计"><img border="0" hspace="0" vspace="0" src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/pic1.gif"></a>
+
+
+
+
+
+
+<script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jquery.min.js.下载"></script>
+<script src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/jquery.bpopup-0.8.0.min.js.下载"></script>
+
+<script type="text/javascript">
+;(function($) {
+    $(function() {
+        var url=document.referrer;
+        if ( url && ( url.search("http://")>-1 || url.search("https://")>-1 ) ) {
+            var refurl =  url.match(/:\/\/(.[^/]+)/)[1];
+            if(refurl.indexOf("baidu.com")>-1){
+                $('#nobaidu_dlg').bPopup();
+            }
+        }
+    });
+
+})(jQuery);
+</script>
+
+
+
+<div id="nobaidu_dlg" style="background-color:#fff; border-radius:15px;color:#000;display:none;padding:20px;min-width:450px;min-height:180px;">
+    <!--<span class="bClose" style="cursor:pointer; position:absolute; right:10px;top:5px;">x<span/>-->
+    <img src="./TCP 的那些事儿（下） _ 酷 壳 - CoolShell.cn_files/nobaidu.jpg" align="left">
+     <p style="margin-left:200px;margin-top: 20px; line-height: 30px;">
+     检测到你还在使用百度这个搜索引擎，<br>
+     作为一个程序员，这是一种自暴自弃！<br>
+     <br>
+     </p>
+     <p align="center" style="margin-top:20px;">
+     <b><a href="http://coolshell.cn/articles/7186.html">作环保的程序员，从不用百度开始！</a></b>
+     </p>
+</div>
+
+</body></html>
