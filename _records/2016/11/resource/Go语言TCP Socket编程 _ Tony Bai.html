@@ -1,0 +1,1482 @@
+<!DOCTYPE HTML>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    						<title>Go语言TCP Socket编程 | Tony Bai</title>			
+														<meta name="keywords" content="Block,Client,Darwin,epoll,Go,Golang,goroutine,IO,kqueue,libev,Libevent,libuv,Linux,lock,MacOSX,Mutex,netpoller,Non-Block,Poll,runtime,Scheduler,select,Server,Solaris,TCP,Ubuntu,Unix,Windows,多路复用,套接字,开源,用友网络,网络编程,调度器,运行时,锁,阻塞,非阻塞" />
+		<meta name="description" content="Golang的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket" />
+		<meta name="viewport" content="initial-scale=1.0,user-scalable=no">
+		<link rel="shortcut icon" href="http://tonybai.com/favicon.ico" type="image/x-icon" />
+		<link rel="alternate" type="application/rss+xml" title="Tony Bai &raquo; Feed" href="http://tonybai.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Tony Bai &raquo; 评论 Feed" href="http://tonybai.com/comments/feed/" />
+
+			<script type="text/javascript">//<![CDATA[
+			// Google Analytics for WordPress by Yoast v4.2.8 | http://yoast.com/wordpress/google-analytics/
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-1218078-9']);
+							_gaq.push(['_trackPageview']);
+			(function () {
+				var ga = document.createElement('script');
+				ga.type = 'text/javascript';
+				ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0];
+				s.parentNode.insertBefore(ga, s);
+			})();
+			//]]></script>
+			<link rel="alternate" type="application/rss+xml" title="Tony Bai &raquo; Go语言TCP Socket编程 评论 Feed" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/feed/" />
+<link rel='stylesheet' id='wp-recentcomments-css'  href='http://tonybai.com/wp-content/plugins/wp-recentcomments/css/wp-recentcomments.css?ver=2.2.7' type='text/css' media='screen' />
+<link rel='stylesheet' id='normalize-css'  href='http://tonybai.com/wp-content/themes/maupassant/css/normalize.css?ver=1.14' type='text/css' media='screen' />
+<link rel='stylesheet' id='style-css'  href='http://tonybai.com/wp-content/themes/maupassant/style.css?ver=1.14' type='text/css' media='screen' />
+<script type="text/javascript">
+var duoshuoQuery = {"short_name":"bigwhite","sso":{"login":"http:\/\/tonybai.com\/wp-login.php?action=duoshuo_login","logout":"http:\/\/tonybai.com\/wp-login.php?action=logout&_wpnonce=dd47838521"},"theme":"default","stylePatch":"wordpress\/Maupassant"};
+duoshuoQuery.sso.login += '&redirect_to=' + encodeURIComponent(window.location.href);
+duoshuoQuery.sso.logout += '&redirect_to=' + encodeURIComponent(window.location.href);
+</script>
+    <script type="text/javascript" src="http://static.duoshuo.com/embed.js" charset="UTF-8" async="async"></script>
+<script type='text/javascript' src='http://tonybai.com/wp-includes/js/l10n.js?ver=20101110'></script>
+<script type='text/javascript' src='http://x.papaapp.com/farm1/a571d2/8dda131d/html5shiv.js?ver=3.7.1'></script>
+<script type='text/javascript' src='http://tonybai.com/wp-includes/js/jquery/jquery.js?ver=1.6.1'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://tonybai.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://tonybai.com/wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='Tony Bai' href='http://tonybai.com/' />
+<link rel='start' title='本不是第一篇的第一篇' href='http://tonybai.com/2004/09/15/the-first-blog/' />
+<link rel='prev' title='Go语言错误处理' href='http://tonybai.com/2015/10/30/error-handling-in-go/' />
+<link rel='next' title='Go语言随机测试工具go-fuzz' href='http://tonybai.com/2015/12/08/go-fuzz-intro/' />
+<meta name="generator" content="WordPress 3.2.1" />
+<link rel='shortlink' href='http://tonybai.com/?p=1907' />
+
+<!-- All in One SEO Pack 2.0.2 by Michael Torbert of Semper Fi Web Design[313,355] -->
+<meta name="description" content="Golang的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端" />
+
+<meta name="keywords" content="block, client, darwin, epoll, go, golang, goroutine, io, kqueue, libev, libevent, libuv, linux, lock, macosx, mutex, netpoller, non-block, poll, runtime, scheduler, select, server, solaris, tcp, ubuntu, unix, windows, 多路复用, 套接字, 开源, 用友网络, 网络编程, 调度器, 运行时, 锁, 阻塞, 非阻塞,client,darwin,epoll,go,golang,goroutine,io,kqueue,libev,libevent,libuv,linux,lock,macosx,mutex,netpoller,non-block,poll,runtime,scheduler,select,server,solaris,tcp,ubuntu,unix,windows,多路复用,套接字,开源,用友网络,网络编程,调度器,运行时,锁,阻塞,非阻塞,技术志" />
+
+<link rel="canonical" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/" />
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1218078-9']);
+		  _gaq.push(['_trackPageview']);
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
+<!-- /all in one seo pack -->
+	</head>
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                <a id="logo" href="http://tonybai.com">
+                   Tony Bai                </a>
+        	    <p class="description">一个程序员的心路历程</p>
+            </div>
+            <div>
+                <div class="menu"><ul><li class="page_item page-item-13"><a href="http://tonybai.com/about/" title="关于我">关于我</a></li><li class="page_item page-item-1917"><a href="http://tonybai.com/articles/" title="文章列表">文章列表</a></li></ul></div>
+            </div>
+        </div>
+    </div>
+</header>
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+<div class="col-8" id="main">
+	<div class="res-cons">
+					<article class="post">
+				<h1 class="post-title">Go语言TCP Socket编程</h1>
+				<ul class="post-meta">
+					<li>十一月 17, 2015</li>
+					<li class="comment-count"><a href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comments" class="ds-thread-count" data-thread-key="1907" title="《Go语言TCP Socket编程》上的评论">21 条评论</a></li>
+				</ul>
+				<div class="post-content">
+					<p><a href="http://tonybai.com/tag/go" >Golang</a>的主要 设计目标之一就是面向大规模后端服务程序，网络通信这块是服务端 程序必不可少也是至关重要的一部分。在日常应用中，我们也可以看到Go中的net以及其subdirectories下的包均是“高频+刚需”，而TCP socket则是网络编程的主流，即便您没有直接使用到net中有关TCP Socket方面的接口，但net/http总是用到了吧，http底层依旧是用tcp socket实现的。</p>
+<p>网络编程方面，我们最常用的就是tcp socket编程了，在posix标准出来后，socket在各大主流OS平台上都得到了很好的支持。关于tcp programming，最好的资料莫过于<a href="http://en.wikipedia.org/wiki/W._Richard_Stevens" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://en.wikipedia.org']);">W. Richard Stevens</a> 的网络编程圣经《<a href="http://book.douban.com/subject/4859464/" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://book.douban.com']);">UNIX网络 编程 卷1：套接字联网API</a>》 了，书中关于tcp socket接口的各种使用、行为模式、异常处理讲解的十分细致。Go是自带runtime的跨平台编程语言，Go中暴露给语言使用者的tcp socket api是建立OS原生tcp socket接口之上的。由于Go runtime调度的需要，golang tcp socket接口在行为特点与异常处理方面与OS原生接口有着一些差别。这篇博文的目标就是整理出关于Go tcp socket在各个场景下的使用方法、行为特点以及注意事项。</p>
+<h3>一、模型</h3>
+<p>从tcp socket诞生后，网络编程架构模型也几经演化，大致是：“每进程一个连接”  &#8211;>  “每线程一个连接”  &#8211;>  “Non-Block + I/O多路复用(linux epoll/windows iocp/freebsd darwin kqueue/solaris Event Port)”。伴随着模型的演化，服务程序愈加强大，可以支持更多的连接，获得更好的处理性能。</p>
+<p>目前主流web server一般均采用的都是”Non-Block + I/O多路复用”（有的也结合了多线程、多进程）。不过I/O多路复用也给使用者带来了不小的复杂度，以至于后续出现了许多高性能的I/O多路复用框架， 比如<a href="http://libevent.org/" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://libevent.org']);">libevent</a>、<a href="http://software.schmorp.de/pkg/libev.html" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://software.schmorp.de']);">libev</a>、<a href="https://github.com/joyent/libuv" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://github.com']);">libuv</a>等，以帮助开发者简化开发复杂性，降低心智负担。不过Go的设计者似乎认为I/O多路复用的这种通过回调机制割裂控制流 的方式依旧复杂，且有悖于“一般逻辑”设计，为此Go语言将该“复杂性”隐藏在Runtime中了：Go开发者无需关注socket是否是 non-block的，也无需亲自注册文件描述符的回调，只需在每个连接对应的goroutine中以<strong>“block I/O”</strong>的方式对待socket处理即可，这可以说大大降低了开发人员的心智负担。一个典型的Go server端程序大致如下：</p>
+<pre><code>//go-tcpsock/server.go
+func handleConn(c net.Conn) {
+    defer c.Close()
+    for {
+        // read from the connection
+        // ... ...
+        // write to the connection
+        //... ...
+    }
+}
+
+func main() {
+    l, err := net.Listen("tcp", ":8888")
+    if err != nil {
+        fmt.Println("listen error:", err)
+        return
+    }
+
+    for {
+        c, err := l.Accept()
+        if err != nil {
+            fmt.Println("accept error:", err)
+            break
+        }
+        // start a new goroutine to handle
+        // the new connection.
+        go handleConn(c)
+    }
+}
+</code></pre>
+<p>用户层眼中看到的goroutine中的“block socket”，实际上是通过Go runtime中的netpoller通过Non-block socket + I/O多路复用机制“模拟”出来的，真实的underlying socket实际上是non-block的，只是runtime拦截了底层socket系统调用的错误码，并通过netpoller和goroutine 调度让goroutine“阻塞”在用户层得到的Socket fd上。比如：当用户层针对某个socket fd发起read操作时，如果该socket fd中尚无数据，那么runtime会将该socket fd加入到netpoller中监听，同时对应的goroutine被挂起，直到runtime收到socket fd 数据ready的通知，runtime才会重新唤醒等待在该socket fd上准备read的那个Goroutine。而这个过程从Goroutine的视角来看，就像是read操作一直block在那个socket fd上似的。具体实现细节在后续场景中会有补充描述。</p>
+<h3>二、TCP连接的建立</h3>
+<p>众所周知，TCP Socket的连接的建立需要经历客户端和服务端的三次握手的过程。连接建立过程中，服务端是一个标准的Listen + Accept的结构(可参考上面的代码)，而在客户端Go语言使用net.Dial或DialTimeout进行连接建立：</p>
+<p>阻塞Dial：</p>
+<pre><code>conn, err := net.Dial("tcp", "google.com:80")
+if err != nil {
+    //handle error
+}
+// read or write on conn
+</code></pre>
+<p>或是带上超时机制的Dial：</p>
+<pre><code>conn, err := net.DialTimeout("tcp", ":8080", 2 * time.Second)
+if err != nil {
+    //handle error
+}
+// read or write on conn
+
+</code></pre>
+<p>对于客户端而言，连接的建立会遇到如下几种情形：</p>
+<hr />
+<h4>1、网络不可达或对方服务未启动</h4>
+<p>如果传给Dial的Addr是可以立即判断出网络不可达，或者Addr中端口对应的服务没有启动，端口未被监听，Dial会几乎立即返回错误，比如：</p>
+<pre><code>//go-tcpsock/conn_establish/client1.go
+... ...
+func main() {
+    log.Println("begin dial...")
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    defer conn.Close()
+    log.Println("dial ok")
+}
+</code></pre>
+<p>如果本机8888端口未有服务程序监听，那么执行上面程序，Dial会很快返回错误：</p>
+<pre><code>$go run client1.go
+2015/11/16 14:37:41 begin dial...
+2015/11/16 14:37:41 dial error: dial tcp :8888: getsockopt: connection refused
+</code></pre>
+<h4>2、对方服务的listen backlog满</h4>
+<p>还有一种场景就是对方服务器很忙，瞬间有大量client端连接尝试向server建立，server端的listen backlog队列满，server accept不及时((即便不accept，那么在backlog数量范畴里面，connect都会是成功的，因为new conn已经加入到server side的listen queue中了，accept只是从queue中取出一个conn而已)，这将导致client端Dial阻塞。我们还是通过例子感受Dial的行为特点：</p>
+<p>服务端代码：</p>
+<pre><code>//go-tcpsock/conn_establish/server2.go
+... ...
+func main() {
+    l, err := net.Listen("tcp", ":8888")
+    if err != nil {
+        log.Println("error listen:", err)
+        return
+    }
+    defer l.Close()
+    log.Println("listen ok")
+
+    var i int
+    for {
+        time.Sleep(time.Second * 10)
+        if _, err := l.Accept(); err != nil {
+            log.Println("accept error:", err)
+            break
+        }
+        i++
+        log.Printf("%d: accept a new connection\n", i)
+    }
+}
+</code></pre>
+<p>客户端代码：</p>
+<pre><code>//go-tcpsock/conn_establish/client2.go
+... ...
+func establishConn(i int) net.Conn {
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Printf("%d: dial error: %s", i, err)
+        return nil
+    }
+    log.Println(i, ":connect to server ok")
+    return conn
+}
+
+func main() {
+    var sl []net.Conn
+    for i := 1; i &lt; 1000; i++ {
+        conn := establishConn(i)
+        if conn != nil {
+            sl = append(sl, conn)
+        }
+    }
+
+    time.Sleep(time.Second * 10000)
+}
+</code></pre>
+<p>从程序可以看出，服务端在listen成功后，每隔10s钟accept一次。客户端则是串行的尝试建立连接。这两个程序在Darwin下的执行 结果：</p>
+<pre><code>$go run server2.go
+2015/11/16 21:55:41 listen ok
+2015/11/16 21:55:51 1: accept a new connection
+2015/11/16 21:56:01 2: accept a new connection
+... ...
+
+$go run client2.go
+2015/11/16 21:55:44 1 :connect to server ok
+2015/11/16 21:55:44 2 :connect to server ok
+2015/11/16 21:55:44 3 :connect to server ok
+... ...
+
+2015/11/16 21:55:44 126 :connect to server ok
+2015/11/16 21:55:44 127 :connect to server ok
+2015/11/16 21:55:44 128 :connect to server ok
+
+2015/11/16 21:55:52 129 :connect to server ok
+2015/11/16 21:56:03 130 :connect to server ok
+2015/11/16 21:56:14 131 :connect to server ok
+... ...
+</code></pre>
+<p>可以看出Client初始时成功地一次性建立了128个连接，然后后续每阻塞近10s才能成功建立一条连接。也就是说在server端 backlog满时(未及时accept)，客户端将阻塞在Dial上，直到server端进行一次accept。至于为什么是128，这与darwin 下的默认设置有关：</p>
+<pre><code>$sysctl -a|grep kern.ipc.somaxconn
+kern.ipc.somaxconn: 128
+</code></pre>
+<p>如果我在ubuntu 14.04上运行上述server程序，我们的client端初始可以成功建立499条连接。</p>
+<p>如果server一直不accept，client端会一直阻塞么？我们去掉accept后的结果是：在Darwin下，client端会阻塞大 约1分多钟才会返回timeout：</p>
+<pre><code>2015/11/16 22:03:31 128 :connect to server ok
+2015/11/16 22:04:48 129: dial error: dial tcp :8888: getsockopt: operation timed out
+</code></pre>
+<p>而如果server运行在ubuntu 14.04上，client似乎一直阻塞，我等了10多分钟依旧没有返回。 阻塞与否看来与server端的网络实现和设置有关。</p>
+<h4>3、网络延迟较大，Dial阻塞并超时</h4>
+<p>如果网络延迟较大，TCP握手过程将更加艰难坎坷（各种丢包），时间消耗的自然也会更长。Dial这时会阻塞，如果长时间依旧无法建立连接，则Dial也会返回“ getsockopt: operation timed out”错误。</p>
+<hr />
+<p>在连接建立阶段，多数情况下，Dial是可以满足需求的，即便阻塞一小会儿。但对于某些程序而言，需要有严格的连接时间限定，如果一定时间内没能成功建立连接，程序可能会需要执行一段“异常”处理逻辑，为此我们就需要DialTimeout了。下面的例子将Dial的最长阻塞时间限制在2s内，超出这个时长，Dial将返回timeout error：</p>
+<pre><code>//go-tcpsock/conn_establish/client3.go
+... ...
+func main() {
+    log.Println("begin dial...")
+    conn, err := net.DialTimeout("tcp", "104.236.176.96:80", 2*time.Second)
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    defer conn.Close()
+    log.Println("dial ok")
+}
+
+</code></pre>
+<p>执行结果如下（需要模拟一个延迟较大的网络环境）：</p>
+<pre><code>$go run client3.go
+2015/11/17 09:28:34 begin dial...
+2015/11/17 09:28:36 dial error: dial tcp 104.236.176.96:80: i/o timeout
+</code></pre>
+<h3>三、Socket读写</h3>
+<p>连接建立起来后，我们就要在conn上进行读写，以完成业务逻辑。前面说过Go runtime隐藏了I/O多路复用的复杂性。语言使用者只需采用goroutine+Block I/O的模式即可满足大部分场景需求。Dial成功后，方法返回一个net.Conn接口类型变量值，这个接口变量的动态类型为一个*TCPConn：</p>
+<pre><code>//$GOROOT/src/net/tcpsock_posix.go
+type TCPConn struct {
+    conn
+}
+</code></pre>
+<p>TCPConn内嵌了一个unexported类型：conn，因此TCPConn”继承”了conn的Read和Write方法，后续通过Dial返回值调用的Write和Read方法均是net.conn的方法：</p>
+<pre><code>//$GOROOT/src/net/net.go
+type conn struct {
+    fd *netFD
+}
+
+func (c *conn) ok() bool { return c != nil &amp;&amp; c.fd != nil }
+
+// Implementation of the Conn interface.
+
+// Read implements the Conn Read method.
+func (c *conn) Read(b []byte) (int, error) {
+    if !c.ok() {
+        return 0, syscall.EINVAL
+    }
+    n, err := c.fd.Read(b)
+    if err != nil &amp;&amp; err != io.EOF {
+        err = &amp;OpError{Op: "read", Net: c.fd.net, Source: c.fd.laddr, Addr: c.fd.raddr, Err: err}
+    }
+    return n, err
+}
+
+// Write implements the Conn Write method.
+func (c *conn) Write(b []byte) (int, error) {
+    if !c.ok() {
+        return 0, syscall.EINVAL
+    }
+    n, err := c.fd.Write(b)
+    if err != nil {
+        err = &amp;OpError{Op: "write", Net: c.fd.net, Source: c.fd.laddr, Addr: c.fd.raddr, Err: err}
+    }
+    return n, err
+}
+</code></pre>
+<p>下面我们先来通过几个场景来总结一下conn.Read的行为特点。</p>
+<hr />
+<h4>1、Socket中无数据</h4>
+<p>连接建立后，如果对方未发送数据到socket，接收方(Server)会阻塞在Read操作上，这和前面提到的“模型”原理是一致的。执行该Read操作的goroutine也会被挂起。runtime会监视该socket，直到其有数据才会重新<br />
+调度该socket对应的Goroutine完成read。由于篇幅原因，这里就不列代码了，例子对应的代码文件：go-tcpsock/read_write下的client1.go和server1.go。</p>
+<h4>2、Socket中有部分数据</h4>
+<p>如果socket中有部分数据，且长度小于一次Read操作所期望读出的数据长度，那么Read将会成功读出这部分数据并返回，而不是等待所有期望数据全部读取后再返回。</p>
+<p>Client端：</p>
+<pre><code>//go-tcpsock/read_write/client2.go
+... ...
+func main() {
+    if len(os.Args) &lt;= 1 {
+        fmt.Println("usage: go run client2.go YOUR_CONTENT")
+        return
+    }
+    log.Println("begin dial...")
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    defer conn.Close()
+    log.Println("dial ok")
+
+    time.Sleep(time.Second * 2)
+    data := os.Args[1]
+    conn.Write([]byte(data))
+
+    time.Sleep(time.Second * 10000)
+}
+
+</code></pre>
+<p>Server端：</p>
+<pre><code>//go-tcpsock/read_write/server2.go
+... ...
+func handleConn(c net.Conn) {
+    defer c.Close()
+    for {
+        // read from the connection
+        var buf = make([]byte, 10)
+        log.Println("start to read from conn")
+        n, err := c.Read(buf)
+        if err != nil {
+            log.Println("conn read error:", err)
+            return
+        }
+        log.Printf("read %d bytes, content is %s\n", n, string(buf[:n]))
+    }
+}
+... ...
+
+</code></pre>
+<p>我们通过client2.go发送”hi”到Server端：<br />
+运行结果:</p>
+<pre><code>$go run client2.go hi
+2015/11/17 13:30:53 begin dial...
+2015/11/17 13:30:53 dial ok
+
+$go run server2.go
+2015/11/17 13:33:45 accept a new connection
+2015/11/17 13:33:45 start to read from conn
+2015/11/17 13:33:47 read 2 bytes, content is hi
+...
+</code></pre>
+<p>Client向socket中写入两个字节数据(“hi”)，Server端创建一个len = 10的slice，等待Read将读取的数据放入slice；Server随后读取到那两个字节：”hi”。Read成功返回，n =2 ，err = nil。</p>
+<h4>3、Socket中有足够数据</h4>
+<p>如果socket中有数据，且长度大于等于一次Read操作所期望读出的数据长度，那么Read将会成功读出这部分数据并返回。这个情景是最符合我们对Read的期待的了：Read将用Socket中的数据将我们传入的slice填满后返回：n = 10, err = nil。</p>
+<p>我们通过client2.go向Server2发送如下内容：abcdefghij12345，执行结果如下：</p>
+<pre><code>$go run client2.go abcdefghij12345
+2015/11/17 13:38:00 begin dial...
+2015/11/17 13:38:00 dial ok
+
+$go run server2.go
+2015/11/17 13:38:00 accept a new connection
+2015/11/17 13:38:00 start to read from conn
+2015/11/17 13:38:02 read 10 bytes, content is abcdefghij
+2015/11/17 13:38:02 start to read from conn
+2015/11/17 13:38:02 read 5 bytes, content is 12345
+</code></pre>
+<p>client端发送的内容长度为15个字节，Server端Read buffer的长度为10，因此Server Read第一次返回时只会读取10个字节；Socket中还剩余5个字节数据，Server再次Read时会把剩余数据读出（如：情形2）。</p>
+<h4>4、Socket关闭</h4>
+<p>如果client端主动关闭了socket，那么Server的Read将会读到什么呢？这里分为“有数据关闭”和“无数据关闭”。</p>
+<p>“有数据关闭”是指在client关闭时，socket中还有server端未读取的数据，我们在go-tcpsock/read_write/client3.go和server3.go中模拟这种情况：</p>
+<pre><code>$go run client3.go hello
+2015/11/17 13:50:57 begin dial...
+2015/11/17 13:50:57 dial ok
+
+$go run server3.go
+2015/11/17 13:50:57 accept a new connection
+2015/11/17 13:51:07 start to read from conn
+2015/11/17 13:51:07 read 5 bytes, content is hello
+2015/11/17 13:51:17 start to read from conn
+2015/11/17 13:51:17 conn read error: EOF
+</code></pre>
+<p>从输出结果来看，当client端close socket退出后，server3依旧没有开始Read，10s后第一次Read成功读出了5个字节的数据，当第二次Read时，由于client端 socket关闭，Read返回EOF error。</p>
+<p>通过上面这个例子，我们也可以猜测出“无数据关闭”情形下的结果，那就是Read直接返回EOF error。</p>
+<h4>5、读取操作超时</h4>
+<p>有些场合对Read的阻塞时间有严格限制，在这种情况下，Read的行为到底是什么样的呢？在返回超时错误时，是否也同时Read了一部分数据了呢？这个实验比较难于模拟，下面的测试结果也未必能反映出所有可能结果。我们编写了client4.go和server4.go来模拟这一情形。</p>
+<pre><code>//go-tcpsock/read_write/client4.go
+... ...
+func main() {
+    log.Println("begin dial...")
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    defer conn.Close()
+    log.Println("dial ok")
+
+    data := make([]byte, 65536)
+    conn.Write(data)
+
+    time.Sleep(time.Second * 10000)
+}
+
+//go-tcpsock/read_write/server4.go
+... ...
+func handleConn(c net.Conn) {
+    defer c.Close()
+    for {
+        // read from the connection
+        time.Sleep(10 * time.Second)
+        var buf = make([]byte, 65536)
+        log.Println("start to read from conn")
+        c.SetReadDeadline(time.Now().Add(time.Microsecond * 10))
+        n, err := c.Read(buf)
+        if err != nil {
+            log.Printf("conn read %d bytes,  error: %s", n, err)
+            if nerr, ok := err.(net.Error); ok &amp;&amp; nerr.Timeout() {
+                continue
+            }
+            return
+        }
+        log.Printf("read %d bytes, content is %s\n", n, string(buf[:n]))
+    }
+}
+
+</code></pre>
+<p>在Server端我们通过Conn的SetReadDeadline方法设置了10微秒的读超时时间，Server的执行结果如下：</p>
+<pre><code>$go run server4.go
+
+2015/11/17 14:21:17 accept a new connection
+2015/11/17 14:21:27 start to read from conn
+2015/11/17 14:21:27 conn read 0 bytes,  error: read tcp 127.0.0.1:8888-&gt;127.0.0.1:60970: i/o timeout
+2015/11/17 14:21:37 start to read from conn
+2015/11/17 14:21:37 read 65536 bytes, content is
+
+</code></pre>
+<p>虽然每次都是10微秒超时，但结果不同，第一次Read超时，读出数据长度为0；第二次读取所有数据成功，没有超时。反复执行了多次，没能出现“读出部分数据且返回超时错误”的情况。</p>
+<hr />
+<p>和读相比，Write遇到的情形一样不少，我们也逐一看一下。</p>
+<hr />
+<h4>1、成功写</h4>
+<p>前面例子着重于Read，client端在Write时并未判断Write的返回值。所谓“成功写”指的就是Write调用返回的n与预期要写入的数据长度相等，且error = nil。这是我们在调用Write时遇到的最常见的情形，这里不再举例了。</p>
+<h4>2、写阻塞</h4>
+<p>TCP连接通信两端的OS都会为该连接保留数据缓冲，一端调用Write后，实际上数据是写入到OS的协议栈的数据缓冲的。TCP是全双工通信，因此每个方向都有独立的数据缓冲。当发送方将对方的接收缓冲区以及自身的发送缓冲区写满后，Write就会阻塞。我们来看一个例子：client5.go和server.go。</p>
+<pre><code>//go-tcpsock/read_write/client5.go
+... ...
+func main() {
+    log.Println("begin dial...")
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    defer conn.Close()
+    log.Println("dial ok")
+
+    data := make([]byte, 65536)
+    var total int
+    for {
+        n, err := conn.Write(data)
+        if err != nil {
+            total += n
+            log.Printf("write %d bytes, error:%s\n", n, err)
+            break
+        }
+        total += n
+        log.Printf("write %d bytes this time, %d bytes in total\n", n, total)
+    }
+
+    log.Printf("write %d bytes in total\n", total)
+    time.Sleep(time.Second * 10000)
+}
+
+//go-tcpsock/read_write/server5.go
+... ...
+func handleConn(c net.Conn) {
+    defer c.Close()
+    time.Sleep(time.Second * 10)
+    for {
+        // read from the connection
+        time.Sleep(5 * time.Second)
+        var buf = make([]byte, 60000)
+        log.Println("start to read from conn")
+        n, err := c.Read(buf)
+        if err != nil {
+            log.Printf("conn read %d bytes,  error: %s", n, err)
+            if nerr, ok := err.(net.Error); ok &amp;&amp; nerr.Timeout() {
+                continue
+            }
+        }
+
+        log.Printf("read %d bytes, content is %s\n", n, string(buf[:n]))
+    }
+}
+... ...
+</code></pre>
+<p>Server5在前10s中并不Read数据，因此当client5一直尝试写入时，写到一定量后就会发生阻塞：</p>
+<pre><code>$go run client5.go
+
+2015/11/17 14:57:33 begin dial...
+2015/11/17 14:57:33 dial ok
+2015/11/17 14:57:33 write 65536 bytes this time, 65536 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 131072 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 196608 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 262144 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 327680 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 393216 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 458752 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 524288 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 589824 bytes in total
+2015/11/17 14:57:33 write 65536 bytes this time, 655360 bytes in total
+
+</code></pre>
+<p>在Darwin上，这个size大约在679468bytes。后续当server5每隔5s进行Read时，OS socket缓冲区腾出了空间，client5就又可以写入了：</p>
+<pre><code>$go run server5.go
+2015/11/17 15:07:01 accept a new connection
+2015/11/17 15:07:16 start to read from conn
+2015/11/17 15:07:16 read 60000 bytes, content is
+2015/11/17 15:07:21 start to read from conn
+2015/11/17 15:07:21 read 60000 bytes, content is
+2015/11/17 15:07:26 start to read from conn
+2015/11/17 15:07:26 read 60000 bytes, content is
+....
+
+client端：
+
+2015/11/17 15:07:01 write 65536 bytes this time, 720896 bytes in total
+2015/11/17 15:07:06 write 65536 bytes this time, 786432 bytes in total
+2015/11/17 15:07:16 write 65536 bytes this time, 851968 bytes in total
+2015/11/17 15:07:16 write 65536 bytes this time, 917504 bytes in total
+2015/11/17 15:07:27 write 65536 bytes this time, 983040 bytes in total
+2015/11/17 15:07:27 write 65536 bytes this time, 1048576 bytes in total
+.... ...
+
+</code></pre>
+<h4>3、写入部分数据</h4>
+<p>Write操作存在写入部分数据的情况，比如上面例子中，当client端输出日志停留在“write 65536 bytes this time, 655360 bytes in total”时，我们杀掉server5，这时我们会看到client5输出以下日志：</p>
+<pre><code>...
+2015/11/17 15:19:14 write 65536 bytes this time, 655360 bytes in total
+2015/11/17 15:19:16 write 24108 bytes, error:write tcp 127.0.0.1:62245-&gt;127.0.0.1:8888: write: broken pipe
+2015/11/17 15:19:16 write 679468 bytes in total
+</code></pre>
+<p>显然Write并非在655360这个地方阻塞的，而是后续又写入24108后发生了阻塞，server端socket关闭后，我们看到Wrote返回er != nil且n = 24108，程序需要对这部分写入的24108字节做特定处理。</p>
+<h4>4、写入超时</h4>
+<p>如果非要给Write增加一个期限，那我们可以调用SetWriteDeadline方法。我们copy一份client5.go，形成client6.go，在client6.go的Write之前增加一行timeout设置代码：</p>
+<pre><code>conn.SetWriteDeadline(time.Now().Add(time.Microsecond * 10))
+</code></pre>
+<p>启动server6.go，启动client6.go，我们可以看到写入超时的情况下，Write的返回结果：</p>
+<pre><code>$go run client6.go
+2015/11/17 15:26:34 begin dial...
+2015/11/17 15:26:34 dial ok
+2015/11/17 15:26:34 write 65536 bytes this time, 65536 bytes in total
+... ...
+2015/11/17 15:26:34 write 65536 bytes this time, 655360 bytes in total
+2015/11/17 15:26:34 write 24108 bytes, error:write tcp 127.0.0.1:62325-&gt;127.0.0.1:8888: i/o timeout
+2015/11/17 15:26:34 write 679468 bytes in total
+</code></pre>
+<p>可以看到在写入超时时，依旧存在部分数据写入的情况。</p>
+<hr />
+<p>综上例子，虽然Go给我们提供了阻塞I/O的便利，但在调用Read和Write时依旧要综合需要方法返回的n和err的结果，以做出正确处理。net.conn实现了io.Reader和io.Writer接口，因此可以试用一些wrapper包进行socket读写，比如bufio包下面的Writer和Reader、io/ioutil下的函数等。</p>
+<h4>Goroutine safe</h4>
+<p>基于goroutine的网络架构模型，存在在不同goroutine间共享conn的情况，那么conn的读写是否是goroutine safe的呢？在深入这个问题之前，我们先从应用意义上来看read操作和write操作的goroutine-safe必要性。</p>
+<p>对于read操作而言，由于TCP是面向字节流，conn.Read无法正确区分数据的业务边界，因此多个goroutine对同一个conn进行read的意义不大，goroutine读到不完整的业务包反倒是增加了业务处理的难度。对与Write操作而言，倒是有多个goroutine并发写的情况。不过conn读写是否goroutine-safe的测试不是很好做，我们先深入一下runtime代码，先从理论上给这个问题定个性：</p>
+<p>net.conn只是*netFD的wrapper结构，最终Write和Read都会落在其中的fd上：</p>
+<pre><code>type conn struct {
+    fd *netFD
+}
+</code></pre>
+<p>netFD在不同平台上有着不同的实现，我们以net/fd_unix.go中的netFD为例：</p>
+<pre><code>// Network file descriptor.
+type netFD struct {
+    // locking/lifetime of sysfd + serialize access to Read and Write methods
+    fdmu fdMutex
+
+    // immutable until Close
+    sysfd       int
+    family      int
+    sotype      int
+    isConnected bool
+    net         string
+    laddr       Addr
+    raddr       Addr
+
+    // wait server
+    pd pollDesc
+}
+
+</code></pre>
+<p>我们看到netFD中包含了一个runtime实现的fdMutex类型字段，从注释上来看，该fdMutex用来串行化对该netFD对应的sysfd的Write和Read操作。从这个注释上来看，所有对conn的Read和Write操作都是有fdMutex互斥的，从netFD的Read和Write方法的实现也证实了这一点：</p>
+<pre><code>func (fd *netFD) Read(p []byte) (n int, err error) {
+    if err := fd.readLock(); err != nil {
+        return 0, err
+    }
+    defer fd.readUnlock()
+    if err := fd.pd.PrepareRead(); err != nil {
+        return 0, err
+    }
+    for {
+        n, err = syscall.Read(fd.sysfd, p)
+        if err != nil {
+            n = 0
+            if err == syscall.EAGAIN {
+                if err = fd.pd.WaitRead(); err == nil {
+                    continue
+                }
+            }
+        }
+        err = fd.eofError(n, err)
+        break
+    }
+    if _, ok := err.(syscall.Errno); ok {
+        err = os.NewSyscallError("read", err)
+    }
+    return
+}
+
+func (fd *netFD) Write(p []byte) (nn int, err error) {
+    if err := fd.writeLock(); err != nil {
+        return 0, err
+    }
+    defer fd.writeUnlock()
+    if err := fd.pd.PrepareWrite(); err != nil {
+        return 0, err
+    }
+    for {
+        var n int
+        n, err = syscall.Write(fd.sysfd, p[nn:])
+        if n &gt; 0 {
+            nn += n
+        }
+        if nn == len(p) {
+            break
+        }
+        if err == syscall.EAGAIN {
+            if err = fd.pd.WaitWrite(); err == nil {
+                continue
+            }
+        }
+        if err != nil {
+            break
+        }
+        if n == 0 {
+            err = io.ErrUnexpectedEOF
+            break
+        }
+    }
+    if _, ok := err.(syscall.Errno); ok {
+        err = os.NewSyscallError("write", err)
+    }
+    return nn, err
+}
+</code></pre>
+<p>每次Write操作都是受lock保护，直到此次数据全部write完。因此在应用层面，要想保证多个goroutine在一个conn上write操作的Safe，需要一次write完整写入一个“业务包”；一旦将业务包的写入拆分为多次write，那就无法保证某个Goroutine的某“业务包”数据在conn发送的连续性。</p>
+<p>同时也可以看出即便是Read操作，也是lock保护的。多个Goroutine对同一conn的并发读不会出现读出内容重叠的情况，但内容断点是依 runtime调度来随机确定的。存在一个业务包数据，1/3内容被goroutine-1读走，另外2/3被另外一个goroutine-2读 走的情况。比如一个完整包：world，当goroutine的read slice size &lt; 5时，存在可能：一个goroutine读到 “worl”,另外一个goroutine读出”d”。</p>
+<h3>四、Socket属性</h3>
+<p>原生Socket API提供了丰富的sockopt设置接口，但Golang有自己的网络架构模型，golang提供的socket options接口也是基于上述模型的必要的属性设置。包括</p>
+<ul>
+<li>SetKeepAlive</li>
+<li>SetKeepAlivePeriod</li>
+<li>SetLinger</li>
+<li>SetNoDelay （默认no delay）</li>
+<li>SetWriteBuffer</li>
+<li>SetReadBuffer</li>
+</ul>
+<p>不过上面的Method是TCPConn的，而不是Conn的，要使用上面的Method的，需要type assertion：</p>
+<pre><code>tcpConn, ok := c.(*TCPConn)
+if !ok {
+    //error handle
+}
+
+tcpConn.SetNoDelay(true)
+</code></pre>
+<p>对于listener socket, golang默认采用了 SO_REUSEADDR，这样当你重启 listener程序时，不会因为address in use的错误而启动失败。而listen backlog的默认值是通过获取系统的设置值得到的。不同系统不同：mac 128, linux 512等。</p>
+<h3>五、关闭连接</h3>
+<p>和前面的方法相比，关闭连接算是最简单的操作了。由于socket是全双工的，client和server端在己方已关闭的socket和对方关闭的socket上操作的结果有不同。看下面例子：</p>
+<pre><code>//go-tcpsock/conn_close/client1.go
+... ...
+func main() {
+    log.Println("begin dial...")
+    conn, err := net.Dial("tcp", ":8888")
+    if err != nil {
+        log.Println("dial error:", err)
+        return
+    }
+    conn.Close()
+    log.Println("close ok")
+
+    var buf = make([]byte, 32)
+    n, err := conn.Read(buf)
+    if err != nil {
+        log.Println("read error:", err)
+    } else {
+        log.Printf("read % bytes, content is %s\n", n, string(buf[:n]))
+    }
+
+    n, err = conn.Write(buf)
+    if err != nil {
+        log.Println("write error:", err)
+    } else {
+        log.Printf("write % bytes, content is %s\n", n, string(buf[:n]))
+    }
+
+    time.Sleep(time.Second * 1000)
+}
+
+//go-tcpsock/conn_close/server1.go
+... ...
+func handleConn(c net.Conn) {
+    defer c.Close()
+
+    // read from the connection
+    var buf = make([]byte, 10)
+    log.Println("start to read from conn")
+    n, err := c.Read(buf)
+    if err != nil {
+        log.Println("conn read error:", err)
+    } else {
+        log.Printf("read %d bytes, content is %s\n", n, string(buf[:n]))
+    }
+
+    n, err = c.Write(buf)
+    if err != nil {
+        log.Println("conn write error:", err)
+    } else {
+        log.Printf("write %d bytes, content is %s\n", n, string(buf[:n]))
+    }
+}
+... ...
+
+</code></pre>
+<p>上述例子的执行结果如下：</p>
+<pre><code>$go run server1.go
+2015/11/17 17:00:51 accept a new connection
+2015/11/17 17:00:51 start to read from conn
+2015/11/17 17:00:51 conn read error: EOF
+2015/11/17 17:00:51 write 10 bytes, content is
+
+$go run client1.go
+2015/11/17 17:00:51 begin dial...
+2015/11/17 17:00:51 close ok
+2015/11/17 17:00:51 read error: read tcp 127.0.0.1:64195-&gt;127.0.0.1:8888: use of closed network connection
+2015/11/17 17:00:51 write error: write tcp 127.0.0.1:64195-&gt;127.0.0.1:8888: use of closed network connection
+</code></pre>
+<p>从client1的结果来看，在己方已经关闭的socket上再进行read和write操作，会得到”use of closed network connection” error；<br />
+从server1的执行结果来看，在对方关闭的socket上执行read操作会得到EOF error，但write操作会成功，因为数据会成功写入己方的内核socket缓冲区中，即便最终发不到对方socket缓冲区了，因为己方socket并未关闭。因此当发现对方socket关闭后，己方应该正确合理处理自己的socket，再继续write已经无任何意义了。</p>
+<h3>六、小结</h3>
+<p>本文比较基础，但却很重要，毕竟golang是面向大规模服务后端的，对通信环节的细节的深入理解会大有裨益。另外Go的goroutine+阻塞通信的网络通信模型降低了开发者心智负担，简化了通信的复杂性，这点尤为重要。</p>
+<p>本文代码实验环境：go 1.5.1 on Darwin amd64以及部分在ubuntu 14.04 amd64。</p>
+<p>本文demo代码在<a href="https://github.com/bigwhite/experiments/tree/master/go-tcpsock" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://github.com']);">这里</a>可以找到。</p>
+<p style='text-align:left'>&copy; 2015, <a href="http://tonybai.com" >bigwhite</a>. 版权所有. </p>
+<div style="clear:both; margin-top:5px; margin-bottom:5px;"></div><div style="float:left"><!-- JiaThis Button BEGIN -->
+<div id="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_kaixin001"></a>
+	<a href="http://www.jiathis.com/share/" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.jiathis.com']);" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v2.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END --></div><div style="clear:both; margin-top:5px; margin-bottom:5px;"></div><p>Related posts:</p><ol>
+<li><a href='http://tonybai.com/2015/08/25/go-debugging-profiling-optimization/' rel='bookmark' title='Go程序调试、分析与优化'>Go程序调试、分析与优化</a></li>
+<li><a href='http://tonybai.com/2015/05/14/ngrok-source-intro/' rel='bookmark' title='ngrok原理浅析'>ngrok原理浅析</a></li>
+<li><a href='http://tonybai.com/2015/03/14/selfhost-ngrok-service/' rel='bookmark' title='搭建自己的ngrok服务'>搭建自己的ngrok服务</a></li>
+<li><a href='http://tonybai.com/2015/09/17/7-things-you-may-not-pay-attation-to-in-go/' rel='bookmark' title='关于Go，你可能不注意的7件事'>关于Go，你可能不注意的7件事</a></li>
+<li><a href='http://tonybai.com/2012/09/21/signal-handling-in-go/' rel='bookmark' title='Go中的系统Signal处理'>Go中的系统Signal处理</a></li>
+</ol>				</div>
+			</article>
+				<a name="comments"></a>
+
+<div class="ds-thread" data-thread-key="1907" data-author-key="1" data-title="Go语言TCP Socket编程" data-url="http://tonybai.com/2015/11/17/tcp-programming-in-golang/"></div>
+
+<script type="text/javascript">
+	if (typeof DUOSHUO !== 'undefined')
+		DUOSHUO.EmbedThread('.ds-thread');
+</script>
+	<div id="ds-ssr">
+
+		
+            <ol id="commentlist">
+                		<li class="comment even thread-even depth-1" id="li-comment-1226">
+			<article id="comment-1226" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/1909564197" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>陈林泳</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1226"><time pubdate datetime="2015-11-18T10:27:44+00:00">2015/11/18 at 10:27</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>上周末用 golang 写了一个 websocket 的小程序，博主刚好就出了一篇 socket 的文章，大赞。感谢博主。另外，博客的主页是否可以只放文章目录，或者可否提供博客文章目录的索引。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-1229">
+			<article id="comment-1229" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1229"><time pubdate datetime="2015-11-18T15:49:33+00:00">2015/11/18 at 15:49</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>我个人偏好将正文放在首页。主页右边栏有近期文章列表，不过列表可能显示的有些慢；另外也可以通过tag来查看您喜欢的内容。比如：tonybai.com/tag/golang</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment even depth-3" id="li-comment-1236">
+			<article id="comment-1236" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/1909564197" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>陈林泳</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1236"><time pubdate datetime="2015-11-24T09:26:18+00:00">2015/11/24 at 09:26</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>我也有通过 tag 来看博主的 Go 语言文章，但是通过 tag 还是显示全文，找起文章还是比较麻烦，没有列表那么直观。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor odd alt depth-4" id="li-comment-1237">
+			<article id="comment-1237" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1237"><time pubdate datetime="2015-11-24T16:45:07+00:00">2015/11/24 at 16:45</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p> 添加了一个新页面“文章列表”，在首页的顶端，与“关于”同级，我先把2015年7月份及以后的文章list在上面了。希望能满足guys like you的需求^_^。也感谢你的建议。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment even depth-5" id="li-comment-1252">
+			<article id="comment-1252" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/1909564197" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>陈林泳</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1252"><time pubdate datetime="2015-12-08T15:29:40+00:00">2015/12/08 at 15:29</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>非常感谢博主，以后看文章方便多了[嘻嘻]</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1227">
+			<article id="comment-1227" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://t.qq.com/SunnyFugr" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://t.qq.com']);"  rel='external nofollow' class='url'>付光荣</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1227"><time pubdate datetime="2015-11-18T12:24:35+00:00">2015/11/18 at 12:24</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>client3  和server3的代码没有贴上来</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-1228">
+			<article id="comment-1228" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1228"><time pubdate datetime="2015-11-18T14:01:14+00:00">2015/11/18 at 14:01</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>client3、server3与client2,server2类似，考虑篇幅就没贴。demo src在这里：https://github.com/bigwhite/experiments/tree/master/go-tcpsock 可以找到。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+</ul>
+</li>
+		<li class="comment odd alt thread-even depth-1" id="li-comment-1230">
+			<article id="comment-1230" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/3737714120" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>LeoLiuYan</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1230"><time pubdate datetime="2015-11-18T17:29:29+00:00">2015/11/18 at 17:29</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>看完了 有收获， 感谢！</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1231">
+			<article id="comment-1231" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn">coldstar</span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1231"><time pubdate datetime="2015-11-19T18:26:19+00:00">2015/11/19 at 18:26</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>当使用一个连接池时，如何检测链接是否已断开或对方关闭，要执行一下空写入测试，再执行具体的操作吗，感谢</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-1232">
+			<article id="comment-1232" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1232"><time pubdate datetime="2015-11-19T22:32:12+00:00">2015/11/19 at 22:32</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>你的这个问题与文章关系不大。连接池的使用目的无非是减少频繁”connect”的消耗，实质上也是普通连接，如果异常close了，使用者会在read or write时发现异常，至于后续如何处理就看连接池如何实现和管理的了。另外连接池一般都有“管理者”吧，会负责连接池中各个连接的keepalive维护。不过这个我也没有实现过，建议参考一些成熟连接池的实现吧。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+</ul>
+</li>
+		<li class="comment even thread-even depth-1" id="li-comment-1233">
+			<article id="comment-1233" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn">eryx</span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1233"><time pubdate datetime="2015-11-20T10:12:46+00:00">2015/11/20 at 10:12</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>非常有收获，已经转载收藏 <a href="https://www.ruilog.com/notebook/view/33988166f088.html" onclick="javascript:_gaq.push(['_trackEvent','outbound-comment','http://www.ruilog.com']);" rel="nofollow">https://www.ruilog.com/notebook/view/33988166f088.html</a>  <img src='http://tonybai.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> </p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1234">
+			<article id="comment-1234" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/NetworkSecurityLiu" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>GopherLiu</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1234"><time pubdate datetime="2015-11-20T10:40:00+00:00">2015/11/20 at 10:40</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>好文好文，收获不小~~~github上的server5.go中的第24与25行之间需不需要加一个return？</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-1235">
+			<article id="comment-1235" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1235"><time pubdate datetime="2015-11-20T12:44:24+00:00">2015/11/20 at 12:44</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>的确少了个退出语句，已经fix。3ks.</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment odd alt depth-3" id="li-comment-1253">
+			<article id="comment-1253" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/NetworkSecurityLiu" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>0day</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1253"><time pubdate datetime="2015-12-09T15:03:41+00:00">2015/12/09 at 15:03</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>追问一句，你用的这个wordpress的主题和代码的插件是啥啊？</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor even depth-4" id="li-comment-1255">
+			<article id="comment-1255" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1255"><time pubdate datetime="2015-12-09T16:43:50+00:00">2015/12/09 at 16:43</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>主题是这个https://github.com/pagecho/maupassant；markdown插件是“Markdown on Save Improved ”</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+		<li class="comment odd alt thread-even depth-1" id="li-comment-1266">
+			<article id="comment-1266" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn">wclssdn</span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1266"><time pubdate datetime="2015-12-29T18:27:18+00:00">2015/12/29 at 18:27</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>手机主题看代码会看不到超过屏幕右侧的部分&#8230;.</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="li-comment-1268">
+			<article id="comment-1268" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://tonybai.com"   rel='external nofollow' class='url'>bigwhite</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1268"><time pubdate datetime="2015-12-30T06:58:49+00:00">2015/12/30 at 06:58</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>谢谢反馈这个问题，不过目前似乎没有什么好的方法。目前mobile端的访问通过WPtouch插件转换，这算是这个插件的一个bug吧。如果你有什么好solution，不妨推荐给我。</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		<ul class='children'>
+		<li class="comment odd alt depth-3" id="li-comment-1270">
+			<article id="comment-1270" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/wclssdn" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>原来微博的昵称真的可以好长好长</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1270"><time pubdate datetime="2015-12-30T19:02:22+00:00">2015/12/30 at 19:02</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>我也没有 哈哈 文章质量都好高, 我切到电脑版看的~</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+</ul>
+</li>
+</ul>
+</li>
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1287">
+			<article id="comment-1287" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/2492326074" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>铅笔Pencil_CC</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1287"><time pubdate datetime="2016-01-21T13:41:11+00:00">2016/01/21 at 13:41</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>[给力]</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+		<li class="comment odd alt thread-even depth-1" id="li-comment-1371">
+			<article id="comment-1371" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn">Mohanson</span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1371"><time pubdate datetime="2016-07-05T15:56:05+00:00">2016/07/05 at 15:56</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>文章质量很高， 赞一个</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-1476">
+			<article id="comment-1476" class="comment">
+				<footer class="comment-meta">
+					<cite class="comment-author vcard">
+						<span class="fn"><a href="http://weibo.com/businiaowyf" onclick="javascript:_gaq.push(['_trackEvent','outbound-commentauthor','http://weibo.com']);"  rel='external nofollow' class='url'>Coke_Man</a></span> on <a rel="nofollow" href="http://tonybai.com/2015/11/17/tcp-programming-in-golang/#comment-1476"><time pubdate datetime="2016-09-23T11:57:30+00:00">2016/09/23 at 11:57</time></a> <span class="says">said:</span>					</cite><!-- .comment-author .vcard -->
+				</footer>
+	
+				<div class="comment-content"><p>深度好文，赞一个！</p>
+</div>
+				
+			</article><!-- #comment-## -->
+		</li>
+            </ol>
+
+		            
+    </div>	</div>
+</div>
+<div id="secondary">
+	<section class="widget">
+        <form id="search" method="get" action="http://tonybai.com">
+			<input type="text" name="s" class="text" placeholder="输入关键字搜索" />
+			<button type="submit" class="submit">搜索</button>
+        </form>
+    </section>
+	<section id="text-3" class="widget widget_text">			<div class="textwidget"><p><!--<br />
+<img src="/wp-content/uploads/daughter-photo-300x225.jpg" align="center" /></p>
+<p><img src="/wp-content/uploads/daughter-3-years-old-225x300.jpg" align="center" /><br />
+--></p>
+<p><a href="http://feed.tonybai.com"><br />
+<img src="/wp-content/uploads/alipay_qr_small.png" align="center" /><br />
+</a><br />
+这里是<a href="http://weibo.com/bigwhite20xx" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://weibo.com']);">Tony Bai</a>的个人Blog，欢迎访问、订阅和留言！<font size="+1" color="red">订阅Feed请点击上面图片</font>。</p>
+<p>如果您觉得这里的文章对您有帮助，请扫描上方二维码进行捐赠，加油后的Tony Bai将会为您呈现更多精彩的文章，谢谢！</p>
+<p>如果您喜欢通过微信App浏览本站内容，可以扫描下方二维码，订阅本站官方微信订阅号“iamtonybai”；点击二维码，可直达本人官方微博主页^_^：</p>
+<p><a href="http://weibo.com/bigwhite20xx"><br />
+<img src="/wp-content/uploads/qrcode_for_gh_39d38f08f440_258.jpg" align="center" /><br />
+</a></p>
+<p>本站Powered by Digital Ocean VPS。<br />
+<a href="https://www.digitalocean.com/?refcode=bff6eed92687"><br />
+选择Digital Ocean VPS主机，即可获得10美元现金充值，可免费使用两个月哟！</a></p>
+<p>著名主机提供商Linode 10$优惠码：linode10，在<a href="https://www.linode.com/?r=ec42f83592f2ddfc8f487c0428a9b74fa1b2984b" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://www.linode.com']);">这里注册</a>即可免费获得。</p>
+<p>阿里云推荐码：<font size="+1" color="red">1WFZ0V</font>，<font size="+1" color="red">立享9折！</font></p>
+<p><img src="http://tonybai.com/wp-content/uploads/tonybai-gmail-image.png"   align="center" /></p>
+<p><a href="http://cn.linkedin.com/in/bigwhite"></p>
+<p>          <img src="http://www.linkedin.com/img/webpromo/btn_myprofile_160x33.png" width="160" height="33" border="0" alt="View Tony Bai's profile on LinkedIn"></p>
+<p></a>        </p>
+<p><script charset="gbk" src="http://p.tanx.com/ex?i=mm_72934676_11332019_40046076"></script></p>
+<p><!--<br />
+2014世界杯必玩手游《手指足球世界杯2014》(Flick World Cup)发布了，欢迎点击下面图片或扫描二维码下载！关于游戏的详细介绍请参见<a href="http://iwobi.net" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://iwobi.net']);">官方网站说明</a>。<br />
+<a href="http://iwobi.net/download/FlickWorldCup.apk" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://iwobi.net']);"><img src="http://iwobi.net/images/flickworldcup-qr.png" alt="二维码" width="180" height="180" align="center"/></a></p>
+<p>我的第一款手机游戏习作《绕桩王》(Slalom King)，欢迎点击下面图片或扫描二维码下载！<br />
+<a href="http://iwobi.net/download/SlalomKing.apk" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://iwobi.net']);"><img src="http://iwobi.net/images/slalomking-qr.png" alt="二维码" width="180" height="180" align="center"/></a><br />
+--></p>
+</div>
+		</section>		<section id="recent-posts-3" class="widget widget_recent_entries">		<h3 class="widget-title">文章</h3>		<ul>
+				<li><a href="http://tonybai.com/2016/11/22/deploy-nginx-service-for-the-services-in-kubernetes-cluster/" title="为Kubernetes集群中服务部署Nginx入口服务">为Kubernetes集群中服务部署Nginx入口服务</a></li>
+				<li><a href="http://tonybai.com/2016/11/21/kuberize-ceph-rbd-api-service/" title="Kuberize Ceph RBD API服务">Kuberize Ceph RBD API服务</a></li>
+				<li><a href="http://tonybai.com/2016/11/17/nginx-config-hot-reloading-approach-for-kubernetes-cluster/" title="Kubernetes集群中的Nginx配置热更新方案">Kubernetes集群中的Nginx配置热更新方案</a></li>
+				<li><a href="http://tonybai.com/2016/11/16/how-to-pull-images-from-private-registry-on-kubernetes-cluster/" title="Kubernetes从Private Registry中拉取容器镜像的方法">Kubernetes从Private Registry中拉取容器镜像的方法</a></li>
+				<li><a href="http://tonybai.com/2016/11/09/operate-ceph-rbd-images-with-go-ceph/" title="使用go-ceph管理Ceph RBD映像">使用go-ceph管理Ceph RBD映像</a></li>
+				<li><a href="http://tonybai.com/2016/11/07/integrate-kubernetes-with-ceph-rbd/" title="使用Ceph RBD为Kubernetes集群提供存储卷">使用Ceph RBD为Kubernetes集群提供存储卷</a></li>
+				<li><a href="http://tonybai.com/2016/10/23/install-dns-addon-for-k8s/" title="Kubernetes集群DNS插件安装">Kubernetes集群DNS插件安装</a></li>
+				<li><a href="http://tonybai.com/2016/10/18/learn-how-to-install-kubernetes-on-ubuntu/" title="一篇文章带你了解Kubernetes安装">一篇文章带你了解Kubernetes安装</a></li>
+				<li><a href="http://tonybai.com/2016/10/11/some-problems-under-swarm-mode-in-docker-1-12/" title="Docker 1.12 swarm模式下遇到的各种问题">Docker 1.12 swarm模式下遇到的各种问题</a></li>
+				<li><a href="http://tonybai.com/2016/09/13/package-import-in-golang-vs-in-java/" title="Go包导入与Java的差别">Go包导入与Java的差别</a></li>
+				</ul>
+		</section><section id="recentcomments" class="widget widget_recentcomments"><h3 class="widget-title">评论</h3><ul><li class="rc-navi rc-clearfix"><span class="rc-loading">正在加载...</span></li><li id="rc-comment-temp" class="rc-item rc-comment rc-clearfix"><div class="rc-info"></div><div class="rc-timestamp"></div><div class="rc-excerpt"></div></li><li id="rc-ping-temp" class="rc-item rc-ping rc-clearfix"><span class="rc-label"></span></li></ul></section><section id="categories-3" class="widget widget_categories"><h3 class="widget-title">分类</h3>		<ul>
+	<li class="cat-item cat-item-3"><a href="http://tonybai.com/category/images-collection/" title="查看 光影汇 下的所有文章">光影汇</a> (7)
+</li>
+	<li class="cat-item cat-item-4"><a href="http://tonybai.com/category/media-square/" title="查看 影音坊 下的所有文章">影音坊</a> (36)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://tonybai.com/category/thoughts-center/" title="查看 思考控 下的所有文章">思考控</a> (63)
+</li>
+	<li class="cat-item cat-item-6"><a href="http://tonybai.com/category/technical-notes/" title="查看 技术志 下的所有文章">技术志</a> (487)
+</li>
+	<li class="cat-item cat-item-7"><a href="http://tonybai.com/category/groceries-store/" title="查看 杂货铺 下的所有文章">杂货铺</a> (75)
+</li>
+	<li class="cat-item cat-item-8"><a href="http://tonybai.com/category/living-notes/" title="查看 生活簿 下的所有文章">生活簿</a> (152)
+</li>
+	<li class="cat-item cat-item-9"><a href="http://tonybai.com/category/career-notes/" title="查看 职场录 下的所有文章">职场录</a> (14)
+</li>
+	<li class="cat-item cat-item-10"><a href="http://tonybai.com/category/reading-bar/" title="查看 读书吧 下的所有文章">读书吧</a> (14)
+</li>
+	<li class="cat-item cat-item-11"><a href="http://tonybai.com/category/sports-fan/" title="查看 运动迷 下的所有文章">运动迷</a> (76)
+</li>
+	<li class="cat-item cat-item-12"><a href="http://tonybai.com/category/tourist-show/" title="查看 驴友秀 下的所有文章">驴友秀</a> (40)
+</li>
+		</ul>
+</section><section id="tag_cloud-3" class="widget widget_tag_cloud"><h3 class="widget-title">标签</h3><div class="tagcloud"><a href='http://tonybai.com/tag/blog/' class='tag-link-56' title='885 个话题' style='font-size: 22pt;'>Blog</a>
+<a href='http://tonybai.com/tag/blogger/' class='tag-link-58' title='369 个话题' style='font-size: 18.429530201342pt;'>Blogger</a>
+<a href='http://tonybai.com/tag/c/' class='tag-link-67' title='323 个话题' style='font-size: 17.865771812081pt;'>C</a>
+<a href='http://tonybai.com/tag/cpp/' class='tag-link-92' title='43 个话题' style='font-size: 9.6912751677852pt;'>Cpp</a>
+<a href='http://tonybai.com/tag/english/' class='tag-link-126' title='32 个话题' style='font-size: 8.5637583892617pt;'>English</a>
+<a href='http://tonybai.com/tag/gcc/' class='tag-link-145' title='88 个话题' style='font-size: 12.604026845638pt;'>GCC</a>
+<a href='http://tonybai.com/tag/github/' class='tag-link-1078' title='32 个话题' style='font-size: 8.5637583892617pt;'>github</a>
+<a href='http://tonybai.com/tag/gnu/' class='tag-link-152' title='57 个话题' style='font-size: 10.818791946309pt;'>GNU</a>
+<a href='http://tonybai.com/tag/go/' class='tag-link-1114' title='70 个话题' style='font-size: 11.664429530201pt;'>Go</a>
+<a href='http://tonybai.com/tag/golang/' class='tag-link-1137' title='70 个话题' style='font-size: 11.664429530201pt;'>Golang</a>
+<a href='http://tonybai.com/tag/google/' class='tag-link-154' title='73 个话题' style='font-size: 11.852348993289pt;'>Google</a>
+<a href='http://tonybai.com/tag/java/' class='tag-link-178' title='47 个话题' style='font-size: 10.06711409396pt;'>Java</a>
+<a href='http://tonybai.com/tag/kernel/' class='tag-link-191' title='33 个话题' style='font-size: 8.6577181208054pt;'>Kernel</a>
+<a href='http://tonybai.com/tag/linux/' class='tag-link-205' title='112 个话题' style='font-size: 13.543624161074pt;'>Linux</a>
+<a href='http://tonybai.com/tag/messi/' class='tag-link-223' title='29 个话题' style='font-size: 8.1879194630872pt;'>Messi</a>
+<a href='http://tonybai.com/tag/opensource/' class='tag-link-252' title='196 个话题' style='font-size: 15.798657718121pt;'>Opensource</a>
+<a href='http://tonybai.com/tag/programmer/' class='tag-link-268' title='456 个话题' style='font-size: 19.275167785235pt;'>Programmer</a>
+<a href='http://tonybai.com/tag/python/' class='tag-link-275' title='37 个话题' style='font-size: 9.1275167785235pt;'>Python</a>
+<a href='http://tonybai.com/tag/soccer/' class='tag-link-306' title='29 个话题' style='font-size: 8.1879194630872pt;'>Soccer</a>
+<a href='http://tonybai.com/tag/solaris/' class='tag-link-309' title='42 个话题' style='font-size: 9.5973154362416pt;'>Solaris</a>
+<a href='http://tonybai.com/tag/subversion/' class='tag-link-318' title='37 个话题' style='font-size: 9.1275167785235pt;'>Subversion</a>
+<a href='http://tonybai.com/tag/ubuntu/' class='tag-link-350' title='92 个话题' style='font-size: 12.791946308725pt;'>Ubuntu</a>
+<a href='http://tonybai.com/tag/unix/' class='tag-link-354' title='87 个话题' style='font-size: 12.510067114094pt;'>Unix</a>
+<a href='http://tonybai.com/tag/windows/' class='tag-link-365' title='43 个话题' style='font-size: 9.6912751677852pt;'>Windows</a>
+<a href='http://tonybai.com/tag/%e4%b8%96%e7%95%8c%e6%9d%af/' class='tag-link-389' title='36 个话题' style='font-size: 9.0335570469799pt;'>世界杯</a>
+<a href='http://tonybai.com/tag/%e5%8d%9a%e5%ae%a2/' class='tag-link-489' title='814 个话题' style='font-size: 21.624161073826pt;'>博客</a>
+<a href='http://tonybai.com/tag/%e5%a5%b3%e5%84%bf/' class='tag-link-564' title='28 个话题' style='font-size: 8pt;'>女儿</a>
+<a href='http://tonybai.com/tag/%e5%ad%a6%e4%b9%a0/' class='tag-link-581' title='48 个话题' style='font-size: 10.161073825503pt;'>学习</a>
+<a href='http://tonybai.com/tag/%e5%b7%a5%e4%bd%9c/' class='tag-link-600' title='96 个话题' style='font-size: 12.979865771812pt;'>工作</a>
+<a href='http://tonybai.com/tag/%e5%b7%b4%e8%90%a8/' class='tag-link-603' title='30 个话题' style='font-size: 8.2818791946309pt;'>巴萨</a>
+<a href='http://tonybai.com/tag/%e5%bc%80%e6%ba%90/' class='tag-link-618' title='194 个话题' style='font-size: 15.798657718121pt;'>开源</a>
+<a href='http://tonybai.com/tag/%e6%80%9d%e8%80%83/' class='tag-link-632' title='145 个话题' style='font-size: 14.577181208054pt;'>思考</a>
+<a href='http://tonybai.com/tag/%e6%84%9f%e6%82%9f/' class='tag-link-642' title='201 个话题' style='font-size: 15.986577181208pt;'>感悟</a>
+<a href='http://tonybai.com/tag/%e6%91%84%e5%bd%b1/' class='tag-link-666' title='56 个话题' style='font-size: 10.818791946309pt;'>摄影</a>
+<a href='http://tonybai.com/tag/%e6%97%85%e6%b8%b8/' class='tag-link-693' title='40 个话题' style='font-size: 9.4093959731544pt;'>旅游</a>
+<a href='http://tonybai.com/tag/%e6%9e%9c%e6%9e%9c/' class='tag-link-726' title='30 个话题' style='font-size: 8.2818791946309pt;'>果果</a>
+<a href='http://tonybai.com/tag/%e6%a2%85%e8%a5%bf/' class='tag-link-738' title='41 个话题' style='font-size: 9.503355704698pt;'>梅西</a>
+<a href='http://tonybai.com/tag/%e7%90%83%e8%bf%b7/' class='tag-link-820' title='29 个话题' style='font-size: 8.1879194630872pt;'>球迷</a>
+<a href='http://tonybai.com/tag/%e7%94%9f%e6%b4%bb/' class='tag-link-825' title='247 个话题' style='font-size: 16.738255033557pt;'>生活</a>
+<a href='http://tonybai.com/tag/%e7%94%b5%e5%bd%b1/' class='tag-link-826' title='31 个话题' style='font-size: 8.4697986577181pt;'>电影</a>
+<a href='http://tonybai.com/tag/%e7%a8%8b%e5%ba%8f%e5%91%98/' class='tag-link-853' title='475 个话题' style='font-size: 19.463087248322pt;'>程序员</a>
+<a href='http://tonybai.com/tag/%e7%bc%96%e8%af%91%e5%99%a8/' class='tag-link-886' title='41 个话题' style='font-size: 9.503355704698pt;'>编译器</a>
+<a href='http://tonybai.com/tag/%e7%bf%bb%e8%af%91/' class='tag-link-894' title='31 个话题' style='font-size: 8.4697986577181pt;'>翻译</a>
+<a href='http://tonybai.com/tag/%e8%b6%b3%e7%90%83/' class='tag-link-954' title='69 个话题' style='font-size: 11.664429530201pt;'>足球</a>
+<a href='http://tonybai.com/tag/%e9%a9%b4%e5%8f%8b/' class='tag-link-1029' title='33 个话题' style='font-size: 8.6577181208054pt;'>驴友</a></div>
+</section><section id="archives-3" class="widget widget_archive"><h3 class="widget-title">归档</h3>		<ul>
+			<li><a href='http://tonybai.com/2016/11/' title='2016 年十一月'>2016 年十一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2016/10/' title='2016 年十月'>2016 年十月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2016/09/' title='2016 年九月'>2016 年九月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2016/08/' title='2016 年八月'>2016 年八月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2016/06/' title='2016 年六月'>2016 年六月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2016/05/' title='2016 年五月'>2016 年五月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2016/04/' title='2016 年四月'>2016 年四月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2016/03/' title='2016 年三月'>2016 年三月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2016/02/' title='2016 年二月'>2016 年二月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2016/01/' title='2016 年一月'>2016 年一月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2015/12/' title='2015 年十二月'>2015 年十二月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2015/11/' title='2015 年十一月'>2015 年十一月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2015/10/' title='2015 年十月'>2015 年十月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2015/09/' title='2015 年九月'>2015 年九月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2015/08/' title='2015 年八月'>2015 年八月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2015/07/' title='2015 年七月'>2015 年七月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2015/06/' title='2015 年六月'>2015 年六月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2015/05/' title='2015 年五月'>2015 年五月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2015/04/' title='2015 年四月'>2015 年四月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2015/03/' title='2015 年三月'>2015 年三月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2015/01/' title='2015 年一月'>2015 年一月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2014/12/' title='2014 年十二月'>2014 年十二月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2014/11/' title='2014 年十一月'>2014 年十一月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2014/10/' title='2014 年十月'>2014 年十月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2014/09/' title='2014 年九月'>2014 年九月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2014/08/' title='2014 年八月'>2014 年八月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2014/07/' title='2014 年七月'>2014 年七月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2014/05/' title='2014 年五月'>2014 年五月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2014/04/' title='2014 年四月'>2014 年四月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2014/03/' title='2014 年三月'>2014 年三月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2014/02/' title='2014 年二月'>2014 年二月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2014/01/' title='2014 年一月'>2014 年一月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2013/12/' title='2013 年十二月'>2013 年十二月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2013/11/' title='2013 年十一月'>2013 年十一月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2013/10/' title='2013 年十月'>2013 年十月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2013/09/' title='2013 年九月'>2013 年九月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2013/08/' title='2013 年八月'>2013 年八月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2013/07/' title='2013 年七月'>2013 年七月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2013/06/' title='2013 年六月'>2013 年六月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2013/05/' title='2013 年五月'>2013 年五月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2013/04/' title='2013 年四月'>2013 年四月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2013/03/' title='2013 年三月'>2013 年三月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2013/02/' title='2013 年二月'>2013 年二月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2013/01/' title='2013 年一月'>2013 年一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2012/12/' title='2012 年十二月'>2012 年十二月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2012/11/' title='2012 年十一月'>2012 年十一月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2012/10/' title='2012 年十月'>2012 年十月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2012/09/' title='2012 年九月'>2012 年九月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2012/08/' title='2012 年八月'>2012 年八月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2012/07/' title='2012 年七月'>2012 年七月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2012/06/' title='2012 年六月'>2012 年六月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2012/05/' title='2012 年五月'>2012 年五月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2012/04/' title='2012 年四月'>2012 年四月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2012/03/' title='2012 年三月'>2012 年三月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2012/02/' title='2012 年二月'>2012 年二月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2012/01/' title='2012 年一月'>2012 年一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2011/12/' title='2011 年十二月'>2011 年十二月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2011/11/' title='2011 年十一月'>2011 年十一月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2011/10/' title='2011 年十月'>2011 年十月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2011/09/' title='2011 年九月'>2011 年九月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2011/08/' title='2011 年八月'>2011 年八月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2011/07/' title='2011 年七月'>2011 年七月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2011/06/' title='2011 年六月'>2011 年六月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2011/05/' title='2011 年五月'>2011 年五月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2011/04/' title='2011 年四月'>2011 年四月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2011/03/' title='2011 年三月'>2011 年三月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2011/02/' title='2011 年二月'>2011 年二月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2011/01/' title='2011 年一月'>2011 年一月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2010/12/' title='2010 年十二月'>2010 年十二月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2010/11/' title='2010 年十一月'>2010 年十一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2010/10/' title='2010 年十月'>2010 年十月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2010/09/' title='2010 年九月'>2010 年九月</a>&nbsp;(12)</li>
+	<li><a href='http://tonybai.com/2010/08/' title='2010 年八月'>2010 年八月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2010/07/' title='2010 年七月'>2010 年七月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2010/06/' title='2010 年六月'>2010 年六月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2010/05/' title='2010 年五月'>2010 年五月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2010/04/' title='2010 年四月'>2010 年四月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2010/03/' title='2010 年三月'>2010 年三月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2010/02/' title='2010 年二月'>2010 年二月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2010/01/' title='2010 年一月'>2010 年一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2009/12/' title='2009 年十二月'>2009 年十二月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2009/11/' title='2009 年十一月'>2009 年十一月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2009/10/' title='2009 年十月'>2009 年十月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2009/09/' title='2009 年九月'>2009 年九月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2009/08/' title='2009 年八月'>2009 年八月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2009/07/' title='2009 年七月'>2009 年七月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2009/06/' title='2009 年六月'>2009 年六月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2009/05/' title='2009 年五月'>2009 年五月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2009/04/' title='2009 年四月'>2009 年四月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2009/03/' title='2009 年三月'>2009 年三月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2009/02/' title='2009 年二月'>2009 年二月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2009/01/' title='2009 年一月'>2009 年一月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2008/12/' title='2008 年十二月'>2008 年十二月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2008/11/' title='2008 年十一月'>2008 年十一月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2008/10/' title='2008 年十月'>2008 年十月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2008/09/' title='2008 年九月'>2008 年九月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2008/08/' title='2008 年八月'>2008 年八月</a>&nbsp;(13)</li>
+	<li><a href='http://tonybai.com/2008/07/' title='2008 年七月'>2008 年七月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2008/06/' title='2008 年六月'>2008 年六月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2008/05/' title='2008 年五月'>2008 年五月</a>&nbsp;(7)</li>
+	<li><a href='http://tonybai.com/2008/04/' title='2008 年四月'>2008 年四月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2008/03/' title='2008 年三月'>2008 年三月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2008/02/' title='2008 年二月'>2008 年二月</a>&nbsp;(11)</li>
+	<li><a href='http://tonybai.com/2008/01/' title='2008 年一月'>2008 年一月</a>&nbsp;(15)</li>
+	<li><a href='http://tonybai.com/2007/12/' title='2007 年十二月'>2007 年十二月</a>&nbsp;(11)</li>
+	<li><a href='http://tonybai.com/2007/11/' title='2007 年十一月'>2007 年十一月</a>&nbsp;(14)</li>
+	<li><a href='http://tonybai.com/2007/10/' title='2007 年十月'>2007 年十月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2007/09/' title='2007 年九月'>2007 年九月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2007/08/' title='2007 年八月'>2007 年八月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2007/07/' title='2007 年七月'>2007 年七月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2007/06/' title='2007 年六月'>2007 年六月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2007/05/' title='2007 年五月'>2007 年五月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2007/04/' title='2007 年四月'>2007 年四月</a>&nbsp;(8)</li>
+	<li><a href='http://tonybai.com/2007/03/' title='2007 年三月'>2007 年三月</a>&nbsp;(15)</li>
+	<li><a href='http://tonybai.com/2007/02/' title='2007 年二月'>2007 年二月</a>&nbsp;(4)</li>
+	<li><a href='http://tonybai.com/2007/01/' title='2007 年一月'>2007 年一月</a>&nbsp;(17)</li>
+	<li><a href='http://tonybai.com/2006/12/' title='2006 年十二月'>2006 年十二月</a>&nbsp;(18)</li>
+	<li><a href='http://tonybai.com/2006/11/' title='2006 年十一月'>2006 年十一月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2006/10/' title='2006 年十月'>2006 年十月</a>&nbsp;(11)</li>
+	<li><a href='http://tonybai.com/2006/09/' title='2006 年九月'>2006 年九月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2006/08/' title='2006 年八月'>2006 年八月</a>&nbsp;(5)</li>
+	<li><a href='http://tonybai.com/2006/07/' title='2006 年七月'>2006 年七月</a>&nbsp;(22)</li>
+	<li><a href='http://tonybai.com/2006/06/' title='2006 年六月'>2006 年六月</a>&nbsp;(35)</li>
+	<li><a href='http://tonybai.com/2006/05/' title='2006 年五月'>2006 年五月</a>&nbsp;(24)</li>
+	<li><a href='http://tonybai.com/2006/04/' title='2006 年四月'>2006 年四月</a>&nbsp;(26)</li>
+	<li><a href='http://tonybai.com/2006/03/' title='2006 年三月'>2006 年三月</a>&nbsp;(25)</li>
+	<li><a href='http://tonybai.com/2006/02/' title='2006 年二月'>2006 年二月</a>&nbsp;(18)</li>
+	<li><a href='http://tonybai.com/2006/01/' title='2006 年一月'>2006 年一月</a>&nbsp;(15)</li>
+	<li><a href='http://tonybai.com/2005/12/' title='2005 年十二月'>2005 年十二月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2005/11/' title='2005 年十一月'>2005 年十一月</a>&nbsp;(10)</li>
+	<li><a href='http://tonybai.com/2005/09/' title='2005 年九月'>2005 年九月</a>&nbsp;(13)</li>
+	<li><a href='http://tonybai.com/2005/08/' title='2005 年八月'>2005 年八月</a>&nbsp;(11)</li>
+	<li><a href='http://tonybai.com/2005/07/' title='2005 年七月'>2005 年七月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2005/06/' title='2005 年六月'>2005 年六月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2005/05/' title='2005 年五月'>2005 年五月</a>&nbsp;(3)</li>
+	<li><a href='http://tonybai.com/2005/04/' title='2005 年四月'>2005 年四月</a>&nbsp;(6)</li>
+	<li><a href='http://tonybai.com/2005/03/' title='2005 年三月'>2005 年三月</a>&nbsp;(1)</li>
+	<li><a href='http://tonybai.com/2005/01/' title='2005 年一月'>2005 年一月</a>&nbsp;(15)</li>
+	<li><a href='http://tonybai.com/2004/12/' title='2004 年十二月'>2004 年十二月</a>&nbsp;(9)</li>
+	<li><a href='http://tonybai.com/2004/11/' title='2004 年十一月'>2004 年十一月</a>&nbsp;(14)</li>
+	<li><a href='http://tonybai.com/2004/10/' title='2004 年十月'>2004 年十月</a>&nbsp;(2)</li>
+	<li><a href='http://tonybai.com/2004/09/' title='2004 年九月'>2004 年九月</a>&nbsp;(2)</li>
+		</ul>
+</section><section id="linkcat-1042" class="widget widget_links"><h3 class="widget-title">链接</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://douban.com/people/tony_bai" rel="me" title="我的豆瓣" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://douban.com/people/tony_bai']);">@douban</a></li>
+<li><a href="http://www.flickr.com/photos/bigwhite/" title="我的Flickr" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://www.flickr.com/photos/bigwhite/']);">@flickr</a></li>
+<li><a href="https://github.com/bigwhite" rel="me" title="我的Github" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','https://github.com/bigwhite']);">@github</a></li>
+<li><a href="http://code.google.com/p/bigwhite-code/" rel="me" title="我的Google Code" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/bigwhite-code/']);">@googlecode</a></li>
+<li><a href="http://picasaweb.google.com/bigwhite.cn" rel="me" title="我的PicasaWeb" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://picasaweb.google.com/bigwhite.cn']);">@picasa</a></li>
+<li><a href="http://www.slideshare.net/bigwhite20xx" rel="me" title="我的SlideShare" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://www.slideshare.net/bigwhite20xx']);">@slideshare</a></li>
+<li><a href="http://twitter.com/tony_bai" rel="me" title="我的Twitter" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://twitter.com/tony_bai']);">@twitter</a></li>
+<li><a href="http://weibo.com/bigwhite20xx" rel="me" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://weibo.com/bigwhite20xx']);">@weibo</a></li>
+<li><a href="http://www.hoterran.info/" rel="friend" title="Hoterran" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://www.hoterran.info/']);">Hoterran</a></li>
+<li><a href="http://leomessi.com" title="Lionel Messi" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://leomessi.com']);">Lionel Messi</a></li>
+<li><a href="http://puras.cn" rel="friend co-worker" title="Puras He" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://puras.cn']);">Puras He</a></li>
+<li><a href="http://dreamhead.blogbus.com" rel="friend" title="梦想风暴" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://dreamhead.blogbus.com']);">梦想风暴</a></li>
+<li><a href="http://84tt.com/blog" rel="friend" title="过眼云烟" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://84tt.com/blog']);">过眼云烟</a></li>
+
+	</ul>
+</section>
+<section id="linkcat-1043" class="widget widget_links"><h3 class="widget-title">开源项目</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://code.google.com/p/buildc" rel="me" title="An assistant tool for c project building and packing management" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/buildc']);">buildc</a></li>
+<li><a href="http://code.google.com/p/cbehave" rel="me" title="A Behavior Driven Development Framework for C" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/cbehave']);">cbehave</a></li>
+<li><a href="http://code.google.com/p/lcut" rel="me" title="a Lightweight C Unit Testing framework" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/lcut']);">lcut</a></li>
+
+	</ul>
+</section>
+<section id="linkcat-1057" class="widget widget_links"><h3 class="widget-title">翻译项目</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://code.google.com/p/recommended-c-style-and-coding-standards-cn/" title="C语言编码风格和标准" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/recommended-c-style-and-coding-standards-cn/']);">C语言编码风格和标准</a></li>
+<li><a href="http://code.google.com/p/programming-in-haskell-cn/" title="《Programming in Haskell》中文翻译项目" target="" onclick="javascript:_gaq.push(['_trackEvent','outbound-blogroll','http://code.google.com/p/programming-in-haskell-cn/']);">《Programming in Haskell》中文翻译项目</a></li>
+
+	</ul>
+</section>
+<section id="text-4" class="widget widget_text">			<div class="textwidget"><!-- Google Reader Share-->
+<script type="text/javascript" src="http://www.google.com/reader/ui/publisher-zh_CN.js"></script>
+<script type="text/javascript" src="http://www.google.com/reader/public/javascript/user/01833917921607907799/state/com.google/broadcast?n=5&callback=GRC_p(%7Bc%3A%22blue%22%2Ct%3A%22Tony%20Bai%20%5Cu7684%5Cu5171%5Cu4EAB%5Cu6761%5Cu76EE%22%2Cs%3A%22true%22%2Cn%3A%22true%22%2Cb%3A%22false%22%7D)%3Bnew%20GRC"></script>
+</a><br/><br/>
+
+<!-- sina weibo widget -->
+<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=1823106383&verifier=6cf4cab8&dpc=1"></iframe>
+</a><br/><br/>
+
+<!-- douban show -->
+<script type="text/javascript" src="http://www.douban.com/service/badge/tony_bai/?show=collection&amp;n=9&amp;columns=3&amp;hidelogo=yes" ></script>
+<br/>
+<!-- douban show end-->
+
+<!-- my clustrmap -->
+<!--
+<div id="clustrmaps-widget"></div><script type="text/javascript">var _clustrmaps = {'url' : 'http://tonybai.com', 'user' : 1075598, 'server' : '4', 'id' : 'clustrmaps-widget', 'version' : 1, 'date' : '2013-01-30', 'lang' : 'zh', 'corners' : 'square' };(function (){ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'http://www4.clustrmaps.com/counter/map.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);})();</script><noscript><a href="http://www4.clustrmaps.com/user/8d910698e" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://www4.clustrmaps.com']);"><img src="http://www4.clustrmaps.com/stats/maps-no_clusters/tonybai.com-thumb.jpg" alt="Locations of visitors to this page" /></a></noscript>
+-->
+<!-- my clustrmap end-->
+<br/>
+
+
+<br>
+<script type="text/javascript" src="//rc.revolvermaps.com/0/0/2.js?i=2hcet0tjcib&amp;m=6&amp;s=130&amp;c=ff0000&amp;t=1" async="async"></script>
+<br/>
+
+<!-- Feedsky FEED 订阅统计发布代码开始 -->
+<!--
+<a href="http://feed.feedsky.com/bigwhite" onclick="javascript:_gaq.push(['_trackEvent','outbound-widget','http://feed.feedsky.com']);" title="Tony Bai" target="_blank"><img src="http://www.feedsky.com/feed/bigwhite/sc/orange.gif" style="border:0" alt="" /></a>
+-->
+<!-- Feedsky FEED 订阅统计发布代码结束 -->
+<br/>
+
+<div id="statcounter_image" style="display:inline;"><a
+title="wordpress hit counter"
+href="http://statcounter.com/wordpress.org/"
+class="statcounter"><img
+src="http://c.statcounter.com/7675050/0/05345dc4/0/"
+alt="wordpress hit counter" style="border:none;" /></a>
+<a href="http://statcounter.com/p7675050/?guest=1">View My
+Stats</a></div>
+<br/>
+
+<!-- Baidu Button BEGIN -->
+<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+<a class="bds_qzone"></a>
+<a class="bds_tsina"></a>
+<a class="bds_tqq"></a>
+<a class="bds_renren"></a>
+<a class="bds_t163"></a>
+<span class="bds_more">更多</span>
+<a class="shareCount"></a>
+</div>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=456117" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+<!-- page rank button -->
+<!--
+<a href="http://www.prchecker.info/" title="Page Rank" target="_blank">
+<img src="http://pr.prchecker.info/getpr.php?codex=aHR0cDovL3RvbnliYWkuY29t&tag=3" alt="Page Rank" style="border:0;" /></a>
+-->
+<! -- end of page rank button --></div>
+		</section>    
+</div>		</div>
+    </div>
+</div>
+<footer id="footer">
+	<div class="container">
+		&copy; 2016 <a href="http://tonybai.com">Tony Bai</a>.
+		由 <a href="http://wordpress.org">Wordpress</a> 强力驱动. 模板由<a href="http://pagecho.com">cho</a>制作.
+	</div>
+</footer>
+<script type='text/javascript' src='http://tonybai.com/wp-content/plugins/wp-recentcomments/js/wp-recentcomments.js?ver=2.2.7'></script>
+<script>
+/* <![CDATA[ */
+var rcGlobal = {
+	serverUrl		:'http://tonybai.com',
+	infoTemp		:'%REVIEWER% 在 %POST%',
+	loadingText		:'正在加载',
+	noCommentsText	:'没有任何评论',
+	newestText		:'&laquo; 最新的',
+	newerText		:'&laquo; 上一页',
+	olderText		:'下一页 &raquo;',
+	showContent		:'1',
+	external		:'1',
+	avatarSize		:'32',
+	avatarPosition	:'left',
+	anonymous		:'匿名'
+};
+/* ]]> */
+</script>
+</body>
+</html>
