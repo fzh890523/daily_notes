@@ -1,0 +1,63 @@
+Drools规则引擎的使用总结 (2014-12-26 10:01:35)转载▼
+标签： drools ruleflow 优先级 组 fact  分类： 【分布式】
+前一段时间在开发了一个做文本分析的项目。在项目技术选型的过程中，尝试使用了Drools规则引擎。让它来作为项目中有关模式分析和关键词匹配的任务。但后来，因为某种原因，还是撇开了Drools。现将这个过程中使用Drools的一些经验和心得记录下来。 
+（一）什么时候应该使用规则引擎
+    这实际是一个技术选型的问题。但这个问题又似乎是一个很关键的问题（一旦返工的话，你就知道这个问题是多么重要了）。不知大家有没有过这样的经验和体会。往往在项目开始的时候，总会遇到应该选用什么技术？是不是应该使用最新的技术？或者应该选用什么技术呢（PS：现在计算机软件中的各种技术层出不穷，具有类似功能的技术很多）？
+    不管怎么样，这些问题总会困扰着我。比如，这次的这个项目。项目要求是要在一些log文件中（这些log文件都是很大的应用系统所产生的，但由于legacy的原因，log本身的维护和规范工作一直没有得到改善，所以想借助于一些外部应用对这些log做以分析和清洗）抽取出有用的信息。
+    于是，第一个想到的就是，这是一个文本挖掘类的项目。但又想，要抽取有用信息，必须得建立一些规则或pattern（模式）。所以，我第一个想到了规则引擎。因为这里面要建立好多规则，而这些规则可以独立于代码级别（放到一个单独的drl文件里）并可以用规则引擎去解析和执行。另一个重要的原因是，我原来用过，比较熟悉。这样，也可以节省开发时间吧。于是，好不犹豫的就开始做了Demo....
+    但事实上，在经历了一个多星期的编码、测试后，我发现运用规则引擎实在是太笨拙了。
+    （1）首先必须建立一些数据模型。通过这些模型来refer规则文件中的LHS和Action。
+    （2）还要考虑规则的conflict。如果有一些规则同时被触发，就要考虑设定规则的优先级或者是设定activiation-group来保证在一个group中的规则只有一个规则可以被触发。
+    （3）对于‘流’规则group ruleflow-group的使用。如果要控制在workingmemory中的规则被触发的顺序，则可以将这些规则分组。然后，通过规则建模的方式来实现。但这也添加了一定的effort。修改或者更新不大方便。
+    所以，基于上述体会，我更认为规则引擎更适用于那些对非流程性规则匹配的应用。当然，Drools也支持对流程性规则的建模过程。但，这也许不是最好的方式。
+（二）Drools规则引擎的使用杂记
+    （1）Fact 的变更监听。在Drools里，如果一个Fact通过规则而改变，则需将这种改变通知给规则引擎。这里，一般有两种方式：显式和隐式。
+         显式---在drl文件中通过 update、modify来通知；在程序中，通过Fact的引用调用modifyObject等方法来实现。
+         隐式---通过在java bean实现property Listener Interface来让引擎自动监听到属性值的变化。我更习惯于这种方式。因为，一般看来凡是在规则引擎中添加到fact都是希望引擎来帮你进行管理的。 所以，那它自己看到fact的变化是种很省事的办法。也很简单，就是用java bean property 监听的方式。
+   通过StatefulSession来注册。
+   调用StatefulSession的某个instance 的insert（Object，true）实现。而这个object是一个java bean。其中，要实现 
+       
+   private final PropertyChangeSupport changes = new PropertyChangeSupport( this );
+   public void addPropertyChangeListener(final PropertyChangeListener l) {
+        this.changes.addPropertyChangeListener( l );
+   }
+
+   public void removePropertyChangeListener(final PropertyChangeListener l) {
+        this.changes.removePropertyChangeListener( l );
+   }
+   
+        然后在set方法中调用
+    this.changes.firePropertyChange( "temp",null,this.temp );
+     （2）规则触发的优先级、组设置
+    往往，在设计我们自己的规则时，要考虑规则的触发条件。这不仅限于LHS的条件部分，还有规则本身被触发的有些设置等等。这里，列出一些比较常用和有效的规则优先级设置方式，以及需要注意的地方。
+         A.通过Salience方式。此值可正可负。越大优先级越高，也会被引擎首先执行。
+         B.通过ruleflow-group 方式。实际上，使用这种方式也就是在使用建立规则流的方式。在Eclipse 3.3 中，Drools提供了建立规则流的插件。要在drl的同级目录中建立rf和rfm两个文件（当然，插件会帮助你建立这些）。
+         
+选择RuleFlow File。
+      这里，需要注意的一点是要在启动规则引擎的时候，加入启动rule flow的代码。
+
+           InputStreamReader source = new InputStreamReader(RuleManager.class
+                   .getResourceAsStream(rule_path));
+           PackageBuilder builder = new PackageBuilder();
+           builder.addPackageFromDrl(source);
+           builder.addRuleFlow(new InputStreamReader(RuleManager.class
+                   .getResourceAsStream(rule_flow_path)));
+            Package pkg = builder.getPackage();
+            RuleBase ruleBase = RuleBaseFactory.newRuleBase();
+            ruleBase.addPackage(pkg);
+      然后，在每次启动规则引擎的时候，调用如下方法：
+
+            StatefulSession ss;
+            ss.startProcess(flowProgress)；
+            ss.fireAllRules();
+
+            flowProgress 是一个string类型。这个flow的名字。
+
+这个rule flow图中，显示了一个简单的规则流。如RSA就是一个rule-flow的名字。在这个rule set中可以设定一组rules。这样，就可以分开规则执行的顺序。在于rf和rfm同名的另一个 drl文件中定义这些组的名字。通过关键字 ruleflow-group 来表明。
+    C.通过activation-group的方式。通过这种方式，可以exclude一组rule中一旦有一个rule被invoke，而其它rule不 会被execute。同时，可以搭配使用salience关键字来标明每个rule的优先级，这样就能够使得你想要的一般性概念的rule先被匹配执行。
+    D.在使用ruleflow-group 的时候要注意使用lock-on-active true 关键字在每个rule。这样可以避免一旦有rule被触发，不会造成循环匹配执行。
+    E.如果在LHS部分，需要调用某个方法来返回真、假值作为判断的一个条件，那么可以用eval函数。
+    如，eval_r(pattern.matched(5,$line.getCurrLine()))
+    其中，pattern是某个加入到workingmemory中的一个实例。matched是这个实例所代表类的一个方法。它返回boolean类型。
+    
+  

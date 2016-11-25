@@ -1,0 +1,829 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0038)http://gemantic.iteye.com/blog/1212720 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Drools扫盲普及贴 -  - ITeye技术网站</title>
+    <meta name="description" content="一花一世界,一叶一菩提 一 前言      最早对Drools感兴趣,是起源于规则引擎.当时是希望能找一个开源工具来做一些规则的处理.      在官方网站上翻了半天资料,却发现Drools一直在强调它不只是一个简单的规则引擎,而是更多的引入工作流的概念.      之后最大的感触就是Drools牵涉到的东西比较多,甚至有一种依照Drools可以创造整个世界的感觉-- 这个世界本身不就是由各种规则/ ...">
+    <meta name="keywords" content="Drools, 规则引擎, 工作流, CEP, Planer Drools扫盲普及贴">
+    <link rel="shortcut icon" href="http://gemantic.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://gemantic.iteye.com/open_search.xml" title="ITeye">
+    <link href="http://gemantic.iteye.com/rss" rel="alternate" title="" type="application/rss+xml">
+    <link href="./Drools扫盲普及贴 - - ITeye技术网站_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="./Drools扫盲普及贴 - - ITeye技术网站_files/blue.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="./Drools扫盲普及贴 - - ITeye技术网站_files/hm.js"></script><script type="text/javascript" async="" src="./Drools扫盲普及贴 - - ITeye技术网站_files/ga.js"></script><script src="./Drools扫盲普及贴 - - ITeye技术网站_files/application.js" type="text/javascript"></script>    
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="./Drools扫盲普及贴 - - ITeye技术网站_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="./Drools扫盲普及贴 - - ITeye技术网站_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="./Drools扫盲普及贴 - - ITeye技术网站_files/hotkey.js" type="text/javascript"></script>
+  <script src="./Drools扫盲普及贴 - - ITeye技术网站_files/code_favorites.js" type="text/javascript"></script>
+<script src="./Drools扫盲普及贴 - - ITeye技术网站_files/weiboshare.js" type="text/javascript"></script>
+  <script>
+		var _hmt = _hmt || [];
+		(function() {
+		 var hm = document.createElement("script");
+		 hm.src = "//hm.baidu.com/hm.js?e19a8b00cf63f716d774540875007664";
+		 var s = document.getElementsByTagName("script")[0]; 
+		 s.parentNode.insertBefore(hm, s);
+		})();
+	</script>
+    
+  <style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style>@font-face{font-family:uc-nexus-iconfont;src:url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_kcuuxxyze2hjjor.woff) format('woff'),url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_kcuuxxyze2hjjor.ttf) format('truetype')}</style></head>
+  <body style="zoom: 1;"><div id="uc_reader_tip" style="position:absolute;top:175px;left:711px;z-index: 9999999999;height:0;border:0;padding:0;margin:0;"><div id="reader-tip-icon" class="reader-tip-bar tip-bar tip-bar--yellow" style="margin-top:-32px;margin-left:0px;"><button id="reader-tip-bar-close" class="reader-tip-bar-close"></button></div></div>
+    <div id="header">
+	      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="http://gemantic.iteye.com/blog/1212720#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">知识库</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+	      <div id="user_nav">
+      <a href="http://gemantic.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://gemantic.iteye.com/login">登录</a>
+    <a href="http://gemantic.iteye.com/signup" class="nobg">注册</a>
+  </div>
+
+	    
+    </div>
+
+    <div id="page">
+        <div id="branding" class="clearfix" style="overflow: hidden;background: none;padding:0 0 2px;">
+        	<ins data-revive-zoneid="184" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+        </div>
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="http://gemantic.iteye.com/">gemantic</a></h1>
+        </div>
+        <div id="fd"></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class="blog_navbar_for"><a href="http://gemantic.iteye.com/"><strong>博客</strong></a></li>
+            <li><a href="http://gemantic.iteye.com/weibo">微博</a></li>
+            <li><a href="http://gemantic.iteye.com/album">相册</a></li>
+            <li><a href="http://gemantic.iteye.com/link">收藏</a></li>
+            <li><a href="http://gemantic.iteye.com/blog/guest_book">留言</a></li>
+            <li><a href="http://gemantic.iteye.com/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="http://gemantic.iteye.com/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text" value="">
+              <input class="submit_search" type="submit" value="">
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style="display:none">
+  <a href="http://gemantic.iteye.com/" class="p-author" target="_blank">gemantic</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="http://gemantic.iteye.com/blog/1212720">Drools扫盲普及贴</a>
+      <em class="actions">      </em>
+    </h3>
+    
+        <div class="news_tag"><a href="http://www.iteye.com/blogs/tag/Drools">Drools</a><a href="http://www.iteye.com/blogs/tag/%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E">规则引擎</a><a href="http://www.iteye.com/blogs/tag/%E5%B7%A5%E4%BD%9C%E6%B5%81">工作流</a><a href="http://www.iteye.com/blogs/tag/CEP">CEP</a><a href="http://www.iteye.com/blogs/tag/Planer">Planer</a>&nbsp;</div>
+    	  
+    	
+    	
+  		
+      </div>
+
+  <div id="blog_content" class="blog_content">
+    <div style="text-align: center;"><span style="font-size: xx-large;"><strong><span style="color: black;">一花一世界,一叶一菩提</span></strong></span></div>
+<br>
+<br>
+<br><span style="color: blue;"><span style="font-size: x-large;"><strong>一 前言</strong></span></span>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 最早对Drools感兴趣,是起源于规则引擎.当时是希望能找一个开源工具来做一些规则的处理.
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 在官方网站上翻了半天资料,却发现Drools一直在强调它不只是一个简单的规则引擎,而是更多的引入工作流的概念.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 之后最大的感触就是Drools牵涉到的东西比较多,甚至有一种依照Drools可以创造整个世界的感觉-- <span style="color: brown;">这个世界本身不就是由各种规则/流程/事件构成的么?</span> 这也是本文标题的由来.
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 以后会对Drools的各方面有一个比较深入的了解,因此这篇文章只是用来做简单的介绍,希望能在短时间内能让其他人对Drools做什么,怎么做,有一个直观的了解,以后遇到相关应用的场景时,能想到Drools的解决方案.
+<br>
+<br>&nbsp;&nbsp;&nbsp; PS:PPT是在Team内部的团队分享时使用的,有一些链接可能会失效(外网无法访问).本文内容和PPT不会完全一致.不过问题不大了.
+<br>
+<br>
+<br>
+<br><span style="color: blue;"><strong><span style="font-size: x-large;">二.从规则引擎的应用场景说起</span></strong></span>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 昨天讲解PPT的时候有人问到Drools和If-else的本质区别在哪里.我想了想,还是想引用一句话来表述自己的感受.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: brown;">"南京一高职学生为了给男友发鲸鱼宝宝的短信涉嫌伪造健康证明捐精买iphone4。。。。"</span> 
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br><strong><span style="font-size: large;">2.1 各种棋类游戏</span></strong>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 象棋围棋五子棋跳棋军棋扑克牌三国杀杀人游戏强权外交等等等等.游戏本身就是规则的代名词.
+<br>
+<br><strong><span style="font-size: large;">2.2 业务规则</span></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 超市打折,汇率计算等等等等.
+<br>&nbsp; 
+<br><strong><span style="font-size: large;">2.3 相通的场景</span></strong>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 这些场景可能有一些相通的点,在这儿我可能总结的不会太全面,稍稍罗列一下:
+<br>&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; <ul>
+<li>&nbsp;&nbsp;&nbsp;&nbsp; 单条规则相对简单
+</li><li>&nbsp;&nbsp;&nbsp;&nbsp; 规则数量相对庞大
+</li><li>&nbsp;&nbsp;&nbsp;&nbsp; 规则之间会有冲突
+</li><li>&nbsp;&nbsp;&nbsp;&nbsp; 一条规则本身会触发另一条规则
+</li><li>&nbsp;&nbsp;&nbsp;&nbsp; 规则有可能会产生变动(很多时候可能唯一需要变动的就是规则)
+</li></ul>
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 这个时候用规则引擎来处理这些事情就相对来说容易多了.不过,Drools做的远远不止这些.
+<br>
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br><span style="color: blue;"><strong><span style="font-size: x-large;">三 Drools的构成.</span></strong></span>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 目前<a href="http://www.jboss.org/drools" target="_blank">Drools</a>的最新稳定版本是5.2.0.Final(23-Jun-2011). 现在由JBoss维护,分成五个模块.
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 下面就简单的介绍下每一个模块的内容,可以大致的了解下Drools的发展方向和可以用来解决问题的范畴.&nbsp;&nbsp;&nbsp; 
+<br>
+<br><strong><span style="font-size: large;">3.1 Guvnor</span></strong>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; Guvnor是一个通过Web界面可以管理,更改规则的工具,也可以提供Repository的服务.(似乎各种开源软件里都会提供这样的Web管理界面,Heritrix,Nutch,AllGeography等等等等).支持Dsl和QA.&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br><strong><span style="font-size: large;">3.2 Expert</span>&nbsp;&nbsp;&nbsp;&nbsp; </strong>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 传统的规则引擎,应该说Drools的核心,也是前身.通过Rete算法来实现模式匹配. 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br><strong><span style="font-size: large;">3.3 Jbpm5</span></strong>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 工作流的处理交给了JBPM5这个模块.这个模块我了解的不多,大概知道的是除了工作流之外还提供了各种各样的集成(Camel,Spring,Osgi等等,感觉这个模块本身的规划不是特别清晰).其中Camel适用于路由转发.有了解的较多的朋友可以指教一下,或者以后有时间我会再了解一下相关的内容.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br><strong><span style="font-size: large;">3.4 Fusion</span></strong>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 用于做<a href="http://en.wikipedia.org/wiki/Complex_event_processing" target="_blank">CEP</a>的处理.本来是不太懂CEP的,这个概念接触的不算多.不过看到了Wiki上的一个例子,大概明白一些.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 摘录如下:
+<br>&nbsp;&nbsp;&nbsp;&nbsp; <div class="quote_title">引用</div><div class="quote_div">&nbsp;&nbsp;&nbsp; 
+<br> Among thousands of incoming events, a monitoring system may for instance receive the following three from the same source:
+<br>1.church bells ringing.
+<br>2.the appearance of a man in a tuxedo with a woman in a flowing white gown.
+<br>3.rice flying through the air.
+<br>
+<br>From these events the monitoring system may infer a complex event: a wedding
+<br>&nbsp;&nbsp; </div>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br><strong><span style="font-size: large;">3.5 Planner</span> </strong>&nbsp; 
+<br>&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; Planer用来解决一系列的问题,如N皇后问题,TSP
+<br>(话说这些问题有什么共同点我还没有领会得到,大体的感觉是可以用来解决一些规划问题,或者是说求解问题).
+<br>
+<br>&nbsp;&nbsp; 
+<br>
+<br><strong><span style="font-size: large;">3.6 关系图</span>&nbsp; </strong>&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 这是我理解的关系图.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; <img src="./Drools扫盲普及贴 - - ITeye技术网站_files/c84a97b8-e3dd-3ffe-9c13-9f45566eaec1.jpg" title="点击查看原始大小图片" class="magplus" width="700" height="334">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; Expert还是核心,Fusion和Planer和Workflow都应该是规则的应用到具体领域的扩展,通过JBPM5还提供了和各种开源软件的集成.Guvnor来提供各种资源的管理.
+<br>
+<br>
+<br>&nbsp;&nbsp; 
+<br>
+<br>
+<br>
+<br>
+<br><strong><span style="color: blue;"><span style="font-size: x-large;">四 Expert</span></span> </strong>&nbsp; 
+<br> 
+<br>&nbsp;&nbsp; 对Expert有了解就可以使用Drools了.所以我想还是总体的介绍下Expert的使用,这样具体的细节其他朋友可以通过翻阅手册来自己解决了.
+<br>
+<br>&nbsp;&nbsp;&nbsp; 列出几个知识点:
+<br>
+<br>&nbsp;&nbsp;&nbsp; <strong><span style="font-size: large;">1.Drl文件.</span></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Drl就是Drools用来描述规则的文件.DRL文件的结构包括以下几部分:
+<br><div class="quote_title">引用</div><div class="quote_div">
+<br>package package-name
+<br>imports
+<br>globals
+<br>functions
+<br>queries
+<br>rules
+<br></div>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Drl中可以通过Import的方式引入Model类,也可以调用Java的各种函数.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Drl中也可以自己定义Class和Function.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Queries的应用场景还不太了解,目前没有用到过. 
+<br>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rules就是规则的部分,它的结构如下:
+<br>
+<br><div class="quote_title">引用</div><div class="quote_div">&nbsp; 
+<br>rule "name"
+<br>&nbsp;&nbsp;&nbsp; attributes
+<br>&nbsp;&nbsp;&nbsp; when
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LHS(The Rule Language)
+<br>&nbsp;&nbsp;&nbsp; then
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RHS(Java,Pthyon,Groovy)
+<br>end
+<br></div>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 每一条规则都有名称.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 每一条规则都有属性(lock-on-active等)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When里写的是LHS(Left Hand Side,左手边),等同于IF里的条件判断.左手边是Drools自己的语法规则,详见Drools的文档.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then里写的是RHS(Right Hand Side,右手边),等同于IF里的执行语句.右手边支持多种语言(Java,Pthyon,Groovy等).
+<br>
+<br> <strong> <span style="font-size: large;">&nbsp; 2.规则文件的使用</span></strong>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=KnowledgeBuilder%20kbuilder%20%3D%20KnowledgeBuilderFactory.newKnowledgeBuilder()%3B%0Akbuilder.add(ResourceFactory.newClassPathResource(%22demo.drl%22)%2C%20ResourceType.DRL)%3B%0A%0AKnowledgeBase%20kbase%20%3D%20KnowledgeBaseFactory.newKnowledgeBase()%3B%0Akbase.addKnowledgePackages(kbuilder.getKnowledgePackages())%3B%0AStatefulKnowledgeSession%20ksession%20%3D%20kbase.newStatefulKnowledgeSession()%3B%0A%0AEmployee%20employee%3Dnew%20Employee(%22%E6%AE%B5%E4%B8%89%E5%93%81%22)%3B%0Aemployee.setClockedAt(System.currentTimeMillis())%3B%0A%0Aksession.insert(employee)%3B%0Aksession.fireAllRules()%3B%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" id="__wow_video_player__2079728397">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./Drools扫盲普及贴 - - ITeye技术网站_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span>KnowledgeBuilder&nbsp;kbuilder&nbsp;=&nbsp;KnowledgeBuilderFactory.newKnowledgeBuilder();&nbsp;&nbsp;</span></span></li><li><span>kbuilder.add(ResourceFactory.newClassPathResource(<span class="string">"demo.drl"</span><span>),&nbsp;ResourceType.DRL);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>KnowledgeBase&nbsp;kbase&nbsp;=&nbsp;KnowledgeBaseFactory.newKnowledgeBase();&nbsp;&nbsp;</span></li><li><span>kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());&nbsp;&nbsp;</span></li><li><span>StatefulKnowledgeSession&nbsp;ksession&nbsp;=&nbsp;kbase.newStatefulKnowledgeSession();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>Employee&nbsp;employee=<span class="keyword">new</span><span>&nbsp;Employee(</span><span class="string">"段三品"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>employee.setClockedAt(System.currentTimeMillis());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>ksession.insert(employee);&nbsp;&nbsp;</span></li><li><span>ksession.fireAllRules();&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" codeable_id="" codeable_type="BlogComment" source_url="http://gemantic.iteye.com/blog/1212720#" pre_index="0" title="Drools扫盲普及贴" style="display: none;">KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+kbuilder.add(ResourceFactory.newClassPathResource("demo.drl"), ResourceType.DRL);
+
+KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
+StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+
+Employee employee=new Employee("段三品");
+employee.setClockedAt(System.currentTimeMillis());
+
+ksession.insert(employee);
+ksession.fireAllRules();
+</pre>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>
+<br>Session分成两种,一种是StateFul,一种是StateLess.区别是StateFul是可以完成推理的,即一条规则有可能导致另一条规则的触发,因此需要显示的调用一下FireAllRules().而StateLess是不支持规则推理的.所以规则是自动触发.
+<br>
+<br>
+<br>
+<br>
+<br>Employee 是一个简单的Demo类,用来表示一个员工.这里想给出的是一个判断员工上班是否迟到的示例,因此Employee可以设计成这个样子.
+<br>
+<br>&nbsp;&nbsp; <div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=%0A%20import%20java.io.Serializable%3B%0A%0Aimport%20org.apache.commons.lang.builder.ToStringBuilder%3B%0Aimport%20org.apache.commons.lang.builder.ToStringStyle%3B%0A%0Apublic%20class%20Employee%20%20implements%20Serializable%7B%0A%0A%09%2F**%0A%09%20*%20%0A%09%20*%2F%0A%09private%20static%20final%20long%20serialVersionUID%20%3D%20-2301765612395462099L%3B%09%0A%09%0A%09private%20String%20name%3B%0A%09private%20Long%20clockedAt%3B%0A%09private%20boolean%20late%3B%09%0A%09public%20String%20getName()%20%7B%0A%09%09return%20name%3B%0A%09%7D%0A%09public%20void%20setName(String%20name)%20%7B%0A%09%09this.name%20%3D%20name%3B%0A%09%7D%0A%09public%20Long%20getClockedAt()%20%7B%0A%09%09return%20clockedAt%3B%0A%09%7D%0A%09public%20void%20setClockedAt(Long%20clockedAt)%20%7B%0A%09%09this.clockedAt%20%3D%20clockedAt%3B%0A%09%7D%0A%09public%20boolean%20isLate()%20%7B%0A%09%09return%20late%3B%0A%09%7D%0A%09public%20void%20setLate(boolean%20late)%20%7B%0A%09%09this.late%20%3D%20late%3B%0A%09%7D%0A%09public%20String%20toString()%20%7B%0A%20%20%20%20%20%20%20%20return%20ToStringBuilder.reflectionToString(this%2C%20ToStringStyle.MULTI_LINE_STYLE)%3B%0A%20%20%20%20%7D%0A%0A%7D%0A%0A%20%20%20%20%20" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" id="__wow_video_player__-1005311659">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./Drools扫盲普及贴 - - ITeye技术网站_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span>&nbsp;</span><span class="keyword">import</span><span>&nbsp;java.io.Serializable;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;org.apache.commons.lang.builder.ToStringBuilder;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;org.apache.commons.lang.builder.ToStringStyle;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;Employee&nbsp;&nbsp;</span><span class="keyword">implements</span><span>&nbsp;Serializable{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">/**</span>&nbsp;</span></li><li><span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;</span>&nbsp;</span></li><li><span><span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;</span><span class="keyword">long</span><span>&nbsp;serialVersionUID&nbsp;=&nbsp;-2301765612395462099L;&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;String&nbsp;name;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Long&nbsp;clockedAt;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">boolean</span><span>&nbsp;late;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;String&nbsp;getName()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;name;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;setName(String&nbsp;name)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.name&nbsp;=&nbsp;name;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;Long&nbsp;getClockedAt()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;clockedAt;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;setClockedAt(Long&nbsp;clockedAt)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.clockedAt&nbsp;=&nbsp;clockedAt;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">boolean</span><span>&nbsp;isLate()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;late;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;setLate(</span><span class="keyword">boolean</span><span>&nbsp;late)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.late&nbsp;=&nbsp;late;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;String&nbsp;toString()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;ToStringBuilder.reflectionToString(</span><span class="keyword">this</span><span>,&nbsp;ToStringStyle.MULTI_LINE_STYLE);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" codeable_id="" codeable_type="BlogComment" source_url="http://gemantic.iteye.com/blog/1212720#" pre_index="1" title="Drools扫盲普及贴" style="display: none;">
+ import java.io.Serializable;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+public class Employee  implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2301765612395462099L;	
+	
+	private String name;
+	private Long clockedAt;
+	private boolean late;	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Long getClockedAt() {
+		return clockedAt;
+	}
+	public void setClockedAt(Long clockedAt) {
+		this.clockedAt = clockedAt;
+	}
+	public boolean isLate() {
+		return late;
+	}
+	public void setLate(boolean late) {
+		this.late = late;
+	}
+	public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+}
+
+     </pre>
+<br>
+<br>
+<br> 假设公司的迟到规则是九点钟以后打卡就算迟到,那么规则就可以写成这样子.
+<br>
+<br> <div class="dp-highlighter" id=""><div class="bar"><div class="tools">Drools代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=rule%20%22%E8%BF%9F%E5%88%B0%22%09%0A%09lock-on-active%0A%09when%09%09%20%20%20%0A%09%20%20%20%20%20%24employee%3A%20Employee(clockedAt%20%3E%209%3A00%20)%0A%09then%09%20%0A%09%20%20%20%20%20%24employee.setLate(true)%3B%20%0Aend%0A%20%20" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" id="__wow_video_player__-2025441427">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./Drools扫盲普及贴 - - ITeye技术网站_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>rule&nbsp;</span><span class="string">"迟到"</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;lock-on-active&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;when&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$employee:&nbsp;Employee(clockedAt&nbsp;&gt;&nbsp;<span class="number">9</span><span>:</span><span class="number">00</span><span>&nbsp;)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;then&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$employee.setLate(true);&nbsp;&nbsp;&nbsp;</span></li><li><span>end&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="drools" codeable_id="" codeable_type="BlogComment" source_url="http://gemantic.iteye.com/blog/1212720#" pre_index="2" title="Drools扫盲普及贴" style="display: none;">rule "迟到"	
+	lock-on-active
+	when		   
+	     $employee: Employee(clockedAt &gt; 9:00 )
+	then	 
+	     $employee.setLate(true); 
+end
+  </pre>
+<br>&nbsp; 
+<br>&nbsp; 将一个Model Insert进去,调用FireAllRules方法,就是执行了规则,Model的值就会发生改变.
+<br>&nbsp; 这就是Expert使用的最简单的方式.
+<br>
+<br>
+<br>&nbsp; <strong> <span style="font-size: large;">3.产生式系统</span></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 规则引擎里的一些术语是来自于产生式系统的.如LHS,RHS,Fact,ProductMemory,WorkingMemory.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; LHS和RHS之前已经提到过,下面来介绍一下其它的术语.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; Fact:每一条规则称之为Fact.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; ProductMemory:保存Fact.如上例说到的迟到的规则.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; WorkingMemory:保存每一个实例,如上例说到的每一个员工.
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 可以把规则引擎理成一个WorkingMemeory和ProductMemory的模式匹配.有四种算法.(Linear,Rete,Treat,Leap).
+<br>&nbsp;&nbsp;&nbsp; Drools使用的是Rete.据说也有Leap的实现,后来因为无人使用也无人维护给放弃了.
+<br>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp; <strong> <span style="font-size: large;">4.Rete</span>&nbsp; </strong>&nbsp;&nbsp; 
+<br> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rete是网络的意思,简单的说,Rete算法的思路就是事先将Fact构建成一个过滤网,这个过滤网由四种节点构成.分别是Root,1-input(alpha),2-input(beta),terminal.
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这四个节点也比较简单,Root是入口,所有的实例都从Root出进入Rete.Alpha用来做Literal的验证(如"Name=段三品"),Beta节点用来做对象的验证,如(employee1=employee2),terminal是终止节点.
+<br>&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 一直在想一个简单的方式能描述Rete做的功能.可以想象成从Root到Aplpha到Beta到Terminal是由不同的阀门构成的水管.
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 从Root处开始往下倒各种液体(水,酒,醋等等,等同于WorkingMemory的一个个实例),对于各个节点来说,如果满足自己的验证条件,那么就可以放行.如果不满足,就不通过.这样最后从Terminal流出的就是匹配到的规则.
+<br>
+<br>&nbsp;&nbsp;&nbsp; 昨天又有人问到这个和有限状态自动机的区别是什么.我想区别就在于每一个节点都保留了符合这个节点的WorkingMemory.而有限状态自动机是不会保存这些内容的.
+<br>
+<br>&nbsp;&nbsp; 以上是对Rete的简单理解,希望能有朋友多指教.
+<br>&nbsp;&nbsp; 符上一张图(很遗憾忘记在哪儿粘过来的了,对原图的作者表示歉意).
+<br>&nbsp;&nbsp; <img src="./Drools扫盲普及贴 - - ITeye技术网站_files/e707c017-b729-35e0-89be-5942f18b0f7a.jpg">&nbsp;&nbsp;&nbsp; 
+<br>
+<br>
+<br><span style="color: blue;"><strong><span style="font-size: x-large;">五 Guvnor</span></strong></span>&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp; Guvnor这部分,我想说的主要是关于Dsl的部分.
+<br>&nbsp;&nbsp; Dsl其实大部分人已经经常用到了.只不过自己还不知道而已.如Shell,Uml,Sql,wiki Template.
+<br>&nbsp;&nbsp; Guvnor支持Dsl的配置,DSL configurations的选项里可以新建,编辑Dsl文件.这里给出一个Guvnor安装后自带的例子.
+<br>
+<br> <div class="dp-highlighter" id=""><div class="bar"><div class="tools">Dsl代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=%20%20%5Bwhen%5DWhen%20the%20credit%20rating%20is%20%7Brating%3AENUM%3AApplicant.creditRating%7D%20%3D%20applicant%3AApplicant(creditRating%3D%3D%22%7Brating%7D%22)%0A%20%20%20%20%5Bthen%5DApprove%20the%20loan%20%3D%20applicant.setApproved(true)%0A%20%20%20%20%0A%20%20%20%20%5Bwhen%5DWhen%20the%20applicant%20dates%20is%20after%20%7Bdos%3ADATE%3Adefault%7D%20%3D%20applicant%3AApplicant(applicationDate%3E%22%7Bdos%7D%22)%0A%20%20%20%20%0A%20%20%20%20%5Bwhen%5DWhen%20the%20applicant%20approval%20is%20%7Bbool%3ABOOLEAN%3Achecked%7D%20%3D%20applicant%3AApplicant(approved%3D%3D%7Bbool%7D)%0A%20%20%20%20%0A%20%20%20%20%5Bwhen%5DWhen%20the%20ages%20is%20less%20than%20%7Bnum%3A1%3F%5B0-9%5D%3F%5B0-9%5D%7D%20%3D%20applicant%3AApplicant(age%3C%7Bnum%7D)%20%20%0A%0A%20%20%20%20%20" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" id="__wow_video_player__-1272341979">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./Drools扫盲普及贴 - - ITeye技术网站_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>[when]When&nbsp;the&nbsp;credit&nbsp;rating&nbsp;is&nbsp;{rating:ENUM:Applicant.creditRating}&nbsp;=&nbsp;applicant:Applicant(creditRating==</span><span class="string">"{rating}"</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;[then]Approve&nbsp;the&nbsp;loan&nbsp;=&nbsp;applicant.setApproved(true)&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;[when]When&nbsp;the&nbsp;applicant&nbsp;dates&nbsp;is&nbsp;after&nbsp;{dos:DATE:default}&nbsp;=&nbsp;applicant:Applicant(applicationDate&gt;<span class="string">"{dos}"</span><span>)&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;[when]When&nbsp;the&nbsp;applicant&nbsp;approval&nbsp;is&nbsp;{bool:BOOLEAN:checked}&nbsp;=&nbsp;applicant:Applicant(approved=={bool})&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;[when]When&nbsp;the&nbsp;ages&nbsp;is&nbsp;less&nbsp;than&nbsp;{num:<span class="number">1</span><span>?[</span><span class="number">0</span><span>-</span><span class="number">9</span><span>]?[</span><span class="number">0</span><span>-</span><span class="number">9</span><span>]}&nbsp;=&nbsp;applicant:Applicant(age&lt;{num})&nbsp;&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="DSL" codeable_id="" codeable_type="BlogComment" source_url="http://gemantic.iteye.com/blog/1212720#" pre_index="3" title="Drools扫盲普及贴" style="display: none;">  [when]When the credit rating is {rating:ENUM:Applicant.creditRating} = applicant:Applicant(creditRating=="{rating}")
+    [then]Approve the loan = applicant.setApproved(true)
+    
+    [when]When the applicant dates is after {dos:DATE:default} = applicant:Applicant(applicationDate&gt;"{dos}")
+    
+    [when]When the applicant approval is {bool:BOOLEAN:checked} = applicant:Applicant(approved=={bool})
+    
+    [when]When the ages is less than {num:1?[0-9]?[0-9]} = applicant:Applicant(age&lt;{num})  
+
+     </pre>
+<br>
+<br>
+<br>&nbsp;&nbsp; 这样在编辑规则的时候.就可以用Dsl语言去编写规则了.有助于将业务逻辑从代码中分离出去.将变化和非变化的部分分离开来.
+<br>
+<br>
+<br><strong><span style="color: blue;"><span style="font-size: x-large;">六. 小结</span></span>&nbsp; </strong> 
+<br>
+<br>&nbsp;&nbsp;&nbsp; Drools对于规则的理解更深入,或者说是对于规则的应用理解更深入.当然这个世界是由什么来构成的,不可能有一个准确又有用的答案.可是至少在Drools的眼里,世界可以由规则组成.
+<br>
+<br>&nbsp;&nbsp;&nbsp; 有太多的内容没有涉及到了,所以还是希望这篇文章能够做到之前对Drools给出一个感性的认识,知道Drools能做什么事情,了解Drools怎么去做的.以后再面对项目需求时,在可以用到Drools的场景下,再去详细查证手册好了.
+<br>
+<br>&nbsp;&nbsp;&nbsp; 另外Drools的安装包本身包含大量的示例程序.Reference做的也相当不错.都是很好的资料.
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp;&nbsp; 
+<br>
+<br>
+<br>
+<br>&nbsp;&nbsp; 
+<br>
+<br>&nbsp;&nbsp; 
+<br>
+<br>
+  </div>
+
+  
+  <div class="attachments">
+    
+      
+        <ul style="display:none;">
+          <li><a href="http://dl2.iteye.com/upload/attachment/0057/5840/c84a97b8-e3dd-3ffe-9c13-9f45566eaec1.jpg" target="_blank"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/c84a97b8-e3dd-3ffe-9c13-9f45566eaec1-thumb.jpg" class="magplus" title="点击查看原始大小图片"></a></li>
+          
+          <li>大小: 53.6 KB</li>
+        </ul>
+      
+    
+      
+        <ul style="display:none;">
+          <li><a href="http://dl2.iteye.com/upload/attachment/0057/5891/e707c017-b729-35e0-89be-5942f18b0f7a.jpg" target="_blank"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/e707c017-b729-35e0-89be-5942f18b0f7a-thumb.jpg" class="magplus" title="点击查看原始大小图片"></a></li>
+          
+          <li>大小: 56.9 KB</li>
+        </ul>
+      
+    
+    
+      <ul>
+        <li><a href="http://gemantic.iteye.com/blog/1212720#" onclick="$$(&#39;div.attachments ul&#39;).invoke(&#39;show&#39;);$(this).up(1).hide();return false;">查看图片附件</a></li>
+      </ul>
+    
+  </div>
+
+
+  
+  <ins data-revive-zoneid="171" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+  
+
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type="sina" href="javascript:;" title="分享到新浪微博"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/sina.jpg"></a>
+      <a data-type="qq" href="javascript:;" title="分享到腾讯微博"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://gemantic.iteye.com/blog/1234996" class="next" title="Log4j自定义Appender介绍">Log4j自定义Appender介绍</a>
+      |
+      <a href="http://gemantic.iteye.com/blog/1211527" class="pre" title="EGit for github——最初创建上传">EGit for github——最初创建上传</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2011-10-25 09:19</li>
+      <li>浏览 13456</li>
+      <li><a href="http://gemantic.iteye.com/blog/1212720#comments">评论(4)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/opensource">开源软件</a></li>      
+      <li class="last"><a href="http://www.iteye.com/wiki/blog/1212720" target="_blank" class="more">相关推荐</a></li>
+    </ul>    
+  </div>
+  
+		    
+		
+<div class="boutique-curr-box blog_comment">
+	  <div class="boutique-curr clearfix">
+	    <h5 class="h3titles">参考知识库</h5>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/ai"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/1479972981201_201.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/ai" classs="title">人工智能知识库</a>
+              <span>
+                 <em>2230</em>&nbsp;&nbsp;关注 <i>|</i> <em>384</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/mongodb"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/1478676229520_520.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/mongodb" classs="title">MongoDB知识库</a>
+              <span>
+                 <em>4901</em>&nbsp;&nbsp;关注 <i>|</i> <em>303</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/hbase"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/1479363734443_443.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/hbase" classs="title">Hbase知识库</a>
+              <span>
+                 <em>5940</em>&nbsp;&nbsp;关注 <i>|</i> <em>63</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/blockchain"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/1476175342721_721.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/blockchain" classs="title">区块链知识库</a>
+              <span>
+                 <em>2921</em>&nbsp;&nbsp;关注 <i>|</i> <em>105</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	  </div>
+</div>
+ 		
+      
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    <div id="bc2392097">
+  <div class="comment_title">
+    4 楼
+    <a href="http://lord-is-layuping.iteye.com/" target="_blank" title="lord_is_layuping">lord_is_layuping</a>
+    2016-08-07&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">在Drools的眼里,世界是由是由各种规则/流程/事件构成的</div>
+</div>
+
+<div id="bc2363737">
+  <div class="comment_title">
+    3 楼
+    <a href="http://lwg2011.iteye.com/" target="_blank" title="lwg2011">lwg2011</a>
+    2014-11-26&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">确实很不错，</div>
+</div>
+
+<div id="bc2329700">
+  <div class="comment_title">
+    2 楼
+    <a href="http://2442354849.iteye.com/" target="_blank" title="2442354849">2442354849</a>
+    2013-10-30&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content"><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_smile.gif"> 不错！！<br></div>
+</div>
+
+<div id="bc2227219">
+  <div class="comment_title">
+    1 楼
+    <a href="http://guochengduan.iteye.com/" target="_blank" title="guochengduan">guochengduan</a>
+    2011-11-07&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">支持二井哥。。。。</div>
+</div>
+
+
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="http://gemantic.iteye.com/login" style="background-color:white;"> <img src="./Drools扫盲普及贴 - - ITeye技术网站_files/login_icon.png" style="vertical-align:middle; margin-right: 10px;"></a><a href="http://gemantic.iteye.com/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1212720;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'Drools扫盲普及贴');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'Drools扫盲普及贴');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href="http://gemantic.iteye.com/"><img alt="gemantic的博客" class="logo" src="./Drools扫盲普及贴 - - ITeye技术网站_files/user-logo.gif" title="gemantic的博客: " width=""></a></div>
+  <div id="blog_owner_name">gemantic</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 261050 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="./Drools扫盲普及贴 - - ITeye技术网站_files/icon_minigender_1.gif" title="男"></li>
+              <li>来自: 北京</li>
+              <li><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/offline.gif"></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://gemantic.iteye.com/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://8040.iteye.com/" target="_blank"><img alt="8040的博客" class="logo" src="./Drools扫盲普及贴 - - ITeye技术网站_files/d036ddbe-67e4-3c2a-ac65-a7723283d59c-thumb.jpg" title="8040的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://8040.iteye.com/" target="_blank" title="8040">8040</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://286.iteye.com/" target="_blank"><img alt="g21121的博客" class="logo" src="./Drools扫盲普及贴 - - ITeye技术网站_files/dc9a7ac0-b525-38de-a79a-701d4f5262d1-thumb.jpg" title="g21121的博客: 286" width="48px"></a></div>
+                <div class="left"><a href="http://286.iteye.com/" target="_blank" title="g21121">g21121</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://shukuiyan.iteye.com/" target="_blank"><img alt="shukuiyan的博客" class="logo" src="./Drools扫盲普及贴 - - ITeye技术网站_files/eb86d901-b586-3449-b80b-330e2bb17479-thumb.jpg" title="shukuiyan的博客: yan" width="48px"></a></div>
+                <div class="left"><a href="http://shukuiyan.iteye.com/" target="_blank" title="shukuiyan">shukuiyan</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://ktiandiren.iteye.com/" target="_blank"><img alt="ktiandiren的博客" class="logo" src="./Drools扫盲普及贴 - - ITeye技术网站_files/user-logo-thumb.gif" title="ktiandiren的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://ktiandiren.iteye.com/" target="_blank" title="ktiandiren">ktiandiren</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="http://gemantic.iteye.com/">全部博客 (25)</a></li>
+                
+                  <li><a href="http://gemantic.iteye.com/category/187580">项目管理 (2)</a></li>
+                
+                  <li><a href="http://gemantic.iteye.com/category/187592">系统监控 (1)</a></li>
+                
+                  <li><a href="http://gemantic.iteye.com/category/219627">SOA (1)</a></li>
+                
+                  <li><a href="http://gemantic.iteye.com/category/252126">算法 (1)</a></li>
+                
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="http://gemantic.iteye.com/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="http://gemantic.iteye.com/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="http://gemantic.iteye.com/blog/answered_problems">我的问答</a> (1)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="http://gemantic.iteye.com/blog/monthblog/2015-10">2015-10</a> (1)</li>
+                
+                  <li><a href="http://gemantic.iteye.com/blog/monthblog/2015-09">2015-09</a> (1)</li>
+                
+                  <li><a href="http://gemantic.iteye.com/blog/monthblog/2015-08">2015-08</a> (1)</li>
+                
+                <li><a href="http://gemantic.iteye.com/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href="http://fengziit.iteye.com/" target="_blank" title="FengZiIT">FengZiIT</a>： 
+                  既想支持低版本IE浏览器如IE6,又想使用websocket作 ...<br>
+                  <a href="http://gemantic.iteye.com/blog/1553385#bc2393054">HTML服务器推送技术简介</a>
+                </li>
+                
+                <li>
+                  <a href="http://lord-is-layuping.iteye.com/" target="_blank" title="lord_is_layuping">lord_is_layuping</a>： 
+                  在Drools的眼里,世界是由是由各种规则/流程/事件构成的<br>
+                  <a href="http://gemantic.iteye.com/blog/1212720#bc2392097">Drools扫盲普及贴</a>
+                </li>
+                
+                <li>
+                  <a href="http://l-jackson.iteye.com/" target="_blank" title="L_Jackson">L_Jackson</a>： 
+                  请问 这边有异步调用的例子吗<br>
+                  <a href="http://gemantic.iteye.com/blog/1199214#bc2391613">thrift的使用介绍</a>
+                </li>
+                
+                <li>
+                  <a href="http://string2020.iteye.com/" target="_blank" title="string2020">string2020</a>： 
+                  代码看起来好乱<br>
+                  <a href="http://gemantic.iteye.com/blog/1199214#bc2373569">thrift的使用介绍</a>
+                </li>
+                
+                <li>
+                  <a href="http://loovejava.iteye.com/" target="_blank" title="loovejava">loovejava</a>： 
+                  不错，对比挺好<br>
+                  <a href="http://gemantic.iteye.com/blog/1199214#bc2371386">thrift的使用介绍</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+        <div style="margin-top: 10px;float: left;clear: left;">
+					<ins data-revive-zoneid="185" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+				</div>
+      </div>    
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2016 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+        <ins data-revive-zoneid="186" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="./Drools扫盲普及贴 - - ITeye技术网站_files/saved_resource" width="0" height="0">
+
+<script src="./Drools扫盲普及贴 - - ITeye技术网站_files/tracking.js" type="text/javascript"></script>
+
+    
+    
+    <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>
+<script src="./Drools扫盲普及贴 - - ITeye技术网站_files/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">var $csdn_iteye_jq = jQuery.noConflict();// 解决jq与prototype.js命名空间冲突的问题</script>
+<script src="http://ads.csdn.net/js/tracking.js" type="text/javascript"></script>
+    
+	    
+	    <script src="./Drools扫盲普及贴 - - ITeye技术网站_files/web-storage-cache.min.js" type="text/javascript"></script>
+	    <script src="./Drools扫盲普及贴 - - ITeye技术网站_files/replace.min.js" type="text/javascript"></script>
+    
+    
+  
+
+<div></div></body></html>

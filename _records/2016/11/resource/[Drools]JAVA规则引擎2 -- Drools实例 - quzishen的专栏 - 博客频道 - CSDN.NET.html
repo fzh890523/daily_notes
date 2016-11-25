@@ -1,0 +1,1668 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>   
+   
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>[Drools]JAVA规则引擎2 -- Drools实例 - quzishen的专栏
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="http://blog.csdn.net/wangjia184/article/details/43151041 &#160; &#160;docker&#160;&#160;如果有container在运行的时候重启 docker 服务， 可能会导致 container无法启动， 错误信息类似于Error&#160;response&#160;from&#160;daemon:&#160;Cannot&#160;start&#160;con" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/quzishen/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+ 
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?6bcd52f51e9b3dce32bec4a3997715ac";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+</head>
+<body>
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/quzishen">quzishen的专栏</a></h2>
+            <h3>言程序</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        
+     
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>           
+                <li id="btnContents"><a href="http://blog.csdn.net/quzishen?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/quzishen?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/quzishen/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+            
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "quzishen";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/quzishen";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "yonka";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://huiyi.csdn.net/activity/product/goods_list?project_id=3287">
+<font color=blue>微信小程序实战项目——点餐系统
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/turingbooks/article/details/53079366">
+<font color=red>程序员11月书讯，评论得书啦 
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://geek.csdn.net/news/detail/110921">
+<font color=blue>Get IT技能知识库，50个领域一键直达
+</font></a>
+
+
+</font></a>
+</font></a>
+</div>                        </div>
+                        
+
+
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+
+
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+          
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/quzishen/article/details/6164768">
+        [Drools]JAVA规则引擎2 -- Drools实例            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/%e5%bc%95%e6%93%8e' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">引擎</a><a href='http://www.csdn.net/tag/java' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">java</a><a href='http://www.csdn.net/tag/exception' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">exception</a><a href='http://www.csdn.net/tag/string' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">string</a><a href='http://www.csdn.net/tag/null' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">null</a><a href='http://www.csdn.net/tag/input' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">input</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2011-01-26 14:17</span>
+            <span class="link_view" title="阅读次数">13340人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(14)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('[Drools]JAVA规则引擎2 -- Drools实例','6164768');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(6164768,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            try
+            {
+                var lib = eval("("+$("#lib").attr("value")+")");
+                var html = "";
+                if (lib.err == 0) {
+                    $.each(lib.data, function (i) {
+                        var obj = lib.data[i];
+                        //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                        html += ' <a href="' + obj.url + '" target="_blank">';
+                        html += ' <img src="' + obj.logo + '">';
+                        html += ' <em><b>' + obj.name + '</b></em>';
+                        html += ' </a>';
+                    });
+                    if (html != "") {
+                        setTimeout(function () {
+                            $("#lib").html(html);                      
+                            $("#embody").show();
+                        }, 100);
+                    }
+                }      
+            } catch (err)
+            { }
+            
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('715009','quzishen','top','6164768');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">J2EE<em>（36）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/quzishen/article/category/715009"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_715009">                            
+                            </ul>
+                        </div>
+                    </label>                    
+                    <label  onclick="GetCategoryArticles('715533','quzishen','top','6164768');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">基础技术<em>（19）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/quzishen/article/category/715533"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_715533">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+        <div   class="bog_copyright">         
+            <p  class="copyright_p" >版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+<p>上一篇文章 <a onclick="function onclick()
+{
+alert('欢迎多多交流')
+}" href="http://blog.csdn.net/quzishen/archive/2011/01/25/6163012.aspx">http://blog.csdn.net/quzishen/archive/2011/01/25/6163012.aspx</a>&nbsp;描述了一些常用的drools的语法标签和一个模拟实例即发送积分的场景，这一片优化了一下代码，在此贴一下，希望有这方面使用经验的朋友多多交流沟通，指正不足。</p>
+<p>通常而言，习惯上我们将规则放到文件系统中，比如以drl结尾的规则文件，现在我们要扩充一下，使其放到数据库中，以供多台服务器同时使用，同时依然保留文件系统的支持。</p>
+<p>先看下一个接口：</p>
+<p><textarea cols="50" rows="15" name="code" class="java">/**
+ * 规则接口
+ * @author quzishen
+ */
+public interface PointRuleEngine {
+	
+	/**
+	 * 初始化规则引擎
+	 */
+	public void initEngine();
+	
+	/**
+	 * 刷新规则引擎中的规则
+	 */
+	public void refreshEnginRule();
+	
+	/**
+	 * 执行规则引擎
+	 * @param pointDomain 积分Fact
+	 */
+	public void executeRuleEngine(final PointDomain pointDomain);
+}</textarea> </p>
+<p>实现过程没有任何难度，两种方式封装过程只在于读取规则的方式不同，代码很简单：</p>
+<p><textarea cols="50" rows="15" name="code" class="java:collapse">package com.drools.demo.point;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import org.drools.RuleBase;
+import org.drools.StatefulSession;
+import org.drools.compiler.PackageBuilder;
+import org.drools.spi.Activation;
+
+/**
+ * 规则接口实现类
+ * 
+ * @author quzishen
+ */
+public class PointRuleEngineImpl implements PointRuleEngine {
+	// ~~~ instance filed begin
+	/** RuleBase */
+	private RuleBase ruleBase;
+	// ~~~ instance filed end
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.drools.demo.point.PointRuleEngine#initEngine()
+	 */
+	public void initEngine() {
+		// 设置时间格式
+		System.setProperty("drools.dateformat", "yyyy-MM-dd HH:mm:ss");
+		try {
+			synchronized (this) {
+				ruleBase = RuleBaseFacatory.getRuleBase();
+				// 优先从DB加载规则，如果没有加载到或者加载错误，则从文件系统加载
+				PackageBuilder backageBuilder = getPackBuilderFromDrlDB();
+				backageBuilder = null == backageBuilder ? getPackageBuilderFromDrlFile()
+						: backageBuilder;
+
+				ruleBase.addPackages(backageBuilder.getPackages());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.drools.demo.point.PointRuleEngine#refreshEnginRule()
+	 */
+	public void refreshEnginRule() {
+		ruleBase = RuleBaseFacatory.getRuleBase();
+		synchronized (ruleBase) {
+			// 删除所有的添加的Package
+			org.drools.rule.Package[] packages = ruleBase.getPackages();
+			for (org.drools.rule.Package pg : packages) {
+				ruleBase.removePackage(pg.getName());
+			}
+			
+			// 重新初始化规则引擎
+			initEngine();
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see com.drools.demo.point.PointRuleEngine#executeRuleEngine(com.drools.demo.point.PointDomain)
+	 */
+	public void executeRuleEngine(final PointDomain pointDomain) {
+		if (null == ruleBase.getPackages() || 0 == ruleBase.getPackages().length) {
+			return;
+		}
+
+		StatefulSession statefulSession = ruleBase.newStatefulSession();
+		statefulSession.insert(pointDomain);
+
+		// fire
+		statefulSession.fireAllRules(new org.drools.spi.AgendaFilter() {
+			public boolean accept(Activation activation) {
+				return !activation.getRule().getName().contains("_test");
+			}
+		});
+
+		statefulSession.dispose();
+	}
+
+	/**
+	 * 从Drl规则文件中读取规则
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private PackageBuilder getPackageBuilderFromDrlFile() {
+		// 装载规则文件
+		List&lt;Reader&gt; readers;
+		try {
+			readers = buildReadersFromDrlFile();
+			// 装载PackageBuilder
+			return buildPackageBuilder(readers);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * 从Drl规则DB中读取规则
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private PackageBuilder getPackBuilderFromDrlDB() {
+		// 装载规则
+		List&lt;Reader&gt; readers = buildReadersFromDrlDB();
+
+		// 装载PackageBuilder
+		try {
+			return buildPackageBuilder(readers);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * 装载db中的规则到List&lt;Reader&gt;
+	 * 
+	 * @return
+	 */
+	private List&lt;Reader&gt; buildReadersFromDrlDB() {
+		List&lt;Reader&gt; readers = new ArrayList&lt;Reader&gt;();
+		// 获取脚本
+		List&lt;DroolsRuleDomain&gt; drlRuleDomains = getRuleFromDB();
+
+		if (null == drlRuleDomains) {
+			return readers;
+		}
+
+		for (DroolsRuleDomain droolsRuleDomain : drlRuleDomains) {
+			String ruleContext = droolsRuleDomain.getRuleContext();
+
+			Reader br = new StringReader(ruleContext);
+			readers.add(br);
+		}
+		return readers;
+	}
+
+	/**
+	 * 装载PackageBuilder
+	 * 
+	 * @param readers
+	 * @return
+	 * @throws Exception
+	 */
+	private PackageBuilder buildPackageBuilder(List&lt;Reader&gt; readers)
+			throws Exception {
+		if (null == readers || 0 == readers.size()) {
+			return null;
+		}
+
+		PackageBuilder backageBuilder = new PackageBuilder();
+		for (Reader r : readers) {
+			backageBuilder.addPackageFromDrl(r);
+		}
+
+		// 检查脚本是否有问题
+		if (backageBuilder.hasErrors()) {
+			throw new Exception(backageBuilder.getErrors().toString());
+		}
+
+		return backageBuilder;
+	}
+
+	/**
+	 * 装载规则文件到Reader中
+	 * 
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	private List&lt;Reader&gt; buildReadersFromDrlFile() throws FileNotFoundException {
+		// 获取脚本文件
+		List&lt;String&gt; drlFilePath = getRuleDrlFile();
+		// 装载脚本文件
+		return readRuleFromDrlFile(drlFilePath);
+	}
+
+	/**
+	 * 从规则文件中读取规则
+	 * 
+	 * @param drlFilePath 脚本文件路径
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	private List&lt;Reader&gt; readRuleFromDrlFile(List&lt;String&gt; drlFilePath)
+			throws FileNotFoundException {
+		if (null == drlFilePath || 0 == drlFilePath.size()) {
+			return null;
+		}
+
+		List&lt;Reader&gt; readers = new ArrayList&lt;Reader&gt;();
+
+		for (String ruleFilePath : drlFilePath) {
+			readers.add(new FileReader(new File(ruleFilePath)));
+		}
+
+		return readers;
+	}
+
+	/**
+	 * 从数据库中获取规则脚本内容
+	 * 
+	 * @return
+	 */
+	private List&lt;DroolsRuleDomain&gt; getRuleFromDB() {
+		// 测试代码
+		List&lt;DroolsRuleDomain&gt; droolsRuleDomains = new ArrayList&lt;DroolsRuleDomain&gt;();
+		
+		DroolsRuleDomain d1 = new DroolsRuleDomain();
+		d1.setId(1);
+		d1.setRuleContext("package com.drools.demo.point" + "/n" + 
+				"import com.drools.demo.point.PointDomain;" + "/n" + 
+				"rule birthdayPoint" + "/n" + 
+				"// 过生日，则加10分，并且将当月交易比数翻倍后再计算积分" + "/n" + 
+				"salience 100" + "/n" + 
+				"lock-on-active true" + "/n" + 
+				"when" + "/n" + 
+				"$pointDomain : PointDomain(birthDay == true)" + "/n" + 
+				"then" + "/n" + 
+				"$pointDomain.setPoint($pointDomain.getPoint()+10);" + "/n" + 
+				"$pointDomain.recordPointLog($pointDomain.getUserName(),/"birthdayPoint/");" + "/n" + 
+				"end");
+		
+		d1.setRuleName("testRule");
+		d1.setVersion(1);
+		
+		droolsRuleDomains.add(d1);
+
+		return droolsRuleDomains;
+	}
+
+	/**
+	 * 获取规则文件
+	 * 
+	 * @return
+	 */
+	private List&lt;String&gt; getRuleDrlFile() {
+		List&lt;String&gt; drlFilePath = new ArrayList&lt;String&gt;();
+		drlFilePath
+				.add("D:/workspace2/DroolsDemo/src/com/drools/demo/point/addpoint.drl");
+		drlFilePath
+				.add("D:/workspace2/DroolsDemo/src/com/drools/demo/point/subpoint.drl");
+
+		return drlFilePath;
+	}
+}
+</textarea> </p>
+<p>其中的getRuleFromDB() 和 getRuleDrlFile() 两个方法即可以重写以接入个人系统，现在其中编写的是测试代码。</p>
+<p>其他的文件与上篇文章相同：</p>
+<p>&nbsp;</p>
+<p>RuleBaseFacatory</p>
+<p><textarea cols="50" rows="15" name="code" class="java:collapse">package com.drools.demo.point;
+
+import org.drools.RuleBase;
+import org.drools.RuleBaseFactory;
+
+/**
+ * RuleBaseFacatory 单实例RuleBase生成工具
+ * @author quzishen
+ */
+public class RuleBaseFacatory {
+	private static RuleBase ruleBase;
+	
+	public static RuleBase getRuleBase(){
+		return null != ruleBase ? ruleBase : RuleBaseFactory.newRuleBase();
+	}
+}
+</textarea> </p>
+<p>DroolsRuleDomain</p>
+<p><textarea cols="50" rows="15" name="code" class="java:collapse">package com.drools.demo.point;
+
+/**
+ * 规则内容domain
+ * 
+ * @author quzishen
+ */
+public class DroolsRuleDomain {
+	/** 数据库记录ID */
+	private long id;
+	/** 规则名称 */
+	private String ruleName;
+	/** 规则正文  */
+	private String ruleContext;
+	/** 规则版本 */
+	private int version;
+	/** 规则脚本状态 */
+	private int status;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getRuleName() {
+		return ruleName;
+	}
+
+	public void setRuleName(String ruleName) {
+		this.ruleName = ruleName;
+	}
+
+	public String getRuleContext() {
+		return ruleContext;
+	}
+
+	public void setRuleContext(String ruleContext) {
+		this.ruleContext = ruleContext;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+}
+</textarea> </p>
+<p>PointDomain</p>
+<p><textarea cols="50" rows="15" name="code" class="java">package com.drools.demo.point;
+
+
+/**
+ * 积分计算对象
+ * @author quzishen
+ */
+public class PointDomain {
+	// 用户名
+	private String userName;
+	// 是否当日生日
+	private boolean birthDay;
+	// 增加积分数目
+	private long point;
+	// 当月购物次数
+	private int buyNums;
+	// 当月退货次数
+	private int backNums;
+	// 当月购物总金额
+	private double buyMoney;
+	// 当月退货总金额
+	private double backMondy;
+	// 当月信用卡还款次数
+	private int billThisMonth;
+	
+	/**
+	 * 记录积分发送流水，防止重复发放
+	 * @param userName 用户名
+	 * @param type 积分发放类型
+	 */
+	public void recordPointLog(String userName, String type){
+		System.out.println("增加对"+userName+"的类型为"+type+"的积分操作记录.");
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public boolean isBirthDay() {
+		return birthDay;
+	}
+
+	public void setBirthDay(boolean birthDay) {
+		this.birthDay = birthDay;
+	}
+
+	public long getPoint() {
+		return point;
+	}
+
+	public void setPoint(long point) {
+		this.point = point;
+	}
+
+	public int getBuyNums() {
+		return buyNums;
+	}
+
+	public void setBuyNums(int buyNums) {
+		this.buyNums = buyNums;
+	}
+
+	public int getBackNums() {
+		return backNums;
+	}
+
+	public void setBackNums(int backNums) {
+		this.backNums = backNums;
+	}
+
+	public double getBuyMoney() {
+		return buyMoney;
+	}
+
+	public void setBuyMoney(double buyMoney) {
+		this.buyMoney = buyMoney;
+	}
+
+	public double getBackMondy() {
+		return backMondy;
+	}
+
+	public void setBackMondy(double backMondy) {
+		this.backMondy = backMondy;
+	}
+
+	public int getBillThisMonth() {
+		return billThisMonth;
+	}
+
+	public void setBillThisMonth(int billThisMonth) {
+		this.billThisMonth = billThisMonth;
+	}
+
+}
+</textarea> </p>
+<p>addpoint.drl</p>
+<p><textarea cols="50" rows="15" name="code" class="java:collapse">package com.drools.demo.point
+
+import com.drools.demo.point.PointDomain;
+
+rule birthdayPoint
+	// 过生日，则加10分，并且将当月交易比数翻倍后再计算积分
+	salience 100
+	lock-on-active true
+	when
+		$pointDomain : PointDomain(birthDay == true)
+	then
+		$pointDomain.setPoint($pointDomain.getPoint()+10);
+		$pointDomain.setBuyNums($pointDomain.getBuyNums()*2);
+		$pointDomain.setBuyMoney($pointDomain.getBuyMoney()*2);
+		$pointDomain.setBillThisMonth($pointDomain.getBillThisMonth()*2);
+		
+		$pointDomain.recordPointLog($pointDomain.getUserName(),"birthdayPoint");
+end
+
+rule billThisMonthPoint
+	// 2011-01-08 - 2011-08-08每月信用卡还款3次以上，每满3笔赠送30分
+	salience 99
+	lock-on-active true
+	date-effective "2011-01-08 23:59:59"
+	date-expires "2011-08-08 23:59:59"
+	when
+		$pointDomain : PointDomain(billThisMonth &gt;= 3)
+	then
+		$pointDomain.setPoint($pointDomain.getPoint()+$pointDomain.getBillThisMonth()/3*30);
+		$pointDomain.recordPointLog($pointDomain.getUserName(),"billThisMonthPoint");
+end
+
+rule buyMoneyPoint
+	// 当月购物总金额100以上，每100元赠送10分
+	salience 98
+	lock-on-active true
+	when
+		$pointDomain : PointDomain(buyMoney &gt;= 100)
+	then
+		$pointDomain.setPoint($pointDomain.getPoint()+ (int)$pointDomain.getBuyMoney()/100 * 10);
+		$pointDomain.recordPointLog($pointDomain.getUserName(),"buyMoneyPoint");
+end
+
+rule buyNumsPoint
+	// 当月购物次数5次以上，每五次赠送50分
+	salience 97
+	lock-on-active true
+	when
+		$pointDomain : PointDomain(buyNums &gt;= 5)
+	then
+		$pointDomain.setPoint($pointDomain.getPoint()+$pointDomain.getBuyNums()/5 * 50);
+		$pointDomain.recordPointLog($pointDomain.getUserName(),"buyNumsPoint");
+end
+
+rule allFitPoint
+	// 特别的，如果全部满足了要求，则额外奖励100分
+	salience 96
+	lock-on-active true
+	when
+		$pointDomain:PointDomain(buyNums &gt;= 5 &amp;&amp; billThisMonth &gt;= 3 &amp;&amp; buyMoney &gt;= 100)
+	then
+		$pointDomain.setPoint($pointDomain.getPoint()+ 100);
+		$pointDomain.recordPointLog($pointDomain.getUserName(),"allFitPoint");
+end</textarea> </p>
+<p>subpoint.drl 与上一篇相同，请参见上一篇，此处省略篇幅略</p>
+<p>测试代码</p>
+<p>Test</p>
+<p><textarea cols="50" rows="15" name="code" class="java:collapse">package com.drools.demo.point;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+
+public class Test {
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	public static void main(String[] args) throws IOException {
+		PointRuleEngine pointRuleEngine = new PointRuleEngineImpl();
+		boolean isStart = false;
+		while(true){
+			InputStream is = System.in;
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			String input = br.readLine();
+			
+			if (null != input &amp;&amp; "s".equals(input)){
+				System.out.println("初始化规则引擎...");
+				pointRuleEngine.initEngine();
+				isStart = true;
+				System.out.println("初始化规则引擎结束.");
+			} else if ("e".equals(input)){
+				if (!isStart) {
+					System.out.println("需要输入s启动");
+				} else {
+					final PointDomain pointDomain = new PointDomain();
+					pointDomain.setUserName("hello kity");
+					pointDomain.setBackMondy(100d);
+					pointDomain.setBuyMoney(500d);
+					pointDomain.setBackNums(1);
+					pointDomain.setBuyNums(5);
+					pointDomain.setBillThisMonth(5);
+					pointDomain.setBirthDay(true);
+					pointDomain.setPoint(0l);
+					
+					pointRuleEngine.executeRuleEngine(pointDomain);
+					
+					System.out.println("执行完毕BillThisMonth："+pointDomain.getBillThisMonth());
+					System.out.println("执行完毕BuyMoney："+pointDomain.getBuyMoney());
+					System.out.println("执行完毕BuyNums："+pointDomain.getBuyNums());
+					
+					System.out.println("执行完毕规则引擎决定发送积分："+pointDomain.getPoint());
+				}
+			} else if ("r".equals(input)){
+				System.out.println("刷新规则文件...");
+				pointRuleEngine.refreshEnginRule();
+				isStart = true;
+				System.out.println("刷新规则文件结束.");
+			} else if ("q".equals(input)) {
+				System.exit(0);
+			}
+		}
+	}
+
+}
+</textarea> </p>   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.13-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" ArticleId="6164768" >
+            <dl id="btnDigg" class="digg digg_enable"  onclick="btndigga();">
+               
+                 <dt>顶</dt>
+                <dd>1</dd>
+            </dl>
+           
+              
+            <dl id="btnBury" class="digg digg_enable"  onclick="btnburya();">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>               
+            </dl>
+            
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);" >&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);" >&nbsp;</a></div>
+    <script type="text/javascript">
+                function btndigga() {
+                    $(".tracking-ad[data-mod='popu_222'] a").click();
+                }
+                function btnburya() {
+                    $(".tracking-ad[data-mod='popu_223'] a").click();
+                }
+            </script>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/quzishen/article/details/6163012';">上一篇</span><a href="/quzishen/article/details/6163012" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">[Drools]JAVA规则引擎 -- Drools</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/quzishen/article/details/6180447';">下一篇</span><a href="/quzishen/article/details/6180447" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">修改JSONObject源码使JSON官方的java扩展支持对汉字进行ascii转义</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article"  style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c"style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('715009','quzishen','foot','6164768');">J2EE<em>（36）</em></span>
+                                </label>
+                                <label class="">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('715533','quzishen','foot','6164768');">基础技术<em>（19）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141"  style="max-height:195px;">
+                        <a href="http://blog.csdn.net" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    <script  type="text/javascript">
+        $(function () {
+            GetCategoryArticles('715009', 'quzishen','foot','6164768');
+        });
+    </script>
+      
+</div>
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/quzishen/svc/GetSuggestContent/6164768",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "6164768",
+                username: "yonka",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = '[Drools]JAVA规则引擎2 -- Drools实例' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+    <div id="ad_cen">        
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '6164768';
+    var commentscount = 14;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/quzishen/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+               
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/quzishen" target="_blank">
+    <img src="http://avatar.csdn.net/E/4/0/1_quzishen.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/quzishen" class="user_name" target="_blank">quzishen</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=quzishen','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>418079次</span></li>
+    <li>积分：<span>4481</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog5.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：4481 </div>
+        </span>  </li>
+    <li>排名：<span>第4975名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>88篇</span></li>
+    <li>转载：<span>5篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>352条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/quzishen/article/category/715012" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">AJAX</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715011" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">CSS/UI</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715013" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ELSE</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715009" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">J2EE</a><span>(37)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715010" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JAVASCRIPT</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715014" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ORACLE/MYSQL</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/734941" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">spring security</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715532" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">事务专题</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/715533" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">基础技术</a><span>(20)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/752702" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">工作&amp;amp;杂谈</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/719474" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">搜索与挖掘</a><span>(11)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/718306" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">设计模式</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/902569" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">python</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/1066532" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HTML5</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/quzishen/article/category/1066533" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PhoneGap</a><span>(1)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/quzishen/article/month/2012/07">2012年07月</a><span>(2)</span></li><li><a href="/quzishen/article/month/2012/04">2012年04月</a><span>(2)</span></li><li><a href="/quzishen/article/month/2012/03">2012年03月</a><span>(2)</span></li><li><a href="/quzishen/article/month/2012/02">2012年02月</a><span>(3)</span></li><li><a href="/quzishen/article/month/2012/01">2012年01月</a><span>(1)</span></li><li><a href="/quzishen/article/month/2011/10">2011年10月</a><span>(5)</span></li><li><a href="/quzishen/article/month/2011/09">2011年09月</a><span>(1)</span></li><li><a href="/quzishen/article/month/2011/07">2011年07月</a><span>(1)</span></li><li><a href="/quzishen/article/month/2011/03">2011年03月</a><span>(1)</span></li><li><a href="/quzishen/article/month/2011/02">2011年02月</a><span>(1)</span></li><li><a href="/quzishen/article/month/2011/01">2011年01月</a><span>(9)</span></li><li><a href="/quzishen/article/month/2010/12">2010年12月</a><span>(6)</span></li><li><a href="/quzishen/article/month/2010/11">2010年11月</a><span>(8)</span></li><li><a href="/quzishen/article/month/2010/10">2010年10月</a><span>(6)</span></li><li><a href="/quzishen/article/month/2010/09">2010年09月</a><span>(6)</span></li><li><a href="/quzishen/article/month/2010/08">2010年08月</a><span>(23)</span></li><li><a href="/quzishen/article/month/2010/07">2010年07月</a><span>(16)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/quzishen/article/details/6163012" title="[Drools]JAVA规则引擎 -- Drools">[Drools]JAVA规则引擎 -- Drools</a><span>(104620)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5834207" title="[CKEditor那点事儿]使用java开发ckeditor的文件上传功能">[CKEditor那点事儿]使用java开发ckeditor的文件上传功能</a><span>(18930)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6164768" title="[Drools]JAVA规则引擎2 -- Drools实例">[Drools]JAVA规则引擎2 -- Drools实例</a><span>(13338)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6044615" title="freemarker调用java静态方法以及枚举">freemarker调用java静态方法以及枚举</a><span>(12900)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6862484" title="用Python开发自动化测试脚本">用Python开发自动化测试脚本</a><span>(11636)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6128781" title="[jms那点事儿] JMS ( java message service )入门 + activemq消息持久化">[jms那点事儿] JMS ( java message service )入门 + activemq消息持久化</a><span>(11462)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/7319703" title="[html5]离线存储">[html5]离线存储</a><span>(10276)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6027881" title="Apache+Tomcat集群部署下的session共享解决">Apache+Tomcat集群部署下的session共享解决</a><span>(9453)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6131222" title="[jms那点事儿] JMS 消息传送模式、消息签收以及spring jmsTemplate配置">[jms那点事儿] JMS 消息传送模式、消息签收以及spring jmsTemplate配置</a><span>(9334)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5768466" title="[框架那点事儿-快速开发季]编写自己的数据持久层（1）">[框架那点事儿-快速开发季]编写自己的数据持久层（1）</a><span>(9334)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/quzishen/article/details/5783651" title=" [框架那点事儿-快速开发季]编写自己的数据持久层（7）总结篇"> [框架那点事儿-快速开发季]编写自己的数据持久层（7）总结篇</a><span>(141)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5768466" title="[框架那点事儿-快速开发季]编写自己的数据持久层（1）">[框架那点事儿-快速开发季]编写自己的数据持久层（1）</a><span>(40)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6163012" title="[Drools]JAVA规则引擎 -- Drools">[Drools]JAVA规则引擎 -- Drools</a><span>(31)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5834207" title="[CKEditor那点事儿]使用java开发ckeditor的文件上传功能">[CKEditor那点事儿]使用java开发ckeditor的文件上传功能</a><span>(29)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6128781" title="[jms那点事儿] JMS ( java message service )入门 + activemq消息持久化">[jms那点事儿] JMS ( java message service )入门 + activemq消息持久化</a><span>(20)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/6164768" title="[Drools]JAVA规则引擎2 -- Drools实例">[Drools]JAVA规则引擎2 -- Drools实例</a><span>(14)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5834987" title="[CKEditor那点事儿]使用java开发ckeditor的浏览服务器文件功能">[CKEditor那点事儿]使用java开发ckeditor的浏览服务器文件功能</a><span>(12)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5787420" title="[HeadFirst]观察者模式 - 老王跳灰机的故事">[HeadFirst]观察者模式 - 老王跳灰机的故事</a><span>(8)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5775004" title="[框架那点事儿-快速开发季]编写自己的数据持久层（5）更新/批量更新/批量插入">[框架那点事儿-快速开发季]编写自己的数据持久层（5）更新/批量更新/批量插入</a><span>(5)</span>
+</li>
+<li>
+<a href="/quzishen/article/details/5794491" title="[lucene]使用lucene建立网站搜索服务">[lucene]使用lucene建立网站搜索服务</a><span>(4)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/yyh352091626/article/details/53304728" target="_blank">* RxJava详解，由浅入深</a></li>
+<li><a href="http://blog.csdn.net/foruok/article/details/53063089" 
+target="_blank">* 倍升工作效率的小策略</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/53099390" 
+target="_blank">* Android热修复框架AndFix原理解析及使用</a></li>
+<li><a href="http://blog.csdn.net/xiangzhihong8/article/details/53312278" target="_blank">* “区块链”究竟是什么鬼</a></li>
+<li><a href="http://blog.csdn.net/yinwenjie/article/details/53033017" 
+target="_blank">* 架构设计：系统存储-MySQL主从方案业务连接透明化（中）</a></li>
+
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/quzishen/article/details/6163012#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/mengxianxinyu" class="user_name">mengxianxinyu</a>:
+很不错，谢谢楼主
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/6164768#comments">[Drools]JAVA规则引擎2 -- Drools实例</a>
+    <p style="margin:0px;"><a href="/oBEYOND12345678" class="user_name">oBEYOND12345678</a>:
+你好，请教一下，刷新规则的时候是刷新整个规则库，能否刷新指定包的规则
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/6164768#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/oBEYOND12345678" class="user_name">oBEYOND12345678</a>:
+比如规则我不一定是存储在本地文件，有可能是存储在数据库那我可以对指定的规则刷新
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/6164768#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/oBEYOND12345678" class="user_name">oBEYOND12345678</a>:
+请问一下，刷新规则的时候能否对指定的规则文件进行刷新，我看这个好像是对所有的规则进行刷新
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/6131222#comments">[jms那点事儿] JMS 消息传送模式、消息签收以及spring jmsTemplate配置</a>
+    <p style="margin:0px;"><a href="/a405828" class="user_name">a405828</a>:
+如果ActiveMQ服务器没有启动，这个时候消息生产者使用JmsTemplate 向ActiveMQ...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/6131222#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/seamon0627" class="user_name">seamon0627</a>:
+请问一定要依赖这个jar包吗，我用mac下intellj idea的情况呢？
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/5803721#comments">[拦截器]关于拦截方法调用其他内部方法无法被拦截问题的解决</a>
+    <p style="margin:0px;"><a href="/Anpbszzz" class="user_name">Anpbszzz</a>:
+唉,aop的这个问题还真是烦人, 常常会干扰设计.
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/5803721#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/xuyuji" class="user_name">xuyuji</a>:
+缺java方言的去自己的eclipse下的plugins里面找一个org.eclipse.jdt_*...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/5803721#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/shuolif" class="user_name">shuolif</a>:
+谁有包包么 发我可以么
+    </p>
+    </li>
+    <li>
+   
+         <a href="/quzishen/article/details/5803721#comments">[Drools]JAVA规则引擎 -- Drools</a>
+    <p style="margin:0px;"><a href="/LiangZiBoy" class="user_name">LiangZiBoy</a>:
+楼主，我转载了你的文章哦~
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 --> 
+                    <ins data-revive-zoneid="190" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+                    <!-- 广告位结束 -->
+
+           </div>   
+
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=892284"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+    <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_code.css" />
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/saveToCode.js"></script>
+      <script type="text/javascript" src="//csdnimg.cn/rabbit/tracking-ad/main.js?75eacd8"></script>
+</body>
+</html>   
+ 

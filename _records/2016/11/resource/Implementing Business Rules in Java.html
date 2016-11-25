@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0087)http://www2.sys-con.com/itsg/virtualcd/java/archives/0505/mcclintock_berlioz/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="Author" content="Stephen E. Kilmurray">
+<meta name="GENERATOR" content="Mozilla/4.5 [en] (WinNT; I) [Netscape]">
+<title>Implementing Business Rules in Java</title>
+<script type="text/javascript" async="" src="./Implementing Business Rules in Java_files/ga.js.&#19979;&#36733;"></script><script async="" src="./Implementing Business Rules in Java_files/cloudflare.min.js.&#19979;&#36733;"></script><script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:1479066461,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"2659ffa0aa8f9a37bfa308075a1c8873",petok:"fa6ce16a77446eb59adb1bcfe438f176851b1c5a-1480058867-1800",zone:"sys-con.com",rocket:"0",apps:{"ga_key":{"ua":"UA-29758464-1","ga_bs":"1"}}}];!function(a,b){a=document.createElement("script"),b=document.getElementsByTagName("script")[0],a.async=!0,a.src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=088620b277/cloudflare.min.js",b.parentNode.insertBefore(a,b)}()}}catch(e){};
+//]]>
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-29758464-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+/* ]]> */
+</script>
+<style type="text/css">.cf-hidden { display: none; } .cf-invisible { visibility: hidden; }</style></head>
+<body bgcolor="#ffffff" link="#990000" vlink="#990000" alink="#990000" mycollectionplug="bind">
+<table cellspacing="0" cellpadding="0" width="600" border="0">
+<tbody><tr height="1">
+<td valign="top" rowspan="2">
+<img border="0" src="./Implementing Business Rules in Java_files/top.jpg" usemap="#javacdtop" width="591" height="120"><map name="javacdtop"><area shape="RECT" coords="149,80,209,103" href="http://www2.sys-con.com/itsg/virtualcd/java/indexcat.html" alt="Home"><area shape="RECT" coords="382,81,437,102" href="http://www.sys-con.com/magazine/archives.cfm?id=1" alt="Digital Edition"><area shape="RECT" coords="467,81,573,103" href="http://www.sys-con.com/story/category.cfm?id=393" alt="Sys-Con Radio"><area shape="RECT" coords="240,80,341,103" href="http://www2.sys-con.com/itsg/virtualcd/java/search.htm" alt="Search Java Cd"></map></td></tr></tbody></table><table cellspacing="0" cellpadding="0" width="600" border="0"><tbody><tr><td valign="top" bgcolor="#62659C"><img src="./Implementing Business Rules in Java_files/side.jpg" usemap="#javacdside" width="125" height="611" border="0">
+<map name="javacdside">
+<area shape="RECT" coords="3,4,79,16" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/advanced.html" alt="Advanced Java">
+<area shape="RECT" coords="3,19,37,31" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/awt.html" alt="AWT">
+<area shape="RECT" coords="3,37,108,49" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/breview.html" alt="Book Reviews/Excerpts">
+<area shape="RECT" coords="3,54,67,66" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/clientserver.html" alt="Client Server">
+<area shape="RECT" coords="3,71,49,82" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/corba.html" alt="Corba">
+<area shape="RECT" coords="3,88,71,99" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/editorial.html" alt="Editorials">
+<area shape="RECT" coords="3,105,81,116" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/emjava.html" alt="Embedded Java">
+<area shape="RECT" coords="3,122,79,135" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/entjava.html" alt="Enterprise Java">
+<area shape="RECT" coords="3,140,36,150" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/ides.html" alt="IDE&#39;s">
+<area shape="RECT" coords="3,156,76,169" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/indwatch.html" alt="Industry Watch">
+<area shape="RECT" coords="3,173,61,185" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/integ.html" alt="Integration">
+<area shape="RECT" coords="3,190,58,202" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/interviews.html" alt="Interviews">
+<area shape="RECT" coords="3,207,66,220" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/japplet.html" alt="Java Applet">
+<area shape="RECT" coords="3,225,93,236" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jdatabase.html" alt="Java &amp; Databases">
+<area shape="RECT" coords="3,241,105,252" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/javaws.html" alt="Java &amp; Web Services">
+<area shape="RECT" coords="3,258,92,270" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/javafund.html" alt="Java Fundamentals">
+<area shape="RECT" coords="3,275,97,288" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jnative.html" alt="Java Native Interface">
+<area shape="RECT" coords="3,293,68,304" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jservlets.html" alt="Java Servlets">
+<area shape="RECT" coords="3,310,60,321" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jbeans.html" alt="Java Beans">
+<area shape="RECT" coords="3,327,40,338" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/j2me.html" alt="J2ME">
+<area shape="RECT" coords="3,342,52,354" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/libraries.html" alt="Libraries">
+<area shape="RECT" coords="3,360,36,372" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/.net.html" alt=".NET">
+<area shape="RECT" coords="3,378,87,390" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/object.html" alt="Object Orientation">
+<area shape="RECT" coords="3,395,96,406" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/imho.html" alt="Observations/IMHO">
+<area shape="RECT" coords="3,411,80,422" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/reviews.html" alt="Product Reviews">
+<area shape="RECT" coords="3,429,123,440" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/scal.html" alt="Scalability &amp; Performance">
+<area shape="RECT" coords="3,446,49,457" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/security.html" alt="Security">
+<area shape="RECT" coords="3,463,62,472" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/serverside.html" alt="Server Side">
+<area shape="RECT" coords="3,479,68,491" href="http://www2.sys-con.com/itsg/virtualcd/java/source/index.html" alt="Source Code">
+<area shape="RECT" coords="3,497,78,507" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/straight.html" alt="Straight Talking">
+<area shape="RECT" coords="3,513,41,526" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/swing.html" alt="Swing">
+<area shape="RECT" coords="3,529,49,541" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/threads.html" alt="Threads">
+<area shape="RECT" coords="3,547,106,559" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/ujava.html" alt="Using Java with others">
+<area shape="RECT" coords="3,564,52,576" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/wireless.html" alt="Wireless">
+<area shape="RECT" coords="3,581,33,593" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/xml.html" alt="XML">
+</map>
+</td>
+<td valign="top" width="475">
+<table width="535" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr>
+<td width="10%"> &nbsp; </td>
+<td width="85%" valign="top">
+<br>
+ 
+<font face="Arial,Helvetica,Verdana,sans-serif" size="-1">
+<p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/title.gif">
+</div>
+<p>
+<i>Twenty years after it first made waves, rule-based technology is making a comeback. Java developers with an eye on the e-commerce market are becoming aware of how integrating business rules and objects in Java can help expand Java into new niches within Web-based applications. This article discusses how rules fit with Java, the types of rule engines available and how a rule engine is used to execute rules for integration into a Java applet or application. </i>
+</p><p>Business rules are the fundamental policies and procedures that define or constrain a business, guiding how it functions. In modern businesses thousands of these policies and procedures are often embedded in application code, with "rule engines" ­ intelligent software components ­ frequently used as the fastest and most effective method to evaluate and execute business rules. Relying on rule engines is usually preferable to embedding rules in application logic, which makes changing and maintaining rules difficult and costly. Developers are increasingly using them, especially to reduce development and maintenance time, increase application performance, and improve application adaptability and flexibility.
+</p><p>In many ways Java is an ideal language for business rules because platform-independent, robust, maintainable, object-oriented Java applications more accurately reflect the structure of a business. Even though the Java language doesn't currently support rules, new tools ­ including freeware ­ are helping to overcome Java's limitations in making changes or updates. For developers, being aware of rule engines and the available tools for Java is highly applicable to the burgeoning e-commerce market. Having an approach for integrating business rules and objects in the Java language can be a boon to expanding Java into new niches within Web-based applications ­ particularly for fast-growing applications like online lending and investment management, and for the many Web personalization solutions ideally suited to business rules and rule engines.
+</p><p> In this article we'll also address design/implementation strategies for business rules and the changing requirements driven by the Web and by e-commerce that mean nonprogrammers must have access to the technology. It's important to note that there are other rule-based software systems, but this article will discuss only Java implementations
+</p><p>
+<b>Rule-Based Systems: A Brief History</b>
+<br> Rules are declarative statements that drive activity in a software application by describing the action or actions to take when a specified set of conditions is met. Rules consist of a left side ­ an "IF/WHEN" condition statement ­ and a right side ­ a "THEN" action statement.
+</p><p>The earliest rules technologies had their roots in artificial intelligence (AI) methodologies. MYCIN (written in LISP), developed at Stanford University in the 1970s, was the first system to use rule-based knowledge representation. Used to diagnose blood diseases and recommend treatments, MYCIN's core concept was the separation of knowledge and control. Knowledge, represented in rules, was separated from the control logic responsible for evaluating and executing the rules.
+</p><p>Rule-based programming reached a pinnacle in the 1980s during the AI boom. At this time many vendors marketed, and many organizations purchased, commercial rule engines. However, the combination of poor performance, an inability to integrate the technology into mainstream computer architectures and the realization that rule-based declarative programming was not the panacea it was purported to be left many organizations disenchanted with the technology.
+</p><p>Although the hype surrounding rule-based programming and expert systems died in the late '80s, the technology continued to be used effectively and quietly for certain types of applications. The current trend toward developing business rule applications is once again leading many mainstream organizations to evaluate the use of rule-based technology more than 20 years after its introduction.
+</p><p>Among the first users of the rules technology was the telecommunications industry, particularly for network management. System and network management applications are typically developed using rules. The following are examples of rules in a telecom network management application:
+</p><ul>
+<li> <b><i>Related alarms:</i></b> When a switch raises an equipment failure alarm, ignore all communication failure alarms on the associated port.
+</li><li> <b><i>Maintenance activity scheduled:</i></b> When maintenance activity has been scheduled on a network element, ignore all alarms raised on this piece of hardware between the maintenance start and end time.
+</li><li> <b><i>Critical alarms on sensitive devices:</i></b> When more than 15 alarms are detected on a network element, notify the network operator by pager. When more than five alarms are detected on a switch, notify the network operator by pager.
+</li></ul>
+<p>
+The class diagram associated with these rules is shown in Figure 1. If you were to develop an application to implement these rules, how would you do it? Chances are you'd code them into the methods of one or more objects. Listing 1 contains the Java code to implement these rules using a correlateAlarm() method on the Network class. The Network generates the alarms and events, which queue and are processed by the AlarmCorrelator class. The AlarmCorrelator class executes the correlateAlarm() method each time an alarm is processed.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/fig1.gif" width="425" height="234" border="0" alt="Figure 1">
+<br><b>Figure&nbsp;1:</b>
+</div>
+<p>
+The "correlate Alarm" method contains complex logic that becomes difficult to maintain as the number of rules increases. Typically, hundreds of such rules are implemented in a network management application. The processing time to handle the generated alarms becomes significant since all tests must be evaluated each time an alarm is received. To reduce processing time, rules are often combined into the same "IF" or "SWITCH" statement. This further obscures the code since the one-to-one relationship between the rule specification and the implementation is lost.
+</p><p>This type of application is difficult to develop and maintain using Java or any other procedural programming language. Java objects consist of methods for executing procedures and data members to hold the inputs and outputs of these procedures. They lack a mechanism for capturing rules that determine when and how procedures should be executed.
+</p><p><b>Enter Rule Engines</b>
+<br>A rule engine is a software component designed to evaluate and execute rules. Since it implements all of the logic necessary to perform rule evaluation and execution, the rules can be coded as stand-alone atomic units, separate from and independent of the rest of the application logic. This makes them easier to develop and maintain. Rule engines have a proprietary rule language for writing rules. To implement an application using a rule engine, you write the rules in the rule language and embed the rule engine into your application. The rule engine integrates with the application through an API that controls the loading of rules into the rule engine, the monitoring of application objects referenced by rules and the execution of rules.
+</p><p>
+As shown in Figure 2, the rule engine as a software component is an object with attributes and methods. An application consists of the application objects and the rule engine object. The rules are loaded into the rule engine by invoking a method on the rule engine object and passing the rules ­ in a file, stream, XML representation or some other form ­ to the rule engine. To evaluate the rules, the rule engine must have visibility to the application objects referenced by rules. To provide this type of visibility, the object data members and methods referenced by rules are usually specified as public. Through a process called asserting, the rule engine's assert method introduces the objects referenced by the rules. Once the objects have been asserted to the rule engine, the rule engine maintains a set of references to the objects. The rule engine's fire rules method is then invoked to cause the rule engine to evaluate all of the loaded rules. Following evaluation, when the conditions of rules are met, the rules are executed or fired, causing their action statements to execute. The action statements of rules can modify the objects referenced by the rule engine, thereby causing more rules to become eligible to fire. The process continues until no more rules are eligible to fire, at which point control returns to the application statement following the invocation of the fire rules method.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/fig2.gif" width="400" height="292" border="0" alt="Figure 2">
+<br><b>Figure&nbsp;2:</b>
+</div>
+<p> Let's go back to the network management example. The network management rules would be implemented using a rule engine by coding the rules shown in Listing 2. These rules are shown using the Java-like syntax of JRules, a rule engine from ILOG Inc. Notice that the syntax of the rule language is declarative and has a one-to-one correspondence with the English-like rule specifications. The rule engine would be integrated into the application as an object and the rules would be loaded, objects asserted and rules fired as described previously.
+</p><p>The rule engine implementation results in a flexible and maintainable application design since the rules are separated from the application logic and can be maintained in a single place. The rule engine implementation is straightforward, with the evaluation of rules automatically performed by the rule engine, eliminating the need for the complex conditional logic required in the application to monitor the network objects. The use of a rule engine improves application performance since the rule engine implements an efficient pattern-matching algorithm to optimize rule evaluation. In this algorithm, known as the RETE algorithm, rules are compiled into a discrimination network that enables conditions shared by multiple rules to be evaluated just once. This enables the processing of thousands of network alarms per second.
+</p><p>
+Table 1 lists several commercial and shareware rule engines that integrate with the Java language. The rule languages implemented by the rule engines and their mechanisms of integration differ slightly.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/tbl1.gif" width="460" height="187" border="0" alt="Table 1">
+</div>
+<p>
+Rule engines have been used for event-driven applications such as system and network management and workflow for some time. As we mentioned before, these applications benefit from the RETE pattern-matching algorithm implemented by the rule engine to efficiently evaluate rules against the set of referenced objects. However, rule engines are rapidly gaining acceptance as the preferred approach for implementing a new class of applications known as business rule applications.
+</p><p>
+<b>Business Rules</b>
+<br>
+The term <i>business rule</i> has been used to define business policies and procedures that describe or constrain the way an organization conducts business. Organizations have thousands of such business rules that define and direct how they manufacture, sell, buy and otherwise transact business. Business rules are everywhere ­ in your corporate charter, your marketing strategies, pricing policies, product and service offerings, and customer relationship management practices as well as in the legal documents that regulate your business and industry.
+</p><p>
+Business rules can be differentiated from the executable rules coded in the rule language of the rule engine since they directly represent business policy. Other types of rules, such as rules to perform data manipulation or control application-processing flow, can be coded in the rule engine. Furthermore, business rules don't require a rule engine for implementation. They can be implemented in computer systems using a variety of different approaches: for example, they can be implemented in middle-tier application servers in the methods of objects or in database stored procedures. In fact, business rules are implemented throughout computer systems.
+</p><p>
+To express and model business rules, it's desirable to use an English-like, implementation-independent representation. Such a representation allows nontechnical business people, those responsible for defining and maintaining the business rules, to understand and use them. Minimally, an English-like representation for business rules can help in creating better requirements specifications. However, some applications require that the business rules be represented and externalized in a way that permits business people to create and modify them at execution time. In other words, the application should allow the business rules to be added and changed dynamically by nontechnical users.
+</p><p>
+For the purposes of this article, we'll refer to applications with these requirements as "business rule applications." This could be clarified further as follows: in order to be considered a business rule application, the application must allow business people to define business rules using an English-like representation. Thus a claims-processing application that allows the user to modify the business rules specifying the handling of auto insurance claims and a portfolio management application that allows the user to create guidelines for buying and selling investments are both business rule applications.
+</p><p><b>Implementing Business Rules</b>
+<br> One method of allowing business rules to be managed by business people at execution time is to create a set of parameter tables that can be stored in databases and edited via a GUI. This method is often used for applications implementing product pricing and bundling. The flexibility gained by this method is very restricted in scope, and when business policy changes fall outside the original application boundaries, substantial programming changes to the application's front end and back end are required.
+</p><p>As stated, a more adaptable approach is to implement the business rules using a rule engine. Since the rule languages offered by the commercial and shareware rule engines are extensive and powerful, this approach provides a more flexible architecture that is unlikely to require change when the scope of the business rules change. Some of the rule engines have an English-like, readable rule language and a rule editor that can be embedded in the application's GUI to provide runtime access to business rules. However, this approach is feasible only for technically savvy business people because the rule languages provided by rule engines are complex and extensive whether they have an English-like or a codelike representation. When users modify business rules, it's difficult for them to determine whether the rule will execute as expected. Using the full syntax of a rule language, users can create a rule that will cause the application to loop endlessly or crash.
+</p><p>To avoid these problems, the application must be designed to restrict the syntax and features of the rule language to a safe subset of the rule language provided by the rule engine. The restricted rule language, known as the business rule language, is usually specific to the application's business domain and uses business terminology particular to that domain. Developing a custom rule editor GUI to guide the user through the specification of rules using the business rule syntax normally provides the capability to define and modify business rules. Two types of rule editors are commonly created for business rule applications. In the first, the business rules are represented as predefined templates that allow the user to specify only the parameters of the business rule. Also used are more sophisticated rule editors that allow the user to define a rule using a business rule syntax and step the user through the rule creation process based on previous choices.
+</p><p>Using either approach, business rules created through the custom business rule editor can then be represented in objects or stored in a parsed format, a text string or XML representation. Executable business rules in the language of the rule engine are then generated from this intermediate representation.
+</p><p>For example, in a customer resource management (CRM), the business user from the marketing department may define a special new promotion for a certain group of customers. The business user creates the rule in an English-like representation using the business rule editor. An executable business rule, in the language of the rule engine, is generated from the business rule language and introduced to the rule engine. The rule engine executes in a CRM Web server-based application, as illustrated in Figure 3.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/fig3.gif" width="400" height="254" border="0" alt="Figure 3">
+<br><b>Figure&nbsp;3:</b>
+</div>
+<p>This approach, although challenging to implement, results in a powerful and flexible application in which the business rules can be changed dynamically while the application executes to immediately implement new sales policies or pricing strategies or to respond to changing regulations imposed by government or regulatory agencies.
+</p><p><b>Applications Requiring Business Rules</b>
+<br>In today's highly competitive business environment, it's becoming increasingly necessary to externalize business rules and put them in the hands of business people. Organizations can no longer afford to wait for IT to implement changes in business policy. To gain and maintain a competitive advantage, companies must be able to immediately respond to the requirements of their customers and partners and to the initiatives and actions of their competitors.
+</p><p>Business rule applications exist in virtually every business domain. Let's look at a selection of typical business rule applications in the areas of e-commerce personalization, loan underwriting and customer relationship management.
+</p><p>
+<b><i>E-Commerce Personalization</i></b>
+<br>As more companies extend their sales and marketing functions from traditional channels to the Web, the capability of personalizing each customer's experience becomes essential in order to attract, satisfy and retain customers. With the Web comes the ability to apply the concepts of one-to-one marketing and to replace the old "one size fits all" approach with individually tailored offers.
+</p><p>Rule-based personalization uses specific information about individual Web site visitors to precisely tailor the content displayed. By capturing the needs, interests, preferences and motivations of the individuals that visit a Web site, and applying business rules against that information, visitors can be provided with information and recommendations that will be relevant to them. Web merchants can make visitors aware of interesting promotions, offer them discounts based on their purchasing history and take advantage of opportunities to cross-sell and upsell without offending them. Here are some typical rules:
+</p><ul>
+<li> If Shopping Cart contains more than $100 worth of CDs, give $5 off the next purchase.
+</li><li> If Customer purchased a Pilot III last week, show all Pilot accessories.
+</li><li> If Customer traveled to Europe within the last year, send notification of European travel promotions.
+</li></ul>
+Some larger merchants are developing their own personalization solutions using business rules. By externalizing the business rules, they create a more flexible solution that can be changed by their marketing personnel, enabling them to immediately implement new promotions or offer new products. Vendors such as BEA and IBM are offering flexible personalization solutions that allow the merchant to define and modify these types of rules in their respective WebLogic Commerce Server and WebSphere Commerce Suite. Using these personalization solutions, merchants can create Web sites that intelligently interact with customers.
+<p><b><i>Mortgage Loan Underwriting</i></b>
+<br>Lenders have been developing rule-based underwriting applications for the last decade. In these systems, rules are used to simulate the decision-making process of a human underwriter. As competitive pressures have increased in the mortgage industry, lenders have developed more loan products to offer flexible alternatives to homebuyers. At the same time, the credit policy organizations within lending institutions are defining new rules to ensure that risk is managed at an acceptable level for these new loan products. Additionally, lenders must frequently comply with regulations imposed by the federal government and the policies of the secondary mortgage institutions.
+</p><p>To implement and maintain the large number of rules required in these underwriting applications, many lenders are developing business rule applications that allow the marketing department to define new loan products and credit policy to define new risk management rules. For example:
+</p><ul>
+<li> If borrower is a first-time homebuyer, offer the no-down-payment option.
+</li><li> If the lien type is a second mortgage, the borrower's occupancy status must be principal residence.
+</li><li> If the transaction is a cash-out refinance, the loan-to-value ratio must be less than or equal to 85%.
+</li></ul>
+<p><b><i>Telecom Customer Care and Billing</i></b>
+<br>Competition and deregulation have combined to make the customer all-important to the telecom industry. In order to excel, service providers must continually offer the customer new services at competitive prices. Moreover, they must be able to react immediately to market changes from competition, customer demand or technological advances. These market pressures force the companies to constantly search for new ways to stimulate business through service packages and pricing schemes, and to run aggressive sales campaigns with attractive promotions and discounts.
+</p><p>
+The most innovative applications for customer care and billing are business rule applications because they offer time-saving, cost-effective ways to impart outstanding flexibility and customization for managing ever-changing rates and promotions. Business rules help companies secure customer loyalty by allowing them to target individual needs.
+</p><p>The long distance market is extremely competitive. To attract and keep customers, companies are offering special rates and discounts. For example:
+</p><ul>
+<li> If destination is a preferred number, give a 50% discount on call.
+</li><li> If customer is a member of nickel nights plan and call time is after 5 p.m., billing rate is $0.05 per minute.
+</li></ul>
+To be effective, these promotions must be incorporated into the billing system. Externalizing the business rules in the billing system and allowing the marketing department to define and modify them provides this flexibility.
+<p><b>Summary</b>
+<br>Implementing business rules using a rule engine is an increasingly popular approach due to their ability to create a flexible, adaptable, high-performance application. In this article we discussed rules and rule engines and how to integrate the rule engine into a Java application. We also examined how business rules applications are developed using a rule engine. In the second installment of this series we'll examine in more depth the implemention of business rules using Java rule engines.
+</p><p><b>Author Bios</b>
+<br>Colleen McClintock, product manager for JRules at ILOG, Inc., has more than 15 years of industry experience specializing in the planning, design and implementation of rule-based systems and the integration of rules and objects.
+<br><a href="mailto:cmcclintock@ilog.com">cmcclintock@ilog.com</a>
+</p><p>Carole Ann Berlioz, a field sales engineer for the Telecommunications Business Unit at ILOG, Inc., has over five years of international experience in design, recommendation and development of data visualization, intelligent agents and integrated architecture components using OO technologies.
+<br><a href="mailto:cberlioz@ilog.com">cberlioz@ilog.com</a>
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java_files/SourceCode.jpg" width="340" height="80" border="0" hspace="6">
+</div>
+<pre>	
+<font face="Arial,Helvetica,Verdana,sans-serif" size="2">
+<b>Listing 1 </b>
+ 
+public void correlateAlarm ( Alarm alarm ) 
+{ 
+//Related Alarms 
+//When a switch raises an equipment failure alarm ignore all 
+//communication failure alarms on the associated port. 
+if ((alarm.type == Alarm.Type.CommunicationFailure) 
+&amp;&amp; (alarm.managedObject.type == 
+NetworkElement.Type.Port)) 
+{ 
+// search for Equip failure on Switch 
+AlarmList alarms = GetHistoryAlarmList(); 
+for (Alarm a = alarms.firstElement(); 
+alarms.hasMoreElements(); a = alarms.nextElement()) 
+if ((a.type == Alarm.Type.EquipmentFailure) 
+&amp;&amp; (alarm.managedObject.type == NetworkEle- 
+ment.Type.Switch) 
+&amp;&amp; (a.managedObject.node == alarm.managedObject)) { 
+alarm.terminate( 
+"Terminated Communication Failure on Port 
+due to Equipment Failure on the Switch " + 
+alarm.managedObject.id); 
+return; 
+} 
+} 
+//Maintenance Activity Scheduled 
+//When maintenance activity has been scheduled on a net- 
+//work element ignore all alarms raised on this piece 
+//of hardware between the maintenance start and end time. 
+MaintenanceActivityList activities = GetMaintenanceActiv- 
+ityList(alarm.managedObject); 
+for (MaintenanceActivity maintenance = 
+activities.firstElement(); 
+activities.hasMoreElements(); maintenance = activi- 
+ties.nextElement()) 
+if ((alarm.time &gt; = maintenance.startTime) 
+&amp;&amp; (alarm.time &lt;= maintenance.endTime) { 
+alarm.terminate("Terminated due to a maintenance 
+activity on " 
++ alarm.managedObject.id); 
+return; 
+} 
+// Critical Alarms on Sensitive Devices 
+// When more than 15 alarms are detected on a Network Element, 
+// notify the Network Operator by Pager. 
+// When more than 5 alarms are detected on a Switch, 
+// notify the Network Operator by Pager. 
+AlarmList alarms = GetHistoryAlarmList(); 
+int count = 0; 
+int countOnSwitch = 0; 
+for (Alarm a = alarms.firstElement(); 
+alarms.hasMoreElements(); a = alarms.nextElement()) { 
+if (alarm.managedObject == a.managedObject) { 
+count++; 
+if (alarm.managedObject.type == 
+NetworkElement.Type.Switch) 
+countOnSwitch++; 
+} 
+} 
+if (count &gt; 15) 
+network.pageOperator("More than 15 alarms on the NE " + 
+alarm.managedObject.id); 
+else if (countOnSwitch &gt; 5) 
+network.pageOperator("More than 5 alarms on the Switch " + alarm.managedObject.id); 
+} // public void correlateAlarm 
+ 
+<b>Listing 2 </b>
+ 
+//Related Alarms 
+//When a switch raises an equipment failure alarm ignore all 
+//communication failure alarms on the associated port. 
+rule Port_CommunicationFailure_due_to_Switch_EquipmentFailure 
+{ 
+priority = maximum; 
+when 
+{ 
+?alarm: Alarm(type == Alarm.Type.EquipmentFailure); 
+?switch: Switch() from ?alarm.managedObject; 
+?comm: Alarm(type == Alarm.Type.CommunicationFailure); 
+Port(node == ?switch) from ?comm.managedObject; 
+} 
+then 
+{ 
+modify ?comm 
+{ 
+terminate("Terminated Communication Failure on Port due 
+to Equipment Failure on a Switch"); 
+} 
+} 
+}; 
+//Maintenance Activity Scheduled 
+//When maintenance activity has been scheduled on a network 
+//element ignore all alarms raised on this piece of hardware 
+//between the maintenance start and end time. 
+rule Terminate_Alarms_During_Maintenance 
+{ 
+priority = high; 
+when 
+{ 
+?maintenance: MaintenanceActivity(); 
+?alarm: Alarm(managedObject == ?maintenance.managedObject ; 
+time &gt;= ?maintenance.startTime ; time &lt; = ?maintenance.endTime); 
+} 
+then 
+{ 
+modify ?alarm 
+{ 
+terminate("Terminated due to a maintenance window on " + ?maintenance.managedObject.id); 
+} 
+} 
+}; 
+// Critical Alarms on Sensitive Devices 
+// When more than 15 alarms are detected on a Network Element, 
+// notify the Network Operator by Pager. 
+// When more than 5 alarms are detected on a Switch, 
+// notify the Network Operator by Pager. 
+rule Page_Operator_When_Critical_Alarm_On_Network_Element 
+{ 
+when 
+{ 
+?n: Network(); 
+?networkElement: NetworkElement(); 
+collect Alarm(managedObject == ?networkElement) 
+where (size() &gt;15); 
+} 
+then 
+{ 
+?n.pageOperator("More that 15 alarms on the NE " + ?net 
+workElement.id); 
+} 
+}; 
+rule Page_Operator_When_Critical_Alarm_On_Switch 
+{ 
+when 
+{ 
+?n: Network(); 
+?switch: Switch(); 
+collect Alarm(managedObject == ?switch) 
+where (size() &gt; 5); 
+} 
+then 
+{ 
+?n.pageOperator("More that 5 alarms on the Switch" + ?switch.id); 
+} 
+}; 
+
+</font>
+</pre>
+</font></td>
+<td width="5%"> &nbsp; </td>
+</tr>
+</tbody></table>
+ 
+
+ 
+<p>
+</p><div align="center">
+<font face="Arial,Helvetica" size="-1">
+<font color="#999999">
+All Rights Reserved
+<br>
+Copyright ©&nbsp; 2004 SYS-CON Media, Inc.
+<br>
+</font>
+&nbsp; E-mail: <a href="mailto:info@sys-con.com">info@sys-con.com</a>
+</font>
+</div>
+<p>
+</p><div align="center">
+<font face="Arial,Helvetica" size="-2">
+Java and Java-based marks are trademarks or registered trademarks of Sun Microsystems, Inc. in the United States and other countries. SYS-CON Publications, Inc. is independent of Sun Microsystems, Inc.
+</font>
+</div>
+ 
+</td>
+</tr>
+</tbody></table>
+<script type="text/javascript">/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script>
+
+</body></html>

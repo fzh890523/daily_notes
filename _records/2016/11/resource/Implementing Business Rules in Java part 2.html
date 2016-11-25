@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0086)http://www2.sys-con.com/itsg/virtualcd/java/archives/0507/mcclintockroberts/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="Author" content="Stephen E. Kilmurray">
+<meta name="GENERATOR" content="Mozilla/4.5 [en] (WinNT; I) [Netscape]">
+<title>Implementing Business Rules in Java</title>
+<script type="text/javascript" async="" src="./Implementing Business Rules in Java part 2_files/ga.js.&#19979;&#36733;"></script><script async="" src="./Implementing Business Rules in Java part 2_files/cloudflare.min.js.&#19979;&#36733;"></script><script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:1479066461,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"2659ffa0aa8f9a37bfa308075a1c8873",petok:"31054e3e136224919bdbfef75a1efb8f2101f6ec-1480075594-1800",zone:"sys-con.com",rocket:"0",apps:{"ga_key":{"ua":"UA-29758464-1","ga_bs":"1"}}}];!function(a,b){a=document.createElement("script"),b=document.getElementsByTagName("script")[0],a.async=!0,a.src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=088620b277/cloudflare.min.js",b.parentNode.insertBefore(a,b)}()}}catch(e){};
+//]]>
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-29758464-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+/* ]]> */
+</script>
+<style type="text/css">.cf-hidden { display: none; } .cf-invisible { visibility: hidden; }</style></head>
+<body bgcolor="#ffffff" link="#990000" vlink="#990000" alink="#990000" mycollectionplug="bind">
+<table cellspacing="0" cellpadding="0" width="600" border="0">
+<tbody><tr height="1">
+<td valign="top" rowspan="2">
+<img border="0" src="./Implementing Business Rules in Java part 2_files/top.jpg" usemap="#javacdtop" width="591" height="120"><map name="javacdtop"><area shape="RECT" coords="149,80,209,103" href="http://www2.sys-con.com/itsg/virtualcd/java/indexcat.html" alt="Home"><area shape="RECT" coords="382,81,437,102" href="http://www.sys-con.com/magazine/archives.cfm?id=1" alt="Digital Edition"><area shape="RECT" coords="467,81,573,103" href="http://www.sys-con.com/story/category.cfm?id=393" alt="Sys-Con Radio"><area shape="RECT" coords="240,80,341,103" href="http://www2.sys-con.com/itsg/virtualcd/java/search.htm" alt="Search Java Cd"></map></td></tr></tbody></table><table cellspacing="0" cellpadding="0" width="600" border="0"><tbody><tr><td valign="top" bgcolor="#62659C"><img src="./Implementing Business Rules in Java part 2_files/side.jpg" usemap="#javacdside" width="125" height="611" border="0">
+<map name="javacdside">
+<area shape="RECT" coords="3,4,79,16" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/advanced.html" alt="Advanced Java">
+<area shape="RECT" coords="3,19,37,31" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/awt.html" alt="AWT">
+<area shape="RECT" coords="3,37,108,49" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/breview.html" alt="Book Reviews/Excerpts">
+<area shape="RECT" coords="3,54,67,66" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/clientserver.html" alt="Client Server">
+<area shape="RECT" coords="3,71,49,82" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/corba.html" alt="Corba">
+<area shape="RECT" coords="3,88,71,99" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/editorial.html" alt="Editorials">
+<area shape="RECT" coords="3,105,81,116" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/emjava.html" alt="Embedded Java">
+<area shape="RECT" coords="3,122,79,135" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/entjava.html" alt="Enterprise Java">
+<area shape="RECT" coords="3,140,36,150" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/ides.html" alt="IDE&#39;s">
+<area shape="RECT" coords="3,156,76,169" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/indwatch.html" alt="Industry Watch">
+<area shape="RECT" coords="3,173,61,185" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/integ.html" alt="Integration">
+<area shape="RECT" coords="3,190,58,202" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/interviews.html" alt="Interviews">
+<area shape="RECT" coords="3,207,66,220" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/japplet.html" alt="Java Applet">
+<area shape="RECT" coords="3,225,93,236" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jdatabase.html" alt="Java &amp; Databases">
+<area shape="RECT" coords="3,241,105,252" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/javaws.html" alt="Java &amp; Web Services">
+<area shape="RECT" coords="3,258,92,270" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/javafund.html" alt="Java Fundamentals">
+<area shape="RECT" coords="3,275,97,288" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jnative.html" alt="Java Native Interface">
+<area shape="RECT" coords="3,293,68,304" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jservlets.html" alt="Java Servlets">
+<area shape="RECT" coords="3,310,60,321" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/jbeans.html" alt="Java Beans">
+<area shape="RECT" coords="3,327,40,338" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/j2me.html" alt="J2ME">
+<area shape="RECT" coords="3,342,52,354" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/libraries.html" alt="Libraries">
+<area shape="RECT" coords="3,360,36,372" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/.net.html" alt=".NET">
+<area shape="RECT" coords="3,378,87,390" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/object.html" alt="Object Orientation">
+<area shape="RECT" coords="3,395,96,406" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/imho.html" alt="Observations/IMHO">
+<area shape="RECT" coords="3,411,80,422" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/reviews.html" alt="Product Reviews">
+<area shape="RECT" coords="3,429,123,440" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/scal.html" alt="Scalability &amp; Performance">
+<area shape="RECT" coords="3,446,49,457" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/security.html" alt="Security">
+<area shape="RECT" coords="3,463,62,472" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/serverside.html" alt="Server Side">
+<area shape="RECT" coords="3,479,68,491" href="http://www2.sys-con.com/itsg/virtualcd/java/source/index.html" alt="Source Code">
+<area shape="RECT" coords="3,497,78,507" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/straight.html" alt="Straight Talking">
+<area shape="RECT" coords="3,513,41,526" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/swing.html" alt="Swing">
+<area shape="RECT" coords="3,529,49,541" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/threads.html" alt="Threads">
+<area shape="RECT" coords="3,547,106,559" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/ujava.html" alt="Using Java with others">
+<area shape="RECT" coords="3,564,52,576" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/wireless.html" alt="Wireless">
+<area shape="RECT" coords="3,581,33,593" href="http://www2.sys-con.com/itsg/virtualcd/java/catfiles/xml.html" alt="XML">
+</map>
+</td>
+<td valign="top" width="475">
+<table width="480" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr>
+<td width="10%"> &nbsp; </td>
+<td width="85%" valign="top">
+<br>
+ 
+<font face="Arial,Helvetica,Verdana,sans-serif" size="-1">
+<p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/title.jpg">
+</div>
+<p>
+<i>Part 1 of this series on business rule engines (see "Implementing Business Rules in Java," <b>JDJ</b>, Vol. 5, issue 5 [May 2000]) addressed the question of how to integrate the rule engine into a Java application. To review...business rules are the policies and procedures that describe or constrain the way an organization conducts business.</i>
+</p><p>
+<b>Rule Engines Make Their Comeback</b><br>
+Twenty years after it first made waves, rule-based technology is making a comeback. Java developers with an eye on the e-commerce market are becoming aware of how integrating business rules and objects in Java can help expand Java into new niches within Web-based applications.
+</p><p>
+They're everywhere: in corporate charters, marketing strategies, pricing polices, product and service offerings, and customer relationship management practices. Business rules are also in the legal documents that regulate your business and industry. Rule engines interpret and implement rules within software systems, Soon, they may become better integrated with the Java platform.
+</p><p>
+Recent activities within the Java community have brought about a reexamination of business rule engines and their relationship with Java - specifically the idea of having a rule engine as a reusable commodity within the J2EE environment. Ultimately this would require a standard API and rule language that would allow Java developers to create applications that can execute business rules using any rule engine implementation. They wouldn't be tied to a particular vendor solution or technoloy. The rule engine API and rule language would be analogous to what the JDBC API and SQL provide for database integration. In the meantime, vendors are providing their own solutions for J2EE integration.
+</p><p>
+This article provides an overview of the proposed integration architecture for business rules in the J2EE (Java 2 Platform, Enterprise Edition) environment. Within this context, we'll discuss the requirements for integration and the steps of business rule development and deployment.
+</p><p>
+The proposed architecture would support the following requirements:
+</p><ul>
+<li> <b><i>Separation of Business and Application Logic:</i></b> Business rules are managed separate from the application.
+</li><li> <b><i>End-User Access to Rules:</i></b> Business users (nonprogrammers) can add and modify business rules in an implementation-independent business rule language.
+</li><li> <b><i>Access EJB Components:</i></b> Rules access EJB objects.
+</li><li> <b><i>Standard Rule Engine Interface:</i></b> Rule engines are accessed via a standard API regardless of the specific rule engine implementation.
+</li></ul>
+<b>Requirements for Integration</b><br>
+To a large degree, the J2EE helps manage application changes by standardizing how multitier enterprise applications are developed and deployed. It accomplishes this by simplifying enterprise applications and basing them on modular components that have access to a complete set of reusable services. It also hides many details of application behavior automatically, without complex programming. Positioned as just another reusable service, the rule engine could take enterprise applications to the next level by isolating the business logic that often requires change. The use of a rule engine in the architecture permits the separation of the business rules from the application code.
+<p>
+This separation is one of the primary advantages of using a rule engine to implement business rules. It enables the development of flexible applications that can be easily changed to reflect new business policies. Business rules can be used to define new products and services, offer new marketing promotions, validate transactions against corporate or regulatory policy, or define new application workflows. Using a rule engine to isolate this logic enables the application to change and evolve at the speed of the business.
+</p><p>
+Rules executed by the different rule engines are written using proprietary languages specific to the third-party rule engines. In addition to a proprietary rule language, each third-party rule engine has a proprietary API used to control the assertion and retraction of Java objects to the rule engine and the loading and execution of rules. In order to isolate enterprise Java applications from being dependent on a particular rule engine implementation, a standard APIwould be required.
+</p><p>
+In the absence of a rule engine integration standard, a rule engine must be compatible with the various EJB paradigms in order to execute correctly in the J2EE environment. It must be embeddable into any EJB paradigm - session (stateful or stateless) beans and entity beans. In addition, the rules executed by the rule engine must be able to reference EJB objects. In the standard Java environment Java objects are referenced in the rule engine's rule language either directly or indirectly through proxy objects, depending on the particular rule engine implementation. Since the object identification mechanism is different in the J2EE environment, the rule engine must be EJB aware. Specifically, in the EJB environment the "==" equality operator and "equals()" method don't yield predictable results. Instead the EJBObject.isIdentical() method must be used by the rule engine when evaluating rule conditions. Today, rule engine vendors provide varying degrees of support for J2EE integration.
+</p><p>
+<b>Overview of the Integration Architecture</b><br>
+In the Use Case diagram shown in Figure 1 there are three actors:
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/fig1.jpg" width="176" height="194" border="0" alt="Figure 1">
+<br><b>Figure&nbsp;1:</b>
+</div>
+<ol>
+<li> <b><i>The Rule Developer</i></b> is the business domain expert responsible for creating and maintaining the business rules. A stock trader defining the rules for the management of a client's portfolio, for example, is a Rule Developer. The Rule Developer defines business rules using the business rule language. Once defined, they're stored in a Business Rule Repository that supports business rule management functionality.
+</li><li> <b><i>The Rule Deployer</i></b> is the developer or other member of the IT department responsible for defining the implementation-specific characteristics associated with business rules. For example, the Rule Deployer is responsible for determining the specific applications in which the business rules are deployed, and the specific rule engine used for deployment. To do this, the Rule Deployer selects an Engine Deployer that processes the business rules in the rule configuration set translating the logical rules into the appropriate Rule Engine's native rule representation.
+</li><li> <b><i>The Application</i></b> obtains at application time one or more Rule Engine instances, asserts the Java components referenced by rules to the Rule Engine and retrieves the results of business rule evaluation.
+</li></ol>
+Corresponding to these three actors, the business rule implementation architecture can be described by dividing the business rule implementation process into three phases: business rule development, business rule deployment and business rule execution (see Figure 2).
+<p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/fig2.jpg" width="450" height="270" border="0" alt="Figure 2">
+<br><b>Figure&nbsp;2:</b>
+</div>
+<p>
+<b>Business Rule Development</b><br>
+During the business rule development phase shown in the class diagram in Figure 3, the business user, or Rule Developer, defines business rules using a Rule Editor. The Rule Editor, a software component that provides an interface to the Rule Repository and rule managent capabilities, supports the creation and modification of business rules through either a text or a graphical user interface (GUI). If the rules are defined using a text interface they're validated for correct syntax using the Script Validator; alternatively a GUI can be used to step the Rule Developer through the process of creating a syntactically correct rule. Once a business rule is syntatically correct, it's persisted in the Business Rule Repository. The Repository Manager implements security and can support multiple Business Rule Repositories.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/fig3.jpg" width="400" height="280" border="0" alt="Figure 3">
+<br><b>Figure&nbsp;3:</b>
+</div>
+<p>
+The business rule language syntax used for creating and editing rules is a high-level business-oriented representation that's implementation-independent. Rules specified in the business rule language represent logical rules. This logical rule representation may actually map to one or more physical rules in the native rule representation dictated by the specific rule engine implementation. The Business Rule Syntax supports the specification of the business rules conditions and actions. The conditions of a business rule are patterns or predicates that match on EJB properties. These conditions can be simple comparisons between properties or they can invoke math, string or application-specific operations. Actions can assert or retract EJBs or modify existing component properties.
+</p><p>
+The business rule can be stored in the repository as a string, a serialized object or an XML representation. A business rule can have additional properties stored in the repository such as rule name and ID, rule author, rule status, rule version and rule history.
+</p><p>
+<b><i>Rule Status</i></b><br>
+The rule status is a property that can be used to track a business rule throughout its lifecycle from definition to implementation. When business rules are first defined they are assigned a status of new. Once the rule has been completely specified along with its associated attributes it has a status of complete. Next the business rule may go through a business validation process in which other business users validate the rule. (For example, a new promotional marketing rule defined by a Rule Developer, who is a business user in the marketing department, may offer special billing rates for calls made during nonpeak hours for new mobile phone users. This rule may need to be validated by the product manager, the marketing manager and a representative from the billing department.)
+</p><p>
+After validation is complete the rule status will either be <i>accepted</i> or <i>rejected</i>. Once a rule is accepted it moves on to the deployment phase and may require unit and system integration testing. A successfully tested rule has a status of <i>tested</i>. When it has been implemented and is running in the production environment, the status is <i>implemented</i>. Finally, at the end of the promotion, the may be retired and assigned a status of <i>inactive</i>.
+</p><p>
+<b><i>Rule Version</i></b><br>
+The rule version property can be used to track the various versions of an existing rule. If the business rule in the previous example were changed to specify a different effective and expiration date, or if the promotional discount amount were changed, the user could define a new business rule to replace the outdated rule. However, rather than defining a new rule the business user could modify the existing implemented business rule creating a new version of the rule with a new version number and a status of new. This creates an audit trail of policy changes over time, a formal representation of corporate memory. Once a business rule is successfully defined and stored in the repository it's ready for deployment.
+</p><p>
+<b>Business Rule Deployment</b><br>
+As you can see from the foregoing section of this article, the Rule Developer isn't concerned with business rule implementation but is responsible for managing business rules as a representation of the organization's business policy. Typically, the Rule Developer will be a nontechnical person - a marketing or HR professional, for example.
+</p><p>
+The Rule Deployer, on the other hand, is a technical person whose responsibility includes preparing business rules for implementation and specifying their deployment specifics. The business rule deployment phase is shown in Figure 4.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/fig4.jpg" width="460" height="239" border="0" alt="Figure 4">
+<br><b>Figure&nbsp;4:</b>
+</div>
+<p>
+After using the DeploymentEditor to retrieve newly created or edited business rules from the RuleRepository, the Rule Deployer assigns them to a RuleConfigSet. This contains a package of business rules to be deployed as a group for which common implementation-specific properties are specified. Properties such as the preferred method of inferencing (forward or backward chaining) and the conflict resolution strategy may be specified.
+</p><p>
+The Rule Deployer obtains a list of registered EngineDeployers to deploy the set of business rules. There's at least one EngineDeployer for every type of rule engine. The EngineDeployer translates the logical business rules, specified in the business rule language, into the rule syntax of the specific rule engine. This creates an executable representation of the rules. The deployment process allows a business rule to be included in multiple RuleConfigSets. It also allows a RuleConfigSet to be deployed to multiple third-party rule engines.
+</p><p>
+For example, assume the Rule Deployer retrieves the mobile phone promotional rule along with a set of related business rules that define the characteristics of a specific mobile phone service package. The Rule Deployer groups these rules into a RuleConfigSet and specifies the required implementation characteristics. To deploy the business rules using ILOG's JRules rule engine, the Rule Deployer specifies "JRules" as the EngineDeployer. A corresponding JRulesEngineDeployer is registered with the DeploymentManager so that the JrulesEngineDeployer then parses the set of rules from the RuleConfigSet and generates the rules in the JRules rule language syntax. The rules are now ready for runtime invocation by any application.
+</p><p>
+There are two possible scenarios for the business rule deployment phase. In the first, the Rule Developer is able to define and edit business rules dynamically at execution time. In this scenario, the rule deployment process may be completely automated so that when rules are deployed at execution time, implementation assumptions are built into the application to invoke the appropriate EngineDeployer and translate the business rules into executable rules.
+</p><p>
+In the second scenario, the business rules aren't changed dynamically in the executing systems, but rather undergo the same migration procedures as other software. In this case, the deployment process involves a human Rule Deployer as previously described. The rule deployment process often includes some form of rule correctness and consistency checking as well as unit and system integration testing. Since they can't be tested prior to implementation, rules defined and modified dynamically are usually restricted in scope to avoid unexpected application behavior.
+</p><p>
+<b>Business Rule Execution</b><br>
+To invoke the business rules for processing, the Application requests a RuleEngine instance from the RuleEngineManager specifying the type of RuleEngine and the configuration set ID. The execution phase is shown in Figure 5.
+</p><p>
+</p><div align="center">
+<img src="./Implementing Business Rules in Java part 2_files/fig5.jpg" width="244" height="225" border="0" alt="Figure 5">
+<br><b>Figure&nbsp;5:</b>
+</div>
+<p>
+The RuleEngineManager returns a valid instance of the RuleEngine (e.g., "JRulesRuleEngine") and the Application then asserts the appropriate EJBs to the RuleEngine and invokes the "run()" method to evaluate the rules. The Application obtains the results of rule evaluation using the "getResults()" method. To reuse this instance of the RuleEngine, the Application first calls the "reset()" method to clear the RuleEngine's working memory and follows the same process with a new set of asserted EJBs.
+</p><p>
+The RuleEngineManager isolates the application from the implementation details of the specific third-party RuleEngine so that the application isn't tied to a particular vendor's rule engine API - creating a simple, effective interface. The RuleEngineManager hides the details of the location, number and types of RuleEngines available to the application. The RuleEngine API can be extended to start up and pool a predetermined number of RuleEngine instances and return instances based on application demand. The API can also be extended to act as a queing "agent" that delivers application requests to an event-based messaging system and forwards results back from listening RuleEngine instances.
+</p><p>
+<b>Next Steps...</b><br>
+The ultimate vision is the inclusion of a JRC (Java Rule Connectivity) API and standard vendor-neutral rule language that would permit integrating rule engines into J2EE applications. Meanwhile, the Connector architecture may facilitate the evolution and adoption of a rule engine integration standard for J2EE. The J2EE Connector addresses the problem of providing a standard architecture for integrating heterogeneous EISs. Most EIS vendors and application server vendors use nonstandard vendor-specific architectures to provide connectivity between application servers and enterprise information systems. The J2EE Connector architecture provides a Java solution to the problem of connectivity between the many application servers and EISs already in existence.
+</p><p>
+The J2EE platform enables the development of highly available, secure, reliable and scalable enterprise applications while reducing the cost and complexity of developing them. As a reusable service in the J2EE envionrment, rule engines would take Java applications to the next level, enabling the development of adaptable, maintainable enterprise applications.
+</p><p>
+<b>Author Bio</b><br>
+Colleen McClintock, product manager for JRules at ILOG, Inc., has more than 15 years of industry
+experience specializing in planning, design and implementation of rule-based systems and the integration of rules and objects.
+<a href="mailto:cmcclintock@ilog.com">cmcclintock@ilog.com</a>
+</p><p>
+Chris Roberts is Senior Java Architect, Sun Microsystems.
+<a href="mailto:chris.roberts@east.sun.com">chris.roberts@east.sun.com</a>
+</p></font></td>
+<td width="5%"> &nbsp; </td>
+</tr>
+</tbody></table>
+ 
+
+ 
+<p>
+</p><div align="center">
+<font face="Arial,Helvetica,Verdana,sans-serif" size="-1">
+<font color="#999999">
+All Rights Reserved
+<br>
+Copyright ©&nbsp; 2004 SYS-CON Media, Inc.
+<br>
+</font>
+&nbsp; E-mail: <a href="mailto:info@sys-con.com">info@sys-con.com</a>
+</font>
+</div>
+<p>
+</p><div align="center">
+<font face="Arial,Helvetica" size="-2">
+Java and Java-based marks are trademarks or registered trademarks of Sun Microsystems, Inc. in the United States and other countries. SYS-CON Publications, Inc. is independent of Sun Microsystems, Inc.
+</font>
+</div>
+ 
+</td>
+</tr>
+</tbody></table>
+<script type="text/javascript">/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script>
+
+</body></html>
