@@ -1,0 +1,1155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0079)http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/ -->
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/widgets.js.下载"></script><script src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/cb=gapi.loaded_1" async=""></script><script src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/cb=gapi.loaded_0" async=""></script><script type="text/javascript" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/plusone.js.下载" gapi_processed="true"></script><script id="facebook-jssdk" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/all.js.下载"></script><script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/shares.json"></script><script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/plusone.js(1).下载" gapi_processed="true"></script><script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/widgets.js.下载"></script><script src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/widgets.js.下载"></script><script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/300lo.json"></script><script src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/textyle.js.下载"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes, target-densitydpi=medium-dpi">
+		
+		<meta http-equiv="X-UA-Compatible" content="IE=8,9">
+	  
+    <meta name="google-site-verification" content="VbyqY0IbGsEoR8B_mj6o3n_0AtMKsqJnr0Nr2wQxa3g">
+    
+    <title>How to Monitor Java Garbage Collection | CUBRID Blog</title>
+	<link rel="shortcut icon" href="http://www.cubrid.org/favicon.ico" type="image/x-icon">
+	<script type="text/javascript" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/ga.js.下载"></script><script type="text/javascript">
+	document.createElement('header');
+	document.createElement('hgroup');
+	document.createElement('nav');
+	document.createElement('menu');
+	document.createElement('section');
+	document.createElement('article');
+	document.createElement('aside');
+	document.createElement('footer');
+	</script>
+    <meta name="Generator" content="XpressEngine 1.4.4.1">
+    <meta name="module" content="textyle">
+    <meta name="module_skin" content="simpleLine">
+    <meta http-equiv="imagetoolbar" content="no">
+    <link rel="stylesheet" href="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/script.php" type="text/css" charset="UTF-8" media="all">
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" href="/common/css/default.ie.css" type="text/css" charset="UTF-8" media="all" />
+    <![endif]-->
+    <!--[if IE 9]>
+    <link rel="stylesheet" href="/common/css/default.ie9.css" type="text/css" charset="UTF-8" media="all" />
+    <![endif]-->
+    <link rel="stylesheet" href="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/style.css" type="text/css" charset="UTF-8" media="all">
+<script type="text/javascript">
+var php_scripts = new Array();
+</script>
+<script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/LAB.min.js.下载"></script>
+<script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/jquery.min.js.下载"></script>
+	<script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/script(1).php"></script>
+    <link rel="alternate" type="application/rss+xml" title="Site RSS" href="http://www.cubrid.org/blog/rss">
+    <link rel="alternate" type="application/atom+xml" title="Site Atom" href="http://www.cubrid.org/blog/atom">
+
+    <script type="text/javascript">//<![CDATA[
+        var current_url = "http://www.cubrid.org/?mid=textyle&category=dev-platform&alias_title=how-to-monitor-java-garbage-collection&vid=blog";
+        var request_uri = "http://www.cubrid.org/";
+var xeVid = "blog";        var current_mid = "textyle";
+        var waiting_message = "Requesting to the server, please wait";
+        var ssl_actions = new Array();
+        var default_url = "http://www.cubrid.org/";
+                        
+    //]]></script>
+
+    
+
+<link rel="shortcut icon" href="http://www.cubrid.org/modules/textyle/tpl/img/favicon.ico">
+<meta name="keywords" content="Dev Platform,Java,Garbage Collection,performance,JVM,NHN,tuning,analysis,monitoring">
+<style type="text/css">
+.inputText {
+    padding: 2px 40px 4px 3px;
+}
+#dldList {
+    margin-top: 10px;
+}
+#getting-started-clear {
+    margin-top: 25px;
+}
+</style><script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-11036878-1']);
+  _gaq.push(['_setDomainName', 'cubrid.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<script type="text/javascript" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/embed.js.下载"></script><style type="text/css">.at-icon{fill:#fff;border:0}.at-icon-wrapper{display:inline-block;overflow:hidden}a .at-icon-wrapper{cursor:pointer}.at-rounded,.at-rounded-element .at-icon-wrapper{border-radius:12%}.at-circular,.at-circular-element .at-icon-wrapper{border-radius:50%}.addthis_32x32_style .at-icon{width:2pc;height:2pc}.addthis_24x24_style .at-icon{width:24px;height:24px}.addthis_20x20_style .at-icon{width:20px;height:20px}.addthis_16x16_style .at-icon{width:1pc;height:1pc}#at16lb{display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1001;background-color:#000;opacity:.001}#at_complete,#at_error,#at_share,#at_success{position:static!important}.at15dn{display:none}#at15s,#at16p,#at16p form input,#at16p label,#at16p textarea,#at_share .at_item{font-family:arial,helvetica,tahoma,verdana,sans-serif!important;font-size:9pt!important;outline-style:none;outline-width:0;line-height:1em}* html #at15s.mmborder{position:absolute!important}#at15s.mmborder{position:fixed!important;width:250px!important}#at15s{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABtJREFUeNpiZGBgaGAgAjAxEAlGFVJHIUCAAQDcngCUgqGMqwAAAABJRU5ErkJggg==);float:none;line-height:1em;margin:0;overflow:visible;padding:5px;text-align:left;position:absolute}#at15s a,#at15s span{outline:0;direction:ltr;text-transform:none}#at15s .at-label{margin-left:5px}#at15s .at-icon-wrapper{width:1pc;height:1pc;vertical-align:middle}#at15s .at-icon{width:1pc;height:1pc}.at4-icon{display:inline-block;background-repeat:no-repeat;background-position:top left;margin:0;overflow:hidden;cursor:pointer}.addthis_16x16_style .at4-icon,.addthis_default_style .at4-icon,.at4-icon,.at-16x16{width:1pc;height:1pc;line-height:1pc;background-size:1pc!important}.addthis_32x32_style .at4-icon,.at-32x32{width:2pc;height:2pc;line-height:2pc;background-size:2pc!important}.addthis_24x24_style .at4-icon,.at-24x24{width:24px;height:24px;line-height:24px;background-size:24px!important}.addthis_20x20_style .at4-icon,.at-20x20{width:20px;height:20px;line-height:20px;background-size:20px!important}.at4-icon.circular,.circular .at4-icon,.circular.aticon{border-radius:50%}.at4-icon.rounded,.rounded .at4-icon{border-radius:4px}.at4-icon-left{float:left}#at15s .at4-icon{text-indent:20px;padding:0;overflow:visible;white-space:nowrap;background-size:1pc;width:1pc;height:1pc;background-position:top left;display:inline-block;line-height:1pc}.addthis_vertical_style .at4-icon,.at4-follow-container .at4-icon{margin-right:5px}html>body #at15s{width:250px!important}#at15s.atm{background:none!important;padding:0!important;width:10pc!important}#at15s_inner{background:#fff;border:1px solid #fff;margin:0}#at15s_head{position:relative;background:#f2f2f2;padding:4px;cursor:default;border-bottom:1px solid #e5e5e5}.at15s_head_success{background:#cafd99!important;border-bottom:1px solid #a9d582!important}.at15s_head_success a,.at15s_head_success span{color:#000!important;text-decoration:none}#at15s_brand,#at15sptx,#at16_brand{position:absolute}#at15s_brand{top:4px;right:4px}.at15s_brandx{right:20px!important}a#at15sptx{top:4px;right:4px;text-decoration:none;color:#4c4c4c;font-weight:700}#at15sptx:hover{text-decoration:underline}#at16_brand{top:5px;right:30px;cursor:default}#at_hover{padding:4px}#at_hover .at_item,#at_share .at_item{background:#fff!important;float:left!important;color:#4c4c4c!important}#at_share .at_item .at-icon-wrapper{margin-right:5px}#at_hover .at_bold{font-weight:700;color:#000!important}#at_hover .at_item{width:7pc!important;padding:2px 3px!important;margin:1px;text-decoration:none!important}#at_hover .at_item.athov,#at_hover .at_item:focus,#at_hover .at_item:hover{margin:0!important}#at_hover .at_item.athov,#at_hover .at_item:focus,#at_hover .at_item:hover,#at_share .at_item.athov,#at_share .at_item:hover{background:#f2f2f2!important;border:1px solid #e5e5e5;color:#000!important;text-decoration:none}.ipad #at_hover .at_item:focus{background:#fff!important;border:1px solid #fff}.at15t{display:block!important;height:1pc!important;line-height:1pc!important;padding-left:20px!important;background-position:0 0;text-align:left}.addthis_button,.at15t{cursor:pointer}.addthis_toolbox a.at300b,.addthis_toolbox a.at300m{width:auto}.addthis_toolbox a{margin-bottom:5px;line-height:initial}.addthis_toolbox.addthis_vertical_style{width:200px}.addthis_button_facebook_like .fb_iframe_widget{line-height:100%}.addthis_button_facebook_like iframe.fb_iframe_widget_lift{max-width:none}.addthis_toolbox a.addthis_button_counter,.addthis_toolbox a.addthis_button_facebook_like,.addthis_toolbox a.addthis_button_facebook_send,.addthis_toolbox a.addthis_button_facebook_share,.addthis_toolbox a.addthis_button_foursquare,.addthis_toolbox a.addthis_button_google_plusone,.addthis_toolbox a.addthis_button_linkedin_counter,.addthis_toolbox a.addthis_button_pinterest_pinit,.addthis_toolbox a.addthis_button_stumbleupon_badge,.addthis_toolbox a.addthis_button_tweet{display:inline-block}.at-share-tbx-element .google_plusone_iframe_widget>span>div{vertical-align:top!important}.addthis_toolbox span.addthis_follow_label{display:none}.addthis_toolbox.addthis_vertical_style span.addthis_follow_label{display:block;white-space:nowrap}.addthis_toolbox.addthis_vertical_style a{display:block}.addthis_toolbox.addthis_vertical_style.addthis_32x32_style a{line-height:2pc;height:2pc}.addthis_toolbox.addthis_vertical_style .at300bs{margin-right:4px;float:left}.addthis_toolbox.addthis_20x20_style span{line-height:20px;*height:20px}.addthis_toolbox.addthis_32x32_style span{line-height:2pc;*height:2pc}.addthis_toolbox.addthis_pill_combo_style .addthis_button_compact .at15t_compact,.addthis_toolbox.addthis_pill_combo_style a{float:left}.addthis_toolbox.addthis_pill_combo_style a.addthis_button_tweet{margin-top:-2px}.addthis_toolbox.addthis_pill_combo_style .addthis_button_compact .at15t_compact{margin-right:4px}.addthis_default_style .addthis_separator{margin:0 5px;display:inline}div.atclear{clear:both}.addthis_default_style .addthis_separator,.addthis_default_style .at4-icon,.addthis_default_style .at300b,.addthis_default_style .at300bo,.addthis_default_style .at300bs,.addthis_default_style .at300m{float:left}.at300b img,.at300bo img{border:0}a.at300b .at4-icon,a.at300m .at4-icon{display:block}.addthis_default_style .at300b,.addthis_default_style .at300bo,.addthis_default_style .at300m{padding:0 2px}.at300b,.at300bo,.at300bs,.at300m{cursor:pointer}.addthis_button_facebook_like.at300b:hover,.addthis_button_facebook_like.at300bs:hover,.addthis_button_facebook_send.at300b:hover,.addthis_button_facebook_send.at300bs:hover{opacity:1;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";filter:alpha(opacity=100)}.addthis_20x20_style .at15t,.addthis_20x20_style .at300bs{overflow:hidden;display:block;height:20px!important;width:20px!important;line-height:20px!important}.addthis_32x32_style .at15t,.addthis_32x32_style .at300bs{overflow:hidden;display:block;height:2pc!important;width:2pc!important;line-height:2pc!important}.at300bs{overflow:hidden;display:block;background-position:0 0;height:1pc;width:1pc;line-height:1pc!important}.addthis_default_style .at15t_compact,.addthis_default_style .at15t_expanded{margin-right:4px}#at_share .at_item{width:123px!important;padding:4px;margin-right:2px;border:1px solid #fff}#at16p{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABtJREFUeNpiZGBgaGAgAjAxEAlGFVJHIUCAAQDcngCUgqGMqwAAAABJRU5ErkJggg==);z-index:10000001;position:absolute;top:50%;left:50%;width:300px;padding:10px;margin:0 auto;margin-top:-185px;margin-left:-155px;font-family:arial,helvetica,tahoma,verdana,sans-serif;font-size:9pt;color:#5e5e5e}#at_share{margin:0;padding:0}#at16pt{position:relative;background:#f2f2f2;height:13px;padding:5px 10px}#at16pt a,#at16pt h4{font-weight:700}#at16pt h4{display:inline;margin:0;padding:0;font-size:9pt;color:#4c4c4c;cursor:default}#at16pt a{position:absolute;top:5px;right:10px;color:#4c4c4c;text-decoration:none;padding:2px}#at15sptx:focus,#at16pt a:focus{outline:thin dotted}#at15s #at16pf a{top:1px}#_atssh{width:1px!important;height:1px!important;border:0!important}.atm{width:10pc!important;padding:0;margin:0;line-height:9pt;letter-spacing:normal;font-family:arial,helvetica,tahoma,verdana,sans-serif;font-size:9pt;color:#444;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABtJREFUeNpiZGBgaGAgAjAxEAlGFVJHIUCAAQDcngCUgqGMqwAAAABJRU5ErkJggg==);padding:4px}.atm-f{text-align:right;border-top:1px solid #ddd;padding:5px 8px}.atm-i{background:#fff;border:1px solid #d5d6d6;padding:0;margin:0;box-shadow:1px 1px 5px rgba(0,0,0,.15)}.atm-s{margin:0!important;padding:0!important}.atm-s a:focus{border:transparent;outline:0;-webkit-transition:none;transition:none}#at_hover.atm-s a,.atm-s a{display:block;text-decoration:none;padding:4px 10px;color:#235dab!important;font-weight:400;font-style:normal;-webkit-transition:none;transition:none}#at_hover.atm-s .at_bold{color:#235dab!important}#at_hover.atm-s a:hover,.atm-s a:hover{background:#2095f0;text-decoration:none;color:#fff!important}#at_hover.atm-s .at_bold{font-weight:700}#at_hover.atm-s a:hover .at_bold{color:#fff!important}.atm-s a .at-label{vertical-align:middle;margin-left:5px;direction:ltr}.at_PinItButton{display:block;width:40px;height:20px;padding:0;margin:0;background-image:url(//s7.addthis.com/static/t00/pinit00.png);background-repeat:no-repeat}.at_PinItButton:hover{background-position:0 -20px}.addthis_toolbox .addthis_button_pinterest_pinit{position:relative}.at-share-tbx-element .fb_iframe_widget span{vertical-align:baseline!important}#at16pf{height:auto;text-align:right;padding:4px 8px}.at-privacy-info{position:absolute;left:7px;bottom:7px;cursor:pointer;text-decoration:none;font-family:helvetica,arial,sans-serif;font-size:10px;line-height:9pt;letter-spacing:.2px;color:#666}.at-privacy-info:hover{color:#000}.body .wsb-social-share .wsb-social-share-button-vert{padding-top:0;padding-bottom:0}.body .wsb-social-share.addthis_counter_style .addthis_button_tweet.wsb-social-share-button{padding-top:44px}.body .wsb-social-share.addthis_counter_style .addthis_button_google_plusone.wsb-social-share-button{padding-top:4px}@media print{#at4-follow,#at4-share,#at4-thankyou,#at4-whatsnext,#at4m-mobile,#at15s,.at4,.at4-recommended{display:none!important}}@media screen and (max-width:400px){.at4win{width:100%}}@media screen and (max-height:700px) and (max-width:400px){.at4-thankyou-inner .at4-recommended-container{height:122px;overflow:hidden}.at4-thankyou-inner .at4-recommended .at4-recommended-item:first-child{border-bottom:1px solid #c5c5c5}}</style><style type="text/css">.at-branding-logo{font-family:helvetica,arial,sans-serif;text-decoration:none;font-size:10px;display:inline-block;margin:2px 0;letter-spacing:.2px}.at-branding-logo .at-branding-icon{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRF////+GlNUkcc1QAAAB1JREFUeNpiYIQDBjQmAwMmkwEM0JnY1WIxFyDAABGeAFEudiZsAAAAAElFTkSuQmCC")}.at-branding-logo .at-branding-icon,.at-branding-logo .at-privacy-icon{display:inline-block;height:10px;width:10px;margin-left:4px;margin-right:3px;margin-bottom:-1px;background-repeat:no-repeat}.at-branding-logo .at-privacy-icon{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAKCAMAAABR24SMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABhQTFRF8fr9ot/xXcfn2/P5AKva////////AKTWodjhjAAAAAd0Uk5T////////ABpLA0YAAAA6SURBVHjaJMzBDQAwCAJAQaj7b9xifV0kUKJ9ciWxlzWEWI5gMF65KUTv0VKkjVeTerqE/x7+9BVgAEXbAWI8QDcfAAAAAElFTkSuQmCC")}.at-branding-logo span{text-decoration:none}.at-branding-logo .at-branding-addthis,.at-branding-logo .at-branding-powered-by{color:#666}.at-branding-logo .at-branding-addthis:hover{color:#333}.at-cv-with-image .at-branding-addthis,.at-cv-with-image .at-branding-addthis:hover{color:#fff}a.at-branding-logo:visited{color:initial}.at-branding-info{display:inline-block;padding:0 5px;color:#666;border:1px solid #666;border-radius:50%;font-size:10px;line-height:9pt;opacity:.7;transition:all .3s ease;text-decoration:none}.at-branding-info span{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.at-branding-info:before{content:'i';font-family:Times New Roman}.at-branding-info:hover{color:#0780df;border-color:#0780df}</style><script type="text/javascript" charset="utf-8" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu.b05a2ceef40d818e88b3.js.下载"></script><script type="text/javascript" charset="utf-8" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/counter.99921a8490833011e039.js.下载"></script><style type="text/css">.addthis_counter{font-weight:700;display:inline-block;border:0;outline:0;cursor:pointer;color:#fff}.addthis_counter a{display:block;font-family:arial,helvetica,sans-serif!important;text-decoration:none!important;border:0}.addthis_counter{text-decoration:none!important;text-align:left}.addthis_counter .addthis_button_expanded{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAACaCAMAAADcrusAAAAA21BMVEX////+bUznWjrnWjrBwcGJiYnm5ubFxcWMjIyRkZH39/f19fX////nWjr+bUzys6n+uq7/7+z87evqd2H+hm3/5+P+sKPxqJz65OH/9/b+el3paU//zcT2yMDshXH99vX+kXz+nIn/w7n0vrX30cz9bEv/3tn529f/1s/ukYH3aUn+ppbvnY/bUjTmWTn/3dX+9fP3aEj/9vT52NH/5d/aUTP9a0r74tzlWDjfWz386+f/7en4b1H/7uv4b1D/3db/9/X/7uraUjT+9vT87Oj87OnpZEb52dH+dlezszuQAAAABHRSTlMAExMAzBw6IQAAAnlJREFUeF6009eKKzEMBuBJriW5T2/pPdvbqb28/xMdGbOQiyxZZ9n/QnjAH8KWJxl8uqeI3H8ZJFcUmatkFktmCUXnXHIBIRevJ/AcBuUSQI0onZ8k1/QxkNqVJIvyNPl8S1/ZMFkuuYxtqhQoS2MA1RNIGKUArjwk/4Lk0jtXp0QpjEjJHiw5SbzZQlo6eUi+fafba0985LKwqSOqJdNaMdmQ5O+NOn6WYsNlPk7nnvRF6iF3lOBz/MZqZ6kvZCBS+bUn1h/MvTCXmumYArEKijlYJr6N6t8y/fcn5zz+dfwvNlhH9ZmtB8nw6REj8vg0TO4wMnfJPpbsE4zOueQGQm5eT+A5DKopgF5htjhJLvFDIE1eoeiq0+T3A/5lw2Q65TIxmdagDU4AdIsgYJUB5NUh+RMklzbPmwwxgxVq0YLBXCBvNpBVuTgkP3/hw6UnPmLamSxHbATTRjPZouDvrT5+lm7LZTHJFp60XeYhdxTgc/zGmtxg24lAhPZrT4w/WP7CXBqmEwzEaOgWYJj4Nrp9y/Tfn5zz+Hex5Ecy3EX12e+G/9mrQxUAYBgGooEFAm3//3snZmviJnL+6cMRrXSgHqsWOGb8iISEhISEqDxRAsSld5De/nLbr4MViEEYDMI5mFQ3ff/nXejx33YHcyqtc/8QQSXaRYfJZpAaFWx2FdwfMXyqYdYjp4punpP5fcgiiyyyyCKVl9+6nxQHCP+t20WHCTdIjQo2KjgDAT/Y7UQk/li1tkPtyaQlEhBARABBUV+lvhc1rz4w+FX4bKWLrA0cp7Ue+KhqnpA/mXggAQFEBBAU9VXqe1HzzgNTv2Iyx9Dc8gWOjkKMG1wfQQAAAABJRU5ErkJggg==");background-repeat:no-repeat;display:inline-block}.addthis_counter .atc_s{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUBAMAAAB/pwA+AAAAFVBMVEUAAAD///////////////////////9Iz20EAAAABnRSTlMAwPm7kB4+mBDvAAAAP0lEQVQI12MIVksDgyRTBrM0KEhmAApChRnS4ACdKcCIl5ko6MAiKAZmJjAAARsKE6GAsGE43IBwJLLTER4CAHvvQkc3Hji8AAAAAElFTkSuQmCC");background-size:10px;background-repeat:no-repeat;background-color:#fe6d4c;background-position:5px 5px;display:inline-block;border-radius:2px;min-width:25px;text-decoration:none}.addthis_counter .atc_s:hover{background-color:#e75a3a}.addthis_counter.addthis_bubble_style{background-image:url("data:image/gif;base64,R0lGODlhUgBkAKIEAOrq6sLCwoWFhf///////wAAAAAAAAAAACH5BAEAAAQALAAAAABSAGQAAAP/SLoa/jDKSetkOGsdwPhgKI5kaYpAsK1sd75wPKZsjQVyrpuq7eO7YLDnqwGFyBixuDomn6UlkwOtkqTTm3ULwmYXTi7U+3WJreSp+VxNF9fs8ZcBjz/dRo8dPSfU90l4TXqAcn1/hTuCLYSJQ31gjY45i3mTipB0kpcnlTZhnDyZdKFKo2ClMJ5GqS+rLa2dpw2xorOgtR+vg7kou7y9AzSzYBbGx8gRxAwCzc7P0NHS09TSywoCm60AAsvZwSDcxALgId2z5OUf56fp6uyj7uXwmfLg9JD2wfh9+r38X76pGwBwisCBBYscRFhP2718Dh/OWThwXb+IEidi/New+SKIhD4ozmu3sRVIhSVLnVRYcWXIluNgopPZjmY8m/VwQlQnblxKRz29VRtKtCg0YsmSOsBgtGmzNz9zDCMgEkpQWGyI+KuyElebBVuhdI2jNc5JRF+pRtUBEu3XqlYSum0DNy6jPQHqcrVEVq2ds2spYQssY2xWsGZ/9MWW+NNiqo35cpmqV8jVFkqTMXVqlEnmz1I4i4Y3twplwjqCehVTthC71VxaA3qdSPYe2oVs/0WVG7HrBqgx+f1deouKylsEFDeOPPlyNM3tPpcTXSzw2oMT4QakOzJs475n8+Ye/vZ4vOV30+rN+Pf1PacBXQWdefPopgQSAAA7");background-repeat:no-repeat}.addthis_counter a.atc_s{font-size:11px;font-weight:100;color:#fff;padding:0 5px 0 20px;line-height:20px;overflow:hidden;cursor:pointer;-webkit-transition:none;transition:none}.addthis_counter .atc_s-span,.addthis_counter a.atc_s{display:block;height:20px}.addthis_counter .addthis_button_expanded.at300m .at4-icon{display:none!important}.addthis_counter a.addthis_button_expanded:hover,.addthis_counter.addthis_pill_style a.addthis_button_expanded:hover{text-decoration:none;color:#000}.addthis_counter .addthis_button_expanded{display:block;background-repeat:no-repeat;background-position:0 -40px;width:50px;height:33px;line-height:33px;padding-bottom:4px;margin-bottom:3px;text-align:center;text-decoration:none;font-size:1pc;font-weight:700;color:#333}.addthis_counter{vertical-align:top}.addthis_counter.addthis_native_counter .addthis_button_expanded{font-weight:400}* html .addthis_counter.compatmode0 .addthis_button_expanded{padding-bottom:0!important}* html .addthis_counter .addthis_button_expanded{height:37px}.addthis_counter .addthis_button_expanded:hover{background-position:0 -77px;cursor:pointer;color:#000}.addthis_counter .addthis_button_expanded .at300bs{display:none!important}.addthis_counter.addthis_pill_style{display:block;height:25px;overflow:hidden}.addthis_counter.addthis_pill_style a.atc_s{float:left}.addthis_counter.addthis_pill_style a.addthis_button_expanded{display:none;background-repeat:no-repeat;background-position:0 -114px;width:34px!important;height:20px;line-height:20px;margin:0 0 0 3px;padding:0 0 0 4px;float:left;text-align:center;text-decoration:none;font-family:arial,helvetica,sans-serif;font-weight:700;font-size:11px;color:#333;-ms-box-sizing:content-box;-o-box-sizing:content-box;box-sizing:content-box}.addthis_counter.addthis_pill_style.addthis_nonzero a.addthis_button_expanded{display:block!important;-webkit-transition:none;transition:none}.addthis_counter.addthis_pill_style a.addthis_button_expanded:hover{background-position:0 -134px!important}.addthis_counter.addthis_bubble_style{margin:0 0 0 -2px;text-align:center;font-weight:700;font-family:arial,helvetica,sans-serif;color:#000;background-repeat:no-repeat;background-position:0 -4pc;padding:0 0 0 4px;height:1pc;width:2pc!important;-ms-box-sizing:content-box;-o-box-sizing:content-box;box-sizing:content-box}.addthis_native_counter_parent .addthis_counter.addthis_bubble_style{background-position:0 -4pc!important}.addthis_counter.addthis_bubble_style.addthis_native_counter{margin:0 2px}.addthis_counter.addthis_bubble_style a.addthis_button_expanded{font-size:11px;height:1pc;line-height:1pc;width:34px;background:none}.addthis_counter.addthis_bubble_style:hover{background-position:-36px -4pc!important}.addthis_20x20_style .addthis_counter.addthis_bubble_style{background-repeat:no-repeat;background-position:0 -5pc!important;height:20px;width:35px!important;line-height:20px;padding:0 0 0 6px}.addthis_20x20_style .addthis_counter.addthis_bubble_style:hover{background-position:-41px -5pc!important}.addthis_20x20_style .addthis_counter.addthis_bubble_style a.addthis_button_expanded{background:none;font-size:9pt;line-height:20px;height:20px;margin:0;width:35px!important;padding:0!important}.addthis_20x20_style .addthis_counter.addthis_bubble_style.addthis_native_counter a.addthis_button_expanded{font-size:11px}.addthis_32x32_style .addthis_counter.addthis_bubble_style,.addthis_32x32_white_style .addthis_counter.addthis_bubble_style{background-repeat:no-repeat;background-position:0 0!important;height:2pc;width:56px!important;line-height:2pc;padding:0 0 0 6px}.addthis_32x32_style .addthis_counter.addthis_bubble_style a.addthis_button_expanded,.addthis_32x32_white_style .addthis_counter.addthis_bubble_style a.addthis_button_expanded{background:none;font-size:1pc;line-height:2pc;height:2pc;margin:0;width:56px!important;padding:0!important}.addthis_32x32_style .addthis_counter.addthis_bubble_style:hover,.addthis_32x32_white_style .addthis_counter.addthis_bubble_style:hover{background-position:0 -2pc!important}.addthis_counter.addthis_bubble_style .atc_s{display:none!important}* html .addthis_counter.addthis_bubble_style{width:36px!important;display:inline}* html .addthis_counter.bubblecompatmode0{width:2pc!important;display:block}* html .addthis_counter.addthis_bubble_style a.addthis_button_expanded{width:24px!important;height:14px!important;line-height:14px!important;padding:0;margin-top:1px!important;display:inline}* html .addthis_counter.bubblecompatmode0 a.addthis_button_expanded{width:36px}* html .addthis_32x32_style .addthis_counter.addthis_bubble_style{width:60px!important}* html .addthis_32x32_style .addthis_counter.addthis_bubble_style a.addthis_button_expanded{width:46px;height:26px!important;line-height:26px!important;margin-top:2px!important}* html .addthis_32x32_style .addthis_counter.bubblecompatmode0 a.addthis_button_expanded{height:2pc!important;line-height:2pc!important}</style><script type="text/javascript" charset="utf-8" async="" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/button.5546439b5d743401ca910708312f6e81.js.下载"></script><style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_reposition{overflow:hidden;position:relative}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}.fb_link img{border:none}@keyframes fb_transform{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}.fb_animate{animation:fb_transform .3s forwards}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_reset .fb_dialog_legacy{overflow:visible}.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}.fb_dialog_content{background:#fff;color:#333}.fb_dialog_close_icon{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yL/r/s816eWC-2sl.gif)}.fb_dialog_close_icon:active{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yL/r/s816eWC-2sl.gif)}.fb_dialog_loader{background-color:#f6f7f9;border:1px solid #606060;font-size:24px;padding:20px}.fb_dialog_top_left,.fb_dialog_top_right,.fb_dialog_bottom_left,.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}.fb_dialog_top_left{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}.fb_dialog_top_right{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}.fb_dialog_bottom_left{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}.fb_dialog_bottom_right{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}.fb_dialog_vert_left,.fb_dialog_vert_right,.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}.fb_dialog_vert_left,.fb_dialog_vert_right{width:10px;height:100%}.fb_dialog_vert_left{margin-left:-10px}.fb_dialog_vert_right{right:0;margin-right:-10px}.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{width:100%;height:10px}.fb_dialog_horiz_top{margin-top:-10px}.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #365899;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{-webkit-transform:none;height:100%;margin:0;overflow:visible;position:absolute;top:-10000px;left:0;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{width:auto;height:auto;min-height:initial;min-width:initial;background:none}.fb_dialog.fb_dialog_mobile.loading.centered #fb_dialog_loader_spinner{width:100%}.fb_dialog.fb_dialog_mobile.loading.centered .fb_dialog_content{background:none}.loading.centered #fb_dialog_loader_close{color:#fff;display:block;padding-top:20px;clear:both;font-size:18px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;bottom:0;left:0;right:0;top:0;width:100%;min-height:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4966A6), color-stop(.5, #355492), to(#2A4887));border:1px solid #29487d;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset, rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f6f7f9;border:1px solid #555;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}#fb_dialog_loader_spinner{animation:rotateSpinner 1.2s linear infinite;background-color:transparent;background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/t-wz8gw1xG1.png);background-repeat:no-repeat;background-position:50% 50%;height:24px;width:24px}@keyframes rotateSpinner{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_fluid_desktop,.fb_iframe_widget_fluid_desktop span,.fb_iframe_widget_fluid_desktop iframe{max-width:100%}.fb_iframe_widget_fluid_desktop iframe{min-width:220px;position:relative}.fb_iframe_widget_lift{z-index:1}.fb_hide_iframes iframe{position:relative;left:-10000px}.fb_iframe_widget_loader{position:relative;display:inline-block}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}.fb_iframe_widget_loader .FB_Loader{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}</style></head>
+<body mycollectionplug="bind">
+    
+    <header>
+    <div class="centerLayout">
+        <a id="logo" class="sprite-logo sprite" href="http://www.cubrid.org/"></a>
+		<span class="slogan">Open Source RDBMS - Seamless, Scalable, Stable and Free</span>
+        <p id="userActions">
+                            <span><a href="http://www.cubrid.org/?mid=textyle&amp;category=dev-platform&amp;alias_title=how-to-monitor-java-garbage-collection&amp;vid=blog&amp;l=ko" onclick="doChangeLangType(&#39;ko&#39;);return false;">한국어</a> |</span>
+                                        <span><a href="http://www.cubrid.org/?mid=textyle&amp;category=dev-platform&amp;alias_title=how-to-monitor-java-garbage-collection&amp;vid=blog&amp;act=dispMemberLoginForm">Login</a> |</span><a href="http://www.cubrid.org/?mid=textyle&amp;category=dev-platform&amp;alias_title=how-to-monitor-java-garbage-collection&amp;vid=blog&amp;act=dispMemberSignUpForm">Register</a>
+                    </p>
+    </div>
+</header>
+
+<!--[if IE 8]>
+
+<![endif]-->
+
+<div id="bg" class="textyle" style="min-height: 1375px;">
+    <nav>
+        <div style="*zoom:1;padding:0px 0px 0px 0px !important; padding:none !important;"><ul id="mainUl">
+                                    <li class="  hasChildren" id="menu_parent_63">
+                        <a href="http://www.cubrid.org/about" class=" hasChildren">About</a>
+                                            <ul class="lvl1">
+                                                        <li class="  hasChildren" id="menu_parent_254914">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/about" class=" hasChildren">About CUBRID</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254915">
+                        <a href="http://www.cubrid.org/why_cubrid" class=" ">Why CUBRID?</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254918">
+                        <a href="http://www.cubrid.org/key_features" class=" ">Key Features</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_365092">
+                        <a href="http://www.cubrid.org/wiki_tutorials/entry/important-facts-to-know-about-cubrid" class=" ">Important Facts about CUBRID</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_427639">
+                        <a href="http://ftp.cubrid.org/CUBRID_Docs/Brochure/CUBRID_Brochure_2012_EN.pdf" class=" ">CUBRID Brochure</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254916">
+                        <a href="http://www.cubrid.org/overview" class=" ">Quick Overview</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254917">
+                        <a href="http://www.cubrid.org/cubrid_architecture" class=" ">Architecture</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254919">
+                        <a href="http://www.cubrid.org/performance_results" class=" ">Performance Results</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254920">
+                        <a href="http://www.cubrid.org/license" class=" ">License</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254921">
+                        <a href="http://www.cubrid.org/powered_by_cubrid" class=" ">Customers</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_402470">
+                        <a href="http://www.cubrid.org/interview_nhn_information_services" class=" ">Search Results Monitoring System</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254922">
+                        <a href="http://www.cubrid.org/faq" class=" ">F.A.Q.</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_723651">
+                        <a href="http://www.cubrid.org/wiki_tutorials/entry/cubrid-security-vulnerability-updates" class=" ">Security Vulnerability Updates</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_254923">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/dev_zone" class=" hasChildren">About CUBRID Dev</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254924">
+                        <a href="http://www.cubrid.org/release_history" class=" ">Release History</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254925">
+                        <a href="http://www.cubrid.org/release_policy" class=" ">Release Policy</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254926">
+                        <a href="http://www.cubrid.org/contact" class=" ">Contact</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_65">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=cubrid&amp;os=any&amp;ostype=any&amp;cubrid=10.0.0" class=" hasChildren">Downloads</a>
+                                            <ul class="lvl1">
+                                                        <li class=" hasNoChildren " id="menu_parent_254930">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=cubrid&amp;os=detect&amp;cubrid=10.0.0" class=" ">CUBRID Engine</a>
+                            </li>
+                                                        <li class="  hasChildren" id="menu_parent_485060">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-tools-downloads" class=" hasChildren">CUBRID Tools</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254931">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-tools-downloads#cm" class=" ">CUBRID Manager</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_401356">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-tools-downloads#cwm" class=" ">CUBRID Web Manager</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254932">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-tools-downloads#cqb" class=" ">CUBRID Query Browser</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254933">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-tools-downloads#cmt" class=" ">CUBRID Migration Toolkit</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_637103">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-all-in-one-windows-downloader" class=" ">CUBRID Windows Downloader</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_485062">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=any&amp;os=detect&amp;cubrid=10.0.0" class=" hasChildren">CUBRID Drivers</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254934">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=php_driver&amp;os=detect&amp;php=detect&amp;driver=detect&amp;cubrid=10.0.0" class=" ">PHP Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254935">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=jdbc_driver&amp;cubrid=10.0.0" class=" ">JDBC Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254937">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=python_driver&amp;os=detect&amp;python=detect&amp;cubrid=10.0.0" class=" ">Python Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254940">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=ado_dot_net_driver&amp;os=windows&amp;cubrid=10.0.0" class=" ">ADO.NET Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_327760">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=cci_driver&amp;os=detect&amp;cubrid=10.0.0" class=" ">CCI Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_416121">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=nodejs_driver&amp;os=any" class=" ">Node.js Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254938">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=odbc_driver&amp;os=detect&amp;cubrid=10.0.0" class=" ">ODBC Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_485077">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=oledb_driver&amp;os=windows&amp;cubrid=10.0.0" class=" ">OLE DB Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254939">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=perl_driver&amp;os=detect&amp;cubrid=10.0.0" class=" ">Perl Driver</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254936">
+                        <a href="http://www.cubrid.org/?mid=downloads&amp;item=ruby_driver&amp;os=detect" class=" ">Ruby Driver</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_422167">
+                        <a href="http://release.cubrid.org/en" class=" ">Release Notes</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_66">
+                        <a href="http://www.cubrid.org/documentation" class=" hasChildren">Documentation</a>
+                                            <ul class="lvl1">
+                                                        <li class="  hasChildren" id="menu_parent_254944">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/wiki_tutorials/entry/cubrid-tutorials" class=" hasChildren">Tutorials</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254945">
+                        <a href="http://www.cubrid.org/wiki_tutorials/entry/cubrid-installation-instructions" class=" ">Installation Guide</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_473423">
+                        <a href="http://www.cubrid.org/wiki_tutorials/entry/how-to-using-cubrid-tutorials" class=" ">How to ... using CUBRID Tutorials</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_485059">
+                        <a href="http://www.cubrid.org/wiki_tutorials" class=" ">CUBRID Tutorials Wiki</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254942">
+                        <a href="http://www.cubrid.org/release" class=" ">Release Notes</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254943">
+                        <a href="http://www.cubrid.org/video_trainings" class=" ">Video Trainings</a>
+                            </li>
+                                                        <li class="  hasChildren" id="menu_parent_254947">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/manuals" class=" hasChildren">Manuals</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_2300777">
+                        <a href="http://www.cubrid.org/manual/10_0/en" class=" ">10.0 English Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_1357501">
+                        <a href="http://www.cubrid.org/manual/93/en" class=" ">9.3 English Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_775968">
+                        <a href="http://www.cubrid.org/manual/93/ko" class=" ">9.3 Korean Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_736656">
+                        <a href="http://www.cubrid.org/manual/844/en" class=" ">2008 R4.4 English Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_498403">
+                        <a href="http://www.cubrid.org/manual/844/ko" class=" ">2008 R4.4 Korean Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254948">
+                        <a href="http://www.cubrid.org/manuals" class=" ">All CUBRID Manual</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_287718">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-manager" class=" ">CUBRID Manager</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254954">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-query-browser" class=" ">CUBRID Query Browser</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254953">
+                        <a href="http://www.cubrid.org/wiki_tools/entry/cubrid-migration-toolkit" class=" ">CUBRID Migration Toolkit</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                    </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_69">
+                        <a href="http://www.cubrid.org/dev_zone" class=" hasChildren">Dev Zone</a>
+                                            <ul class="lvl1">
+                                                        <li class=" hasNoChildren " id="menu_parent_254974">
+                        <a href="http://www.cubrid.org/wiki_tools" class=" ">CUBRID Tools Wiki</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254975">
+                        <a href="http://www.cubrid.org/wiki_apis" class=" ">CUBRID APIs Wiki</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_317092">
+                        <a href="http://www.cubrid.org/wiki_tutorials" class=" ">CUBRID Tutorials Wiki</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_323960">
+                        <a href="http://www.cubrid.org/wiki_apps" class=" ">CUBRID Apps Wiki</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254955">
+                        <a href="http://www.cubrid.org/developers" class=" ">Developers</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254956">
+                        <a href="http://www.cubrid.org/download_source_and_build" class=" ">Download Source and build</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_802988">
+                        <a href="http://svn.cubrid.org/websvn/" class=" ">Source Repository</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254957">
+                        <a href="http://www.cubrid.org/coding_conventions" class=" ">Coding Conventions</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254958">
+                        <a href="http://www.cubrid.org/contributors_agreement" class=" ">Contributors Agreement</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_379835">
+                        <a href="http://www.cubrid.org/wiki_ngrinder" class=" ">nGrinder Wiki</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_67">
+                        <a href="http://www.cubrid.org/community" class=" hasChildren">Community</a>
+                                            <ul class="lvl1">
+                                                        <li class="  hasChildren" id="menu_parent_254967">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/community" class=" hasChildren">Community</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_254960">
+                        <a href="http://www.cubrid.org/questions" class=" ">Q&amp;A Site - Ask a Question</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_426264">
+                        <a href="http://www.cubrid.org/activity" class=" ">Monitor CUBRID Live Activity</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_665752">
+                        <a href="http://www.cubrid.org/showcase" class=" ">CUBRID Showcase</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_300583">
+                        <a href="http://www.cubrid.org/affiliates" class=" ">CUBRID Affiliates</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_653113">
+                        <a href="http://www.cubrid.org/calendar" class=" ">CUBRID Calendar</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254961">
+                        <a href="http://www.cubrid.org/forum" class=" ">CUBRID Forum</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254971">
+                        <a href="http://www.cubrid.org/?mid=community&amp;act=dispMemberAll" class=" ">CUBRID Site Users</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254962">
+                        <a href="http://www.cubrid.org/my_cubrid" class=" ">My CUBRID</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_403943">
+                        <a href="https://www.facebook.com/cubrid" class=" ">Facebook</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_403944">
+                        <a href="http://twitter.com/#!/CUBRID" class=" ">Twitter</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_403945">
+                        <a href="https://plus.google.com/u/0/b/115924035309696499466/115924035309696499466/posts" class=" ">Google+</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_574577">
+                        <a href="http://en.wikipedia.org/wiki/CUBRID" class=" ">CUBRID on Wikipedia</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                                        <li class="  hasChildren" id="menu_parent_484927">
+                            <img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/menu_bullet.gif">
+                        <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/" class=" hasChildren">Events</a>
+                                            <ul class="lvl2">
+                                                        <li class=" hasNoChildren " id="menu_parent_402490">
+                        <a href="http://www.cubrid.org/cwm_bug_bash" class=" ">Event #5 - CWM Bug Bash</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254963">
+                        <a href="http://www.cubrid.org/event_questions_answers" class=" ">Event #4 - CUBRID Q&amp;A</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254964">
+                        <a href="http://www.cubrid.org/bug_bash" class=" ">Event #3 - Bug Bash</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254965">
+                        <a href="http://www.cubrid.org/cubrid_it" class=" ">Event #2 - CUBRID it!</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254966">
+                        <a href="http://www.cubrid.org/quizzes" class=" ">Event #1 - Quizland</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_254968">
+                        <a href="http://www.cubrid.org/quizzes" class=" ">CUBRID Quizzes</a>
+                            </li>
+                                                                                </ul>
+                    </li>
+                                    </ul>
+                    </li>
+                                                        <li class="hasChildren selected" id="menu_parent_68">
+                        <a href="http://www.cubrid.org/blog" class=" hasChildren">Blog</a>
+                                            <ul class="lvl1">
+                                                        <li class=" hasNoChildren " id="menu_parent_254959">
+                        <a href="http://www.cubrid.org/blog/categories/dev-platform/" class=" ">Dev Platform</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_352948">
+                        <a href="http://www.cubrid.org/blog/tags/CUBRID%20Affiliates/" class=" ">CUBRID Affiliates</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_262206">
+                        <a href="http://www.cubrid.org/blog/categories/cubrid-appstools/" class=" ">CUBRID Apps&amp;Tools</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_262207">
+                        <a href="http://www.cubrid.org/blog/categories/cubrid-videos/" class=" ">CUBRID Videos</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_262208">
+                        <a href="http://www.cubrid.org/blog/categories/cubrid-comparison/" class=" ">CUBRID Comparison</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_262209">
+                        <a href="http://www.cubrid.org/blog/categories/cubrid-life/" class=" ">CUBRID Life</a>
+                            </li>
+                                                        <li class=" hasNoChildren " id="menu_parent_262210">
+                        <a href="http://www.cubrid.org/blog/categories/news/" class=" ">News</a>
+                            </li>
+                        </ul></li></ul></div>
+        <form action="http://www.cubrid.org/" method="get" id="isSearch">
+                        <input type="hidden" name="vid" value="blog">
+                                                            <input type="hidden" name="category" value="blog">
+                                        <input type="hidden" name="act" value="IS">
+            <input type="hidden" name="search_target" value="title_content">
+            <p id="search">
+                <input name="is_keyword" type="text" value="" class="inputText" title="keyword" style="width: 205px;">
+                <span id="searchIcon"><input type="submit" value="" class="search_icon" title="Search on cubrid.org"></span>
+            </p>
+        </form>
+    </nav>
+    <div class="clear" style="width: 980px; margin: 0 auto;"></div>
+    <div class="cleared"></div>
+	<div id="content">
+															<div class="e1" style="margin-top: 10px; float: right;">
+		<div>
+		<div class="block-title"><span>Current Events</span></div>
+		<div><a href="http://www.cubrid.org/blog/cubrid-life/new-cubrid-8-4-4-with-sql-profiling-and-stability-improvements"><img width="223" height="344" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/blog-cubrid-life-new-cubrid-8-4-4-with-sql-profiling-and-stability-improvements.png" alt="Join our developers event to win one of the valuable prizes!"></a></div>
+	</div>
+		<div id="subscribe-box" class="section">
+        <div class="block-title"><span>Subscribe to CUBRID</span></div>
+        <div class="google-plus"><span><div id="___plus_0" style="text-indent: 0px; margin: 0px; padding: 0px; background: transparent; border-style: none; float: none; line-height: normal; font-size: 1px; vertical-align: baseline; display: inline-block; width: 300px; height: 106px;"><iframe frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px; width: 300px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 106px;" tabindex="0" vspace="0" width="100%" id="I0_1480577510559" name="I0_1480577510559" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/badge.html" data-gapiattached="true" title="+Badge"></iframe></div></span></div>
+        <div id="fb-root" class=" fb_reset"><script src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/sdk.js.下载" async=""></script><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div></div></div></div><div class="fb-like" data-href="http://www.facebook.com/cubrid" data-send="false" data-width="190" data-height="40" data-show-faces="true"></div>
+        <div class="twitter-box"><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-follow-button twitter-follow-button-rendered" title="Twitter Follow Button" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/follow_button.f7908d4abf5ce27173c69bdbb93aedb6.en.html" style="position: static; visibility: visible; width: 229px; height: 20px;" data-screen-name="CUBRID"></iframe></div>
+        <div class="rss-box"><a href="http://www.cubrid.org/blog/rss" title="Subscribe to CUBRID Blog RSS" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;RSS&#39;, &#39;Click&#39;, &#39;Blog RSS&#39;, 0, true]);"><span class="sprite rss"></span><span style="margin:5px 0 0 5px">Subscribe to CUBRID Blog</span></a></div>
+		<div class="rss-box" style="background: rgb(221, 255, 254);"><a href="http://www.cubrid.org/?act=dispMemberModifyInfo&amp;enable_newsletter=1" title="Subscribe to CUBRID Newsletter"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/newsletter.png" height="22" width="21" alt=""><span style="margin:3px 0 0 5px">SUBSCRIBE TO NEWSLETTER</span></a></div>
+	</div>
+        <div class="section">
+        <div class="block-title"><span>Categories</span></div>
+        <div style="*zoom:1;padding:0px 0px 0px 0px !important; padding:none !important;">
+
+<div class="widgetContainer">
+	<ul>
+										<li class=" nav_tree_off " id="category_parent_220587">
+									<a href="http://www.cubrid.org/blog/categories/dev-platform/" class="nav_tree_label ">Dev Platform</a>
+			<span class="sum">(50)</span>
+							</li>
+											<li class=" nav_tree_off " id="category_parent_220590">
+									<a href="http://www.cubrid.org/blog/categories/cubrid-appstools/" class="nav_tree_label ">CUBRID Apps&amp;Tools</a>
+			<span class="sum">(47)</span>
+							</li>
+											<li class=" nav_tree_off " id="category_parent_220591">
+									<a href="http://www.cubrid.org/blog/categories/cubrid-videos/" class="nav_tree_label ">CUBRID Videos</a>
+			<span class="sum">(5)</span>
+							</li>
+											<li class=" nav_tree_off " id="category_parent_220593">
+									<a href="http://www.cubrid.org/blog/categories/cubrid-comparison/" class="nav_tree_label ">CUBRID Comparison</a>
+			<span class="sum">(7)</span>
+							</li>
+											<li class=" nav_tree_off " id="category_parent_220594">
+									<a href="http://www.cubrid.org/blog/categories/cubrid-life/" class="nav_tree_label ">CUBRID Life</a>
+			<span class="sum">(50)</span>
+							</li>
+											<li class=" nav_tree_off " id="category_parent_220597">
+									<a href="http://www.cubrid.org/blog/categories/news/" class="nav_tree_label ">News</a>
+			<span class="sum">(49)</span>
+							</li>
+													</ul>
+</div>
+</div>
+    </div><div class="section" id="tagCloud">
+        <div class="block-title"><span>tagged</span></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/Java/" rel="tag">Java</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/Garbage%20Collection/" rel="tag">Garbage Collection</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/performance/" rel="tag">performance</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/JVM/" rel="tag">JVM</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/NHN/" rel="tag">NHN</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/tuning/" rel="tag">tuning</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/analysis/" rel="tag">analysis</a></div>
+                    <div><a class="tag" href="http://www.cubrid.org/blog/tags/monitoring/" rel="tag">monitoring</a></div>
+            </div><div class="section" style="font-size:15px">
+        <div>posted <strong title="2012/03/28 @ 02:26">4 years ago</strong></div>
+        <div>viewed <strong>276529 times</strong></div>
+    </div>
+    <div class="section" id="side-related-posts">
+        <div class="block-title"><span>Related Posts</span></div>
+    <h3><a href="http://www.cubrid.org/blog/dev-platform/the-principles-of-java-application-performance-tuning/" title="The Principles of Java Application Performance Tuning">The Principles of Java Application Performance Tuning</a></h3><h3><a href="http://www.cubrid.org/blog/dev-platform/how-to-tune-java-garbage-collection/" title="How to Tune Java Garbage Collection">How to Tune Java Garbage Collection</a></h3><h3><a href="http://www.cubrid.org/blog/dev-platform/maxclients-in-apache-and-its-effect-on-tomcat-during-full-gc/" title="MaxClients in Apache and its effect on Tomcat during Full GC">MaxClients in Apache and its effect on Tomcat during Full GC</a></h3><h3><a href="http://www.cubrid.org/blog/dev-platform/how-statement-pooling-in-jdbc-affects-garbage-collection/" title="How Statement Pooling in JDBC affects the Garbage Collection">How Statement Pooling in JDBC affects the Garbage Collection</a></h3><h3><a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/" title="Understanding Java Garbage Collection">Understanding Java Garbage Collection</a></h3></div>
+    <div class="section" id="sns-buttons" style="position: relative;">
+        <div class="block-title"><span>Share this article</span></div>
+        <span class="sns-buttons addthis_toolbox addthis_default_style" addthis:url="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/">
+            <a class="addthis_button_tweet at300b" tw:count="vertical" tw:lang="en"><div class="tweet_iframe_widget" style="width: 61px; height: 23px;"><span><iframe id="twitter-widget-1" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" title="Twitter Tweet Button" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/tweet_button.f7908d4abf5ce27173c69bdbb93aedb6.en.html" style="position: static; visibility: visible; width: 63px; height: 20px;" data-url="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#.WD_R5E2lk4s.twitter"></iframe></span></div></a>
+            <a class="addthis_button_facebook_like at300b" fb:like:layout="box_count"><div class="fb-like" data-layout="box_count" data-show_faces="false" data-share="true" data-action="like" data-width="55" data-height="65" data-font="arial" data-href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/" data-send="false" style="height: 65px;"></div></a>
+            <a class="addthis_button_google_plusone at300b" g:plusone:size="tall"><div class="google_plusone_iframe_widget" style="width: 90px; height: 25px;"><span><div id="___plusone_0" style="text-indent: 0px; margin: 0px; padding: 0px; background: transparent; border-style: none; float: none; line-height: normal; font-size: 1px; vertical-align: baseline; display: inline-block; width: 50px; height: 60px;"><iframe frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px; width: 50px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 60px;" tabindex="0" vspace="0" width="100%" id="I1_1480577510564" name="I1_1480577510564" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/fastbutton.html" data-gapiattached="true" title="+1"></iframe></div></span></div></a>
+            <a class="addthis_counter" href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" style="display: inline-block;"><a class="addthis_button_expanded" target="_blank" title="More" href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#">206</a><a class="atc_s addthis_button_compact">Share<span></span></a></a>
+            <script language="javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/zoneit.js.下载"></script>
+        <div class="atclear"></div></span>
+    </div>
+</div>
+<div class="post">
+    <h1 class="postTitle"><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/">How to Monitor Java Garbage Collection</a></h1>
+    <p class="postMeta">posted <span class="yymmdd" title="2012/03/28 @ 02:26">4 years ago</span> in <span class="category">Dev Platform</span> category by <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_313272" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Sangmin Lee</a>
+        </p><div class="addthis_toolbox addthis_default_style" addthis:url="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/">
+        <a class="addthis_button_facebook_like at300b" fb:like:layout="standard" fb:like:width="310"><div class="fb-like" data-layout="standard" data-width="310" data-show_faces="false" data-share="true" data-action="like" data-height="35" data-font="arial" data-href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/" data-send="false" style="height: 35px;"></div></a>
+        <a class="addthis_button_tweet at300b"><div class="tweet_iframe_widget" style="width: 62px; height: 25px;"><span><iframe id="twitter-widget-2" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" title="Twitter Tweet Button" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/tweet_button.f7908d4abf5ce27173c69bdbb93aedb6.en(1).html" style="position: static; visibility: visible; width: 63px; height: 20px;" data-url="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#.WD_R5OtMsQU.twitter"></iframe></span></div></a>
+        <a class="addthis_button_google_plusone at300b" g:plusone:size="medium"><div class="google_plusone_iframe_widget" style="width: 90px; height: 25px;"><span><div id="___plusone_1" style="text-indent: 0px; margin: 0px; padding: 0px; background: transparent; border-style: none; float: none; line-height: normal; font-size: 1px; vertical-align: baseline; display: inline-block; width: 90px; height: 20px;"><iframe frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;" tabindex="0" vspace="0" width="100%" id="I2_1480577510566" name="I2_1480577510566" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/fastbutton(1).html" data-gapiattached="true" title="+1"></iframe></div></span></div></a>
+        <a class="addthis_counter addthis_pill_style addthis_nonzero" href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" style="display: inline-block;"><a class="atc_s addthis_button_compact">Share<span></span></a><a class="addthis_button_expanded" target="_blank" title="More" href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#">206</a></a>
+    <div class="atclear"></div></div>
+    <div class="textyleContent">
+                        <!--BeforeDocument(316126,313272)--><div class="document_316126_313272 xe_content"><p>This is the second article in the series of "<i><a href="http://www.cubrid.org/blog/tags/Garbage%20Collection/" target="_self">Become a Java GC Expert</a></i>".&nbsp;In the first issue <a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/" target="_self">Understanding Java Garbage Collection</a> we have learned about the processes for different GC algorithms, about how GC works, what Young and Old Generation is, what you should know about the 5 types of GC in the new JDK 7, and what the performance implications are for each of these GC types.</p><p>In this article, I will explain <b>how&nbsp;<a href="http://www.cubrid.org/blog/dev-platform/understanding-jvm-internals/" target="_self">JVM</a> is actually running Garbage Collection in the real time</b>.</p><p></p><h2>What is GC Monitoring?&nbsp;</h2><p><b>Garbage Collection Monitoring</b> refers to the <i>process of figuring out how JVM is running GC</i>. For example, we can find out:</p><p></p><ol><li>when an object in young has moved to old and by how much,</li><li>or when <a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/#stop-the-world" target="_self">stop-the-world</a> has occurred and for how long.</li></ol><p></p><p>GC monitoring is carried out <i>to see if JVM is running GC efficiently</i>, and <i>to check if additional GC tuning is necessary</i>.&nbsp;Based on this information, the application can be edited or GC method can be changed (<b>GC tuning</b>).</p><h2>How to Monitor GC?</h2><p>There are different ways to monitor GC, but the only difference is how the GC operation information is shown. GC is done by JVM, and since the GC monitoring tools disclose the GC information provided by JVM, you will get the same results no matter how you monitor GC. Therefore, you do not need to learn all methods to monitor GC, but since it only requires a little amount of time to learn each GC monitoring method, knowing a few of them can help you use the right one for different situations and environments.</p><p>The tools or JVM options listed below cannot be used universally regardless of the HVM vendor. This is because there is no need for a "standard" for disclosing GC information. In this example we will use <b>HotSpot JVM</b> (Oracle JVM). Since <a href="http://www.cubrid.org/blog/tags/NHN/" target="_self">NHN</a> is using Oracle (Sun) JVM, there should be no difficulties in applying the tools or JVM options that we are explaining here.</p><p>First, the GC monitoring methods can be separated into <b>CUI</b> and <b>GUI</b> depending on the access interface. The typical CUI GC monitoring method involves using a separate CUI application called "<b>jstat</b>", or selecting a JVM option called "<b>verbosegc</b>" when running JVM.</p><p>GUI GC monitoring is done by using a separate GUI application, and three most commonly used applications would be "jconsole", "jvisualvm" and "Visual GC".</p><p>Let's learn more about each method.</p><h2>jstat</h2><p><b>jstat</b> is a monitoring tool in HotSpot JVM. Other monitoring tools for HotSpot JVM are <b>jps</b> and <b>jstatd</b>. Sometimes, you need all three tools to monitor a Java application.</p><p><b>jstat</b> does not provide only the GC operation information display. It also provides class loader operation information or Just-in-Time compiler operation information. Among all the information jstat can provide,&nbsp;in this article&nbsp;we will only cover its functionality to <i>monitor</i> GC operating information.</p><p><b>jstat</b> is located in <span style="background-color: rgb(214, 212, 235); "><span style="background-color: rgb(214, 212, 235); ">$JDK_HOME/bin</span></span>, so if <i>java</i> or <i>javac</i> can run without setting a separate directory from the command line, so can jstat.</p><p>You can try running the following in the command line.</p><p></p><div><div id="highlighter_988611" class="syntaxhighlighter  plain"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div><div class="line number5 index4 alt2">5</div><div class="line number6 index5 alt1">6</div><div class="line number7 index6 alt2">7</div><div class="line number8 index7 alt1">8</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="plain plain">$&gt; jstat –gc&nbsp; $&lt;vmid$&gt; 1000</code></div><div class="line number2 index1 alt1">&nbsp;</div><div class="line number3 index2 alt2"><code class="plain plain">S0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S1C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S0U&nbsp;&nbsp;&nbsp; S1U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; YGC&nbsp;&nbsp;&nbsp;&nbsp; YGCT&nbsp;&nbsp;&nbsp; FGC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FGCT&nbsp;&nbsp;&nbsp;&nbsp; GCT</code></div><div class="line number4 index3 alt1"><code class="plain plain">3008.0&nbsp;&nbsp; 3072.0&nbsp;&nbsp;&nbsp; 0.0&nbsp;&nbsp;&nbsp;&nbsp; 1511.1&nbsp;&nbsp; 343360.0&nbsp;&nbsp; 46383.0&nbsp;&nbsp;&nbsp;&nbsp; 699072.0&nbsp;&nbsp; 283690.2&nbsp;&nbsp; 75392.0&nbsp;&nbsp;&nbsp; 41064.3&nbsp;&nbsp;&nbsp; 2540&nbsp;&nbsp;&nbsp; 18.454&nbsp;&nbsp;&nbsp; 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.133&nbsp;&nbsp;&nbsp; 19.588</code></div><div class="line number5 index4 alt2"><code class="plain plain">3008.0&nbsp;&nbsp; 3072.0&nbsp;&nbsp;&nbsp; 0.0&nbsp;&nbsp;&nbsp;&nbsp; 1511.1&nbsp;&nbsp; 343360.0&nbsp;&nbsp; 47530.9&nbsp;&nbsp;&nbsp;&nbsp; 699072.0&nbsp;&nbsp; 283690.2&nbsp;&nbsp; 75392.0&nbsp;&nbsp;&nbsp; 41064.3&nbsp;&nbsp;&nbsp; 2540&nbsp;&nbsp;&nbsp; 18.454&nbsp;&nbsp;&nbsp; 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.133&nbsp;&nbsp;&nbsp; 19.588</code></div><div class="line number6 index5 alt1"><code class="plain plain">3008.0&nbsp;&nbsp; 3072.0&nbsp;&nbsp;&nbsp; 0.0&nbsp;&nbsp;&nbsp;&nbsp; 1511.1&nbsp;&nbsp; 343360.0&nbsp;&nbsp; 47793.0&nbsp;&nbsp;&nbsp;&nbsp; 699072.0&nbsp;&nbsp; 283690.2&nbsp;&nbsp; 75392.0&nbsp;&nbsp;&nbsp; 41064.3&nbsp;&nbsp;&nbsp; 2540&nbsp;&nbsp;&nbsp; 18.454&nbsp;&nbsp;&nbsp; 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.133&nbsp;&nbsp;&nbsp; 19.588</code></div><div class="line number7 index6 alt2">&nbsp;</div><div class="line number8 index7 alt1"><code class="plain plain">$&gt;</code></div></div></td></tr></tbody></table></div></div>
+
+<p></p><p>Just like in the example, the real type data will be output along with the following columns: <span style="background-color: rgb(231, 219, 237); "><span style="background-color: rgb(231, 219, 237); "><b>S0C &nbsp; &nbsp;S1C &nbsp; &nbsp; S0U &nbsp; &nbsp; S1U &nbsp; &nbsp;EC &nbsp; &nbsp; EU &nbsp; &nbsp; OC &nbsp; &nbsp; OU &nbsp; &nbsp; PC</b></span></span>.</p><p><b>vmid</b> (Virtual Machine ID), as its name implies, is the <b>ID</b> for the VM. Java applications running either on a local machine or on a remote machine can be specified using vmid. The vmid for Java application running on a local machine is called <b>lvmid</b> (Local vmid), and usually is PID. To find out the lvmid, you can write the PID value using a <b><span style="background-color: rgb(214, 212, 235); ">ps</span></b> command or Windows task manager, but we suggest <b>jps</b> because PID and lvmid does not always match. <b>jps</b> stands for Java PS. jps shows <i>vmids</i> and main method information. Just like ps shows PIDs and process names.</p><p>Find out the vmid of the Java application that you want to monitor by using jps, then use it as a parameter in jstat. If you use jps alone, only bootstrap information will show when several WAS instances are running in one equipment. We suggest that you use <span style="background-color: rgb(214, 212, 235); "><span style="background-color: rgb(214, 212, 235); "><b>ps -ef | grep java</b></span></span> command along with <b>jps</b>.</p><p>GC performance data needs constant observation, therefore when running jstat, try to output the GC monitoring information on a regular basis.&nbsp;</p><p>For example, running "<b><span style="background-color: rgb(214, 212, 235); ">jstat –gc &lt;vmid&gt; 1000</span></b>" (or 1s) will display the GC monitoring data on the console every 1 second. "<b><span style="background-color: rgb(214, 212, 235); ">jstat –gc &lt;vmid&gt; 1000 10</span></b>" will display the GC monitoring information once every 1 second for 10 times in total.</p><p>There are many options other than <b>-gc</b>, among which GC related ones are listed below.</p>
+
+<table>
+<thead>
+	<tr>
+		<td>Option Name</td>
+		<td>Description</td>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>gc</td>
+		<td>It shows the current size for each heap area and its current usage (Ede, survivor, old, etc.), total number of GC performed, and the accumulated time for GC operations.</td>
+	</tr>
+	<tr>
+		<td>gccapactiy</td>
+		<td>It shows the minimum size (ms) and maximum size (mx) of each heap area, current size, and the number of GC performed for each area. (Does not show current usage and accumulated time for GC operations.)</td>
+	</tr>
+	<tr>
+		<td>gccause</td>
+		<td>It shows the "information provided by -gcutil" + reason for the last GC and the reason for the current GC.</td>
+	</tr>
+	<tr>
+		<td>gcnew</td>
+		<td>Shows the GC performance data for the new area.</td>
+	</tr>
+	<tr>
+		<td>gcnewcapacity</td>
+		<td>Shows statistics for the size of new area.</td>
+	</tr>
+	<tr>
+		<td>gcold</td>
+		<td>Shows the GC performance data for the old area.</td>
+	</tr>
+	<tr>
+		<td>gcoldcapacity</td>
+		<td>Shows statistics for the size of old area.</td>
+	</tr>
+	<tr>
+		<td>gcpermcapacity</td>
+		<td>Shows statistics for the permanent area.</td>
+	</tr>
+	<tr>
+		<td>gcutil</td>
+		<td>Shows the usage for each heap area in percentage. Also shows the total number of GC performed and the accumulated time for GC operations.</td>
+	</tr>
+</tbody>
+</table>
+
+<p>Only looking at frequency, you will probably use <b>-gcutil</b> (or -gccause), <b>-gc</b> and <b>-gccapacity</b> the most in that order.</p><p></p><ul><li><b>-gcutil</b> is used to check the usage of heap areas, the number of GC performed, and the total accumulated time for GC operations,</li><li>while <b>-gccapacity</b> option and others can be used to check the actual size allocated.</li></ul><p></p><p>You can see the following output by using the <b><span style="background-color: rgb(214, 212, 235); ">-gc</span></b> option:</p><p></p><div><div id="highlighter_633072" class="syntaxhighlighter  bash"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="bash plain">S0C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S1C&nbsp;&nbsp;&nbsp; …&nbsp;&nbsp; GCT</code></div><div class="line number2 index1 alt1"><code class="bash plain">1248.0&nbsp;&nbsp; 896.0&nbsp; …&nbsp;&nbsp; 1.246</code></div><div class="line number3 index2 alt2"><code class="bash plain">1248.0&nbsp;&nbsp; 896.0&nbsp; …&nbsp;&nbsp; 1.246</code></div><div class="line number4 index3 alt1"><code class="bash plain">…&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; …&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; …&nbsp;&nbsp; …</code></div></div></td></tr></tbody></table></div></div><p></p><p></p><p>Different jstat options show different types of columns, which are listed below. Each column information will be displayed when you use the "jstat option" listed on the right.</p>
+
+<table>
+ <thead>
+	<tr>
+		<td>Column</td>
+		<td style="width:530px">Description</td>
+		<td>Jstat Option</td>
+	</tr>
+ </thead>
+ <tbody>
+	<tr>
+		<td class="">S0C</td>
+		<td class="">Displays the current size of Survivor0 area in KB</td>
+		<td class="">-gc<br>
+  -gccapacity<br>
+  -gcnew<br>
+  -gcnewcapacity</td>
+	</tr>
+	<tr>
+		<td>S1C</td>
+		<td>Displays the current size of Survivor1 area in KB</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcnew<br>
+  -gcnewcapacity</td>
+	</tr>
+	<tr>
+		<td>S0U</td>
+		<td>Displays the current
+  usage of Survivor0 area in KB</td>
+		<td>-gc<br>
+  -gcnew</td>
+	</tr>
+	<tr>
+		<td>S1U</td>
+		<td>Displays the current
+  usage of Survivor1 area in KB</td>
+		<td>-gc<br>
+  -gcnew</td>
+	</tr>
+	<tr>
+		<td>EC</td>
+		<td>Displays the current size of Eden area in KB</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcnew<br>
+  -gcnewcapacity</td>
+	</tr>
+	<tr>
+		<td>EU</td>
+		<td>Displays the current usage of Eden area in KB</td>
+		<td>-gc<br>
+  -gcnew</td>
+	</tr>
+	<tr>
+		<td>OC</td>
+		<td>Displays the current size of old area in KB</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcold<br>
+  -gcoldcapacity</td>
+	</tr>
+	<tr>
+		<td>OU</td>
+		<td>Displays the current usage of old area in KB</td>
+		<td>-gc<br>
+  -gcold</td>
+	</tr>
+	<tr>
+		<td>PC</td>
+		<td>Displays the current size of permanent area in KB</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcold<br>
+  -gcoldcapacity<br>
+  -gcpermcapacity</td>
+	</tr>
+	<tr>
+		<td>PU</td>
+		<td>Displays the current usage of permanent area in KB</td>
+		<td>-gc<br>
+  -gcold</td>
+	</tr>
+	<tr>
+		<td>YGC</td>
+		<td>The number of GC event occurred in young area</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcnew<br>
+  -gcnewcapacity<br>
+  -gcold<br>
+  -gcoldcapacity<br>
+  -gcpermcapacity<br>
+  -gcutil<br>
+  -gccause</td>
+	</tr>
+	<tr>
+		<td>YGCT</td>
+		<td>The accumulated time for GC operations for Yong area <span></span></td>
+		<td>-gc<br>
+  -gcnew<br>
+  -gcutil<br>
+  -gccause</td>
+	</tr>
+	<tr>
+		<td>FGC</td>
+		<td>The number of full GC event occurred</td>
+		<td>-gc<br>
+  -gccapacity<br>
+  -gcnew<br>
+  -gcnewcapacity<br>
+  -gcold<br>
+  -gcoldcapacity<br>
+  -gcpermcapacity<br>
+  -gcutil<br>
+  -gccause</td>
+	</tr>
+	<tr>
+		<td>FGCT</td>
+		<td>The accumulated time for full GC operations <span></span></td>
+		<td>-gc<br>
+  -gcold<br>
+  -gcoldcapacity<br>
+  -gcpermcapacity<br>
+  -gcutil<br>
+  -gccause</td>
+	</tr>
+	<tr>
+		<td>GCT</td>
+		<td>The total accumulated time for GC operations</td>
+		<td>-gc<br>
+  -gcold<br>
+  -gcoldcapacity<br>
+  -gcpermcapacity<br>
+  -gcutil<br>
+  -gccause</td>
+	</tr>
+	<tr>
+		<td>NGCMN</td>
+		<td>The minimum size of new area in KB</td>
+		<td>-gccapacity<br>
+  -gcnewcapacity</td>
+	</tr>
+	<tr>
+		<td>NGCMX</td>
+		<td>The maximum size of max area in KB <span>
+		</span></td><td>-gccapacity<br>
+  -gcnewcapacity</td>
+	
+	</tr><tr>
+		<td>NGC</td>
+		<td>The current size of new area in KB <span>
+		</span></td><td>-gccapacity<br>
+  -gcnewcapacity</td>
+	
+	</tr><tr>
+		<td>OGCMN</td>
+		<td>The minimum size of old area in KB</td>
+		<td>-gccapacity<br>
+  -gcoldcapacity</td>
+	</tr>
+	<tr>
+		<td>OGCMX</td>
+		<td>The maximum size of old area in KB</td>
+		<td>-gccapacity<br>
+  -gcoldcapacity</td>
+	</tr>
+	<tr>
+		<td>OGC</td>
+		<td>The current size of old area in KB <span>
+		</span></td><td>-gccapacity<br>
+  -gcoldcapacity</td>
+	
+	</tr><tr>
+		<td>PGCMN</td>
+		<td>The minimum size of permanent area in KB</td>
+		<td>-gccapacity<br>
+  -gcpermcapacity</td>
+	</tr>
+	<tr>
+		<td>PGCMX</td>
+		<td>The maximum size of permanent area in KB</td>
+		<td>-gccapacity<br>
+  -gcpermcapacity</td>
+	</tr>
+	<tr>
+		<td>PGC</td>
+		<td>The current size of permanent generation area in KB</td>
+		<td>-gccapacity<br>
+  -gcpermcapacity</td>
+	</tr>
+	<tr>
+		<td>PC</td>
+		<td>The current size of permanent area in KB</td>
+		<td>-gccapacity<br>
+  -gcpermcapacity</td>
+	</tr>
+	<tr>
+		<td>PU</td>
+		<td>The current usage of permanent area in KB <span></span></td>
+		<td>-gc<br>
+  -gcold</td>
+	</tr>
+	<tr>
+		<td>LGCC</td>
+		<td>The cause for the last GC occurrence <span></span></td>
+		<td>-gccause</td>
+	</tr>
+	<tr>
+		<td>GCC</td>
+		<td>The cause for the current GC occurrence</td>
+		<td>-gccause</td>
+	</tr>
+	<tr>
+		<td>TT</td>
+		<td>Tenuring threshold. If copied this amount of times in young
+  area (S0 -&gt;S1, S1-&gt;S0), they are then moved to old area.</td>
+		<td>-gcnew</td>
+	</tr>
+	<tr>
+		<td>MTT</td>
+		<td>Maximum Tenuring threshold. If copied this amount of times
+  inside young arae, then they are moved to old area.</td>
+		<td>-gcnew</td>
+	</tr>
+	<tr>
+		<td>DSS</td>
+		<td>Adequate size of survivor in KB<span>&nbsp; </span><span></span></td>
+		<td>-gcnew</td>
+	</tr>
+</tbody></table>
+
+<p>The advantage of <b>jstat</b> is that it can always monitor the GC operation data of Java applications running on local/remote machine, as long as a console can be used. From these items, the following result is output when <b>–gcutil</b> is used. At the time of GC tuning, pay careful attention to <b>YGC, YGCT, FGC, FGCT</b> and <b>GCT</b>.</p><p></p><p></p><div><div id="highlighter_142766" class="syntaxhighlighter  bash"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="bash plain">S0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; YGC&nbsp;&nbsp;&nbsp; YGCT&nbsp;&nbsp;&nbsp;&nbsp; FGC&nbsp;&nbsp;&nbsp; FGCT&nbsp;&nbsp;&nbsp;&nbsp; GCT</code></div><div class="line number2 index1 alt1"><code class="bash plain">0.00&nbsp;&nbsp;&nbsp; 66.44&nbsp;&nbsp;&nbsp; 54.12&nbsp;&nbsp;&nbsp; 10.58&nbsp;&nbsp;&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div><div class="line number3 index2 alt2"><code class="bash plain">0.00&nbsp;&nbsp;&nbsp; 66.44&nbsp;&nbsp;&nbsp; 54.12&nbsp;&nbsp;&nbsp; 10.58&nbsp;&nbsp;&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div><div class="line number4 index3 alt1"><code class="bash plain">0.00&nbsp;&nbsp;&nbsp; 66.44&nbsp;&nbsp;&nbsp; 54.12&nbsp;&nbsp;&nbsp; 10.58&nbsp;&nbsp;&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div></div></td></tr></tbody></table></div></div><p></p><p></p><p></p>
+
+<p>These items are important because they show how much time was spent in running GC.</p><p>In this example, <b>YGC</b> is 217 and <b>YGCT</b> is 0.928. So, after calculating the arithmetical average, you can see that it required about <i>4 ms</i> (0.004 seconds) for each young GC. Likewise, the average full GC time us <i>33ms</i>.</p><p>But the arithmetical average often does not help analyzing the actual GC problem. This is due to the severe deviations in GC operation time. (In other words, if the average time is <i>0.067 seconds</i> for a full GC, one GC may have lasted 1 ms while the other one lasted <i>57 ms</i>.) In order to check the individual GC time instead of the arithmetical average time, it is better to use <b>-verbosegc</b>.</p><h2>-verbosegc</h2><p><b>-verbosegc</b> is one of the JVM options specified when running a Java application. While <i>jstat</i> can monitor any JVM application that has not specified any options, <b>-verbosegc</b> needs to be specified in the beginning, so it could be seen as an unnecessary option (since jstat can be used instead). However, as <b>-verbosegc</b> displays easy to understand output results whenever a GC occurs, it is very helpful for monitoring rough GC information.</p>
+
+<table>
+<thead>
+	<tr>
+		<td></td>
+		<td>jstat</td>
+		<td>-verbosegc</td>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>Monitoring Target</td>
+		<td>Java application running on a machine that can log in to a terminal, or a remote Java application that can connect to the network by using jstatd</td>
+		<td>Only when -verbogc was specified as a JVM starting option</td>
+	</tr>
+	<tr>
+		<td>Output information</td>
+		<td>Heap status (usage, maximum size, number of times for GC/time, etc.)</td>
+		<td>Size of ew and old area before/after GC, and GC operation time</td>
+	</tr>
+	<tr>
+		<td>Output Time</td>
+		<td>Every designated time</td>
+		<td>Whenever GC occurs</td>
+	</tr>
+	<tr>
+		<td>Whenever useful</td>
+		<td>When trying to observe the changes of the size of heap area</td>
+		<td>When trying to see the effect of a single GC</td></tr></tbody></table>
+
+<p>The followings are other options that can be used with <b>-verbosegc</b>.</p><p></p><ul><li>-XX:+PrintGCDetails</li><li>-XX:+PrintGCTimeStamps</li><li>-XX:+PrintHeapAtGC&nbsp;</li><li>-XX:+PrintGCDateStamps (from JDK 6 update 4)</li></ul><p></p><p>If only <b>-verbosegc</b> is used, then <b>-XX:+PrintGCDetails</b> is applied by default. Additional options for <b>–verbosgc</b> are not exclusive and can be mixed and used together.</p><p>When using <b>-verbosegc</b>, you can see the results in the following format whenever a minor GC occurs.</p><p></p><div><div id="highlighter_637010" class="syntaxhighlighter nogutter  plain"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="plain plain">[GC [&lt;collector&gt;: &lt;starting occupancy1&gt; -&gt; &lt;ending occupancy1&gt;, &lt;pause time1&gt; secs] &lt;starting occupancy3&gt; -&gt; &lt;ending occupancy3&gt;, &lt;pause time3&gt; secs]</code></div></div></td></tr></tbody></table></div></div>
+
+<table>
+<thead>
+	<tr>
+		<td>Collector</td>
+		<td>Name of Collector Used for minor gc</td>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>starting occupancy1</td>
+		<td>The size of young area before GC</td>
+	</tr>
+	<tr>
+		<td>ending occupancy1</td>
+		<td>The size of young area after GC</td>
+	</tr>
+	<tr>
+		<td>pause time1</td>
+		<td>The time when the Java application stopped running for minor GC</td>
+	</tr>
+	<tr>
+		<td>starting occupancy3</td>
+		<td>The total size of heap area before GC</td>
+	</tr>
+	<tr>
+		<td>ending occupancy3</td>
+		<td>The total size of heap area after GC</td>
+	</tr>
+	<tr>
+		<td>pause time3</td>
+		<td>The time when the Java application stopped running for overall heap GC, including major GC</td>
+	</tr>
+</tbody>
+</table>
+
+<p>This is an example of <b>-verbosegc</b> output for <b>minor GC</b>:</p><p></p><p></p><div><div id="highlighter_638517" class="syntaxhighlighter  bash"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="bash plain">S0&nbsp;&nbsp;&nbsp; S1&nbsp;&nbsp;&nbsp;&nbsp; E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; YGC&nbsp;&nbsp;&nbsp; YGCT&nbsp;&nbsp;&nbsp; FGC&nbsp;&nbsp;&nbsp; FGCT&nbsp;&nbsp;&nbsp;&nbsp; GCT</code></div><div class="line number2 index1 alt1"><code class="bash plain">0.00&nbsp; 66.44&nbsp; 54.12&nbsp; 10.58&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div><div class="line number3 index2 alt2"><code class="bash plain">0.00&nbsp; 66.44&nbsp; 54.12&nbsp; 10.58&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div><div class="line number4 index3 alt1"><code class="bash plain">0.00&nbsp; 66.44&nbsp; 54.12&nbsp; 10.58&nbsp; 86.63&nbsp;&nbsp;&nbsp; 217&nbsp;&nbsp;&nbsp; 0.928&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp; 0.067&nbsp;&nbsp;&nbsp; 0.995</code></div></div></td></tr></tbody></table></div></div>
+
+<p>This is the example of output results after an <b>Full GC</b> occurred.</p><p></p><div><div id="highlighter_14905" class="syntaxhighlighter  plain"><div class="toolbar"><span><a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="toolbar_item command_help help">?</a></span></div><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="plain plain">[Full GC [Tenured: 3485K-&gt;4095K(4096K), 0.1745373 secs] 61244K-&gt;7418K(63104K), [Perm : 10756K-&gt;10756K(12288K)], 0.1762129 secs] [Times: user=0.19 sys=0.00, real=0.19 secs]</code></div></div></td></tr></tbody></table></div></div>
+
+<p>If a <a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/#cms-gc" target="_self">CMS collector</a> is used, then the following CMS information can be provided as well.</p>
+
+<p>As <b>-verbosegc</b> option outputs a log every time a GC event occurs, it is easy to see the changes of the heap usage rates caused by GC operation.</p>
+
+<h2>(Java) VisualVM &nbsp;+ Visual GC</h2>
+
+<p>Java Visual VM is a GUI profiling/monitoring tool provided by Oracle JDK.</p><p style="text-align: center;"><a href="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/visual-vm.png" target="_self"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/visual-vm.png" alt="Figure 1: VisualVM Screenshot." title="Figure 1: VisualVM Screenshot." class="iePngFix" width="700" height="435" style="" rel="xe_gallery"></a><br></p><p style="text-align: center;"><b>Figure 1: VisualVM Screenshot.</b></p><p style="text-align: left;"><span class="Apple-style-span">Instead of the version that is included with JDK, you can download Visual VM directly from its website. For the sake of convenience, the version included with JDK will be referred to as Java VisualVM (jvisualvm), and the version available from the website will be referred to as Visual VM (visualvm). The features of the two are not exactly identical, as there&nbsp;</span><span class="Apple-style-span">are slight differences, such as when installing plug-ins. Personally, I prefer the Visual VM version, which can be downloaded from the website.</span></p><span style="color: windowtext; "><p>After running Visual VM, if you select the application that you wish to monitor from the window on the left side, you can find the "<i>Monitoring</i>" tab there. You can get the basic information about GC and Heap from this Monitoring tab.&nbsp;</p><p>Though the basic GC status is also available through the basic features of VisualVM, you cannot access detailed information that is available from either <b>jstat</b> or <b>-verbosegc</b> option.&nbsp;</p>
+
+<p>If you want the detailed information provided by jstat, then it is recommended to install the Visual GC plug-in.&nbsp;</p><p>Visual GC can be accessed in real time from the <i>Tools</i> menu.</p>
+
+<p style="text-align: center;`"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/visual-gc-installation.png" alt="Figure 2:&amp;nbsp;Viusal GC Installation Screenshot." title="Figure 2:&amp;nbsp;Viusal GC Installation Screenshot." class="iePngFix" width="427" height="363" style="" rel="xe_gallery"></p>
+
+<p style="text-align: center;"><b>Figure 2:&nbsp;Viusal GC Installation Screenshot.</b></p><p>By using Visual GC, you can see the information provided by running <b>jstatd</b> in a more intuitive way. &nbsp;</p><p style="text-align: center;"><a href="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/visual-gc-execution.png" target="_self"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/visual-gc-execution.png" alt="Figure 3:&amp;nbsp;Visual GC execution screenshot." title="Figure 3:&amp;nbsp;Visual GC execution screenshot." class="iePngFix" width="700" height="445" style="" rel="xe_gallery"></a><br></p><p style="text-align: center;"><b>Figure 3:&nbsp;Visual GC execution screenshot.</b></p><h2>HPJMeter</h2><p><a href="https://h20392.www2.hp.com/portal/swdepot/displayProductInfo.do?productNumber=HPJMETER" target="_self">HPJMeter</a> is convenient for analyzing <b>-verbosegc</b> output results. If Visual GC can be considered as the GUI equivalent of <i>jstat</i>, then HPJMeter would be the GUI equivalent of <i>-verbosgc</i>. Of course, GC analysis is just one of the many features provided by HPJMeter. HPJMeter is a performance monitoring tool developed by HP. It can be used in HP-UX, as well as Linux and MS Windows.</p><p>Originally, a tool called <b>HPTune</b>&nbsp;used to provide the GUI analysis feature for <b>-verbosegc</b>. However, since the HPTune feature has been integrated into HPJMeter since version 3.0, there is no need to download HPTune separately.</p><p>When executing an application, the <b>-verbosegc</b> output results will be redirected to a separate file.</p><p>You can open the redirected file with HPJMeter, which allows faster and easier GC performance data analysis through the intuitive GUI.</p></span>
+
+<p style="margin-top: 7px; margin-right: 0px; margin-bottom: 7px; margin-left: 0px; text-align: center;"><a href="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/hpjmeter.png" target="_self"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/hpjmeter.png" alt="Figure 4:&amp;nbsp;HPJMeter." title="Figure 4:&amp;nbsp;HPJMeter." class="iePngFix" width="700" height="474" style="" rel="xe_gallery"></a></p>
+
+<p style="text-align: center;"><b>Figure 4:&nbsp;HPJMeter.</b></p>
+
+<h2>What is the Next Article About?</h2>
+
+<p>In this article I focused on <i>how to monitor GC operation information</i>, as the preparation stage for GC tuning. From my personal experience, I suggest using <b>jstat</b> to monitor GC operation, and if you feel that it takes too lmuch time to execute GC, then try <b>-verbosegc</b> option to analyze GC. The general GC tuning process is <i>to analyze the results after applying the changed GC options</i> after the <b>-verbosegc</b> option has been applied based on the analysis. In the next article, we will see the best options for executing GC tuning by using real cases as our examples.</p><p>By Sangmin Lee, Senior Engineer at Performance Engineering Lab, NHN Corporation.</p></div><!--AfterDocument(316126,313272)-->                    </div>
+    <br>
+    <div class="banner-comment">
+                            <a title="CUBRID 8.4.3 - Faster and More Stable" href="http://www.cubrid.org/?mid=downloads&amp;item=cubrid&amp;os=detect&amp;cubrid=8.4.3" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;Download CUBRID&#39;, &#39;Click&#39;, &#39;Blog comments&#39;, 0, true]);"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/banner_3.png" alt="CUBRID 8.4.3 - Faster and More Stable"></a>
+            </div>
+    <div class="section">
+        <div style="*zoom:1;padding:0px 0px 0px 0px !important; padding:none !important;">
+<div class="latest_content_widget" id="related-posts">
+    <h2>See also</h2>
+    					<div class="post-summary">
+																<a href="http://www.cubrid.org/blog/dev-platform/the-principles-of-java-application-performance-tuning/" class="thumb" title="The Principles of Java Application Performance Tuning">				<img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/200x125.ratio.jpg" alt="The Principles of Java Application Performance Tuning">
+				</a><span class="post-body">
+					<h3><a href="http://www.cubrid.org/blog/dev-platform/the-principles-of-java-application-performance-tuning/" title="The Principles of Java Application Performance Tuning">The Principles of Java Application Performance Tuning</a></h3>
+					<span class="summary">
+												<p><a class="category" href="http://www.cubrid.org/blog/categories/dev-platform/">Dev Platform</a> This is the fifth article in the series of "Become a Java GC Expert".&nbsp;In the first issue Understanding Java Garbage Col...</p>
+						<div class="meta">
+														<span class="date" title="2013/02/07 @ 02:26">3 years ago by</span> <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_290454" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Se Hoon Park</a> <a href="http://www.cubrid.org/blog/dev-platform/the-principles-of-java-application-performance-tuning/#comments" title="comments for this story"><span class="sprite comments"></span> 0</a> <span title="number of views"><span class="sprite views"></span> 134898</span>
+						</div>
+					</span>
+				</span>
+			</div>
+		    					<div class="post-summary">
+																<a href="http://www.cubrid.org/blog/dev-platform/how-to-tune-java-garbage-collection/" class="thumb" title="How to Tune Java Garbage Collection">				<img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/200x125.ratio(1).jpg" alt="How to Tune Java Garbage Collection">
+				</a><span class="post-body">
+					<h3><a href="http://www.cubrid.org/blog/dev-platform/how-to-tune-java-garbage-collection/" title="How to Tune Java Garbage Collection">How to Tune Java Garbage Collection</a></h3>
+					<span class="summary">
+												<p><a class="category" href="http://www.cubrid.org/blog/categories/dev-platform/">Dev Platform</a> This is the third article in the series of "Become a Java GC Expert". In the first issue Understanding Java Garbage Collecti...</p>
+						<div class="meta">
+														<span class="date" title="2012/09/18 @ 19:03">4 years ago by</span> <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_313272" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Sangmin Lee</a> <a href="http://www.cubrid.org/blog/dev-platform/how-to-tune-java-garbage-collection/#comments" title="comments for this story"><span class="sprite comments"></span> 0</a> <span title="number of views"><span class="sprite views"></span> 287437</span>
+						</div>
+					</span>
+				</span>
+			</div>
+		    					<div class="post-summary">
+																<a href="http://www.cubrid.org/blog/dev-platform/maxclients-in-apache-and-its-effect-on-tomcat-during-full-gc/" class="thumb" title="MaxClients in Apache and its effect on Tomcat during Full GC">				<img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/200x125.ratio(2).jpg" alt="MaxClients in Apache and its effect on Tomcat during Full GC">
+				</a><span class="post-body">
+					<h3><a href="http://www.cubrid.org/blog/dev-platform/maxclients-in-apache-and-its-effect-on-tomcat-during-full-gc/" title="MaxClients in Apache and its effect on Tomcat during Full GC">MaxClients in Apache and its effect on Tomcat during Full GC</a></h3>
+					<span class="summary">
+												<p><a class="category" href="http://www.cubrid.org/blog/categories/dev-platform/">Dev Platform</a> This is the fourth article in the series of "Become a Java GC Expert". In the first issue Understanding Java Garbage Collect...</p>
+						<div class="meta">
+														<span class="date" title="2012/11/22 @ 00:35">4 years ago by</span> <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_348816" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Dongsoon Choi</a> <a href="http://www.cubrid.org/blog/dev-platform/maxclients-in-apache-and-its-effect-on-tomcat-during-full-gc/#comments" title="comments for this story"><span class="sprite comments"></span> 0</a> <span title="number of views"><span class="sprite views"></span> 55566</span>
+						</div>
+					</span>
+				</span>
+			</div>
+		    					<div class="post-summary">
+																<a href="http://www.cubrid.org/blog/dev-platform/how-statement-pooling-in-jdbc-affects-garbage-collection/" class="thumb" title="How Statement Pooling in JDBC affects the Garbage Collection">				<img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/200x125.ratio(3).jpg" alt="How Statement Pooling in JDBC affects the Garbage Collection">
+				</a><span class="post-body">
+					<h3><a href="http://www.cubrid.org/blog/dev-platform/how-statement-pooling-in-jdbc-affects-garbage-collection/" title="How Statement Pooling in JDBC affects the Garbage Collection">How Statement Pooling in JDBC affects the Garbage Collection</a></h3>
+					<span class="summary">
+												<p><a class="category" href="http://www.cubrid.org/blog/categories/dev-platform/">Dev Platform</a> There are various techniques to improve the performance of your Java application. In this article I will talk about Statement ...</p>
+						<div class="meta">
+														<span class="date" title="2012/04/23 @ 19:55">4 years ago by</span> <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_348816" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Dongsun Choi</a> <a href="http://www.cubrid.org/blog/dev-platform/how-statement-pooling-in-jdbc-affects-garbage-collection/#comments" title="comments for this story"><span class="sprite comments"></span> 2</a> <span title="number of views"><span class="sprite views"></span> 45799</span>
+						</div>
+					</span>
+				</span>
+			</div>
+		    					<div class="post-summary">
+																<a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/" class="thumb" title="Understanding Java Garbage Collection">				<img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/200x125.ratio(4).jpg" alt="Understanding Java Garbage Collection">
+				</a><span class="post-body">
+					<h3><a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/" title="Understanding Java Garbage Collection">Understanding Java Garbage Collection</a></h3>
+					<span class="summary">
+												<p><a class="category" href="http://www.cubrid.org/blog/categories/dev-platform/">Dev Platform</a> What are the benefits of knowing how garbage collection (GC) works in Java?&nbsp;Satisfying the intellectual curiosity as a soft...</p>
+						<div class="meta">
+														<span class="date" title="2012/03/22 @ 01:39">4 years ago by</span> <a href="http://www.cubrid.org/blog/dev-platform/how-to-monitor-java-garbage-collection/#" class="author member_313272" onclick="return false;"><img src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/0.gif" alt="[Level:0]" title="Rank: 0/30, reputation score 1 (16% completed for the next level)">Sangmin Lee</a> <a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/#comments" title="comments for this story"><span class="sprite comments"></span> 6</a> <span title="number of views"><span class="sprite views"></span> 430395</span>
+						</div>
+					</span>
+				</span>
+			</div>
+		    </div></div>
+    </div>
+    <br>
+    <a name="comment"></a>
+    <a name="trackback"></a>
+    <div id="feedbacks">
+	    <div id="disqus_thread"><iframe id="dsq-app1" name="dsq-app1" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 1659px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+	    <script type="text/javascript">
+		    var disqus_shortname = 'cubrid';
+
+		    (function() {
+			    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		    })();
+	    </script>
+	    <noscript>Please enable JavaScript to view the &lt;a href="http://disqus.com/?ref_noscript"&gt;comments powered by Disqus.&lt;/a&gt;</noscript>
+	    
+    </div>
+</div>
+<script type="text/javascript">
+$LAB.queueWait(function()
+{
+    (function($)
+    {
+        var comments = $('#comments'),
+            trackbacks = $('#trackbacks'),
+            relatedPosts = $('#related-posts'),
+            snsButtons = $('#sns-buttons'),
+            $window = $(window), snsTop;
+
+        if (relatedPosts.length)
+        {
+            $('#side-related-posts').append(relatedPosts.find('h3').clone());
+        }
+
+        addthis.init();
+
+        snsTop = snsButtons.offset().top - snsButtons.css('marginTop').replace('px', '');
+
+        $window.scroll(function()
+        {
+            if ($window.scrollTop() > snsTop)
+            {
+                if (snsButtons.css('position') != 'fixed')
+                {
+                    snsButtons.css('position', 'fixed');
+                }
+            }
+            else{
+                if (snsButtons.css('position') != 'relative')
+                {
+                    snsButtons.css('position', 'relative');
+                }
+            }
+        });
+
+//            $window.bind('scroll', function()
+//            {
+//                if (isScrolledIntoView(snsButtons))
+//                {
+
+//                }
+//            });
+
+        $('#commentToggle').click(function(){
+            comments.show();
+            trackbacks.hide();
+        });
+        $('#trackbackToggle').click(function(){
+            comments.hide();
+            trackbacks.show();
+        });
+
+        function isScrolledIntoView(elem)
+        {
+            var docViewTop = $(window).scrollTop();
+            var docViewBottom = docViewTop + $(window).height();
+
+            var elemTop = elem.offset().top;
+            var elemBottom = elemTop + elem.height();
+
+            return ((elemBottom >= docViewTop) && (elemTop <= docViewBottom));
+        }
+    })(jQuery);
+})
+.script('http://www.cubrid.org/./modules/textyle/skins/simpleLine/js/textyle.js');
+</script>
+						</div>
+</div>
+<footer>
+    <div id="footerContainer">
+        <p class="menu"><a href="http://www.cubrid.org/about">About CUBRID</a> | <a href="http://www.cubrid.org/contact">Contact us</a> | <span>© 2012 CUBRID.org. All rights reserved. </span></p>
+        <p class="socials">
+            <span>Tune in to the following for updates: </span>
+            <a href="https://www.facebook.com/cubrid"><span id="facebook" class="sprite-icon_facebook sprite_header"></span></a>
+            <a href="http://twitter.com/cubrid"><span id="twitter" class="sprite-icon_twitter sprite_header"></span></a>
+            <a href="http://www.cubrid.org/rss" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;RSS&#39;, &#39;Click&#39;, &#39;CUBRID RSS&#39;, 0, true]);"><span id="rss" class="sprite-icon_rss sprite_header"></span></a>
+        </p>
+        <div class="cleared"></div>
+    </div>
+</footer>
+<script type="text/javascript" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/addthis_widget.js.下载"></script><div id="_atssh" style="visibility: hidden; height: 1px; width: 1px; position: absolute; top: -9999px; z-index: 100000;"><iframe id="_atssh604" title="AddThis utility frame" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/sh.5146487cc7ea4d7c00930dfb.html" style="height: 1px; width: 1px; position: absolute; top: 0px; z-index: 100000; border: 0px; left: 0px;"></iframe></div><style id="service-icons-0"></style>
+<script type="text/javascript">
+    $LAB
+        .script('http://platform.twitter.com/widgets.js')
+        .wait(function(){
+            (function(d, s, id) {
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) {return;}
+              js = d.createElement(s); js.id = id;
+              js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+              fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+            // "Blog" main menu item
+            jQuery('#menu_parent_68').addClass('selected');
+
+			window.___gcfg = {lang: 'en'};
+			(function()
+			{var po = document.createElement("script");
+				po.type = "text/javascript"; po.async = true;po.src = "https://apis.google.com/js/plusone.js";
+				var s = document.getElementsByTagName("script")[0];
+				s.parentNode.insertBefore(po, s);
+			})();
+        });
+</script>
+    <script type="text/javascript">
+window.SyntaxHighlighter.autoloader(
+"text plain /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushPlain.js",
+"applescript /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushAppleScript.js",
+"actionscript3 as3 /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushAS3.js",
+"bash shell /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushBash.js",
+"bat cmd batch btm /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushBatch.js",
+"coldfusion cf /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushColdFusion.js",
+"cpp c /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushCpp.js",
+"c# c-sharp csharp /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushCSharp.js",
+"css /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushCss.js",
+"delphi pascal /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushDelphi.js",
+"diff patch pas /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushDiff.js",
+"erl erlang /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushErlang.js",
+"groovy /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushGroovy.js",
+"java /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushJava.js",
+"jfx javafx /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushJavaFX.js",
+"js jscript javascript /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushJScript.js",
+"perl pl /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushPerl.js",
+"php /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushPhp.js",
+"powershell ps /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushPowerShell.js",
+"py python /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushPython.js",
+"ruby rails ror rb /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushRuby.js",
+"sass scss /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushSass.js",
+"scala /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushScala.js",
+"sql /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushSql.js",
+"vb vbnet /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushVb.js",
+"xml xhtml xslt html /modules/editor/components/code_highlighter/syntaxhighlighter/scripts/shBrushXml.js"
+);
+window.SyntaxHighlighter.config.bloggerMode = true;
+window.SyntaxHighlighter.all();
+</script>
+    <div id="waitingforserverresponse"></div>		
+	<script type="text/javascript">
+	function continueLAB()
+	{
+		$LAB.runQueue();
+	}
+
+	function loadscripts()
+	{
+		if(php_scripts.length > 0)
+		{   
+			$LAB.script(php_scripts[0].replace("&amp;","&")).wait(function(){
+				continueLAB();
+			});
+		}
+		else{
+			continueLAB();
+		}
+	}
+	function tryloadscripts() {
+		if(document.readyState == "complete") {		
+			loadscripts();
+		} else {
+			setTimeout("tryloadscripts()",500);
+		}
+	}
+	setTimeout("tryloadscripts()",500);
+	</script>
+
+
+<div id="popup_menu_area" style="display: none; z-index: 9999;"></div><iframe style="display: none;" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/saved_resource(1).html"></iframe><iframe name="oauth2relay444074806" id="oauth2relay444074806" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/postmessageRelay.html" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px;"></iframe><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./How to Monitor Java Garbage Collection _ CUBRID Blog_files/saved_resource(2).html"></iframe></body></html>

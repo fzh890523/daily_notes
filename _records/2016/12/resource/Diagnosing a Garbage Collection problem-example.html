@@ -1,0 +1,719 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+
+
+<script type="text/javascript" src="/static/js/analytics.js"></script>
+<script type="text/javascript">archive_analytics.values.server_name="wwwb-app7.us.archive.org";archive_analytics.values.server_ms=342;</script>
+<link type="text/css" rel="stylesheet" href="/static/css/banner-styles.css"/>
+
+
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+<meta name="collection" content="exclude">
+
+	<META NAME="GENERATOR" CONTENT="StarOffice 6.0  (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT="Jon Masamitsu">
+	<META NAME="CREATED" CONTENT="20021029;1311000">
+	<META NAME="CHANGED" CONTENT="20030220;11400200">
+</HEAD>
+<BODY LANG="en-US">
+
+
+<!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/disclaim-element.js" ></script>
+<script type="text/javascript" src="/static/js/graph-calc.js" ></script>
+<script type="text/javascript">//<![CDATA[
+var __wm = (function(imgWidth,imgHeight,yearImgWidth,monthImgWidth){
+var wbPrefix = "/web/";
+var wbCurrentUrl = "http://java.sun.com/docs/hotspot/gc1.4.2/example.html";
+
+var firstYear = 1996;
+var displayDay = "11";
+var displayMonth = "Oct";
+var displayYear = "2007";
+var prettyMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var $D=document,$=function(n){return document.getElementById(n)};
+var trackerVal,curYear = -1,curMonth = -1;
+var yearTracker,monthTracker;
+function showTrackers(val) {
+  if (val===trackerVal) return;
+  var $ipp=$("wm-ipp");
+  var $y=$("displayYearEl"),$m=$("displayMonthEl"),$d=$("displayDayEl");
+  if (val) {
+    $ipp.className="hi";
+  } else {
+    $ipp.className="";
+    $y.innerHTML=displayYear;$m.innerHTML=displayMonth;$d.innerHTML=displayDay;
+  }
+  yearTracker.style.display=val?"inline":"none";
+  monthTracker.style.display=val?"inline":"none";
+  trackerVal = val;
+}
+function trackMouseMove(event,element) {
+  var eventX = getEventX(event);
+  var elementX = getElementX(element);
+  var xOff = Math.min(Math.max(0, eventX - elementX),imgWidth);
+  var monthOff = xOff % yearImgWidth;
+
+  var year = Math.floor(xOff / yearImgWidth);
+  var monthOfYear = Math.min(11,Math.floor(monthOff / monthImgWidth));
+  // 1 extra border pixel at the left edge of the year:
+  var month = (year * 12) + monthOfYear;
+  var day = monthOff % 2==1?15:1;
+  var dateString = zeroPad(year + firstYear) + zeroPad(monthOfYear+1,2) +
+    zeroPad(day,2) + "000000";
+
+  $("displayYearEl").innerHTML=year+firstYear;
+  $("displayMonthEl").innerHTML=prettyMonths[monthOfYear];
+  // looks too jarring when it changes..
+  //$("displayDayEl").innerHTML=zeroPad(day,2);
+  var url = wbPrefix + dateString + '/' +  wbCurrentUrl;
+  $("wm-graph-anchor").href=url;
+
+  if(curYear != year) {
+    var yrOff = year * yearImgWidth;
+    yearTracker.style.left = yrOff + "px";
+    curYear = year;
+  }
+  if(curMonth != month) {
+    var mtOff = year + (month * monthImgWidth) + 1;
+    monthTracker.style.left = mtOff + "px";
+    curMonth = month;
+  }
+}
+function hideToolbar() {
+  $("wm-ipp").style.display="none";
+}
+function bootstrap() {
+  var $spk=$("wm-ipp-sparkline");
+  yearTracker=$D.createElement('div');
+  yearTracker.className='yt';
+  with(yearTracker.style){
+    display='none';width=yearImgWidth+"px";height=imgHeight+"px";
+  }
+  monthTracker=$D.createElement('div');
+  monthTracker.className='mt';
+  with(monthTracker.style){
+    display='none';width=monthImgWidth+"px";height=imgHeight+"px";
+  }
+  $spk.appendChild(yearTracker);
+  $spk.appendChild(monthTracker);
+
+  var $ipp=$("wm-ipp");
+  $ipp&&disclaimElement($ipp);
+}
+return{st:showTrackers,mv:trackMouseMove,h:hideToolbar,bt:bootstrap};
+})(525, 27, 25, 2);//]]>
+</script>
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+</style>
+<div id="wm-ipp" lang="en" style="display:none;">
+
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+   <table style="width:100%;"><tbody><tr>
+   <td id="wm-logo">
+       <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+   </td>
+   <td class="c">
+       <table style="margin:0 auto;"><tbody><tr>
+       <td class="u" colspan="2">
+       <form target="_top" method="get" action="/web/form-submit.jsp" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://java.sun.com/docs/hotspot/gc1.4.2/example.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20071011045315" /><input type="submit" value="Go" /><span id="wm_tb_options" style="display:block;"></span></form>
+       </td>
+       <td class="n" rowspan="2">
+           <table><tbody>
+           <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+           <tr class="m">
+           	<td class="b" nowrap="nowrap">
+		
+		    <a href="/web/20070816000539/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="16 Aug 2007">AUG</a>
+		
+		</td>
+		<td class="c" id="displayMonthEl" title="You are here: 4:53:15 Oct 11, 2007">OCT</td>
+		<td class="f" nowrap="nowrap">
+		
+		    <a href="/web/20080226124736/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="26 Feb 2008"><strong>FEB</strong></a>
+		
+                </td>
+	    </tr>
+           <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+           <tr class="d">
+               <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20070918085019/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="8:50:19 Sep 18, 2007"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a>
+               
+               </td>
+               <td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 4:53:15 Oct 11, 2007">11</td>
+	       <td class="f" nowrap="nowrap">
+               
+		   <a href="/web/20080226124736/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="12:47:36 Feb 26, 2008"><img src="/static/images/toolbar/wm_tb_nxt_on.png" alt="Next capture" width="14" height="16" border="0" /></a>
+	       
+	       </td>
+           </tr>
+           <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+           <tr class="y">
+	       <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20060830064352/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="30 Aug 2006"><strong>2006</strong></a>
+               
+               </td>
+               <td class="c" id="displayYearEl" title="You are here: 4:53:15 Oct 11, 2007">2007</td>
+	       <td class="f" nowrap="nowrap">
+               
+	           <a href="/web/20081219031534/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="19 Dec 2008"><strong>2008</strong></a>
+	       
+	       </td>
+           </tr>
+           </tbody></table>
+       </td>
+       </tr>
+       <tr>
+       <td class="s">
+           <a class="t" href="/web/20071011045315*/http://java.sun.com/docs/hotspot/gc1.4.2/example.html" title="See a list of every capture for this URL">91 captures</a>
+           <div class="r" title="Timespan for captures of this URL">25 May 03 - 20 Jun 16</div>
+       </td>
+       <td class="k">
+       <a href="" id="wm-graph-anchor">
+       <div id="wm-ipp-sparkline" title="Explore captures for this URL">
+	 <img id="sparklineImgId" alt="sparklines"
+		 onmouseover="__wm.st(1)" onmouseout="__wm.st(0)"
+		 onmousemove="__wm.mv(event,this)"
+		 width="525"
+		 height="27"
+		 border="0"
+		 src="/web/jsp/graph.jsp?graphdata=525_27_1996:-1:000000000000_1997:-1:000000000000_1998:-1:000000000000_1999:-1:000000000000_2000:-1:000000000000_2001:-1:000000000000_2002:-1:000000000000_2003:-1:000010010101_2004:-1:010101001101_2005:-1:011121110013_2006:-1:020301140431_2007:9:721110012100_2008:-1:011320000001_2009:-1:101000010000_2010:-1:000000000000_2011:-1:000000012211_2012:-1:010101000000_2013:-1:000010000000_2014:-1:000000020100_2015:-1:000012101011_2016:-1:000101000000" />
+       </div>
+       </a>
+       </td>
+       </tr></tbody></table>
+   </td>
+   <td class="r">
+       <a href="#close" onclick="__wm.h();return false;" style="background-image:url(/static/images/toolbar/wm_tb_close.png);top:5px;" title="Close the toolbar">Close</a>
+       <a href="http://faq.web.archive.org/" style="background-image:url(/static/images/toolbar/wm_tb_help.png);bottom:5px;" title="Get some help using the Wayback Machine">Help</a>
+   </td>
+   </tr></tbody></table>
+</div>
+</div>
+</div>
+<script type="text/javascript">__wm.bt();</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+
+<H1>Diagnosing a Garbage Collection problem</H1>
+<P>This appendix contain examples of garbage collection <SPAN LANG="en-US">verbosegc</SPAN>
+output that indicate an problem with garbage collection.  The default
+collector is being used unless otherwise specified.  Unless otherwise
+specified the verbosegc output is generated with 
+</P>
+<P><FONT FACE="Courier, monospace">-verbosegc -XX:+<SPAN LANG="en-US">PrintGCDetails</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0cm">The format for the diagnostic output
+presented here is the format used in 1.4.2.  The format is not
+guaranteed to be the same in later releases.  In particular the
+output associated with <FONT FACE="Courier, monospace">-XX:+<SPAN LANG="en-US">PrintGCDetails
+</SPAN></FONT><SPAN LANG="en-US"><FONT FACE="Thorndale">is almost
+guaranteed to change in that it represents the current needs of JVM
+developers. </FONT></SPAN>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">The minor collection output for these
+options produce output of the form</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[&lt;collector&gt;: &lt;starting occupancy1&gt; -&gt; &lt;ending
+occupancy1&gt;, &lt;pause time1&gt; secs] &lt;starting occupancy3&gt;
+-&gt; &lt;ending occupancy3&gt;, &lt;pause time3&gt; secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">where</P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT SIZE=2><FONT FACE="Courier, monospace">&lt;collector&gt; is
+an internal name for the collector used in the minor collection</font></P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT SIZE=2><FONT FACE="Courier, monospace">&lt;starting
+occupancy1&gt; is the occupancy of the young generation before the
+collection</FONT></FONT></P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>&lt;ending
+occupancy1&gt; is the occupancy of the young generation after the
+collection</FONT></FONT></P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>&lt;pause
+time1&gt; is the pause time in seconds for the minor collection.  </FONT></FONT>
+</P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>&lt;starting
+occupancy3&gt; is the occupancy of the entire heap before the
+collection</FONT></FONT></P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>&lt;ending
+occupancy3&gt; is the occupancy of the entire heap after the
+collection</FONT></FONT></P>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>&lt;pause
+time3&gt; is the pause time for the entire garbage collection.  This
+would include the time for a major collection is one was done.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">In the<SPAN LANG="en-US"> discussions
+</SPAN>that follow snippets of the verbosegc output are presented as
+examples of the information that can be gathered.  When statements
+are made regarding a quantity such as pause time,  the numbers being
+quoted are for averages over all the data gathered, not just from the
+snippet presented.  If a range of values is given, that range is from
+the snippet presented. 
+</P>
+<H2>Young generation size is too small</H2>
+<P>The young generation heap size in this first example is about 4
+Mbytes with an overall heap size of about 32 Mbytes.</P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+4032K-&gt;64K(4032K), 0.0429742 secs] 9350K-&gt;7748K(32704K),
+0.0431096 secs]</FONT></FONT></P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+4032K-&gt;64K(4032K), 0.0403446 secs] 11716K-&gt;10121K(32704K),
+0.0404867 secs]</FONT></FONT></P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+4032K-&gt;64K(4032K), 0.0443969 secs] 14089K-&gt;12562K(32704K),
+0.0445251 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm">This output seems reasonable from the
+point of view of the time spent in garbage collection but note that
+although the occupancy of the young generation is decreasing (e.g.,
+in the first line from 4032 to 64k by 3968k) the occupancy of the
+entire heap is decreasing by considerably less (by 1602k from 9350k
+to 7748k).  This indicates that only about 40% objects in the young
+generation were garbage and the rest  survive the collection and are
+being promoted into the old generation.  
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Increasing the young generation size
+to increase the free space after the collection</B></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">The young generation heap size in this
+next run is increased to 8 Mbytes.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8128K-&gt;64K(8128K), 0.0453670 secs] 13000K-&gt;7427K(32704K),
+0.0454906 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8128K-&gt;64K(8128K), 0.0388632 secs] 15491K-&gt;9663K(32704K),
+0.0390013 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8128K-&gt;64K(8128K), 0.0388610 secs]
+17727K-&gt;11829K(32704K), 0.0389919 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">With an 8 Mbyte size most of  young
+generation is garbage at the time of the minor collection.  In the
+first line the young generation heap decreases by 8064k from 8128k to
+64k and the entire heap decreases by 5573k from 13000k to 7427k
+meaning about 68% of the young generation was garbage. As would be
+expected the size of the young generation does not change the amount
+of live objects that survive the minor collection (about 2.4M bytes
+in each case) but there are fewer minor collections and the cost of
+the collections in terms of  the minor collection pause times are
+comparable (fractions of a second listed at the end of each line).</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Application time and stopped time</B></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">To illustrate the cost of the 4 Mbyte
+young generation versus the 8 Mbyte young generation, the output
+below was generated with the additional command line options
+-XX:+<SPAN LANG="en-US">PrintGCApplicationConcurrentTime</SPAN> and
+-XX:+<SPAN LANG="en-US">PrintGCApplicationStoppedTime</SPAN> which
+measure the amount of time the applications runs between collection
+pauses and the length of the collection pauses, respectively.  In the
+run with a 4 Mbyte young generation the application runs for .53 to
+.91 second with minor collection pauses of from .045 to .047 second. 
+That's between about 5% and 8% overhead for minor collections.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 0.5291524 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 3968K-&gt;64K(4032K), 0.0460948 secs] 7451K-&gt;6186K(32704K),
+0.0462350 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0468229 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 0.5279058 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 4032K-&gt;64K(4032K), 0.0447854 secs] 10154K-&gt;8648K(32704K),
+0.0449156 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0453124 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 0.9063706 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 4032K-&gt;64K(4032K), 0.0464574 secs]
+12616K-&gt;11187K(32704K), 0.0465921 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0470484 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">For the 8 Mbyte young generations</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 1.3874623 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8064K-&gt;63K(8128K), 0.0509215 secs] 11106K-&gt;5994K(32704K),
+0.0510972 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0517092 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 1.5225065 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8127K-&gt;63K(8128K), 0.0432982 secs] 14058K-&gt;8273K(32704K),
+0.0434172 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0440447 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Application
+time: 1.4263524 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8127K-&gt;64K(8128K), 0.0363538 secs]
+16337K-&gt;10381K(32704K), 0.0364811 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>Total
+time for which application threads were stopped: 0.0369103 seconds</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">The application is running 1.38 to 1.52
+seconds between minor collection pauses of  from .036 to .051.  The
+overheard for minor collection pauses is between 2.6% and 3.6%.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2>The young generation size is too large</H2>
+<P>In going from a young generation heap size of 4 Mbytes to 8 Mbytes
+the overheard due to minor collections was about cut in half.  What
+happens if the young generation size is doubled to 16 Mbytes?</P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+16000K-&gt;16000K(16192K), 0.0000574 secs][Tenured:
+2973K-&gt;2704K(16384K), 0.1012650 secs] 18973K-&gt;2704K(32576K),
+0.1015066 secs]</FONT></FONT></P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+16000K-&gt;16000K(16192K), 0.0000518 secs][Tenured:
+2704K-&gt;2535K(16384K), 0.0931034 secs] 18704K-&gt;2535K(32576K),
+0.0933519 secs]</FONT></FONT></P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+16000K-&gt;16000K(16192K), 0.0000498 secs][Tenured:
+2535K-&gt;2319K(16384K), 0.0860925 secs] 18535K-&gt;2319K(32576K),
+0.0863350 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm">This is an example of  the relative
+size of the young generation to the tenured generation being too
+large to allow the young generation promotion to be guaranteed (the
+young generation is about half the size of  the tenured generation). 
+The young generation cannot be collected successfully and only major
+collections are occurring.  Note that in this cause the young
+generation is collected but only as part of the more expensive major
+collection. 
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2>Is the tenured generation too large or too small?</H2>
+<P>With the young generation sized at 8 Mbytes and the overall heap
+at 32 Mbytes the major collection pauses are about .13 second.</P>
+<P><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC [DefNew:
+8128K-&gt;8128K(8128K), 0.0000558 secs][Tenured:
+17746K-&gt;2309K(24576K), 0.1247669 secs] 25874K-&gt;2309K(32704K),
+0.1250098 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm">If the heap size is increased to 64
+Mbytes, the major collections pauses increase to about .21 second.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 8128K-&gt;8128K(8128K), 0.0000369 secs][Tenured:
+50059K-&gt;5338K(57344K), 0.2218912 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>58187K-&gt;5338K(65472K),
+0.2221317 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">but the major collections are occurring
+at about half the frequency.  To see this print out time stamps at
+the collections by adding the option -XX:+<SPAN LANG="en-US">PrintGCTimeStamps.</SPAN>
+ For the 32 Mbyte heap the major collections are occurring about
+every 10 -11 seconds (only the major collections are shown).</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>111.042:
+[GC 111.042: [DefNew: 8128K-&gt;8128K(8128K), 0.0000505 secs]111.042:
+[Tenured: 18154K-&gt;2311K(24576K), 0.1290354 secs]
+26282K-&gt;2311K(32704K), 0.1293306 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>122.463:
+[GC 122.463: [DefNew: 8128K-&gt;8128K(8128K), 0.0000560 secs]122.463:
+[Tenured: 18630K-&gt;2366K(24576K), 0.1322560 secs]
+26758K-&gt;2366K(32704K), 0.1325284 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>133.896:
+[GC 133.897: [DefNew: 8128K-&gt;8128K(8128K), 0.0000443 secs]133.897:
+[Tenured: 18240K-&gt;2573K(24576K), 0.1340199 secs]
+26368K-&gt;2573K(32704K), 0.1343218 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>144.112:
+[GC 144.112: [DefNew: 8128K-&gt;8128K(8128K), 0.0000544 secs]144.112:
+[Tenured: 16564K-&gt;2304K(24576K), 0.1246831 secs]
+24692K-&gt;2304K(32704K), 0.1249602 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">For the 64 Mbyte heap the major
+collections are occurring about every 30 seconds.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>90.597:
+[GC 90.597: [DefNew: 8128K-&gt;8128K(8128K), 0.0000542 secs]90.597:
+[Tenured: 49841K-&gt;5141K(57344K), 0.2129882 secs]
+57969K-&gt;5141K(65472K), 0.2133274 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>120.899:
+[GC 120.899: [DefNew: 8128K-&gt;8128K(8128K), 0.0000550 secs]120.899:
+[Tenured: 50384K-&gt;2430K(57344K), 0.2216590 secs]
+58512K-&gt;2430K(65472K), 0.2219384 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>153.968:
+[GC 153.968: [DefNew: 8128K-&gt;8128K(8128K), 0.0000511 secs]153.968:
+[Tenured: 51164K-&gt;2309K(57344K), 0.2193906 secs]
+59292K-&gt;2309K(65472K), 0.2196372 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Which heap size, 32 Mbytes or 64
+Mbytes, is better?  For  higher throughput the 64 Mbyte heap is
+better while the 32 Mbyte heap provides the lesser pause times.  
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Even larger young generation sizes</B></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">To pursue higher throughput consider
+even larger heaps.  For a 256 Mbyte total heap with a 64 Mbyte young
+generation size, when compared to the 32 Mbyte heap with an 8 Mbyte
+young generation run, the minor<SPAN LANG="en-US"> collection </SPAN>pauses
+are only about 10% longer reflecting the fact that the number of
+objects surviving the collection are about the same.  The major
+collection are about 3.8 times longer reflecting the larger size of
+the heap.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;959K(64576K), 0.0457646 secs]
+196016K-&gt;133633K(261184K), 0.0459067 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;64575K(64576K), 0.0000573 secs][Tenured:
+132673K-&gt;5437K(196608K), 0.4959855 secs] 197249K-&gt;5437K(261184K),
+0.4962533 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 63616K-&gt;959K(64576K), 0.0360258 secs]
+69053K-&gt;7600K(261184K), 0.0361663 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2>After tuning the minor collection pauses are too long</H2>
+<P STYLE="margin-bottom: 0cm"><B>Try the parallel young generation
+collectors</B></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">If the minor collection pauses are too
+long, try using the parallel young generation collectors.  Adding
+-XX:+UseParallelGC produces the following output.  In this example
+adaptive sizing was turned off with -XX:-<SPAN LANG="en-US">UseAdaptiveSizing</SPAN>
+for simplicity.  Also<SPAN LANG="en-US"> time stamps </SPAN>were
+added for comparison with other results.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT COLOR="#000000"><FONT FACE="Courier, monospace"><FONT SIZE=2>500.285:
+[GC 51526K-&gt;2678K(253952K), 0.0120328 secs]</FONT></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT COLOR="#000000"><FONT FACE="Courier, monospace"><FONT SIZE=2>506.734:
+[GC 51830K-&gt;2646K(253952K), 0.0117832 secs]</FONT></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT COLOR="#000000"><FONT FACE="Courier, monospace"><FONT SIZE=2>513.068:
+[GC 51798K-&gt;2742K(253952K), 0.0124632 secs]</FONT></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT COLOR="#000000"><FONT FACE="Courier, monospace"><FONT SIZE=2>519.566:
+[GC 51894K-&gt;2550K(253952K), 0.0122923 secs]</FONT></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Here the average minor collection pause
+is about .015 second which is a reduction of 68%.  The adaptive
+sizing was turned off because of an anomalous behavior that is
+exhibited in this next set of output with adaptive sizing on.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+62752K-&gt;2992K(259328K), 0.0126936 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+62896K-&gt;60192K(259328K), 0.0127579 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+63008K-&gt;3120K(259328K), 0.0123150 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+63024K-&gt;60256K(259328K), 0.0120565 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+63072K-&gt;3024K(259328K), 0.0127215 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+62928K-&gt;60208K(259328K), 0.0113090 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+63024K-&gt;3136K(259328K), 0.0133799 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+63040K-&gt;60256K(259328K), 0.0135459 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Adaptive sizing adjusts the size of the
+survivor spaces.  In the alternate minor collections shown above the
+size of the survivor spaces is oscillating between values that
+alternatively cause a minimal collection of the young generation with
+a nearly complete collection of the young generation.  Although a
+strange behavior the use of adaptive sizing may still yield a higher
+throughput than turning it off.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Alternatively, using -XX:+UseParNewGC
+yields</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>497.905:
+[GC 497.905: [<SPAN LANG="en-US">ParNew</SPAN>: 64576K-&gt;960K(64576K),
+0.0255372 secs] 155310K-&gt;93003K(261184K), 0.0256767 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>506.305:
+[GC 506.305: [ParNew: 64576K-&gt;960K(64576K), 0.0276291 secs]
+156619K-&gt;94267K(261184K), 0.0277958 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>514.565:
+[GC 514.565: [ParNew: 64576K-&gt;960K(64576K), 0.0261376 secs]
+157883K-&gt;95711K(261184K), 0.0262927 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>522.838:
+[GC 522.838: [ParNew: 64576K-&gt;960K(64576K), 0.0316625 secs]
+159327K-&gt;97331K(261184K), 0.0318099 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">which shows about a 44% decrease in the
+minor collection pauses.  The<SPAN LANG="en-US"> time stamps </SPAN>were
+added to show the period of the minor collections.  With
+-XX:+UseParallelGC the minor collections occur about every 6.5
+seconds and take .015 second (for a minor collection overhead of
+.33%).  For -XX:+UseParNewGC the collections occur about every 8
+seconds and take about .026 second (for a minor collection overhead
+of .23%).</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2>After tuning the major collections pause are too long</H2>
+<P><B>Try the concurrent low pause collector</B></P>
+<P STYLE="margin-bottom: 0cm">The major collection pauses for the 256
+Mbyte total heap with the  64 Mbyte young generation is about .489
+second.  If this is too long the concurrent low pause collector can
+be tried with the command line option -XX:+UseConcMarkSweepGC (and
+also keeping the -XX:+UseParNewGC)</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0377639 secs]
+140122K-&gt;78078K(261184K), 0.0379598 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0329313 secs]
+141694K-&gt;79533K(261184K), 0.0331324 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0413880 secs]
+143149K-&gt;81128K(261184K), 0.0416101 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[1 CMS-initial-mark: 80168K(196608K)] 81144K(261184K), 0.0059036
+secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[CMS-concurrent-mark:
+0.129/0.129 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[CMS-concurrent-preclean:
+0.007/0.007 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC[<SPAN LANG="en-US">Rescan</SPAN>
+(non-parallel) [<SPAN LANG="en-US">grey</SPAN> object <SPAN LANG="en-US">rescan</SPAN>,
+0.0020879 secs][root rescan, 0.0144199 secs], 0.016</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>6258
+secs][weak refs processing, 0.0000411 secs] [1 CMS-remark:
+80168K(196608K)] 82493K(261184K),</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>0.0168943
+secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[CMS-concurrent-sweep:
+1.208/1.208 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[CMS-concurrent-reset:
+0.036/0.036 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0311520 secs]
+66308K-&gt;4171K(261184K), 0.0313513 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0348341 secs]
+67787K-&gt;5695K(261184K), 0.0350776 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[ParNew: 64576K-&gt;960K(64576K), 0.0359806 secs]
+69311K-&gt;7154K(261184K), 0.0362064 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">With the application used for these
+examples the time to do a concurrent collection is short relative to
+the time between minor collections.  This is typically not the case. 
+More often there will be minor collections during the concurrent
+collection.  Note that the concurrent phases may be long (e.g., the
+CMS-concurrent-sweep is 1.2 seconds) but the application is not
+stopped during the concurrent phases so the application will not see
+a pause.  Conversely, although the application is not paused during
+the concurrent phases, neither does it have use of all the available
+processors (one being used by the garbage collection thread). The
+pauses will come from the  CMS-initial-mark and  CMS-remark pause. 
+In this snippet of output the larger of those is .017 second).  Over
+the run the average for the CMS-remark pause (always the longer
+pause) was .019 second.  The maximum pause for a major collection (as
+compared to the default collector) was then reduced from .489 second
+to .019 second (96% reduction).  Note  also that the minor collection
+pause increased to .035 second which is higher than the .026 second
+minor pause using only -XX:+UseParNewGC.  This is indicative of the
+overhead associated with the concurrency of the major collection.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><B>Try the incremental low pause
+collector</B></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">The major collection times can also be
+reduced by use of the incremental low pause collector.  Use the
+command line option -Xincgc.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;959K(64576K), 0.0616204 secs][Train:
+5537K-&gt;5474K(196608K), 0.0108803 secs] 68664K-&gt;6434K(261184K),
+0.0730248 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;959K(64576K), 0.0559078 secs][Train:
+6813K-&gt;6749K(196608K), 0.0115077 secs] 70050K-&gt;7709K(261184K),
+0.0680289 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;959K(64576K), 0.0607615 secs][Train:
+8178K-&gt;8114K(196608K), 0.0112705 secs] 71325K-&gt;9074K(261184K),
+0.0727902 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">During each minor collection part of
+the old generation is collected and there is no separate major
+collection pause.  The minor collection pauses here increase to about
+.078 second.  If the incremental collection of the tenured generation
+cannot be completed before tenured generation is full, a major
+collection occurs and is indicated in the verbosegc output by the
+'MSC' in the output.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT FACE="Courier, monospace"><FONT SIZE=2>[GC
+[DefNew: 64575K-&gt;64575K(64576K), 0.0005311 secs][Train MSC:
+68226K-&gt;135K(196608K), 0.4347857 secs] 132802K-&gt;2565K(261184K),
+0.4397831 secs]</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><SPAN ID="Frame1" STYLE="float: left; width: 22.49cm; height: 1.52cm; border: none; padding: 0cm; background: #ffffff">
+	<P CLASS="frame-contents"><FONT SIZE=2>Draft version: <SDFIELD TYPE=DATETIME SDNUM="1033;1033;MMMM D, YYYY">February 20, 2003</SDFIELD></FONT></P>
+	<P><FONT SIZE=2>Copyright &copy; 2003 <A HREF="/web/20071011045315/http://www.sun.com/"><FONT SIZE=2>Sun
+	Microsystems, Inc.</FONT></A><FONT SIZE=2> All Rights Reserved. </FONT></FONT>
+	</P>
+</SPAN><BR CLEAR=LEFT><BR>
+</P>
+</BODY>
+<script language="JavaScript" src="/web/20071011045315js_/http://java.sun.com/js/omi/jsc/s_code_remote.js"></script></HTML>
+
+
+
+
+
+<!--
+     FILE ARCHIVED ON 4:53:15 Oct 11, 2007 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 8:43:20 Dec 1, 2016.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
