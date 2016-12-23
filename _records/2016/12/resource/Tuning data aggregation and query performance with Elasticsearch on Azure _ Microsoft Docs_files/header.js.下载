@@ -1,0 +1,145 @@
+$(function() {
+	setTimeout(function(){
+		window.checkForEnterKey = function (){
+			return true;
+		};
+
+		window.doSearch = function (){
+			return true;
+		};
+	}, 100);
+});
+
+(function ($) {
+	var defaultGeophone = '1-800-867-1389';
+	var defaultGeocountryDisplay = 'United States';
+	var defaultGeocountry = 'UnitedStates';
+	var defaultGeoip = '0.0.0.0';
+	var geophone = msDocs.functions.getLocalStorage('acomuser.geo-phone');
+	var geocountryDisplay = msDocs.functions.getLocalStorage('acomuser.geo-country-display');
+
+	var requiredStorageKeys = [
+		{'name': 'acomuser.geo-phone', 'default': defaultGeophone},
+		{'name': 'acomuser.geo-country', 'default': defaultGeocountry},
+		{'name': 'acomuser.geo-country-display', 'default': defaultGeocountryDisplay},
+		{'name': 'acomuser.geo-ip', 'default': defaultGeoip}
+	];
+
+	var activeClassName = 'active';
+	var openClassName = 'open';
+	var updatedClassName = 'az_hUpdated';
+
+	var azureGeoInfoUrl = 'https://docs.microsoft.com/api/GetAzureGeoInfo';
+
+
+	$.lald( '.az_h .menu>li>a[href="#"], .az_h .menu-drop>li>a[href="#"]', 'click' , function(e){
+		e.preventDefault();
+
+		$('.az_h').removeClass('default');
+
+		$thisParent = $(this).parent();
+		if($thisParent.hasClass(openClassName)){
+			$thisParent.removeClass(openClassName);
+		} else {
+			var $subItems = $thisParent.find('.menu-drop>li');
+			if($subItems.filter('.' + activeClassName).length < 1){
+				$subItems.first().addClass(activeClassName);
+			}
+
+			$thisParent
+				.addClass(activeClassName)
+				.addClass(openClassName)
+				.siblings()
+					.removeClass(activeClassName)
+					.removeClass(openClassName);
+		}
+	});
+
+	$.lald( '.az_h .small-hamburger', 'click' , function(e){
+		$(this).siblings('.menu').toggleClass(openClassName);
+	});
+
+
+	var doSearch = function(query){
+		document.location = 'https://azure.microsoft.com/' + msDocs.functions.getLocale(document.location.pathname) + '/search/?q=' + query;
+	};
+
+	$.lald( '.wa-textSearch .search-button', 'click' , function(e){
+		var query = $(this).siblings('.text-input').val();
+		if(query && query.length > 0){
+			doSearch(query);
+		}
+	});
+
+	$.lald( '.wa-textSearch .text-input', 'keypress' , function(e){
+		if ( e.which == 13 ) {
+			var query = $(this).val();
+			if(query && query.length > 0){
+				doSearch(query);
+			}
+		}
+	});
+
+	try{
+		//this is setting a generic guid for userInfo.
+		msDocs.functions.cookies.set('userInfo', {"guid":"00000000-0000-0000-0000-000000000000"});
+	}catch(e){}
+
+
+	//make sure there are values in local storage to prevent other scripts from trying to make their own call
+	for(var i=0; i<requiredStorageKeys.length; i++){
+		if(!msDocs.functions.getLocalStorage(requiredStorageKeys[i].name)){
+			msDocs.functions.setLocalStorage(requiredStorageKeys[i].name, requiredStorageKeys[i].default);
+		}
+	}
+	msDocs.functions.setLocalStorage('acomuser.__updated', new Date().getTime());
+	window.requestIP = defaultGeoip;
+
+
+	var setPhoneAndCountry = function(geophone, geocountryDisplay, addUpdatedClass){
+		var $holders = $('#old-search li.search, #modern-search li.search, .mobile-free-trial').not('.' + updatedClassName);
+		if(addUpdatedClass){
+			$holders.addClass(updatedClassName);
+		}
+		$holders.find('span[data-control="geophone"]').text(geophone);
+		$holders.find('span[data-control="geocountry"]').text(geocountryDisplay);
+	};
+
+	$(function() {
+		setTimeout(function(){
+			//make sure at least something it in all of the fields
+			setPhoneAndCountry(defaultGeophone, defaultGeocountryDisplay, false);
+		}, 100);
+	});
+
+
+	if(geophone && geocountryDisplay && geophone.length && geocountryDisplay.length){
+		$(function() {
+			setTimeout(function(){
+				setPhoneAndCountry(geophone, geocountryDisplay, true);
+			}, 120);
+		});
+	}else{
+		$.ajax({
+			url: azureGeoInfoUrl,
+			dataType: 'jsonp'
+		})
+		.done(function( data ) {
+			$(function() {
+
+				setTimeout(function(){
+					if(data && data.sales_phone_number && data.country_display && data.sales_phone_number.length && data.country_display.length){
+						setPhoneAndCountry(data.sales_phone_number, data.country_display, true);
+					}
+					msDocs.functions.setLocalStorage('acomuser.geo-phone', data.sales_phone_number);
+					msDocs.functions.setLocalStorage('acomuser.geo-country-display', data.country_display);
+					msDocs.functions.setLocalStorage('acomuser.geo-country', data.country_name);
+				}, 120);
+			});
+		})
+		.fail(function() {
+			//do anything here?
+		});
+	}
+
+})(jQuery);
