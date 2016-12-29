@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://lxw1234.com/archives/2016/11/787.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=10,IE=9,IE=8">
+<meta property="qc:admins" content="214342700712346375">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<title>写给大数据开发初学者的话3 – lxw的大数据田地</title>
+<script src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/push.js"></script><script src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/hm.js"></script><script>
+window._deel = {name: 'lxw的大数据田地',url: 'http://lxw1234.com/wp-content/themes/yusi1.0', ajaxpager: '', commenton: 1, roll: [0,0]}
+</script>
+<link rel="stylesheet" id="style-css" href="./写给大数据开发初学者的话3 – lxw的大数据田地_files/style.css" type="text/css" media="all">
+<script type="text/javascript" src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/jquery.min.js"></script>
+<script type="text/javascript" src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/jquery.js"></script>
+<link rel="prev" title="Linux下Python通过pyodbc连接SQLServer" href="http://lxw1234.com/archives/2016/11/784.htm">
+<link rel="next" title="写给大数据开发初学者的话4" href="http://lxw1234.com/archives/2016/11/795.htm">
+<link rel="canonical" href="http://lxw1234.com/archives/2016/11/787.htm">
+<link rel="shortlink" href="http://lxw1234.com/?p=787">
+<meta name="keywords" content="专题文章, 写给大数据开发初学者的话, 大数据平台, 写给大数据开发初学者的��">
+<meta name="description" content="如果你已经按照《写给大数据开发初学者的话2》中第三章和第四章的流程认真完整的走了一遍，那么你应该已经具备以下技能和知识点：  	知道如何把已有的数据采集到HDFS上，包括离线采集和实时采集； 	你已经知道sqoop（或者还有DataX）是HDFS和其他数据源之间的数据交换工具； 	你已经知道flume可以用作实时的日志采集；  从前面的学习，对于大数据平台，你已经掌握的不少的知识和技能，搭建Hadoop集群，  把数据采集到Hadoop">
+<!--[if lt IE 9]><script src="http://lxw1234.com/wp-content/themes/yusi1.0/js/html5.js"></script><![endif]-->
+<script src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/share.js"></script><style>@font-face{font-family:uc-nexus-iconfont;src:url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.woff) format('woff'),url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.ttf) format('truetype')}</style><link href="./写给大数据开发初学者的话3 – lxw的大数据田地_files/share.css" rel="styleSheet" type="text/css"></head>
+<body class="single single-post postid-787 single-format-standard" style="zoom: 1;">
+
+<header id="header" class="header">
+<div class="container-inner">
+ <div class="yusi-logo">
+                    <a href="http://lxw1234.com/">
+                        <h1>
+                                                        <span class="yusi-mono">lxw的大数据田地</span>
+                                                        <span class="yusi-bloger" style="font-size:30px">Hadoop/Hive/HBase/Spark/Java</span>
+                                                    </h1>
+                    </a>
+    </div>
+</div>
+
+	<div id="nav-header" class="navbar fixed">
+		
+		<ul class="nav">
+			<li id="menu-item-8" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-8"><a href="http://lxw1234.com/">首页</a></li>
+<li id="menu-item-63" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-63"><a href="http://lxw1234.com/archives/category/hadoop2">Hadoop</a></li>
+<li id="menu-item-156" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-156"><a href="http://lxw1234.com/archives/category/spark">Spark</a></li>
+<li id="menu-item-153" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-153"><a href="http://lxw1234.com/archives/category/hive">Hive</a></li>
+<li id="menu-item-508" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-508"><a href="http://lxw1234.com/archives/category/kafka">Kafka</a></li>
+<li id="menu-item-530" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-530"><a href="http://lxw1234.com/archives/category/flume">Flume</a></li>
+<li id="menu-item-64" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-64"><a href="http://lxw1234.com/archives/category/bigdata_platform">大数据平台</a></li>
+<li id="menu-item-658" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-658"><a href="http://lxw1234.com/archives/category/kylin">Kylin</a></li>
+<li id="menu-item-369" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-369"><a href="http://lxw1234.com/archives/category/special-topic">专题文章</a>
+<ul class="sub-menu">
+	<li id="menu-item-372" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-372"><a href="http://lxw1234.com/archives/2015/07/363.htm">Spark算子</a></li>
+	<li id="menu-item-371" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-371"><a href="http://lxw1234.com/archives/2015/07/365.htm">一起学Hive</a></li>
+	<li id="menu-item-496" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-496"><a href="http://lxw1234.com/archives/2015/09/492.htm">Hive存储过程</a></li>
+	<li id="menu-item-370" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-370"><a href="http://lxw1234.com/archives/2015/07/367.htm">Hive分析函数</a></li>
+	<li id="menu-item-470" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-470"><a href="http://lxw1234.com/archives/2015/08/468.htm">Spark On Yarn</a></li>
+</ul>
+</li>
+<li id="menu-item-66" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-66"><a href="http://lxw1234.com/archives/category/datawarehouse">数据仓库/数据库</a></li>
+<li id="menu-item-158" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-158"><a href="http://lxw1234.com/archives/category/other">其他</a>
+<ul class="sub-menu">
+	<li id="menu-item-311" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-311"><a href="http://lxw1234.com/about_lxw">关于lxw</a></li>
+	<li id="menu-item-739" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-739"><a href="http://lxw1234.com/pay-blog">赞助作者</a></li>
+	<li id="menu-item-155" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-155"><a href="http://lxw1234.com/archives/category/programes">编程语言</a></li>
+	<li id="menu-item-279" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-279"><a href="http://archive.apache.org/dist/">Apache归档</a></li>
+	<li id="menu-item-154" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-154"><a href="http://lxw1234.com/archives/category/hbase">HBase</a></li>
+	<li id="menu-item-557" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-557"><a href="http://lxw1234.com/archives/category/druid">Druid</a></li>
+	<li id="menu-item-592" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-592"><a href="http://lxw1234.com/archives/category/es">ElasticSearch</a></li>
+</ul>
+</li>
+<li style="float:right;">
+                    <div class="toggle-search"><i class="fa fa-search"></i></div>
+<div class="search-expand" style="display: none;"><div class="search-expand-inner"><form method="get" class="searchform themeform" onsubmit="location.href=&#39;http://lxw1234.com/search/&#39; + encodeURIComponent(this.s.value).replace(/%20/g, &#39;+&#39;); return false;" action="http://lxw1234.com/"><div> <input type="ext" class="search" name="s" onblur="if(this.value==&#39;&#39;)this.value=&#39;search...&#39;;" onfocus="if(this.value==&#39;search...&#39;)this.value=&#39;&#39;;" value="search..."></div></form></div></div>
+</li>
+		</ul><div class="screen-mini"><button data-type="screen-nav" class="btn btn-inverse screen-nav"><i class="fa fa-list"></i></button></div>
+	</div>
+	
+</header>
+<section class="container"><div class="speedbar">
+				<div class="toptip"><strong class="text-success"><i class="fa fa-volume-up"></i> </strong> 微信搜索<span style="color:red">bigdata029</span> | <span style="color:red">邀请体验：<a href="http://lxw1234.com/archives/2016/12/819.htm" target="_blank">数阅–数据管理、OLAP分析与可视化平台 </a></span>  | <span style="color:red"><a href="http://lxw1234.com/feed" target="_blank">订阅本站</a></span> | <span style="color:red">赞助作者：<a href="http://lxw1234.com/pay-blog" target="_blank">赞助作者</a></span></div>
+	</div>
+	<div class="content-wrap">
+	<div class="content">
+
+				<header class="article-header">
+			<h1 class="article-title"><a href="http://lxw1234.com/archives/2016/11/787.htm">写给大数据开发初学者的话3</a></h1>
+			<div class="meta">
+				<span id="mute-category" class="muted"><i class="fa fa-list-alt"></i><a href="http://lxw1234.com/archives/category/bigdata_platform"> 大数据平台</a></span>				<span class="muted"><i class="fa fa-user"></i> <a href="http://lxw1234.com/archives/author/lxw1234qq-com">lxw1234@qq.com</a></span>
+				<time class="muted"><i class="fa fa-clock-o"></i> 1个月前 (11-23)</time>
+				<span class="muted"><i class="fa fa-eye"></i> 851℃</span>
+				<span class="muted"><i class="fa fa-comments-o"></i> <a href="http://lxw1234.com/archives/2016/11/787.htm#comments">1评论</a></span>							</div>
+		</header>
+		<article class="article-content">
+			<p>如果你已经按照《<a title="" href="http://lxw1234.com/archives/2016/11/782.htm" target="_blank" data-original-title="http://lxw1234.com/archives/2016/11/782.htm">写给大数据开发初学者的话2</a>》中第三章和第四章的流程认真完整的走了一遍，那么你应该已经具备以下技能和知识点：</p>
+<ol>
+<li>知道如何把已有的数据采集到HDFS上，包括离线采集和实时采集；</li>
+<li>你已经知道sqoop（或者还有DataX）是HDFS和其他数据源之间的数据交换工具；</li>
+<li>你已经知道flume可以用作实时的日志采集；</li>
+</ol>
+<p>从前面的学习，对于大数据平台，你已经掌握的不少的知识和技能，搭建Hadoop集群，</p>
+<p>把数据采集到Hadoop上，使用Hive和MapReduce来分析数据，把分析结果同步到其他数据源。</p>
+<p>接下来的问题来了，Hive使用的越来越多，你会发现很多不爽的地方，特别是速度慢，</p>
+<p>大多情况下，明明我的数据量很小，它都要申请资源，启动MapReduce来执行。</p>
+<h2>第五章：快一点吧，我的SQL</h2>
+<p>其实大家都已经发现Hive后台使用MapReduce作为执行引擎，实在是有点慢。</p>
+<p>因此SQL On Hadoop的框架越来越多，按我的了解，最常用的按照流行度依次为SparkSQL、Impala和Presto.</p>
+<p>这三种框架基于半内存或者全内存，提供了SQL接口来快速查询分析Hadoop上的数据。关于三者的比较，请参考1.1.</p>
+<p>我们目前使用的是SparkSQL，至于为什么用SparkSQL，原因大概有以下吧：</p>
+<ol>
+<li>使用Spark还做了其他事情，不想引入过多的框架；</li>
+<li>Impala对内存的需求太大，没有过多资源部署；</li>
+</ol>
+<h3><span style="color: #ff00ff;">5.1 关于Spark和SparkSQL</span></h3>
+<p>什么是Spark，什么是SparkSQL。<br>
+Spark有的核心概念及名词解释。<br>
+SparkSQL和Spark是什么关系，SparkSQL和Hive是什么关系。<br>
+SparkSQL为什么比Hive跑的快。</p>
+<h3><span style="color: #ff00ff;">5.2 如何部署和运行SparkSQL</span></h3>
+<p>Spark有哪些部署模式？<br>
+如何在Yarn上运行SparkSQL？<br>
+使用SparkSQL查询Hive中的表。</p>
+<p><strong>PS: Spark不是一门短时间内就能掌握的技术，因此建议在了解了Spark之后，可以先从SparkSQL入手，循序渐进。</strong></p>
+<p>关于Spark和SparkSQL，可参考 <a title="" href="http://lxw1234.com/archives/category/spark" target="_blank" data-original-title="http://lxw1234.com/archives/category/spark">http://lxw1234.com/archives/category/spark</a></p>
+<p>如果你认真完成了上面的学习和实践，此时，你的”大数据平台”应该是这样的：</p>
+<p><img class="aligncenter" src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/20161123-1.jpg" alt="lxw1234" width="972" height="428"></p>
+<h2>第六章：一夫多妻制</h2>
+<p>请不要被这个名字所诱惑。其实我想说的是数据的一次采集、多次消费。</p>
+<p>在实际业务场景下，特别是对于一些监控日志，想即时的从日志中了解一些指标（关于实时计算，后面章节会有介绍），这时候，从HDFS上分析就太慢了，尽管是通过Flume采集的，但Flume也不能间隔很短就往HDFS上滚动文件，这样会导致小文件特别多。</p>
+<p>为了满足数据的一次采集、多次消费的需求，这里要说的便是Kafka。</p>
+<h3><span style="color: #ff00ff;">6.1 关于Kafka</span></h3>
+<p>什么是Kafka？</p>
+<p>Kafka的核心概念及名词解释。</p>
+<h3><span style="color: #ff00ff;">6.2 如何部署和使用Kafka</span></h3>
+<p>使用单机部署Kafka，并成功运行自带的生产者和消费者例子。<br>
+使用Java程序自己编写并运行生产者和消费者程序。<br>
+Flume和Kafka的集成，使用Flume监控日志，并将日志数据实时发送至Kafka。</p>
+<p>关于Kafka，可以参考 <a title="" href="http://lxw1234.com/archives/category/kafka" target="_blank" data-original-title="http://lxw1234.com/archives/category/kafka">http://lxw1234.com/archives/category/kafka</a></p>
+<p>如果你认真完成了上面的学习和实践，此时，你的”大数据平台”应该是这样的：</p>
+<p><img class="aligncenter" src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/20161123-2.jpg" alt="lxw1234" width="1038" height="484"></p>
+<p>这时，使用Flume采集的数据，不是直接到HDFS上，而是先到Kafka，Kafka中的数据可以由多个消费者同时消费，其中一个消费者，就是将数据同步到HDFS。</p>
+<p>&nbsp;</p>
+<p>以下章节正在整理中，请持续关注 <a title="" href="http://lxw1234.com/" target="_blank" data-original-title="http://lxw1234.com/">lxw的大数据田地 </a></p>
+<h2>第七章：越来越多的分析任务</h2>
+<h2>第八章：我的数据要实时</h2>
+<h2>第九章：我的数据要对外</h2>
+<h2>第十章：牛逼高大上的机器学习</h2>
+<hr>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>如果觉得本博客对您有帮助，请 <a href="http://lxw1234.com/pay-blog" target="_blank" data-original-title="" title="">赞助作者</a> 。</p><p>转载请注明：<a href="http://lxw1234.com/" data-original-title="" title="">lxw的大数据田地</a> » <a href="http://lxw1234.com/archives/2016/11/787.htm" data-original-title="" title="">写给大数据开发初学者的话3</a></p>
+
+      
+<div class="article-social">
+			<a href="javascript:;" data-action="ding" data-id="787" id="Addlike" class="action" data-original-title="" title=""><i class="fa fa-heart-o"></i>喜欢 (<span class="count">5</span>)</a><span class="or"><form name="lxw1234" action="https://shenghuo.alipay.com/send/payment/fill.htm" method="POST" target="_blank" accept-charset="GBK" rel="nofollow"><input name="optEmail" type="hidden" value="lxw1234@qq.com"><input name="payAmount" type="hidden" value="5"><input id="title" name="title" type="hidden" value="博客文章打赏"><input name="memo" type="hidden" value="看到您博客的文章《写给大数据开发初学者的话3》深受启发，小小意思不成敬意！"><a class="none" style="font-size:25px" href="javascript:document.lxw1234.submit();" data-original-title="" title="">赏</a></form></span><span class="action action-share bdsharebuttonbox bdshare-button-style0-24" data-bd-bind="1482999002448"><i class="fa fa-share-alt"></i>分享 (<span class="bds_count" data-cmd="count" title="累计分享0次">0</span>)<div class="action-popover"><div class="popover top in"><div class="arrow"></div><div class="popover-content"><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="sinaweibo fa fa-weibo" data-cmd="tsina" title="" data-original-title="分享到新浪微博"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="bds_qzone fa fa-star" data-cmd="qzone" title="" data-original-title="分享到QQ空间"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="tencentweibo fa fa-tencent-weibo" data-cmd="tqq" title="" data-original-title="分享到腾讯微博"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="qq fa fa-qq" data-cmd="sqq" title="" data-original-title="分享到QQ好友"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="bds_renren fa fa-renren" data-cmd="renren" title="" data-original-title="分享到人人网"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="bds_weixin fa fa-weixin" data-cmd="weixin" title="" data-original-title="分享到微信"></a><a href="http://lxw1234.com/archives/2016/11/787.htm#" class="bds_more fa fa-ellipsis-h" data-cmd="more" data-original-title="" title=""></a></div></div></div></span>	
+</div>
+	</article>	
+				<footer class="article-footer">
+			<div class="article-tags"><i class="fa fa-tags"></i><a href="http://lxw1234.com/archives/tag/%e4%b8%93%e9%a2%98%e6%96%87%e7%ab%a0" rel="tag" data-original-title="" title="">专题文章</a><a href="http://lxw1234.com/archives/tag/%e5%86%99%e7%bb%99%e5%a4%a7%e6%95%b0%e6%8d%ae%e5%bc%80%e5%8f%91%e5%88%9d%e5%ad%a6%e8%80%85%e7%9a%84%e8%af%9d" rel="tag" data-original-title="" title="">写给大数据开发初学者的话</a><a href="http://lxw1234.com/archives/tag/bd-platform" rel="tag" data-original-title="" title="">大数据平台</a></div></footer>
+	<nav class="article-nav">
+			<span class="article-nav-prev"><i class="fa fa-angle-double-left"></i> <a href="http://lxw1234.com/archives/2016/11/784.htm" rel="prev">Linux下Python通过pyodbc连接SQLServer</a></span>
+			<span class="article-nav-next"><a href="http://lxw1234.com/archives/2016/11/795.htm" rel="next">写给大数据开发初学者的话4</a>  <i class="fa fa-angle-double-right"></i></span>
+		</nav>
+
+		<div class="related_top">
+			<div class="related_posts"><ul class="related_img">
+
+		<li class="related_box">
+		<a href="http://lxw1234.com/archives/2016/12/823.htm" title="2016年大数据80篇爆款文章：这一年你追过的那些技术" target="_blank">
+<img src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/timthumb.php" alt="2016年大数据80篇爆款文章：这一年你追过的那些技术">	<br><span class="r_title">2016年大数据80篇爆款文章：这一年你追过的那些技术</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://lxw1234.com/archives/2016/12/819.htm" title="【邀请体验】数阅–数据管理、OLAP分析与可视化平台" target="_blank">
+<img src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/timthumb.php" alt="【邀请体验】数阅–数据管理、OLAP分析与可视化平台">	<br><span class="r_title">【邀请体验】数阅–数据管理、OLAP分析与可视化平台</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://lxw1234.com/archives/2016/11/795.htm" title="写给大数据开发初学者的话4" target="_blank">
+<img src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/timthumb.php" alt="写给大数据开发初学者的话4">	<br><span class="r_title">写给大数据开发初学者的话4</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://lxw1234.com/archives/2016/11/782.htm" title="写给大数据开发初学者的话2" target="_blank">
+<img src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/timthumb.php" alt="写给大数据开发初学者的话2">	<br><span class="r_title">写给大数据开发初学者的话2</span></a>
+		</li>
+	</ul>
+
+<div class="relates">
+<ul>
+<li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2016/11/795.htm">写给大数据开发初学者的话4</a></li><li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2016/11/782.htm">写给大数据开发初学者的话2</a></li><li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2016/11/779.htm">写给大数据开发初学者的话</a></li><li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2015/09/492.htm">Hive存储过程系列文章</a></li><li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2015/07/367.htm">Hive分析函数系列文章</a></li><li><i class="fa fa-minus"></i><a href="http://lxw1234.com/archives/2015/07/365.htm">一起学Hive系列文章</a></li><li><i class="fa fa-minus"></i><a target="_blank" href="http://lxw1234.com/archives/2016/12/823.htm">2016年大数据80篇爆款文章：这一年你追过的那些技术</a></li><li><i class="fa fa-minus"></i><a target="_blank" href="http://lxw1234.com/archives/2016/12/819.htm">【邀请体验】数阅–数据管理、OLAP分析与可视化平台</a></li>
+</ul></div></div>		</div>
+						<div id="respond" class="no_webshot">
+		<form action="http://lxw1234.com/wp-comments-post.php" method="post" id="commentform">
+		
+		<div class="comt-title">
+			<div class="comt-avatar pull-left">
+							</div>
+			<div class="comt-author pull-left">
+			发表我的评论			</div>
+			<a id="cancel-comment-reply-link" class="pull-right" href="javascript:;">取消评论</a>
+		</div>
+		
+		<div class="comt">
+			<div class="comt-box">
+				<textarea placeholder="写点什么..." class="input-block-level comt-area" name="comment" id="comment" cols="100%" rows="3" tabindex="1" onkeydown="if(event.ctrlKey&amp;&amp;event.keyCode==13){document.getElementById(&#39;submit&#39;).click();return false};"></textarea>
+				<div class="comt-ctrl">
+					<button class="btn btn-primary pull-right" type="submit" name="submit" id="submit" tabindex="5"><i class="fa fa-check-square-o"></i> 提交评论</button>
+					<div class="comt-tips pull-right"><input type="hidden" name="comment_post_ID" value="787" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+<div class="comt-tip comt-loading" style="display: none;">正在提交, 请稍候...</div><div class="comt-tip comt-error" style="display: none;">#</div></div>
+					<span data-type="comment-insert-smilie" class="muted comt-smilie"><i class="fa fa-smile-o"></i> 表情</span>
+					<span class="muted comt-mailme"><label for="comment_mail_notify" class="checkbox inline" style="padding-top:0"><input type="checkbox" name="comment_mail_notify" id="comment_mail_notify" value="comment_mail_notify" checked="checked">有人回复时邮件通知我</label></span>
+				</div>
+			</div>
+
+												<div class="comt-comterinfo" id="comment-author-info">
+						<h4>Hi，您需要填写昵称和邮箱！</h4>
+						<ul>
+							<li class="form-inline"><label class="hide" for="author">昵称</label><input class="ipt" type="text" name="author" id="author" value="" tabindex="2" placeholder="昵称"><span class="help-inline">昵称 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="email">邮箱</label><input class="ipt" type="text" name="email" id="email" value="" tabindex="3" placeholder="邮箱"><span class="help-inline">邮箱 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="url">网址</label><input class="ipt" type="text" name="url" id="url" value="" tabindex="4" placeholder="网址"><span class="help-inline">网址</span></li>
+						</ul>
+					</div>
+									</div>
+
+		
+	</form>
+	</div>
+<div id="postcomments">
+	<div id="comments">
+		<i class="fa fa-comments-o"></i> <b> (1)</b>个小伙伴在吐槽
+	</div>
+	<ol class="commentlist">
+		<li class="comment even thread-even depth-1" id="comment-1210"><div class="c-avatar"><div class="c-main" id="div-comment-1210">Kafka到HDFS有什么推荐的工具没，一般存储为什么格式，才能方便后面的分析操作呢？谢谢！<div class="c-meta"><span class="c-author">Riordon</span>2016-12-07 10:49 <a class="comment-reply-link" href="http://lxw1234.com/archives/2016/11/787.htm?replytocom=1210#respond" onclick="return addComment.moveForm( &quot;div-comment-1210&quot;, &quot;1210&quot;, &quot;respond&quot;, &quot;787&quot; )" aria-label="回复给Riordon">回复</a></div></div></div></li><!-- #comment-## -->
+	</ol>
+	<div class="commentnav">
+			</div>
+</div>
+			</div>
+</div>
+<aside class="sidebar">	
+<div class="widget widget_text"><div class="textwidget"><div class="social">
+
+<a href="http://weibo.com/u/5638944544" rel="external nofollow" title="" target="_blank" data-original-title="新浪微博"><i class="sinaweibo fa fa-weibo"></i></a><a class="weixin" data-original-title="" title=""><i class="weixins fa fa-weixin"></i><div class="weixin-popover"><div class="popover bottom in"><div class="arrow"></div><div class="popover-title">订阅号“bigdata029”</div><div class="popover-content"><img src="./写给大数据开发初学者的话3 – lxw的大数据田地_files/weixin.gif"></div></div></div></a><a href="mailto:lxw1234@qq.com" rel="external nofollow" title="" target="_blank" data-original-title="Email"><i class="email fa fa-envelope-o"></i></a><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=258365848&amp;site=qq&amp;menu=yes" rel="external nofollow" title="" target="_blank" data-original-title="联系QQ"><i class="qq fa fa-qq"></i></a><a href="http://lxw1234.com/feed" rel="external nofollow" target="_blank" title="" data-original-title="订阅本站"><i class="rss fa fa-rss"></i></a>
+</div></div></div>
+
+<div class="widget widget_categories"><div class="title"><h2>分类目录</h2></div>		<ul>
+	<li class="cat-item cat-item-84"><a href="http://lxw1234.com/archives/category/druid">Druid</a> (4)
+</li>
+	<li class="cat-item cat-item-87"><a href="http://lxw1234.com/archives/category/es">ElasticSearch</a> (4)
+</li>
+	<li class="cat-item cat-item-83"><a href="http://lxw1234.com/archives/category/flume">Flume</a> (8)
+</li>
+	<li class="cat-item cat-item-40"><a href="http://lxw1234.com/archives/category/hadoop2">Hadoop</a> (18)
+</li>
+	<li class="cat-item cat-item-63"><a href="http://lxw1234.com/archives/category/hbase">HBase</a> (4)
+</li>
+	<li class="cat-item cat-item-62"><a href="http://lxw1234.com/archives/category/hive">Hive</a> (57)
+</li>
+	<li class="cat-item cat-item-80"><a href="http://lxw1234.com/archives/category/kafka">Kafka</a> (8)
+</li>
+	<li class="cat-item cat-item-99"><a href="http://lxw1234.com/archives/category/kylin">Kylin</a> (13)
+</li>
+	<li class="cat-item cat-item-100"><a href="http://lxw1234.com/archives/category/saiku">Saiku</a> (1)
+</li>
+	<li class="cat-item cat-item-15"><a href="http://lxw1234.com/archives/category/spark">Spark</a> (55)
+</li>
+	<li class="cat-item cat-item-75"><a href="http://lxw1234.com/archives/category/special-topic">专题文章</a> (4)
+</li>
+	<li class="cat-item cat-item-36"><a href="http://lxw1234.com/archives/category/other">其他</a> (6)
+</li>
+	<li class="cat-item cat-item-41"><a href="http://lxw1234.com/archives/category/bigdata_platform">大数据平台</a> (32)
+</li>
+	<li class="cat-item cat-item-32"><a href="http://lxw1234.com/archives/category/bigdata_jobs">大数据招聘</a> (1)
+</li>
+	<li class="cat-item cat-item-12"><a href="http://lxw1234.com/archives/category/datawarehouse">数据仓库/数据库</a> (22)
+</li>
+	<li class="cat-item cat-item-13"><a href="http://lxw1234.com/archives/category/programes">编程语言</a> (21)
+</li>
+		</ul>
+</div>		<div class="widget widget_recent_entries">		<div class="title"><h2>近期文章</h2></div>		<ul>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/12/823.htm">2016年大数据80篇爆款文章：这一年你追过的那些技术</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/12/819.htm">【邀请体验】数阅–数据管理、OLAP分析与可视化平台</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/12/798.htm">Hive、MapReduce、Spark分布式生成唯一数值型ID</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/11/795.htm">写给大数据开发初学者的话4</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/11/787.htm">写给大数据开发初学者的话3</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/11/784.htm">Linux下Python通过pyodbc连接SQLServer</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/11/782.htm">写给大数据开发初学者的话2</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/11/779.htm">写给大数据开发初学者的话</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/10/774.htm">java 中 16 进制 HEX 中文解码</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/10/772.htm">学习Spark2.0中的Structured Streaming（一）</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/10/770.htm">Apache Flume 1.7发布</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/10/754.htm">华扬数据自助分析系统V1.0</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/09/728.htm">Python从变量读取的特殊字符切分字符串问题</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/09/725.htm">Python3环境下Caravel连接SparkSQL(ThriftServer)</a>
+						</li>
+					<li>
+				<a href="http://lxw1234.com/archives/2016/09/723.htm">几个连接HiveServer的客户端界面工具</a>
+						</li>
+				</ul>
+		</div></aside></section>
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="copyright pull-left">
+        <a href="http://lxw1234.com/" title="lxw的大数据田地">lxw的大数据田地</a>  版权所有。 陕ICP备15005085号-1   
+        本博客使用 <a href="https://portal.qiniu.com/signup?code=3lqitqqmmef6a" target="_blank"><span style="color:red">七牛云存储</span></a> 免费存储图片和文件。
+        </div>
+        <div class="trackcode pull-right">
+            <script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script"); hm.src = "//hm.baidu.com/hm.js?b1d7d002aeaa05618cb108a682e6960e"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script>        </div>
+    </div>
+</footer>
+
+<script>with(document)0[(getElementsByTagName("head")[0]||body).appendChild(createElement("script")).src="http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion="+~(-new Date()/36e5)];</script>
+<!-- for ad -->
+<!--
+<script>
+var baiduImagePlus = {
+noLogo:true,
+unionId:'u2399454',
+formList:[{formId:10},{formId:3}]
+};
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/i.js"></script>
+-->
+<!-- for ad end -->
+<!--
+<script type="text/javascript">
+    /*悬浮 创建于 2016-01-21*/
+var cpro_id = "u2501229";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script>
+-->
+<!-- 百度推送 -->
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+
+
+
+<div class="rollto" style="display: none;"><button class="btn btn-inverse" data-type="totop" title="回顶部"><i class="fa fa-arrow-up"></i></button><button class="btn btn-inverse" data-type="torespond" title="发评论"><i class="fa fa-comment-o"></i></button></div><div></div></body></html>
