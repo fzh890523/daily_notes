@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hadoop, HBase, Hive, ZooKeeper默认端口说明 - 奏乐 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=03KQeESEmpLfzDqUo0NiWUg5Zd5aRam3JHBZTK05Wug1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/AnotherEon001/bundle-AnotherEon001.css?v=dNz80TfH9-81kuLR86t4JWgT2tb_J0B779DQM4kw0WU1"/>
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="/skins/AnotherEon001/bundle-AnotherEon001-mobile.css?v=2AVDoHmv7lUzd79evVNYSQurhspvqJ8jlO4NeEuiBNk1"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hankedang/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hankedang/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hankedang/wlwmanifest.xml"/>
+<script src="//common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hankedang', cb_enable_mathjax=true;var isLogined=true;</script>
+<script src="/bundles/blog-common.js?v=hH1lCMV8WaIu271Nx7jPuv36TENW9-RsSxziLxUpjtc1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<div id="wrapper">
+<div id="header">
+
+<div id="top">
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hankedang/"><h1>修合无人见 存心有天知              -- QQ群：243078574</h1></a></h1>
+<div id="subtitle"></div>
+</div>
+<div id="sub"><div id="blog_stats">
+<div class="BlogStats">随笔 - 13, 文章 - 0, 评论 - 2, 引用 - 0</div>
+</div></div>
+
+
+
+</div>
+<div id="main_container">
+<div id="main_content">
+<div id="content">
+	
+<div id="post_detail">
+	<div class="post">
+		<h2>
+			<a id="cb_post_title_url" href="http://www.cnblogs.com/hankedang/p/5649414.html">Hadoop, HBase, Hive, ZooKeeper默认端口说明</a>
+		</h2>
+		<div class="postbody">
+		<div id="cnblogs_post_body"><table>
+<tbody>
+<tr>
+<td>组件</td>
+<td>Daemon</td>
+<td>端口</td>
+<td>配置</td>
+<td>说明</td>
+</tr>
+<tr>
+<td>HDFS</td>
+<td>DataNode</td>
+<td>50010</td>
+<td>dfs.datanode.address</td>
+<td>datanode服务端口，用于数据传输</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>50075</td>
+<td>dfs.datanode.http.address</td>
+<td>http服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>50475</td>
+<td>dfs.datanode.https.address</td>
+<td>https服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>50020</td>
+<td>dfs.datanode.ipc.address</td>
+<td>ipc服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>NameNode</td>
+<td>50070</td>
+<td>dfs.namenode.http-address</td>
+<td>http服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>50470</td>
+<td>dfs.namenode.https-address</td>
+<td>https服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8020</td>
+<td>fs.defaultFS</td>
+<td>接收Client连接的RPC端口，用于获取文件系统metadata信息。</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>journalnode</td>
+<td>8485</td>
+<td>dfs.journalnode.rpc-address</td>
+<td>RPC服务</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8480</td>
+<td>dfs.journalnode.http-address</td>
+<td>HTTP服务</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>ZKFC</td>
+<td>8019</td>
+<td>dfs.ha.zkfc.port</td>
+<td>ZooKeeper FailoverController，用于NN HA</td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>ResourceManager</td>
+<td>8032</td>
+<td>yarn.resourcemanager.address</td>
+<td>RM的applications manager(ASM)端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8030</td>
+<td>yarn.resourcemanager.scheduler.address</td>
+<td>scheduler组件的IPC端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8031</td>
+<td>yarn.resourcemanager.resource-tracker.address</td>
+<td>IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8033</td>
+<td>yarn.resourcemanager.admin.address</td>
+<td>IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8088</td>
+<td>yarn.resourcemanager.webapp.address</td>
+<td>http服务端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>NodeManager</td>
+<td>8040</td>
+<td>yarn.nodemanager.localizer.address</td>
+<td>localizer IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8042</td>
+<td>yarn.nodemanager.webapp.address</td>
+<td>http服务端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>8041</td>
+<td>yarn.nodemanager.address</td>
+<td>NM中container manager的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>JobHistory Server</td>
+<td>10020</td>
+<td>mapreduce.jobhistory.address</td>
+<td>IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>19888</td>
+<td>mapreduce.jobhistory.webapp.address</td>
+<td>http服务端口</td>
+</tr>
+<tr>
+<td>HBase</td>
+<td>Master</td>
+<td>60000</td>
+<td>hbase.master.port</td>
+<td>IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>60010</td>
+<td>hbase.master.info.port</td>
+<td>http服务端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>RegionServer</td>
+<td>60020</td>
+<td>hbase.regionserver.port</td>
+<td>IPC</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>60030</td>
+<td>hbase.regionserver.info.port</td>
+<td>http服务端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>HQuorumPeer</td>
+<td>2181</td>
+<td>hbase.zookeeper.property.clientPort</td>
+<td>HBase-managed ZK mode，使用独立的ZooKeeper集群则不会启用该端口。</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>2888</td>
+<td>hbase.zookeeper.peerport</td>
+<td>HBase-managed ZK mode，使用独立的ZooKeeper集群则不会启用该端口。</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>3888</td>
+<td>hbase.zookeeper.leaderport</td>
+<td>HBase-managed ZK mode，使用独立的ZooKeeper集群则不会启用该端口。</td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>Metastore</td>
+<td>9083</td>
+<td>/etc/default/hive-metastore中export PORT=&lt;port&gt;来更新默认端口</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>HiveServer</td>
+<td>10000</td>
+<td>/etc/hive/conf/hive-env.sh中export HIVE_SERVER2_THRIFT_PORT=&lt;port&gt;来更新默认端口</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>ZooKeeper</td>
+<td>Server</td>
+<td>2181</td>
+<td>/etc/zookeeper/conf/zoo.cfg中clientPort=&lt;port&gt;</td>
+<td>对客户端提供服务的端口</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>2888</td>
+<td>/etc/zookeeper/conf/zoo.cfg中server.x=[hostname]:nnnnn[:nnnnn]，标蓝部分</td>
+<td>follower用来连接到leader，只在leader上监听该端口。</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>3888</td>
+<td>/etc/zookeeper/conf/zoo.cfg中server.x=[hostname]:nnnnn[:nnnnn]，标蓝部分</td>
+<td>用于leader选举的。只在electionAlg是1,2或3(默认)时需要。</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p>所有端口协议均基于TCP。</p>
+<p>&nbsp;</p>
+<p>对于存在Web UI（HTTP服务）的所有hadoop daemon，有如下url：</p>
+<p><strong>/logs</strong><br />
+日志文件列表，用于下载和查看</p>
+<p><strong>/logLevel</strong><br />
+允许你设定log4j的日志记录级别，类似于hadoop daemonlog</p>
+<p><strong>/stacks</strong><br />
+所有线程的stack trace，对于debug很有帮助</p>
+<p><strong>/jmx</strong><br />
+服务端的Metrics，以JSON格式输出。</p>
+<p>/jmx?qry=Hadoop:*会返回所有hadoop相关指标。<br />
+/jmx?get=MXBeanName::AttributeName 查询指定bean指定属性的值，例如/jmx?get=Hadoop:service=NameNode,name=NameNodeInfo::ClusterId会返回ClusterId。<br />
+这个请求的处理类：org.apache.hadoop.jmx.JMXJsonServlet</p>
+<p>而特定的Daemon又有特定的URL路径特定相应信息。</p>
+<p><strong>NameNode</strong>:http://:50070/</p>
+<p><strong>/dfshealth.jsp</strong><br />
+HDFS信息页面，其中有链接可以查看文件系统</p>
+<p>/dfsnodelist.jsp?whatNodes=(DEAD|LIVE)<br />
+显示DEAD或LIVE状态的datanode</p>
+<p><strong>/fsck</strong><br />
+运行fsck命令，不推荐在集群繁忙时使用！</p>
+<p><strong>DataNode</strong>:http://:50075/</p>
+<p><strong>/blockScannerReport</strong><br />
+每个datanode都会指定间隔验证块信息</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<p class="postfoot">
+			posted on <span id="post-date">2016-07-07 11:18</span> <a href='http://www.cnblogs.com/hankedang/'>奏乐</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="https://i.cnblogs.com/EditPosts.aspx?postid=5649414" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(5649414);return false;">收藏</a>
+		</p>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=209243,cb_entryId=5649414,cb_blogApp=currentBlogApp,cb_blogUserGuid='42f3d6a4-6288-e411-b908-9dcfd8948a71',cb_entryCreatedDate='2016/7/7 11:18:00';loadViewCount(cb_entryId);</script>
+	
+	</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id='comment_form' class='commentform'>
+<a name='commentform'></a>
+<div id='divCommentShow'></div>
+<div id='comment_nav'><span id='span_refresh_tips'></span><a href='javascript:void(0);' onclick='return RefreshCommentList();' id='lnk_RefreshComments' runat='server' clientidmode='Static'>刷新评论</a><a href='#' onclick='return RefreshPage();'>刷新页面</a><a href='#top'>返回顶部</a></div>
+<div id='comment_form_container'></div>
+<div class='ad_text_commentbox' id='ad_text_under_commentbox'></div>
+<div id='ad_t2'></div>
+<div id='opt_under_post'></div>
+<div id='ad_c1' class='c_ad_block'></div>
+<div id='under_post_news'></div>
+<div id='ad_c2' class='c_ad_block'></div>
+<div id='under_post_kb'></div>
+<div id='HistoryToday' class='c_ad_block'></div>
+<script type='text/javascript'>
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+</div>
+</div>
+<div id="leftmenu">
+
+
+<h3>导航</h3>
+<ul>
+<li>
+<a id="blog_nav_sitehome" href="http://www.cnblogs.com/">博客园</a></li>
+<li>
+<a id="blog_nav_myhome" class="two_words" href="http://www.cnblogs.com/hankedang/">首页</a></li>
+<li>
+<a id="blog_nav_newpost" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li>
+<a id="blog_nav_contact" accesskey="9" class="two_words" rel="nofollow" href="https://msg.cnblogs.com/send/%E5%A5%8F%E4%B9%90">联系</a></li>
+<li>
+<a id="blog_nav_rss" class="two_words" href="http://www.cnblogs.com/hankedang/rss">订阅</a>
+<a id="blog_nav_rss_image" href="http://www.cnblogs.com/hankedang/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>
+</li>
+<li>
+<a id="blog_nav_admin" class="two_words" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+
+<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+<meta name="vs_showGrid" content="False">
+
+<h3>公告</h3>
+<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+
+<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+
+</div>
+</div>
+<div class="clear"></div>
+<div id="footer">
+
+<p id="footer">
+	Powered by: 
+	<br />
+	
+	<a id="Footer1_Hyperlink3" NAME="Hyperlink1" href="http://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>
+	<br />
+	Copyright &copy; 奏乐
+</p>
+</div>
+</div>
+
+</body>
+</html>
