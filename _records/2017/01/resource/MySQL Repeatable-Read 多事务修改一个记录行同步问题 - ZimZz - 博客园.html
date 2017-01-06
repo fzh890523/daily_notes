@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/bundle-ClearScreen01.css">
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/bundle-ClearScreen01-mobile.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/zemliu/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/zemliu/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/zemliu/wlwmanifest.xml">
+<script src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'zemliu', cb_enable_mathjax=false;var isLogined=true;</script>
+<script src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/blog-common.js" type="text/javascript"></script>
+<style>@font-face{font-family:uc-nexus-iconfont;src:url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.woff) format('woff'),url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.ttf) format('truetype')}</style></head>
+<body style="zoom: 1;">
+<a name="top"></a>
+
+<!--done-->
+<div id="header">
+	
+<!--done-->
+<div class="header">
+	<div class="headerText">
+		<a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/zemliu/">今天的风儿好喧嚣啊~</a><br>
+		
+	</div>
+</div>
+
+</div>
+<div id="mylinks">
+<!--done-->
+<a id="blog_nav_sitehome" class="listitem" href="http://www.cnblogs.com/">博客园</a>&nbsp;&nbsp;::&nbsp;
+<a id="blog_nav_myhome" class="listitem" href="http://www.cnblogs.com/zemliu/">首页</a>&nbsp;&nbsp;::&nbsp;
+<a id="blog_nav_newpost" class="listitem" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a>&nbsp;&nbsp;::&nbsp;
+<a id="blog_nav_contact" accesskey="9" class="listitem" rel="nofollow" href="https://msg.cnblogs.com/send/ZimZz">联系</a>&nbsp;&nbsp;::&nbsp;
+<a id="blog_nav_rss" class="listitem" href="http://www.cnblogs.com/zemliu/rss">订阅</a>&nbsp;<a id="blog_nav_rss_image" href="http://www.cnblogs.com/zemliu/rss"><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/xml.gif" alt="订阅"></a>&nbsp;&nbsp;::&nbsp;
+<a id="blog_nav_admin" class="listitem" rel="nofollow" href="https://i.cnblogs.com/">管理</a>
+</div>
+<div id="mytopmenu">
+	
+		<div id="mystats">
+			<div id="blog_stats">
+<!--done-->
+<div class="blogStats">
+posts - 340,&nbsp;
+comments - 68,&nbsp;
+trackbacks - 0
+
+</div></div></div>
+	
+</div>
+<div id="main">
+    <div id="leftcontent">
+	    
+		    <div id="leftcontentcontainer">
+			    
+<!--done-->
+<div class="news">公告</div>
+	<div class="newsItem">
+		<div id="blog-news"><a href="http://info.flagcounter.com/2S9Y"><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/saved_resource" alt="Flag Counter" border="0"></a><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/zemliu/">ZimZz</a><br>园龄：<a href="http://home.cnblogs.com/u/zemliu/" title="入园时间：2012-04-17">4年8个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/zemliu/followers/">125</a><br>关注：<a href="http://home.cnblogs.com/u/zemliu/followees/">0</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;30df4c23-6488-e111-aa3f-842b2b196315&#39;)">+加关注</a></div></div></div><script type="text/javascript">loadBlogNews();</script>
+	</div>
+
+			    <div id="blog-calendar"><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2016/12/01&#39;);return false;">&lt;</a></td><td align="center">2017年1月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2017/02/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td></tr><tr><td class="CalWeekendDay" align="center">1</td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td class="CalTodayDay" align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center">11</td><td align="center">12</td><td align="center">13</td><td class="CalWeekendDay" align="center">14</td></tr><tr><td class="CalWeekendDay" align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			    <div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/zemliu/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/zemliu/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/zemliu/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/zemliu/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/zemliu/tag/" title="我的博客的标签列表">我的标签</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+
+</div></div><div id="sidebar_recentposts" class="sidebar-block">
+<h3 class="catListTitle">最新随笔</h3>
+<div class="RecentComment" id="RecentPosts">
+<ul style="word-break:break-all">
+<li><a href="http://www.cnblogs.com/zemliu/p/4423786.html">1. Netty 的 inbound 与 outbound, 以及 InboundHandler 的 channelInactive 与 OutboundHandler 的 close</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4396297.html">2. Trie / Radix Tree / Suffix Tree</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4337660.html">3. 布隆过滤器</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4263048.html">4. HTTP 协议缓存</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4196975.html">5. Xcode Custom Shortcut</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4172266.html">6. Java CopyOnWriteArrayList</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4167588.html">7. Java 工具集</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4121136.html">8. 解決 java.security.cert.CertificateException: Certificates does not conform to algorithm constraints</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4072646.html">9. 关于 Netty Channel 的 Autoread</a></li><li><a href="http://www.cnblogs.com/zemliu/p/4060920.html">10. TDDL DataSource</a></li>
+</ul>
+</div>
+</div><div id="sidebar_toptags" class="sidebar-block"></div><div id="sidebar_categories">
+<!--done-->
+
+		<h1 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(478)</span></h1>
+		
+				<ul class="catList">
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_0" class="listitem" href="http://www.cnblogs.com/zemliu/category/373021.html">Apache(3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_1" class="listitem" href="http://www.cnblogs.com/zemliu/category/509138.html">Bug(2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_2" class="listitem" href="http://www.cnblogs.com/zemliu/category/424977.html">Design Pattern(10)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_3" class="listitem" href="http://www.cnblogs.com/zemliu/category/411106.html">Git/Github(2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_4" class="listitem" href="http://www.cnblogs.com/zemliu/category/515888.html">Guava(23)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_5" class="listitem" href="http://www.cnblogs.com/zemliu/category/519169.html">Guava User Guide(7)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_6" class="listitem" href="http://www.cnblogs.com/zemliu/category/377383.html">JAVA(144)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_7" class="listitem" href="http://www.cnblogs.com/zemliu/category/377797.html">Linux(18)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_8" class="listitem" href="http://www.cnblogs.com/zemliu/category/512357.html">Maven(2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_9" class="listitem" href="http://www.cnblogs.com/zemliu/category/505472.html">MyBatis(7)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_10" class="listitem" href="http://www.cnblogs.com/zemliu/category/377837.html">MySQL(32)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_11" class="listitem" href="http://www.cnblogs.com/zemliu/category/525007.html">Netty(12)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_12" class="listitem" href="http://www.cnblogs.com/zemliu/category/419861.html">Nginx(1)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_13" class="listitem" href="http://www.cnblogs.com/zemliu/category/603520.html">PhotoShop(3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_14" class="listitem" href="http://www.cnblogs.com/zemliu/category/377377.html">PHP(82)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_15" class="listitem" href="http://www.cnblogs.com/zemliu/category/381814.html">PHP面向对象,模式与实践(6)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_16" class="listitem" href="http://www.cnblogs.com/zemliu/category/590772.html">Redis(1)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_17" class="listitem" href="http://www.cnblogs.com/zemliu/category/497809.html">Spring(17)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_18" class="listitem" href="http://www.cnblogs.com/zemliu/category/523890.html">Test(3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_19" class="listitem" href="http://www.cnblogs.com/zemliu/category/423123.html">Thinking in Java(10)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_20" class="listitem" href="http://www.cnblogs.com/zemliu/category/553487.html">ZooKeeper(2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_21" class="listitem" href="http://www.cnblogs.com/zemliu/category/405049.html">代码(5)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_22" class="listitem" href="http://www.cnblogs.com/zemliu/category/373022.html">计算机网络(12)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_23" class="listitem" href="http://www.cnblogs.com/zemliu/category/511723.html">计算机知识(3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_24" class="listitem" href="http://www.cnblogs.com/zemliu/category/423191.html">鸟哥的Linux私房菜(1)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_0_Link_25" class="listitem" href="http://www.cnblogs.com/zemliu/category/379046.html">算法与数据结构(70)</a></li>
+			
+				</ul>
+			
+	
+		<h1 class="catListTitle">随笔档案<span style="font-size:11px;font-weight:normal">(340)</span></h1>
+		
+				<ul class="catList">
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_0" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2015/04.html">2015年4月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_1" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2015/03.html">2015年3月 (1)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_2" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2015/01.html">2015年1月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_3" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/12.html">2014年12月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_4" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/11.html">2014年11月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_5" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/10.html">2014年10月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_6" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/09.html">2014年9月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_7" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/08.html">2014年8月 (6)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_8" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/07.html">2014年7月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_9" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/06.html">2014年6月 (4)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_10" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/05.html">2014年5月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_11" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/04.html">2014年4月 (8)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_12" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/03.html">2014年3月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_13" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/02.html">2014年2月 (7)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_14" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2014/01.html">2014年1月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_15" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/12.html">2013年12月 (1)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_16" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/11.html">2013年11月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_17" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/10.html">2013年10月 (16)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_18" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/09.html">2013年9月 (27)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_19" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/08.html">2013年8月 (24)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_20" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/07.html">2013年7月 (31)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_21" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/03.html">2013年3月 (3)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_22" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/02.html">2013年2月 (5)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_23" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2013/01.html">2013年1月 (4)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_24" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/12.html">2012年12月 (2)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_25" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/11.html">2012年11月 (13)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_26" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/10.html">2012年10月 (40)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_27" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/09.html">2012年9月 (32)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_28" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/08.html">2012年8月 (32)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_29" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/07.html">2012年7月 (4)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_30" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/06.html">2012年6月 (10)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_31" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/05.html">2012年5月 (40)</a></li>
+			
+				<li class="catListItem"> <a id="CatList_LinkList_1_Link_32" class="listitem" href="http://www.cnblogs.com/zemliu/archive/2012/04.html">2012年4月 (3)</a></li>
+			
+				</ul>
+			
+	
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<h3 class="catListTitle">最新评论</h3>
+<div class="RecentComment" id="RecentComments">
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/zemliu/p/3290585.html#3576820">1. Re:SimpleDateFormat的线程安全问题与解决方案</a></li>
+        <li class="recent_comment_body">我写了一个无同步的实现，博主帮看下这样是否可行package beans;import java.text.ParseException;import java.text.SimpleDateForm......</li>
+        <li class="recent_comment_author">--ysjjovo</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/zemliu/p/3290585.html#3535710">2. Re:SimpleDateFormat的线程安全问题与解决方案</a></li>
+        <li class="recent_comment_body">@dragonkiiiiiiiing引用你的threadLocal用法不对，threadLocal不是这样用的是这样用的，没有问题，请看官方API文档。...</li>
+        <li class="recent_comment_author">--Mike.W</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/zemliu/p/3719292.html#3511484">3. Re:HttpAsyncClient的连接池使用</a></li>
+        <li class="recent_comment_body">好文章，学习了，谢谢</li>
+        <li class="recent_comment_author">--小施</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/zemliu/p/3290585.html#3489811">4. Re:SimpleDateFormat的线程安全问题与解决方案</a></li>
+        <li class="recent_comment_body">你的threadLocal用法不对，threadLocal不是这样用的</li>
+        <li class="recent_comment_author">--dragonkiiiiiiiing</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/zemliu/p/3290585.html#3487783">5. Re:SimpleDateFormat的线程安全问题与解决方案</a></li>
+        <li class="recent_comment_body">很不错,就是不知道怎么转载</li>
+        <li class="recent_comment_author">--java外行</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<h3 class="catListTitle">阅读排行榜</h3>
+<div class="RecentComment" id="TopViewPosts"> 
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/zemliu/archive/2012/04/18/2454655.html">1. Apache配置正向代理与反向代理(71033)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3263053.html">2. MyBatis使用Collection查询多对多或一对多结果集bug(44267)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3239014.html">3. MyBatis 缓存(41295)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3203511.html">4. MySQL分区表(32520)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3192905.html">5. Java Web 项目获取运行时路径 classpath(26059)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<h3 class="catListTitle">评论排行榜</h3>
+<div class="RecentComment" id="TopCommentsPosts">
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/zemliu/p/3290585.html">1. SimpleDateFormat的线程安全问题与解决方案(5)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3263053.html">2. MyBatis使用Collection查询多对多或一对多结果集bug(5)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3248171.html">3. 利用MyBatis的动态SQL特性抽象统一SQL查询接口(4)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3239014.html">4. MyBatis 缓存(4)</a></li><li><a href="http://www.cnblogs.com/zemliu/archive/2012/05/31/2527287.html">5. PHP中的__clone()(4)</a></li></ul></div>
+</div></div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div class="RecentComment">
+	<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/zemliu/archive/2012/04/18/2454655.html">1. Apache配置正向代理与反向代理(7)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3239014.html">2. MyBatis 缓存(5)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3290585.html">3. SimpleDateFormat的线程安全问题与解决方案(4)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3263053.html">4. MyBatis使用Collection查询多对多或一对多结果集bug(4)</a></li><li><a href="http://www.cnblogs.com/zemliu/p/3719292.html">5. HttpAsyncClient的连接池使用(3)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script></div>
+	    
+    </div>
+    <div id="centercontent">
+	    
+<div id="post_detail">
+<!--done-->
+<div class="post">
+	<div class="postTitle">
+		<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/zemliu/p/3282649.html">MySQL Repeatable-Read 多事务修改一个记录行同步问题</a>
+	</div>
+	<div id="cnblogs_post_body"><p>MySQL 在处于Repeatable-Read 事务隔离级别下时, <strong>两个事务之间的修改在读上不会相互影响,在写上却会受到影响</strong></p>
+<p>例子</p>
+<p>1.</p>
+<p>事务A</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150458-b237acb6d3dc401b9190d2789c6d78c0.png" alt=""></p>
+<p>事务B</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150510-e94389e4027d470688bb971d3c02cd30.png" alt=""></p>
+<p>现在事务A B看到的数据是一样的</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>2.</p>
+<p>事务A更新</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150634-551e01c88ec34123acd97653ab5dad43.png" alt=""></p>
+<p>事务B查询</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150701-05404077bf854b8eaae227c998f5cb90.png" alt=""></p>
+<p>可见 在 读上AB互不影响,因为B看到的还是原来的数据</p>
+<p>&nbsp;</p>
+<p>3.</p>
+<p>B更新,更新被挂起,因为A执行了更新且事务还没提交</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150842-015542c041f847c9b81d36d81f27c968.png" alt=""></p>
+<p>A提交事务</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26150912-7cadc702ff664a91b45f81913c95654b.png" alt=""></p>
+<p>&nbsp;</p>
+<p><strong>A提交事务后,B的更新操作得以执行,但是更新却影响了<span style="color: #ff0000;">0</span>行</strong></p>
+<p><strong><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26151009-53f90dc840564e0db18f0905378e60d5.png" alt=""></strong></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>4.</p>
+<p>B都提交事务</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26151050-d9178bd44e2a4612afa64d2f7b6c7dd9.png" alt=""></p>
+<p>A,B再查询</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/26151128-564b21e2ac2940efa0f3cb33ebf8ff46.png" alt=""></p>
+<p>&nbsp;</p>
+<p><strong>可见结果是A的修改结果,所以多事务同时修改同一条记录并不会出现我们不期待的结果(A改完以后B又改成了另一个值),只不过很奇怪的是在事务内update对select没有影响,对update确实有影响的</strong></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>______________________________________________</strong></p>
+<p>&nbsp;</p>
+<p><strong><span style="color: #ff0000;">另外,如果是使用for update来查询,也是可以即时看到别的事务的更新的结果的</span>,由于for update需要获取排他锁,所以它必须在别的事务的更新行为结束且事务提交以后才能继续执行,那么这样会有一个很奇异的结果,那就是for update的select查询能看到跟新的结果,而直接用select查询时无法看到最新查询结果的,如下</strong></p>
+<p>事务A开始事务并执行更新</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/02014117-8043f74348634b90a91907cbc057ea73.png" alt=""></p>
+<p>现在oldroot已经被跟新为newroot</p>
+<p>&nbsp;</p>
+<p>2. B事务执行for update 查询会被挂起,因为这一行被加了排他锁</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/02014416-cc9ec34ceccc40c084eb081e80adf19a.jpg" alt=""></p>
+<p>&nbsp;</p>
+<p>3. A提交事务, B被挂起的操作会继续执行,然而却得到了空集,因为for update的查询是可以及时获取最新数据的,而此时oldroot已经被改为了newroot</p>
+<p>同时,我们在事务B执行对newroot的for update查询,是可以得到结果的,然而如果没有for update,得到的又是空集</p>
+<p>事务A提交</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/02014641-f5da4913a472420cbcfdeead8b12ecac.png" alt=""></p>
+<p>事务B查询</p>
+<p><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/02014656-54afaaef68ec4803981a353409af41f6.png" alt=""></p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/zemliu/category/377837.html" target="_blank">MySQL</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(3282649,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;30df4c23-6488-e111-aa3f-842b2b196315&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/zemliu/" target="_blank"><img src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/20160318195649.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/zemliu/">ZimZz</a><br>
+            <a href="http://home.cnblogs.com/u/zemliu/followees">关注 - 0</a><br>
+            <a href="http://home.cnblogs.com/u/zemliu/followers">粉丝 - 125</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;30df4c23-6488-e111-aa3f-842b2b196315&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(3282649,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+    <div class="buryit" onclick="votePost(3282649,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">2</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/zemliu/p/3281757.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/zemliu/p/3281757.html" title="发布于2013-08-26 00:44">Java NIO</a><br><a href="http://www.cnblogs.com/zemliu/p/3283965.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/zemliu/p/3283965.html" title="发布于2013-08-26 23:27">MyBatis+Spring SQL效率测试报告</a><br></div>
+</div>
+
+
+	<div class="postDesc">posted on <span id="post-date">2013-08-26 15:13</span> <a href="http://www.cnblogs.com/zemliu/">ZimZz</a> 阅读(<span id="post_view_count">3076</span>) 评论(<span id="post_comment_count">2</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=3282649" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html#" onclick="AddToWz(3282649);return false;">收藏</a></div>
+</div>
+<script type="text/javascript">var allowComments=true,cb_blogId=115093,cb_entryId=3282649,cb_blogApp=currentBlogApp,cb_blogUserGuid='30df4c23-6488-e111-aa3f-842b2b196315',cb_entryCreatedDate='2013/8/26 15:13:00';loadViewCount(cb_entryId);</script>
+
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<!--done-->
+<a name="feedback"></a>
+<div class="feedback">
+	<div class="feedbackTitle">
+		Feedback
+	</div>
+	<div class="feedbackNoItems"></div>
+	
+	
+			<div class="feedbackItem">
+				<div class="feedbackListTitle"><a href="http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html#3200642" class="layer">#1楼</a><a name="3200642" id="comment_anchor_3200642"></a></div>
+				<div class="feedbackListSubtitle">
+					 <span class="comment_date">2015-06-04 18:14</span> | <a id="a_comment_author_3200642" href="http://www.cnblogs.com/studyIT/" target="_blank">lulu2panpan</a> <a href="http://msg.cnblogs.com/send/lulu2panpan" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+				</div>
+				<div id="comment_body_3200642" class="blog_comment_body">A提交之后 username已经变成txA了<br>b随后执行 where条件中还是before 当然不会变成TxB了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3200642,&#39;Digg&#39;,this)">支持(1)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3200642,&#39;Bury&#39;,this)">反对(0)</a></div>
+				&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3200642,&#39;rQTkjUqNTX2GSqrPH/aVKAhDn/kj1NGw3DLuQwDYIJfPCgNF0n87WA==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3200642,&#39;rQTkjUqNTX2GSqrPH/aVKAhDn/kj1NGw3DLuQwDYIJfPCgNF0n87WA==&#39;)">引用</a></span>
+			</div>
+		
+			<div class="feedbackItem">
+				<div class="feedbackListTitle"><a href="http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html#3205396" class="layer">#2楼</a><a name="3205396" id="comment_anchor_3205396"></a><span id="comment-maxId" style="display:none;">3205396</span><span id="comment-maxDate" style="display:none;">2015/6/10 16:03:49</span></div>
+				<div class="feedbackListSubtitle">
+					 <span class="comment_date">2015-06-10 16:03</span> | <a id="a_comment_author_3205396" href="http://home.cnblogs.com/u/773014/" target="_blank">kinglee0709</a> <a href="http://msg.cnblogs.com/send/kinglee0709" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+				</div>
+				<div id="comment_body_3205396" class="blog_comment_body">专门注册了个号留言！<br>做技术的能不能严谨点？ 尤其是这种写出来能被N多人看到的东西<br>就像1L 说的那样<br>你把你实例1里面 where 条件中的 username 取掉 再操作一次试试<br>看看事务B 会不会更改数据！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3205396,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3205396,&#39;Bury&#39;,this)">反对(0)</a></div>
+				&nbsp;&nbsp;<span class="comment_actions"><a href="javascript:void(0);" onclick="return ReplyComment(3205396,&#39;qt0iRVH8989hQchN+06HBtuwxMrU6lPd7P6KNKxK3TlYB2zjU8cF8w==&#39;)">回复</a><a href="javascript:void(0);" onclick="return QuoteComment(3205396,&#39;qt0iRVH8989hQchN+06HBtuwxMrU6lPd7P6KNKxK3TlYB2zjU8cF8w==&#39;)">引用</a></span>
+			</div>
+		
+</div>
+
+
+<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/zemliu/archive/2013/08/26/3282649.html#top">返回顶部</a></div>
+<div id="comment_form_container">
+<div id="commentform_title">发表评论</div>
+<span id="tip_comment" style="color:Red"></span>
+<p>
+昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50" value="yonka">
+</p>
+<div class="commentbox_main">
+<div class="commentbox_title">
+<div class="commentbox_title_left">评论内容：</div>
+<div class="commentbox_title_right">
+<img id="ubb_quote" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/quote.gif" alt="引用" title="添加引用" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;quote&#39;)">
+<img id="ubb_bold" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/b.png" alt="粗体" title="添加粗体" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;b&#39;)">
+<img id="ubb_url" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/lk.png" alt="链接" title="添加链接" onclick="insertUbbUrl(&#39;tbCommentBody&#39;)">
+<img id="ubb_indent" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/indent.png" alt="缩进" title="添加首行缩进" onclick="insertIndent(&#39;tbCommentBody&#39;)">
+<img id="ubb_code" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/InsertCode.gif" alt="代码" title="添加代码" onclick="insertUbbCode()">
+<img id="ubb_img" class="comment_icon" src="./MySQL Repeatable-Read 多事务修改一个记录行同步问题 - ZimZz - 博客园_files/img.gif" alt="图片" title="上传图片" onclick="OpenImageUploadWindow();">
+</div>
+</div>
+<div class="clear"></div>
+<textarea id="tbCommentBody" class="comment_textarea"></textarea>
+</div>
+<p id="commentbox_opt">
+<input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论">
+<span id="span_comment_canceledit" style="display:none"><a href="javascript:void(0);" onclick="return CancelCommentEdit()">不改了</a></span>
+<a href="javascript:void(0);" onclick="return logout();">退出登录</a>
+        <a id="commentbox_opt_sub" href="javascript:void(0);" title="订阅后有新评论时会邮件通知您" onclick="commentManager.Subscribe()">订阅评论</a>
+</p>
+<div id="tip_comment2" style="color:Red"></div>
+<p>
+[Ctrl+Enter快捷键提交]
+</p>
+<div style="display:none">
+<span id="comment_edit_id"></span><span id="span_parentcomment_id"></span>
+<span id="span_parent_id"></span>
+<span id="span_comment_replyto"></span>
+<span id="span_comment_posted"></span>
+</div>
+</div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/560528/" target="_blank">三星成立1.5亿美元投资基金 用以支持AI、VR等初创企业</a><br> ·  <a href="http://news.cnblogs.com/n/560527/" target="_blank">Slack都有基金了，并且围绕自身投资了11个新项目</a><br> ·  <a href="http://news.cnblogs.com/n/560526/" target="_blank">AWS看好数据迁移方向</a><br> ·  <a href="http://news.cnblogs.com/n/560524/" target="_blank">我们给12306做了个估值1000亿的BP</a><br> ·  <a href="http://news.cnblogs.com/n/560523/" target="_blank">Google推出Tilt Brush驻场艺术家计划</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="ad_c2" class="c_ad_block"></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/556770/" target="_blank">写给未来的程序媛</a><br> ·  <a href="http://kb.cnblogs.com/page/558087/" target="_blank">高质量的工程代码为什么难写</a><br> ·  <a href="http://kb.cnblogs.com/page/555750/" target="_blank">循序渐进地代码重构</a><br> ·  <a href="http://kb.cnblogs.com/page/554496/" target="_blank">技术的正宗与野路子</a><br> ·  <a href="http://kb.cnblogs.com/page/553682/" target="_blank">陈皓：什么是工程师文化？</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+    </div>
+</div>
+
+<!--done-->
+<div class="footer">
+	Powered by: 
+	<br>
+	
+	<a id="Footer1_Hyperlink3" name="Hyperlink1" href="http://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>
+	<br>
+	Copyright ©2017 ZimZz
+</div>
+
+
+
+
+<div></div></body></html>
