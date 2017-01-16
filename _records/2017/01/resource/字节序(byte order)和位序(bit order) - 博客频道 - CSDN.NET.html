@@ -1,0 +1,966 @@
+
+<!-- saved from url=(0055)http://blog.csdn.net/liuxingen/article/details/45420455 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">
+    var username = "liuxingen";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/liuxingen";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+
+    var fileName = '45420455';
+    var commentscount = 3;
+    var islock = false
+
+   window.quickReplyflag = true;
+            
+             var isBole = false;
+            
+
+</script>
+
+
+
+      
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+   
+    <meta http-equiv="Cache-Control" content="no-siteapp"><link rel="alternate" media="handheld" href="http://blog.csdn.net/liuxingen/article/details/45420455#">
+    <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/tracking.js" charset="utf-8"></script> 
+   <!-- <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>-->
+     <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico">    
+     <link type="text/css" rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/default.css">
+
+
+    <script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/jquery-1.9.1.min.js" type="text/javascript"></script>
+
+     <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+      <script src="http://csdnimg.cn/rabbit/tracking-ad/main.js"></script>
+
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/index.css">
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/bootstrap.css">
+ 	<link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/avatar.css">
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/common.css">
+    <!-- [if IE 7]-->
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/font-awesome.min.css">
+    <!-- [endif]-->
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/main.css">
+    
+     <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/jquery.rollbar.css">
+    <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/style.css">
+    
+    
+    <!-- [if lt IE 9]-->
+    <script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/html5shiv.min.js"></script>
+    <!-- [endif]-->
+	<script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/skintemplatecommon.js" type="text/javascript"></script>
+
+    <script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/skintemplateprovider.js" type="text/javascript"></script>      
+	<script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/skintemplatecomment.js" type="text/javascript"></script>
+
+    <script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/cnick.js" type="text/javascript"></script>      
+   
+       
+    
+
+      <script type="text/javascript">
+          $(function () {
+              setTimeout(function () {
+                  $(".mess_name").each(function (index, item) {
+                      var u = $(this).text().split('：')[0].toString().replace("回复", "")
+                      var thisComment = $(this);
+                      if (u) {
+                          $.getJSON("https://passport.csdn.net/get/nick?callback=?", { users: u }, function (a) {
+                              if (a != null && a.data != null && a.data.length > 0) {
+                                  nick = a.data[0].n;
+                                  if (u != nick) {
+                                      thisComment.text(thisComment.text().replace(u, nick));
+                                  }
+                              }
+                          });
+                      }
+                  });
+
+                  $(".username").each(function (index, item) {
+                      var u = $(this).text().split('：')[0].toString().replace("回复", "")
+                      var thisComment = $(this);
+                      if (u) {
+                          $.getJSON("https://passport.csdn.net/get/nick?callback=?", { users: u }, function (a) {
+                              if (a != null && a.data != null && a.data.length > 0) {
+                                  nick = a.data[0].n;
+                                  if (u != nick) {
+                                      thisComment.text(thisComment.text().replace(u, nick));
+                                  }
+                              }
+                          });
+                      }
+                  });
+
+              }, 200);
+
+          });
+      </script>
+
+    <title>字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET</title>	
+  <script src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/share.js"></script><style>@font-face{font-family:uc-nexus-iconfont;src:url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.woff) format('woff'),url(chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.ttf) format('truetype')}</style><link rel="stylesheet" type="text/css" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/style(1).css"><link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/share_style0_16.css"></head>
+  <body style="zoom: 1;">
+
+       <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+   <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/html.js" type="text/javascript"></script><div class="csdn-toolbar csdn-toolbar-skin-black ">        <div class="container row center-block ">          <div class="col-md-3 pull-left logo clearfix"><a href="http://www.csdn.net/?ref=toolbar" title="CSDN首页" target="_blank" class="icon"></a><a title="频道首页" href="http://blog.csdn.net/?ref=toolbar_logo" class="img blog-icon"></a></div>          <div class="pull-right login-wrap unlogin">            <ul class="btns">              <li class="loginlink"><a href="https://passport.csdn.net/account/login?ref=toolbar" target="_top">登录&nbsp;</a>|<a target="_top" href="http://passport.csdn.net/account/mobileregister?ref=toolbar&amp;action=mobileRegister">&nbsp;注册</a></li>              <li class="search">                <div class="icon on-search-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <form action="http://so.csdn.net/search" method="get" target="_blank">                      <input type="hidden" value="toolbar" name="ref" accesskey="2">                      <div class="border">                        <input placeholder="搜索" type="text" value="" name="q" accesskey="2"><span class="icon-enter-sm"></span>                      </div>                    </form>                  </div>                </div>              </li>              <li class="favor">                <div class="icon on-favor-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div style="display:none;" class="favor-success"><span class="msg">收藏成功</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <div style="display:none;" class="favor-failed"><span class="icon-danger-lg"></span><span class="msg">收藏失败，请重新收藏</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <form role="form" class="form-horizontal favor-form">                      <div class="form-group">                        <div class="clearfix">                          <label for="input-title" class="col-sm-2 control-label">标题</label>                          <div class="col-sm-10">                            <input id="inputTitle" type="text" placeholder="" class="title form-control">                          </div>                        </div>                        <div class="alert alert-danger"><strong></strong>标题不能为空</div>                      </div>                      <div class="form-group">                        <label for="input-url" class="col-sm-2 control-label">网址</label>                        <div class="col-sm-10">                          <input id="input-url" type="text" placeholder="" class="url form-control">                        </div>                      </div>                      <div class="form-group">                        <label for="input-tag" class="col-sm-2 tag control-label">标签</label>                        <div class="col-sm-10">                          <input id="input-tag" type="text" class="form-control tag">                        </div>                      </div>                      <div class="form-group">                        <label for="input-description" class="description col-sm-2 control-label">摘要</label>                        <div class="col-sm-10">                          <textarea id="input-description" class="form-control description"></textarea>                        </div>                      </div>                      <div class="form-group">                        <div class="col-sm-offset-2 col-sm-10 ft">                          <div class="col-sm-4 pull-left">                            <div class="checkbox">                              <label>                                <input type="checkbox" name="share" checked="checked" class="share">公开                              </label>                            </div>                          </div>                          <div class="col-sm-8 pull-right favor-btns">                            <button type="button" class="cancel btn btn-default">取消</button>                            <button type="submit" class="submit btn btn-primary">收藏</button>                          </div>                        </div>                      </div>                    </form>                  </div>                </div>              </li>              <li class="notify">                <div style="display:none" class="number"></div>                <div style="display:none" class="icon-hasnotes-sm"></div>                <div id="header_notice_num"></div>                <div class="icon on-notify-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div id="note1" class="csdn_note">                      <div class="box"></div>                    <iframe src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/saved_resource.html" frameborder="0" allowtransparency="true" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe></div>                  </div>                </div>              </li>              <li class="ugc">                <div class="icon on-ugc-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <dl>                      <dt><a href="http://geek.csdn.net/news/expert?ref=toolbar" target="_blank" class="p-news clearfix" style="display:none;"><em class="icon"></em><span>分享资讯</span></a></dt>                      <dt style="border: none;"><a href="http://u.download.csdn.net/upload?ref=toolbar" target="_blank" class="p-doc clearfix"><em class="icon"></em><span>传PPT/文档</span></a></dt>                      <dt><a href="http://bbs.csdn.net/topics/new?ref=toolbar" target="_blank" class="p-ask clearfix"><em class="icon"></em><span>提问题</span></a></dt>                      <dt><a href="http://write.blog.csdn.net/postedit?ref=toolbar" target="_blank" class="p-blog clearfix"><em class="icon"></em><span>写博客</span></a></dt>                      <dt><a href="http://u.download.csdn.net/upload?ref=toolbar" target="_blank" class="p-src clearfix"><em class="icon"></em><span>传资源</span></a></dt>                      <dt><a href="https://code.csdn.net/projects/new?ref=toolbar" target="_blank" class="c-obj clearfix"><em class="icon"></em><span>创建项目</span></a></dt>                      <dt><a href="https://code.csdn.net/snippets/new?ref=toolbar" target="_blank" class="c-code clearfix"><em class="icon"></em><span>创建代码片</span></a></dt>                    </dl>                  </div>                </div>              </li>              <li class="profile">                <div class="icon on-profile-icon"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/100x100.jpg" class="curr-icon-img">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div class="bd">                      <dl class="clearfix">                        <dt class="pull-left img"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="avatar"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/100x100.jpg"></a></dt>                        <dd class="info" style="border: none;"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="nickname"></a><a class="set-nick" href="https://passport.csdn.net/account/profile">设置昵称<span class="write-icon"></span></a><span class="dec"><a class="fill-dec" href="http://my.csdn.net/" target="_blank">编辑自我介绍，让更多人了解你<span class="write-icon"></span></a></span></dd>                      </dl>                    </div>                    <div class="ft clearfix"><a target="_blank" href="http://my.csdn.net/my/account/changepwd?ref=toolbar" class="pull-left"><span class="icon-cog"></span>帐号设置</a><a href="https://passport.csdn.net/account/logout?ref=toolbar" target="_top" class="pull-left" style="margin-left:132px; width:18px; height:27px; white-space:nowrap; overflow:hidden;"><span class="icon-signout"></span><span class="out">退出</span></a></div>                  </div>                </div>              </li>              <li class="apps">                <div id="chasnew123" class="hasnew" style="display: none;"></div>                <div id="cappsarea123" class="icon on-apps-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>社区</h5>                      </dt>                      <dd> <a href="http://blog.csdn.net/?ref=toolbar" target="_blank">博客</a></dd>                      <dd> <a href="http://bbs.csdn.net/?ref=toolbar" target="_blank">论坛</a></dd>                      <dd> <a href="http://download.csdn.net/?ref=toolbar" target="_blank">下载</a></dd>                      <dd> <a href="http://lib.csdn.net/?ref=toolbar" target="_blank">知识库</a></dd>                      <dd><a href="http://ask.csdn.net/?ref=toolbar" target="_blank">技术问答</a></dd>                      <dd><a href="http://geek.csdn.net/?ref=toolbar" target="_blank">极客头条</a></dd>                      <dd style="display:none"> <a href="http://hero.csdn.net/?ref=toolbar" target="_blank">英雄会</a></dd>                    </dl>                  </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>服务</h5>                      </dt>                      <dd style="display:none"> <a href="http://job.csdn.net/?ref=toolbar" target="_blank">JOB<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                      <dd> <a href="http://edu.csdn.net/?ref=toolbar" target="_blank">学院<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                      <dd> <a href="https://code.csdn.net/?ref=toolbar" target="_blank">CODE</a></dd>                      <dd> <a href="http://huiyi.csdn.net/?ref=toolbar" target="_blank">活动</a></dd>                      <dd> <a href="http://www.csto.com/?ref=toolbar" target="_blank">CSTO</a></dd>                      <dd> <a href="http://mall.csdn.net/?ref=toolbar" target="_blank">C币兑换<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                    </dl>                  </div>                  <div class="detail last">                    <dl>                      <dt>                        <h5>俱乐部</h5>                      </dt>                      <dd> <a href="http://cto.csdn.net/?ref=toolbar" target="_blank">CTO俱乐部</a></dd>                      <dd> <a href="http://student.csdn.net/?ref=toolbar" target="_blank">高校俱乐部</a></dd>                    </dl>                  </div>                </div>              </div>            </li>            </ul>          </div>        </div>    </div>
+    <div class="blog_left">
+      <div class="blog_l_c">
+        <h2 class="blog_l_t">liuxingen的专栏</h2>
+        <h6 class="blog_l_sign"></h6>
+        <div class="item_wrap">
+          <dl class="item_l">
+            <dt class="item">41</dt>
+            <dd class="item_name">原创</dd>
+          </dl>
+          <dl class="item_l">
+            <dt class="item">1</dt>
+            <dd class="item_name">转载</dd>
+          </dl>
+          <dl class="item_l">
+            <dt class="item">0</dt>
+            <dd class="item_name">译文</dd>
+          </dl>
+          <dl class="item_l">
+            <dt class="item">19</dt>
+            <dd class="item_name">评论</dd>
+          </dl>
+          <dl class="item_l">
+            <dt class="item">196698</dt>
+            <dd class="item_name">访问</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="blog_copyright">
+        <p><span>京 ICP 证 070598 号</span><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/copyright.png" alt="img"></p>
+        <p>
+          Copyright © 1999-2016,
+          <br>
+          CSDN.NET, All Rights Reserved
+        </p>
+       </div>
+    </div>
+    <div id="skin_m" class="skin_m" style="position: relative; overflow: hidden;"><div class="rollbar-path-vertical" style="z-index: 80; top: 0px; height: 881px;"><div class="rollbar-handle" style="height: 30%; opacity: 0.5; top: 0px;"></div></div><div class="rollbar-path-horizontal" style="z-index: 80; display: none; left: 20px; width: 1200px;"><div class="rollbar-handle" style="width: 30%; opacity: 0.5; left: 0px;"></div></div>
+      <div class="rollbar-content" style="position: relative; top: 0px; left: 0px; overflow: hidden;"><div id="skin_center" class="skin_center">
+          <div class="skin_center_t">
+                <h2 class="mod_most"></h2>
+                <!--include ../modules/mod_list.jade-->
+                <div class="skin_list">
+                  <dl class="list_c clearfix detail_list">
+                    <dt>
+                      <div class="date">
+                        <div class="date_t"><span>2015</span><em>五月</em></div>
+                        <div class="date_b">01</div>
+                      </div>
+                    </dt>
+                    <dd>
+                      <div class="skin_icon"><a href="javascript:;" class="set_old">原</a></div>
+                      <h3 class="list_c_t"><a href="http://blog.csdn.net/liuxingen/article/details/45420455">字节序(byte order)和位序(bit order)</a></h3>  
+                        <div class="list_c_Title">
+                          <p class="detail_p">
+                            <label><span>分类：</span><em onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_fenlei&#39;]);">TCP/IP</em></label>
+                         </p>
+                         <p class="read_r">
+                            <label><i class="fa fa-eye" style="cursor:default"></i><span style="cursor:default"> （16108）</span></label>
+                            <label><i class="fa fa-comment-o" style="cursor:default"></i><span style="cursor:default"> （3）</span></label>
+                             
+                             
+
+                             
+                          </p>
+                        </div>
+                      <div class="skin_detail" id="article_content">
+                        <div class="markdown_views"><p><strong>字节序(byte order)和位序(bit order)</strong></p>
+
+<p> 在网络编程中经常会提到网络字节序和主机序，也就是说当一个对象由多个字节组成的时候需要注意对象的多个字节在内存中的顺序。 <br>
+     以前我也基本只了解过字节序，但是有一天当我看到ip.h中对IP头部结构体struct iphdr的定义时，我发现其中竟然对一个字节中的8个比特位也区分了大小端，这时我就迷糊了，不是说大小端只有在多个字节之间才会有区分的吗，为什么这里的定义却对一个字节中的比特位也区分大小端呢? <br>
+     下面我们先看一下struct iphdr的定义，后文会解惑为什么要在一个字节中区分大小端。</p>
+
+<pre class="prettyprint"><code class="language-c++ hljs cs has-numbering"><span class="hljs-keyword">struct</span> iphdr {
+<span class="hljs-preprocessor">#<span class="hljs-keyword">if</span> defined(__LITTLE_ENDIAN_BITFIELD)</span>
+    __u8    ihl:<span class="hljs-number">4</span>,
+        version:<span class="hljs-number">4</span>;
+<span class="hljs-preprocessor">#<span class="hljs-keyword">elif</span> defined (__BIG_ENDIAN_BITFIELD)</span>
+    __u8    version:<span class="hljs-number">4</span>,
+        ihl:<span class="hljs-number">4</span>;
+<span class="hljs-preprocessor">#<span class="hljs-keyword">else</span></span>
+<span class="hljs-preprocessor">#<span class="hljs-keyword">error</span>  "Please fix &lt;asm/byteorder.h&gt;"</span>
+<span class="hljs-preprocessor">#<span class="hljs-keyword">endif</span></span>
+    __u8    tos;
+    __be16  tot_len;
+    __be16  id;
+    __be16  frag_off;
+    __u8    ttl;
+    __u8    protocol;
+    __sum16 check;
+    __be32  saddr;
+    __be32  daddr;
+    <span class="hljs-comment">/*The options start here. */</span>
+};
+</code><ul class="pre-numbering"><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li></ul><div class="save_code tracking-ad" data-mod="popu_249" style="display: none;"><a href="javascript:;"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/save_snippets.png"></a></div></pre>
+
+<ol>
+<li>字节序(Byte order) <br>
+ 关于字节序的文章已经有很多了，在我这篇文章中不打算过多的说字节序，但是也不能完全脱离字节序因为后面的重点部分比特序跟字节序也有一定的相似度和联系。 <br>
+ 字节序就是说一个对象的多个字节在内存中如何排序存放，比如我们要想往一个地址a中写入一个整形数据0x12345678，那么最后在内存中是如何存放这四个字节的呢？ <br>
+ 0x12这个字节值为最高有效字节，也就是整数值的最高位(在本文中0x12=0x12000000)，0x78为最低有效字节。 <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501172813960" alt="这里写图片描述" title=""> <br>
+                                图1：大端字节序 <br>
+上图是大端字节序的示意图，所谓”大端字节序”，便是指最高有效字节落在低地址上的字节存放方式。 <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501172519443" alt="这里写图片描述" title=""> <br>
+                                图2：小端字节序 <br>
+ 而小端字节序就是最低有效字节落在低地址上的字节存放方式。 <br>
+ 0x12345678=0x12000000 + 0x340000 + 0x5600 + 0x78，所以要想保持一个对象的值在大小端系统之间不变，那么就必须确保不同的系统能够正确的识别最高有效字节和最低有效字节(不能错误的识别最高、最低有效字节)。 <br>
+ 同样的字节序12 34 56 78在大端序机器中会识别为0x12345678(0x12000000 + 0x340000 + 0x5600 + 0x78=0x12345678)，在小端序机器中识别为0x78563412(0x12 + 0x3400 + 0x5600 00+ 0x78000000=0x78563412)。 <br>
+ 所以要想两者保持一致就必须确保系统能够正确的识别最高有效字节0x12和最低有效字节0x78，那么在小端系统中字节存放的顺序应该为78 56 34 12。</li>
+<li>比特序(bit order) <br>
+ 字节序是一个对象中的多个字节之间的顺序问题，比特序就是一个字节中的8个比特位(bit)之间的顺序问题。一般情况下系统的比特序和字节序是保持一致的。 <br>
+ 一个字节由8个bit组成，这8个bit也存在如何排序的情况，跟字节序类似的有最高有效比特位、最低有效比特位。 <br>
+ 比特序1 0 0 1 0 0 1 0在大端系统中最高有效比特位为1、最低有效比特位为0，字节的值为0x92。在小端系统中最高、最低有效比特位则相反为0、1，字节的值为0x49。 <br>
+ 跟字节序类似，要想保持一个字节值不变那么就要使系统能正确的识别最高、最低有效比特位。</li>
+<li>字节序转换函数ntohl(s)、htonl(s) <br>
+ 在socket编程中经常要用到网络字节序转换函数ntohl、htonl来进行主机序和网络序(大端序)的转换，在主机序为小端的系统中字节序列78 56 34 12(val=0x12345678)经过htonl转换后字节序列变成12 34 56 78： <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501172745461" alt="这里写图片描述" title=""> <br>
+                                    图3：htonl函数 <br>
+ 字节序转换后我在想是不是比特序也一同进行了转换? <br>
+ 为什么会有这个疑问呢，因为前文可知系统的比特序和字节序是一致的，现在字节序已经从小端变成了大端那么比特序应该也要一起转换。而且如果比特序不变化那么当这些字节到了目标大端序系统中后每一个字节的值都会发生变化，因为同样的比特序列在小端和大端系统中识别的字节值会不一样。 <br>
+ 首先从htonl、ntohl的源码来看确实只进行了字节序的转换并没有进行比特序的转换，再有就是以前socket编程的时候只调用了ntohl、htonl等函数并没有调用(而且系统也没有提供)比特序转换函数，但是最后的结果都是正确的，并没有发现上面提到的字节值发生变化的问题。 <br>
+ 那么这个”神奇”的事情是怎么解决的呢，好像系统本身就给我们”悄悄”的解决了我担心的问题。 <br>
+答案我们下文揭晓。</li>
+<li>比特(bit)的发送和接收顺序 <br>
+ 比特的发送、接收顺序是指一个字节中的bit在网络电缆中是如何发送、接收的。在以太网(Ethernet)中，是从最低有效比特位到最高有效比特位的发送顺序，也就是最低有效比特位首先发送，参考资料：<a href="http://www.infocellar.com/networks/ethernet/frame.htm">frame</a>。 <br>
+ 在以太网中这个规定有点奇怪，因为字节序我们是按照大端序来发送，但是比特序却是按照小端序的方式来发送，下图是直接从网上找来的一张图，主机序本身是大端序：  <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501172832698" alt="这里写图片描述" title=""> <br>
+                        图4：比特发送、接受示意图 <br>
+ 比特的发送、接收顺序对CPU、软件都是不可见的，因为我们的网卡会给我们处理这种转换，在发送的时候按照小端序发送比特位，在接收的时候会把接收到的比特序转换成主机的比特序，下面是一个小端机器发送一个int整型给一个大端机器的示意图： <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501173001351" alt="这里写图片描述" title=""> <br>
+                        图5：小端-&gt;大端比特发送示例 <br>
+ 因为对网卡对比特序的发送、接收所做的转换没有深入的了解所以上图很有可能会有错误之处。 <br>
+ 现在来回答一下第3节中的那个疑问： <br>
+<ul><li>htonl、ntohl函数肯定是不会同步转换一个字节中的比特序的，因为如果比特序也发生了转换的话那么这个字节的值也就发生了变化，记住htonl、ntohl只是字节序转换函数。</li>
+<li>比特序按照小端的方式发送，首先发送的是最低有效比特位，最后发送的是最高有效比特位，接收端的网卡在接收到比特序列后按照主机的比特序把接收到的”小端序”比特流转换成主机对应的比特序列。 <br>
+ 可以假设存在ntohb、htonb(b代表bit)这样的两个函数，网卡进行了比特序的转换，不过是这两个函数是网卡自动调用的，我们平时不用关注。</li>
+<li>按照规则，发送、接收的时候进行比特序的转换，那么就能保证在不同的机器之间进行通信不会发生我担心的字节值发生变化的问题。</li></ul></li>
+<li>结构体的位域 <br>
+ 关于C语言中结构体的位域可以参考这篇文章：<a href="http://tonybai.com/2013/05/21/talk-about-bitfield-in-c-again/">http://tonybai.com/2013/05/21/talk-about-bitfield-in-c-again/</a>，对于位域的具体用法、语法参考这篇文章即可有。 <br>
+ 对于位域有一个约定：在C语言的结构体中如果包含了位域，如果位域A定义在位域B之前，那么位域A总是出现在低序的比特位。 <br>
+在计算机中可寻址的最小单位为字节，bit是无法寻址的，但是为了抽象我们可以把计算机的最小寻址单位变成bit，也就是我们可以单独获得一个bit位。 <br>
+ 我们有如下的一段代码：</li>
+</ol>
+
+
+
+<pre class="prettyprint"><code class="language-c++ hljs cpp has-numbering"><span class="hljs-preprocessor">#include&lt;stdio.h&gt;</span>
+
+<span class="hljs-keyword">struct</span> bit_order{
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> a: <span class="hljs-number">2</span>,
+                  b: <span class="hljs-number">3</span>,
+                  c: <span class="hljs-number">3</span>;
+};
+
+<span class="hljs-keyword">int</span> main(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> *argv[])
+{
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> ch      = <span class="hljs-number">0x79</span>;
+    <span class="hljs-keyword">struct</span> bit_order *ptr = (<span class="hljs-keyword">struct</span> bit_order *)&amp;ch;
+
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;a : %u\n"</span>, ptr-&gt;a);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;b : %u\n"</span>, ptr-&gt;b);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;c : %u\n"</span>, ptr-&gt;c);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code><ul class="pre-numbering"><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li></ul><div class="save_code tracking-ad" data-mod="popu_249"><a href="javascript:;"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/save_snippets.png"></a></div></pre>
+
+<p> 我们把代码在gentoo(intel小端机器)、hu-unix(大端机器)两个机器上面编译、运行，结果如下：</p>
+
+<blockquote>
+  <p>liuxingen@ V6-Dev ~/station $ ./bitfiled  <br>
+  bit_order-&gt;a : 1 <br>
+  bit_order-&gt;b : 6 <br>
+  bit_order-&gt;c : 3 <br>
+  下面是hp-unix的运行结果 <br>
+  # ./bitfiled <br>
+  bit_order-&gt;a : 1 <br>
+  bit_order-&gt;b : 7 <br>
+  bit_order-&gt;c : 1</p>
+</blockquote>
+
+<p> 我们先分析一下gentoo上面的结果：  <br>
+<img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501173208117" alt="这里写图片描述" title=""> <br>
+                            图6：小端机器的位域示例 <br>
+     从上图中我们很容易就能理解gentoo上面的输出结果，下面是hp-unix上面示意图： <br>
+ <img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/20150501173229333" alt="这里写图片描述" title=""> <br>
+                            图7：大端机器的位域示例 <br>
+     从上面的输出可以看到同样的代码在不同的机器中输出了不同的结果，也就是说我们的代码在不同的平台不能直接移植，导致这个问题的原因就是我们前面提到的关于位域的一个约定，定义在前面的位域总是出现在低地址的bit位中，因为不同的平台的比特序是不同的，但是我们定义的位域没有根据平台的大小端进行转换，最后就导致了问题。那么如何解决这个问题，那就是在定义结构体中的位域时判断平台的大小端：</p>
+
+
+
+<pre class="prettyprint"><code class="hljs cpp has-numbering"><span class="hljs-preprocessor">#include&lt;stdio.h&gt;</span>
+<span class="hljs-preprocessor">#include&lt;asm/byteorder.h&gt;</span>
+
+<span class="hljs-keyword">struct</span> bit_order{
+<span class="hljs-preprocessor">#if defined(__LITTLE_ENDIAN_BITFIELD)</span>
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> a: <span class="hljs-number">2</span>,
+                  b: <span class="hljs-number">3</span>,
+                  c: <span class="hljs-number">3</span>;
+<span class="hljs-preprocessor">#elif defined (__BIG_ENDIAN_BITFIELD)</span>
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> c: <span class="hljs-number">3</span>,
+                  b: <span class="hljs-number">3</span>,
+                  a: <span class="hljs-number">2</span>;
+<span class="hljs-preprocessor">#else</span>
+<span class="hljs-preprocessor">#error  "Please fix &lt;asm/byteorder.h&gt;"</span>
+<span class="hljs-preprocessor">#endif</span>
+};
+
+<span class="hljs-keyword">int</span> main(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> *argv[])
+{
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> ch      = <span class="hljs-number">0x79</span>;
+    <span class="hljs-keyword">struct</span> bit_order *ptr = (<span class="hljs-keyword">struct</span> bit_order *)&amp;ch;
+
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;a : %u\n"</span>, ptr-&gt;a);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;b : %u\n"</span>, ptr-&gt;b);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"bit_order-&gt;c : %u\n"</span>, ptr-&gt;c);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code><ul class="pre-numbering"><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li><li>25</li><li>26</li><li>27</li><li>28</li><li>29</li></ul><div class="save_code tracking-ad" data-mod="popu_249"><a href="javascript:;"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/save_snippets.png"></a></div></pre>
+
+<p> 到此我们也就解释了文章开头关于struct iphdr定义中的那个疑问。 <br>
+ 最后给大家隆重介绍一篇文章，对我启发很大，文中的很多知识来自于它：<a href="http://www.linuxjournal.com/node/6788/print">byte order and bit order</a></p></div><link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/markdown_views.css">
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="skin_nav">        
+                     <div class="skin_edit"><i class="fa fa-th-list"></i>
+                     <div class="nav_list nav_list_edit"><a href="http://blog.csdn.net/liuxingen">文章列表</a></div>
+                  </div>
+                     
+                </div>
+                <div class="rssFix">
+        	        <a href="http://blog.csdn.net/liuxingen/rss/list" class="column" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_RSS&#39;])"><i class="fa fa-rss"></i></a>
+                </div>        
+
+                <div id="goTopBtn" class="skin_backTop"><i class="fa fa-chevron-up"></i></div>
+        </div>
+        <div class="detail_b">
+          <p class="reprint_copy" style="" id="copyright">版权声明：本文为博主原创文章，未经博主允许不得转载。</p>  
+		   <!--      
+          <div class="bole" style="display:none">
+            <h2 class="bole_t clearfix"><span>伯乐推荐</span>
+              <label>一共有<em>{bolecount}</em>位博乐进行推荐</label>
+            </h2>
+           {bolecomment}              
+          </div>		
+          -->  
+           <!-- style=""style=""-->
+          <h2 class="praise">
+            <label id="digg" articleid="45420455" onclick="btndigga();"><span id="btnDigg">顶</span><em>3</em></label>
+            <label id="bury" onclick="btnburya();"><span id="btnBury">踩</span><em>0</em></label>
+          </h2>           
+                <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);">&nbsp;</a>   </div>
+                <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);">&nbsp;</a></div>
+           
+             <script type="text/javascript">
+                 function btndigga() {
+                     $(".tracking-ad[data-mod='popu_222'] a").click();
+                 }
+                 function btnburya() {
+                     $(".tracking-ad[data-mod='popu_223'] a").click();
+                 }
+
+                 $(function () {
+                     if ($(".markdown_views").length > 0) {
+                         $('pre.prettyprint code').each(function () {
+                             var lines = $(this).text().split('\n').length;
+                             var $numbering = $('<ul/>').addClass('pre-numbering').hide();
+                             $(this).addClass('has-numbering').parent().append($numbering);
+                             for (i = 1; i <= lines; i++) {
+                                 $numbering.append($('<li/>').text(i));
+                             };
+                             $numbering.fadeIn(1700);
+                         });
+                     }
+                     else {
+                         $("#article_content pre").each(function () {
+                             var $this = $(this);
+                             if ($this.attr("class") != undefined) {
+                                 if ($this.attr("class").indexOf("brush:") != -1) {
+                                     var lang = $this.attr("class").split(';')[0].split(':')[1];
+                                     $this.attr('name', 'code');
+                                     $this.attr('class', lang);
+                                 }
+                                 if ($this.attr("class")) {
+                                     $this.attr('name', 'code');
+                                 }
+                             }
+                         });
+                         $('#article_content textarea[name=code]').each(function () {
+                             var $this = $(this);
+                             if ($this.attr("class").indexOf(":") != -1) {
+                                 $this.attr("class", $this.attr("class").split(':')[0]);
+                             }
+                         });
+                         dp.SyntaxHighlighter.HighlightAll('code');
+                         $('.highlighter').addClass('dp-highlighter');
+                         if (!window.clipboardData) {
+                             setTimeout("setCopyBtn()", 500);
+                         }
+
+                         function __get_code_toolbar(snippet_id) {
+                             return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                                     + snippet_id
+                                     + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                                     + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                                     + snippet_id
+                                     + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+                         }
+
+                         $("[code_snippet_id]").each(function () {
+                             __s_id = $(this).attr("code_snippet_id");
+                             if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                                 __code_tool = __get_code_toolbar(__s_id);
+                                 $(this).prev().find(".tools").append(__code_tool);
+                             }
+                         });
+
+                         $(".bar").show();
+                     }
+                 });
+            </script>
+          <div class="blog_share">
+              <!--<i class="fa fa-qq"></i><i class="fa fa-weixin"></i><i class="fa fa-weibo"></i><i class="fa fa-renren"></i><i class="fa fa-qq"></i><i class="fa fa-weixin"></i>
+              <i class="fa fa-weibo"></i><i class="fa fa-renren"></i>-->                
+               <div class="bdsharebuttonbox tracking-ad bdshare-button-style0-16" style="float: right;" data-mod="popu_172" data-bd-bind="1484552956257">
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间" style="background-position:0 -52px !important"></a>
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博" style="background-position:0 -104px !important"></a>
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博" style="background-position:0 -260px !important"></a>
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_renren" data-cmd="renren" title="分享到人人网" style="background-position:0 -208px !important"></a>
+                <a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="bds_weixin" data-cmd="weixin" title="分享到微信" style="background-position:0 -1612px !important"></a>
+                </div>
+                <script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+                <!-- Baidu Button END -->
+          </div>
+          <div class="forward_back">
+            <div class="back fl"><a href="javascript:void(0);" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shangyipian&#39;]);location.href=&#39;/liuxingen/article/details/44995467&#39;;"><span><i class="fa fa-arrow-left"></i></span><em>socket函数的domain、type、protocol解析</em></a></div><div class="forward fr"><a href="javascript:void(0);" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_xiayipian&#39;]);location.href=&#39;/liuxingen/article/details/45459313&#39;;"><em>tcp/ip中的伪头部pseudo header</em><span><i class="fa fa-arrow-right"></i></span></a></div>
+          </div>
+            <div>
+                <ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+            </div>            
+        <!--  
+		{articleinsamecategory}
+            -->
+          <div class="comment" id="comment_form">
+              <div id="commentsbmitarear"><div class="guest_link">您还没有登录,请<a href="javascript:void(0);" onclick="javascript:loginbox();">[登录]</a>或<a href="http://passport.csdn.net/account/register?from=http%3A%2F%2Fblog.csdn.net%2Fliuxingen%2Farticle%2Fdetails%2F45420455">[注册]</a></div></div>
+              <a name="comments"></a>
+            <div class="comment_list" id="comment_list"> <dl class="bole_comment clearfix" id="comment_item_6272570">           <dt>               <a href="http://blog.csdn.net/thg0203"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/3_thg0203.jpg" alt="thg0203"></a></dt>           <dd>             <h3 class="username J_userNT">thg0203</h3>             <div class="comment_p">文章很不错<br>但感觉小端机器发给大端机器那个图不对，还是我理解有误<br>比如小端机器的0x12，内存中二进制是01001000（左端是低地址）或00010010（右端是低地址）<br>发送顺序是01001000</div>             <div class="comment_b clearfix"><span>2016-09-13 21:00</span>               <label>                 <a href="http://blog.csdn.net/liuxingen/article/details/45420455#reply" class="com_reply" title="回复" commentid="6272570" floor="3"> <i class="fa fa-mail-forward"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#quote" class="com_reply" title="引用" commentid="6272570" floor="3"> <i class="fa fa-quote-left"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#report" class="com_reply" title="举报" commentid="6272570" floor="3"> <i class="fa fa-exclamation-triangle"></i></a><a>               </a></label><a>             </a></div><a>            </a></dd><a>          </a></dl><a> </a><dl class="bole_comment clearfix" id="comment_item_6272569"><a>           </a><dt><a>               </a><a href="http://blog.csdn.net/thg0203"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/3_thg0203.jpg" alt="thg0203"></a></dt>           <dd>             <h3 class="username J_userNT">thg0203</h3>             <div class="comment_p">文章很不错<br>但感觉小端机器发给大端机器那个图不对，还是我理解有误<br>比如小端机器的0x12，内存中二进制是01001000（左端是低地址）或00010010（右端是低地址）<br>发送顺序是01001000</div>             <div class="comment_b clearfix"><span>2016-09-13 20:59</span>               <label>                 <a href="http://blog.csdn.net/liuxingen/article/details/45420455#reply" class="com_reply" title="回复" commentid="6272569" floor="2"> <i class="fa fa-mail-forward"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#quote" class="com_reply" title="引用" commentid="6272569" floor="2"> <i class="fa fa-quote-left"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#report" class="com_reply" title="举报" commentid="6272569" floor="2"> <i class="fa fa-exclamation-triangle"></i></a><a>               </a></label><a>             </a></div><a>            </a></dd><a>          </a></dl><a> </a><dl class="bole_comment clearfix" id="comment_item_5731863"><a>           </a><dt><a>               </a><a href="http://blog.csdn.net/wjgvfhpl1"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/3_wjgvfhpl1.jpg" alt="wjgvfhpl1"></a></dt>           <dd>             <h3 class="username J_userNT">wjgvfhpl1</h3>             <div class="comment_p">GOOD ～！</div>             <div class="comment_b clearfix"><span>2015-12-20 23:29</span>               <label>                 <a href="http://blog.csdn.net/liuxingen/article/details/45420455#reply" class="com_reply" title="回复" commentid="5731863" floor="1"> <i class="fa fa-mail-forward"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#quote" class="com_reply" title="引用" commentid="5731863" floor="1"> <i class="fa fa-quote-left"></i></a><a>                 </a><a href="http://blog.csdn.net/liuxingen/article/details/45420455#report" class="com_reply" title="举报" commentid="5731863" floor="1"> <i class="fa fa-exclamation-triangle"></i></a><a>               </a></label><a>             </a></div><a>            </a></dd><a>          </a></dl><div class="clear"></div></div>
+            <div style="height:60px">&nbsp;</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div class="skin_right">
+      <div id="skin_r_wrap" class="skin_r_wrap" style="position: relative; overflow: hidden;"><div class="rollbar-path-vertical" style="z-index: 80; display: none; top: 0px; height: 881px;"><div class="rollbar-handle" style="height: 30%; opacity: 0.5;"></div></div><div class="rollbar-path-horizontal" style="z-index: 80; display: none; left: 20px; width: 210px;"><div class="rollbar-handle" style="width: 30%; opacity: 0.5;"></div></div>
+        <div class="rollbar-content" style="position: relative; top: 0px; left: 0px; overflow: hidden;"><div id="skin_r" class="skin_r"><i id="arrow_r" class="fa fa-arrow-right"></i>
+          <div class="mess"><a href="http://my.csdn.net/liuxingen"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/1_liuxingen.jpg" alt="img" class="head"></a>
+            <p class="mess_name">NoneSec</p>
+            <div class="grade">
+                <p title="积分：2137"><span>等级：</span><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/blog5.png"></p>
+                <p><span>排名：</span><span>第14458名</span></p>
+            </div>
+            <div class="blog_medal"><a href="http://blog.csdn.net/experts/rule.html"></a>
+              <div class="medal_c"><a href="javascript:void(0);"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/chizhiyiheng.png" alt="img"></a></div>
+              <div class="attention">
+			  <a href="javascript:void(0);" id="span_add_follow"><i class="fa fa-plus"></i><span>加关注</span></a>
+			  <a href="javascript:void(0);" onclick="window.open(&#39;http://msg.csdn.net/letters/model?receiver=liuxingen&#39;,&#39;_blank&#39;,&#39;height=350,width=700&#39;);_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_sixin&#39;])"><i class="fa fa-envelope-o"></i><span>发私信</span></a>			  			 
+			  </div>   
+			   <div class="contact"></div>         
+            </div>
+          </div>
+          <div class="classify">     
+             <!--
+            <dl class="classify_list js_list">
+	             <dt>
+	                  <div class="js_column"><i class="fa fa-th"></i><a href="#" class="column">文章分类</a></div>
+	            </dt>
+            </dl>
+
+                  <dl class="classify_list">
+              <dt><i class="fa fa-play-circle"></i><a  href="/liuxingen/blog/course" class="column">我的课程</a></dt>
+            </dl> 
+		    -->	    	
+            
+            
+                
+               
+               <dl class="classify_list">
+                     <div class="article_search">
+                         <div class="article_search_c">
+                            <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+                                <input type="text" id="inputSearch" placeholder="文章搜索"><i class="fa fa-search" id="btnSubmit"></i>
+                            </form>
+                         </div>
+                     </div>
+               </dl>  
+                    
+            <dl class="classify_list">
+              <dt><i class="fa fa-file-text"></i><a href="http://blog.csdn.net/liuxingen/blog/column" class="column">博客专栏</a> </dt>
+            </dl>  
+                    
+           <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-th"></i><span class="column">文章分类</span></div>
+                <ul id="article_list0" class="article_list">
+				  <li><a href="http://blog.csdn.net/liuxingen/article/category/5871931" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">shell</a><span>（3）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5871933" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Python</a><span>（9）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5871935" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Linux c</a><span>（15）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5871939" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Linux</a><span>（1）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5871941" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">TCP/IP</a><span>（4）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5928811" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">http</a><span>（3）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/5965807" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">MongoDB</a><span>（2）</span></li><li><a href="http://blog.csdn.net/liuxingen/article/category/6506239" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">bigdata</a><span>（3）</span></li>                  
+                </ul>
+              </dt>
+              <dd style="display:none"><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="article_add"><i class="fa fa-plus"></i></a></dd>
+            </dl>
+            
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-calendar"></i><span class="column">文章存档</span></div>
+                <ul id="article_list1" class="article_list">
+                 
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2017/01">2017年01月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/12">2016年12月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/11">2016年11月</a><span>(3)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/09">2016年09月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/08">2016年08月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/06">2016年06月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2016/05">2016年05月</a><span>(3)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/12">2015年12月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/11">2015年11月</a><span>(4)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/10">2015年10月</a><span>(5)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/09">2015年09月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/08">2015年08月</a><span>(2)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/07">2015年07月</a><span>(3)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/06">2015年06月</a><span>(3)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/05">2015年05月</a><span>(4)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/04">2015年04月</a><span>(1)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2015/03">2015年03月</a><span>(3)</span></li>
+                
+                    <li><a href="http://blog.csdn.net/liuxingen/article/month/2014/08">2014年08月</a><span>(4)</span></li>
+                
+                </ul>
+              </dt>
+            </dl>
+                 
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-eye"></i><span class="column">阅读排行</span></div>
+                <ul class="article_list">
+                
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/51511034">HTTP的303、307状态码</a><span>（29742）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/52497023">Python相对、绝对导入浅析</a><span>（16907）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/45420455">字节序(byte order)和位序(bit order)</a><span>（16106）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/52132745">如果获得页面跳转的最终URL</a><span>（12623）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/47057539">Linux的system()和popen()差异</a><span>（10441）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/38495545">水平触发,边缘触发</a><span>（9586）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/48930527">Python中的编码</a><span>（8384）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/51447275">ImportError: No module named 'xxx'的另外一种原因</a><span>（7261）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/44456987">Shell grep的几个参数</a><span>（6901）</span></li>
+                 
+                 <li><a href="http://blog.csdn.net/liuxingen/article/details/49407545">http的302 redirect的一个问题</a><span>（6873）</span></li>
+                 
+                </ul>
+              </dt>
+            </dl>
+            
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-comments"></i><span class="column">评论排行</span></div>
+                <ul class="article_list">
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/52132745">如果获得页面跳转的最终URL</a><span>（7）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/38350347">waitpid(or wait)和SIGCHILD的关系</a><span>（5）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/45420455">字节序(byte order)和位序(bit order)</a><span>（3）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/49186329">shell中的数组</a><span>（1）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/52497023">Python相对、绝对导入浅析</a><span>（1）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/38495545">水平触发,边缘触发</a><span>（1）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/49407545">http的302 redirect的一个问题</a><span>（1）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/44457005">Python的logging功能使用过程中的一个问题</a><span>（0）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/44456987">Shell grep的几个参数</a><span>（0）</span></li>
+                  
+                  <li><a href="http://blog.csdn.net/liuxingen/article/details/38461473">linux的同步,异步,阻塞,非阻塞</a><span>（0）</span></li>
+                  
+                </ul>
+              </dt>
+            </dl>
+                
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-list-ol"></i><span class="column">推荐文章</span></div>
+                <ul class="article_list">
+                 <ul>
+<li><a href="http://blog.csdn.net/laoyang360/article/details/53843771" target="_blank">* 而立之年——三线城市程序员的年终告白</a></li>
+<li><a href="http://blog.csdn.net/sdkfjksf/article/details/54380659" target="_blank">* Java集合框架中隐藏的设计套路</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/54092364" target="_blank">* Python脚本下载今日头条视频(附加Android版本辅助下载器)</a></li>
+<li><a href="http://blog.csdn.net/caowenbin/article/details/54406716" target="_blank">* 人工智能的冷思考</a></li>
+<li><a href="http://blog.csdn.net/it_talk/article/details/54346566" target="_blank">* React Native 实战系列教程之热更新原理分析与实现</a></li>
+
+
+</ul>
+                </ul>
+              </dt>
+            </dl>
+                  
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-commenting"></i><span class="column">最新评论</span></div>
+                <ul class="article_list new_comment">
+                  
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/52132745">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/liuxingen" class="reply_name">liuxingen</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>@Ivar__:这个错误看起来要吗是chrome没找到，或者chromedriver没有找到了，你加...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/Ivar__" class="reply_name">Ivar__</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>楼主 你好  我用的第二种方法  ubuntu14.04的   chromedriver用的你给的链...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/liuxingen" class="reply_name">liuxingen</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>@fengxueshisan:https://sites.google.com/a/chromium...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/fengxueshisan" class="reply_name">fengxueshisan</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>@liuxingen:我用的centos6.5，装了chromium-browser，但是找不到对应...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/liuxingen" class="reply_name">liuxingen</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>@fengxueshisan:你用的是第二种方法吗？有什么错误信息吗？</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/fengxueshisan" class="reply_name">fengxueshisan</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>兄弟，你的帖子对我有很大启发，在windows上实验成功了，但是我再centos6.5上部署无论是c...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">如果获得页面跳转的最终URL</a></p>                   
+                    <p><a href="http://blog.csdn.net/fengxueshisan" class="reply_name">fengxueshisan</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>兄弟，你的帖子对我有很大启发，在windows上实验成功了，但是我再centos6.5上部署无论是c...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/52497023">Python相对、绝对导入浅析</a></p>                   
+                    <p><a href="http://blog.csdn.net/flykinghg" class="reply_name">flykinghg</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>很不错</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">字节序(byte order)和位序(bit order)</a></p>                   
+                    <p><a href="http://blog.csdn.net/thg0203" class="reply_name">thg0203</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>文章很不错但感觉小端机器发给大端机器那个图不对，还是我理解有误比如小端机器的0x12，内存中二进制是...</i></p>                    
+                  </li>      
+                 
+                    <li>                    
+                    <p><a href="http://blog.csdn.net/liuxingen/article/details/45420455">字节序(byte order)和位序(bit order)</a></p>                   
+                    <p><a href="http://blog.csdn.net/thg0203" class="reply_name">thg0203</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>文章很不错但感觉小端机器发给大端机器那个图不对，还是我理解有误比如小端机器的0x12，内存中二进制是...</i></p>                    
+                  </li>      
+                           
+                </ul>
+              </dt>
+            </dl>
+                
+
+            <!--
+           [startblogcolumn]            
+             [startsearch]   
+               <dl class="classify_list">
+                     <div class="article_search">
+                         <div class="article_search_c">
+                            <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+                                <input type="text" id="inputSearch" placeholder="文章搜索"><i class="fa fa-search" id="btnSubmit"></i>
+                            </form>
+                         </div>
+                     </div>
+               </dl>  
+            [endsearch]   
+            
+            [startspecialcolumn]        
+            <dl class="classify_list">
+              <dt><i class="fa fa-file-text"></i><a  href="/liuxingen/blog/column" class="column">博客专栏</a> </dt>
+            </dl>  
+            [endspecialcolumn]   
+            
+             [startcategory]        
+           <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-th"></i><span class="column">文章分类</span></div>
+                <ul id="article_list0" class="article_list">
+				  {articlecategorys}                  
+                </ul>
+              </dt>
+              <dd style="display:none"><a href="#" class="article_add"><i class="fa fa-plus"></i></a></dd>
+            </dl>
+            [endcategory]
+
+            [startarchive]
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-calendar"></i><span class="column">文章存档</span></div>
+                <ul id="article_list1" class="article_list">
+                 [startlist]
+                    <li><a href="/{0}/article/month/{1}/{2}">{1}年{2}月</a><span>({3})</span></li>
+                [endlist]
+                </ul>
+              </dt>
+            </dl>
+             [endarchive]    
+                [startviewcountarticles]    
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-eye"></i><span class="column">阅读排行</span></div>
+                <ul class="article_list">
+                [startlist]
+                 <li><a href="{columnarticleurl}">{columnarticletitle}</a><span>（{columnarticlecount}）</span></li>
+                 [endlist]
+                </ul>
+              </dt>
+            </dl>
+            [endviewcountarticles]
+                [startcommentcountarticles]
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-comments"></i><span class="column">评论排行</span></div>
+                <ul class="article_list">
+                  [startlist]
+                  <li><a href="{columnarticleurl}">{columnarticletitle}</a><span>（{columnarticlecommentcount}）</span></li>
+                  [endlist]
+                </ul>
+              </dt>
+            </dl>
+                [endcommentcountarticles]
+                [starthomepagearticles]
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-list-ol"></i><span class="column">推荐文章</span></div>
+                <ul class="article_list">
+                 {cloumcontent}
+                </ul>
+              </dt>
+            </dl>
+                  [endhomepagearticles]
+                [startnewcomments]
+            <dl class="classify_list js_list">
+              <dt>
+                <div class="js_column_wrap"><i class="fa fa-commenting"></i><span class="column">最新评论</span></div>
+                <ul class="article_list new_comment">
+                  [startlist]
+                    <li>                    
+                    <p><a href="{articleurl}">字节序(byte order)和位序(bit order)</a></p>                   
+                    <p><a href="/{commentusername}" class="reply_name">{commentusername}</a><span>回复：</span></p>
+                    <p class="reply_c"><em></em><i>{commentcontent}</i></p>                    
+                  </li>      
+                 [endlist]          
+                </ul>
+              </dt>
+            </dl>
+                [endnewcomments]
+                [startcustom]
+                   <dl class="classify_list js_list">
+                      <dt>
+                        <div class="js_column_wrap"><i class="fa fa-cube"></i><span class="column">{columntitle}</span></div>
+                        <ul class="article_list">
+                         {columcontent}
+                        </ul>
+                      </dt>
+                    </dl>
+                [endcustom]
+         [endblogcolumn]    
+            -->
+
+            <!--
+            <dl class="classify_list">
+              <dt class="rss"><i class="fa fa-rss"></i>			 
+			  <span class="column">
+			   	<a href="http://blog.csdn.net/liuxingen/rss/list" class="column"  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">RSS订阅</a>
+			   </span>
+			  </dt>
+            </dl>
+            -->
+            
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div id="skin_right_small" class="skin_right_small">
+      <div class="skin_r_small"><i id="faNavicon" class="fa fa-navicon"></i>
+        <div class="head_small"><a href="http://my.csdn.net/liuxingen"><img src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/1_liuxingen.jpg" alt="img"></a></div>
+        <ul class="rSmallList">  
+           
+                
+                  <li class="small_article"><i class="fa fa-file-text"></i><a href="http://blog.csdn.net/liuxingen/blog/column" class="small_column">博客专栏</a></li>
+                    
+                  <li class="small_article js_smallArticle"><i class="fa fa-th"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">文章分类</a></li>
+                
+                  <li class="small_article js_smallArticle"><i class="fa fa-calendar"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">文章存档</a></li>
+                
+                  <li class="small_article js_smallArticle"><i class="fa fa-eye"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">阅读排行</a></li>
+              
+                  <li class="small_article js_smallArticle"><i class="fa fa-comments"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">评论排行</a></li>
+              
+                  <li class="small_article js_smallArticle"><i class="fa fa-list-ol"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">推荐文章</a></li>
+              
+                  <li class="small_article js_smallArticle"><i class="fa fa-commenting"></i><a href="http://blog.csdn.net/liuxingen/article/details/45420455#" class="small_column">最新评论</a></li>
+                      
+          <!-- 
+           [startblogcolumnsmall]   
+               [startspecialcolumn]    
+                  <li class="small_article"><i class="fa fa-file-text"></i><a href="/liuxingen/blog/column" class="small_column">博客专栏</a></li>
+               [endspecialcolumn]  
+                [startcategory]     
+                  <li class="small_article js_smallArticle"><i class="fa fa-th"></i><a href="#" class="small_column">文章分类</a></li>
+                [endcategory]     
+              [startarchive]
+                  <li class="small_article js_smallArticle"><i class="fa fa-calendar"></i><a href="#" class="small_column">文章存档</a></li>
+              [endarchive]
+              [startviewcountarticles]  
+                  <li class="small_article js_smallArticle"><i class="fa fa-eye"></i><a href="#" class="small_column">阅读排行</a></li>
+              [endviewcountarticles]  
+              [startcommentcountarticles]
+                  <li class="small_article js_smallArticle"><i class="fa fa-comments"></i><a href="#" class="small_column">评论排行</a></li>
+              [endcommentcountarticles]
+              [starthomepagearticles]
+                  <li class="small_article js_smallArticle"><i class="fa fa-list-ol"></i><a href="#" class="small_column">推荐文章</a></li>
+              [endhomepagearticles]
+              [startnewcomments]
+                  <li class="small_article js_smallArticle"><i class="fa fa-commenting"></i><a href="#" class="small_column">最新评论</a></li>
+              [endnewcomments]
+              [startcustom]
+                  <li class="small_article js_smallArticle"><i class="fa fa-cube"></i><a href="#" class="small_column">{columntitle}</a></li>
+              [endcustom]
+          [endblogcolumnsmall]    
+          -->         
+        </ul>        
+      </div>
+    </div>
+    <div id="mask"></div>
+    <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/accordion.js"></script>
+    
+    <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/jquery.rollbar.min.js"></script>
+    
+    <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/transition.js"></script>  
+     <div id="note1" class="csdn_note" style="display:none; position:absolute; z-index:9999; width:440px">  <span class="notice_top_arrow"><span class="inner"></span></span>  <div class="box"></div></div><div class="csdn_notice_tip" style="display:none; position:absolute; z-index:9990; width:170px">  <iframe src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/saved_resource(1).html" frameborder="0" scrolling="no" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe>  <div class="tip_text">您有<strong>0</strong>条新通知</div>  <a href="javascript:void 0" class="close2"></a></div><script id="noticeScript" type="text/javascript" charset="utf-8" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/notify.js"></script><input type="hidden" id="aa_g_data_ids">  
+    <!--script( type="text/javascript" src="http://csdnimg.cn/pubfooter/js/publib_footer.js" )-->
+    <!--script( type="text/javascript" src="http://static.csdn.net/public/common/toolbar/js/toolbar.js" )-->
+    <script id="csdn-toolbar-id" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/toolbar.js"></script>
+
+     <div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+    </div>
+    <div id="report_dialog">
+    </div>
+
+    <div id="popup_mask"></div>
+    <style type="text/css">
+        #popup_mask
+        {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            left: 0px;
+            top: 0px;
+            opacity: 0.3;
+            filter: alpha(opacity=30);
+            display: none;
+        }
+
+         .skin_list  dl dd div ol {  
+        margin-left:15px;
+            }  
+
+       .skin_list dl dd div ol li {  
+         display:list-item;list-style-type:decimal;margin-left:15px;
+            }       
+
+    </style>     
+      
+        <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334" src="http://ads.csdn.net/js/opt/52b5334.js?t=0.2720727546705355"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+        </div> 
+
+       <!-- 广告位开始 -->
+        <ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+   <link rel="stylesheet" href="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/blog_code.css">
+            <script type="text/javascript" src="./字节序(byte order)和位序(bit order) - 博客频道 - CSDN.NET_files/saveToCode.js"></script>     
+	<script type="text/javascript" src="http://csdnimg.cn/rabbit/tracking-ad/main.js?75eacd8%3E%3C/script%3E%20%20%3C/body%3E%3C/html%3E%20%3Cscript%20language=" javascript"=""></script>      
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },500);
+    });
+</script>
+
+<div id="mask_code"></div><div class="gist_edit"><div class="save_snippets clearfix"><div class="tit"><h3>保存代码片</h3><span>整理和分享保存的代码片，请访问<a href="https://code.csdn.net/snippets_manage" target="_blank">代码笔记</a></span></div><div class="con_form"><ul class="gist_edit_list clearfix"><li><span class="red">*</span><span class="txt">标题</span><input id="form_title" class="form-input" placeholder="字节序(byte order)和位序(bit order)" type="text"></li><li><span class="red">*</span><span class="txt">描述</span><textarea id="form-textarea" class="form-textarea" placeholder="字节序(byte order)和位序(bit order)： http://blog.csdn.net/liuxingen/article/details/45420455"></textarea></li><li><span class="red">&nbsp;</span><span class="txt">标签</span><div id="divSearchTags"><input id="insertTag" class="insertTag" placeholder="请输入标签，按Enter生成(最多5项)" type="text" value="" name="insertTag" maxlength="21" style="color: rgb(51, 51, 51);"><input id="OrganTag" class="OrganTag" type="hidden" name="OrganTag" value=""><input id="OldOrganTag" class="OldOrganTag" type="hidden" name="OldOrganTag" value=""><input type="hidden" name="txtSearchTags"></div></li></ul></div><div class="bottom-bar"><a href="javascript:;" class="btn-submit btn-cancel">取消</a><span class="tracking-ad" data-mod="popu_250"><a class="btn-submit btn-confirm" href="javascript:;">确定</a></span></div></div></div><div></div><div id="tag-suggest-pop">
+  <div class="relative">
+    <div class="close"></div>
+    <div class="content"></div>
+  </div>
+</div></body></html>
