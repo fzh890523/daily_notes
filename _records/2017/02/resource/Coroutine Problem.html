@@ -1,0 +1,355 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <title>Coroutine Problem</title>
+    <meta name="generator" content="emacs-wiki.el">
+    <meta http-equiv="Content-Type"
+	  content="text/html; charset=gb2312">
+    <link rev="made" href="mailto:webmaster@wangyin.com">
+    <link rel="home" href="WelcomePage.html">
+    <link rel="index" href="WikiIndex.html">
+    <LINK rel="stylesheet" href="../main.css" media="screen">
+  </head>
+  <body>
+    <h1>Coroutine Problem</h1>
+    <!-- Page published by Emacs Wiki begins here -->
+
+
+
+
+
+
+<h2>例1</h2>
+
+<p>
+以下的 coroutine 宏是用 <a class="nonexistent" href="mailto:webmaster@wangyin.com">MzScheme</a> 提供的 define-macro 宏实现
+的，它需要加载 defmacro 这个库。因为宏定义中的 resume 需要在
+调用时被输入的符号捕获，所以使用了这种字面上的宏比较方便。 
+
+</p>
+
+<p>
+如果不用 define-macro 而要使用 R5RS 的 syntax-rules() 需要另
+外定义。请参考 <a href="SyntaxRules.html">SyntaxRules</a>.
+
+</p>
+
+<pre class="example">
+(require (lib &quot;defmacro.ss&quot;)) 
+(define-macro coroutine
+  (lambda (x . body)
+    `(letrec ((+local-control-state
+               (lambda (,x) ,@body))
+              (resume
+               (lambda (c v)
+                 (call/cc
+                  (lambda (k)
+                    (set! +local-control-state k)
+                    (c v))))))
+       (lambda (v)
+         (+local-control-state v)))))
+
+(letrec ((cor1 (coroutine x
+                          (display &quot;coroutine 1&quot;)
+                          (resume cor2 x) ;; ------------------ (1)
+                          (display &quot;resumed 1&quot;)))
+         (cor2 (coroutine x
+                          (newline)
+                          (display &quot;coroutine 2&quot;)
+                          (resume cor1 x) ;; ------------------ (3)
+                          (display &quot;resumed 2&quot;)))
+
+         )
+  (cor1 &quot;HI1&quot;) ;;---------------------------------------------- (2)
+  (cor2 &quot;HI2&quot;)
+  )
+
+</pre>
+
+<p>
+这是从一个程序里简化出来的两个 coroutine.
+
+</p>
+
+<p>
+这个例子需要在 mzscheme 运行，因为它使用了 mzscheme 的
+define-macro. 
+
+</p>
+
+<p>
+这个例子运行后会产生死循环。我花了半天时间才发现错误在哪里。
+
+</p>
+
+<h3>分析</h3>
+
+<p>
+(cor1 "HI1") 第一次被调用时，执行的是宏展开以后的函数：
+
+</p>
+
+<p>
+<a name="cor1" id="cor1"></a><pre class="example">
+;; cor1
+(lambda (x)
+  (display &quot;coroutine 1&quot;)
+  (resume cor2 x) ; --------------------------(1)
+  (display &quot;resumed 1&quot;))
+</pre>
+
+<p>
+打印 "coroutine 1". 接着就使用了 (resume cor2 x) 调用 cor2.
+
+</p>
+
+<p>
+这个 cor2 目前是这个函数：
+
+</p>
+
+<p>
+<a name="cor2" id="cor2"></a><pre class="example">
+;; cor2
+(lambda (x)
+  (display &quot;coroutine 2&quot;)
+  (resume cor1 x) ;--------------------------- (3)
+  (display &quot;resumed 2&quot;))
+</pre>
+
+<p>
+它显示 "coroutine 2" 之后，又调用了 (resume cor1 x)，这个
+resume 使得控制返回到 cor1 的 (1) 处(看上面的记号)。
+
+</p>
+
+<p>
+于是 cor1 继续运行，打印 "resumed 1". 接着就返回到 letrec 的
+控制下，见 (2).
+
+</p>
+
+<p>
+接着应该运行 (cor2 "HI2")。注意现在 (cor2 "HI2") 将使控制返
+回到 (3). 显示 "resumed 2". 然后，cor2 返回。
+
+</p>
+
+<p>
+…… 似乎一切应该正常，但是为什么出现死循环：
+
+</p>
+
+<pre class="example">
+sumed 2resumed 1resumed 2resumed 1resumed 2resumed 1resumed
+2resumed 1resumed 2resumed 1resumed 2resumed 1resumed
+2resumed 1resumed 2resumed 1resumed 2resumed 1resumed
+2resumed 1resumed 2resumed 1resumed 2resumed 1resumed
+2resumed 1resumed 2resumed 1resumed 2resumed 1resumed
+2resumed 1resumed 2resumed 1resumed 2resumed 1resumed 2
+</pre>
+
+<p>
+？？
+
+</p>
+
+<p>
+一个打脑袋的问题。还好，我想明白了。原因在于：cor1 第一
+次调用 cor2 时(看<a href="CoroutineProblem.html#cor1">CoroutineProblem</a>)，调用的是一个函数
+
+</p>
+
+<pre class="example">
+(lambda (x)
+  (display &quot;coroutine 2&quot;)
+  (resume cor1 x) ;----------------------- (3)
+  (display &quot;resumed 2&quot;))
+</pre>
+
+<p>
+而不是一个 cor2 中间的 continuation. 这个函数是要返回到 cor1
+调用处的。
+
+</p>
+
+<p>
+letrec 内部的 (cor1 "HI1") 执行完了之后，(cor2 "HI1") 使得控
+制到达 (3)，显示 "resume 2". 接着 cor2 会返回。
+
+</p>
+
+<p>
+<em>cor2 返回到哪里？</em> 这是一个关键问题。是返回到 letrec, 然后
+ <blockquote>
+<p>
+ 就结束了吗？不是。cor2 会返回到 cor1 的 (1) 处！！ 因为
+ cor2 是在 cor1 内部起动的，它必须返回到那里。
+
+</p>
+</blockquote>
+
+<p>
+接着 cor1 返回，返回到 letrec 内部，接着就该执行 (cor2
+"HI2"), ... 如此继续就是一个死循环。
+
+</p>
+
+<h2>例2: 傻子计数器</h2>
+
+<p>
+这个例子也有点像刚才那个，也需要使用那个 coroutine 宏。
+
+</p>
+
+<pre class="example">
+(letrec ((timer (coroutine dummy
+                            (let loop ((tick 0))
+                              (if (&gt; tick 5) 
+                                  (resume controller #f)  ;---------- (1)
+                                  (begin
+                                    (resume controller tick)
+                                    (loop (+ tick 1)))))))
+
+         (controller (coroutine c
+                                (let loop ((count 0))
+                                  (if (&lt; count c)
+                                      (begin
+                                        (display (resume timer 'go)) ;----(2)
+                                        (loop (+ 1 count))))))))
+  (controller 8)
+)
+</pre>
+
+<p>
+这里有一个 controller 和一个 timer，(controller x) 就是让控
+制器从计时器得到 8 个计时信号。而这个计时器是个数数只会数到 
+5 的“傻子”，如果以后再要求数字，它就给你 #f.
+
+</p>
+
+<p>
+如果 (controller x) 设定的计时器数字大于 8 就会产生死循环。
+不断输出 "go".
+
+</p>
+
+<p>
+死循环的原因是，当 timer 的 tick 大于 5 的时候，就会从 (1) 
+处返回 #f 到 controller 的 (2) 处。
+
+</p>
+
+<p>
+controller 继续 (resume timer 'go)，使得控制返回到 (1)，这时 
+(resume controller #f) 已经执行完毕，而 tick > 5, 所以 timer 
+应该返回。
+
+</p>
+
+<p>
+返回到哪里呢？返回到 <em>第一次调用 timer 的地方</em> ！返回什么呢？ <em>'go</em> !
+
+</p>
+
+<p>
+这个 go 是哪里来的呢？因为 timer 最后有一次 (resume
+controller #f), 使得控制返回到 (2)，controller 的下一次循环
+使得 (1) 处得到一个 'go，于是 (resume controller #f) 这个表
+达式的值是 'go, 而这个表达式是 timer 函数的最后一条表达式，
+它应该被作为 timer 函数的值返回，返回到 (2)，也就是第一次调
+用 timer 的地方。所以 (2) 处得到 'go, 并且把它打印出来。
+
+</p>
+
+<p>
+既然 (resume timer 'go) 返回了，而且 count 已经是超过 c, 为
+什么 controller 陷入死循环？问题就在这里！因为：现在的情况是，
+<em>controller 第一次调用的 timer 终于返回啦！</em> 第一次！也就是
+说现在的 count 的值是：*1*！居然是 1!!
+
+</p>
+
+<p>
+于是 controller 继续 (resume timer 'go)。timer 继续返回 'go，
+打印，(resume timer 'go), timer 返回 'go, 打印，……
+
+</p>
+
+<p>
+你如果在 (display (resume timer 'go)) 之前加一条 (display
+count), 你会发现，死循环里的 count 一直是 1. 为什么 count 在 
+loop 里没有增加呢？这是因为，timer 函数 <em>返回</em> 以后，(resume
+timer 'go) 里的那个 timer, 并不能重新起动一个 timer 函数调用，
+它只是让控制返回到了 timer 里的 (1) 处，这个 (1)  就是 
+controller 对 timer 的第一次调用返回时离开 timer 的地方！
+
+</p>
+
+<p>
+也就是说，timer 不断的从 (1) 处返回最后一个表达式 'go. 然后
+回到 controller 的 count 值为 1 的那个时候。
+
+</p>
+
+<p>
+历史不断的重演…… 
+
+</p>
+
+<p>
+其实这里主要有一个问题，就是 timer 不是一直循环的，如果 
+timer 聪明一些，可以不断数数，就没有这个问题；如果 timer 实
+在太傻，也不应该退出循环，而应该不断返回 #f 给 controller.
+
+</p>
+
+<p>
+下面就是这个“傻子”计数器和“麻烦”控制器的正确实现。注意到，
+傻子 timer 发现 tick > 5 的话，就把它设为 5, 然后不论如何也
+返回给 controller, 并且继续循环。
+
+</p>
+
+<pre class="example">
+;;; correct version
+(letrec ((timer (coroutine dummy
+                            (let loop ((tick 0))
+                              (begin 
+                                (if (&gt; tick 5)
+                                    (set! tick 5))
+                                (resume controller tick))
+                              (loop (+ tick 1)))))
+
+         (controller (coroutine c
+                                (let loop ((count 0))
+                                  (if (&lt; count c)
+                                      (begin
+                                        (display (resume timer 'go))
+                                        (loop (+ 1 count))))))))
+  (controller 8)
+)
+</pre>
+<!-- Page published by Emacs Wiki ends here -->
+    <div class="navfoot">
+    <hr>
+      <table width="100%" border="0" summary="Footer navigation">
+	<tr>
+	  <td width="33%" align="left">
+	    <span class="footdate">最后更新：2003-05-29</span>
+	  </td>
+	  <td width="60%" align="center">
+	    <span class="foothome">
+	      <a href="../index.html">王垠的主页</a> / <a href="WelcomePage.html">WiKi首页</a>/<a href="WikiIndex.html">索引</a>/<a href="wiki_frame.html" target=_parent>框架页</a>/<a href="CoroutineProblem.html" target=_parent>取消框架</a>
+	    </span>
+	  </td>
+	  <td width="33%" align="right">
+	    
+	  </td>
+	</tr>
+      </table>
+    </div>
+
+
+  </body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <title>Continuation Passing Style</title>
+    <meta name="generator" content="emacs-wiki.el">
+    <meta http-equiv="Content-Type"
+	  content="text/html; charset=gb2312">
+    <link rev="made" href="mailto:webmaster@wangyin.com">
+    <link rel="home" href="WelcomePage.html">
+    <link rel="index" href="WikiIndex.html">
+    <LINK rel="stylesheet" href="../main.css" media="screen">
+  </head>
+  <body>
+    <h1>Continuation Passing Style</h1>
+    <!-- Page published by Emacs Wiki begins here -->
+
+
+
+
+
+
+<h3>一个 CPS 的例子</h3>
+
+<p>
+即使没有 call/cc, Scheme 同样可以使用 Continuation. 只不过程
+序有可能需要完全重写。
+
+</p>
+
+<p>
+我们可以把 continuation 显示的用函数表示出来。把它作为函数的
+参数传递给函数，在函数内部显示使用这个参数进行具体操作。
+
+</p>
+
+<p>
+看看这个例子：
+
+</p>
+
+<pre class="example">
+(letrec ((f (lambda (x) (cons 'a x)))
+         (g (lambda (x) (cons 'b (f x))))
+         (h (lambda (x) (g (cons 'c x)))))
+  (cons 'd (h '()))) 
+</pre>
+
+<p>
+这里有几个看不到的 continuation. 我们从最开始的函数调用说起，
+
+</p>
+
+<ul>
+<li>在调用 h 时，也就是这句：
+</li>
+</ul>
+
+<pre class="example">
+(cons 'd (h '()))
+</pre>
+
+<p>
+这里的 continuation 是说：“我想使用参数 '() 调用 h, 得到它
+的返回值(起个名字叫v吧), 然后我把 (cons 'd v) 返回给我的调用
+者。
+
+</p>
+
+<ul>
+<li>在函数 h 内部调用 g 时的 continuation 是说：“用参数 (cons
+  'c x) 调用 g, 然后把它返回的值返回给我的调用者。”
+</li>
+<li>在函数 g 内部调用 f 时的 continuation 是说：“用参数 x 调
+  用 f, 得到它的返回值 v, 然后把 (cons 'b v) 返回给我的调用
+  者。
+</li>
+<li>函数 f 的 continuation 是说：“把 (cons 'a x) 返回给我的调
+  用者。”
+</li>
+</ul>
+
+<p>
+于是，我们就可以把这些 continuation 作为一个参数传递给被调用
+的函数，告诉它们我们想怎样处理它们的结果。
+
+</p>
+
+<p>
+上面的程序可以重新写成：
+
+</p>
+
+<pre class="example">
+(letrec ((f (lambda (x k) (k (cons 'a x))))
+         (g (lambda (x k)
+              (f x (lambda (v) (k (cons 'b v))))))
+         (h (lambda (x k) (g (cons 'c x) k))))
+  (h '() (lambda (v) (cons 'd v))))
+</pre>
+
+<p>
+这里每个函数多了一个参数 k， 表示一个 continuation。
+
+</p>
+
+<p>
+看我们调用 h 的地方：
+
+</p>
+
+<pre class="example">
+(h '() (lambda (v) (cons 'd v)))
+</pre>
+
+<p>
+我把 (lambda (v) (cons 'd v)) 作为参数 k 的值传递给了 h, 就
+是在告诉 h：“我想得到你的返回值 v，然后把 'd 和 v cons 在一
+起，然后返回给上一层调用。这样 h 就可以在内部调用这个 k，把
+应该返回的值，按照调用者的意图处理。这里，“调用者的意图”就
+是 continuation。
+
+</p>
+
+<p>
+接着看：h 调用 g 时，把 k 直接传递给了 g, 意思是说：“g, 你
+的返回值，我将把它原封不动返回给我的调用者。” 这样，g 想返
+回的时候就调用这个 k, 这样就会把值原封不动传递给 h 的调用者，
+也就是最上层调用。
+
+</p>
+
+<p>
+g 调用 f 时，使用了 
+
+</p>
+
+<pre class="example">
+(lambda (v) (k (cons 'b v)))
+</pre>
+
+<p>
+作为第二个参数，这是说：“f, 你返回给我的值 v, 我将把 'b 和 v
+cons 在一起(cons 'b v)，然后把它返回给我的调用者。”
+
+</p>
+
+<p>
+f 没有调用其它函数，所以它只是说：“得到 (cons 'a x) 的值，
+然后把它返回给我的调用者。”
+
+</p>
+
+<h3>CPS 的用途</h3>
+
+<p>
+看起来 CPS 是把事情搞的很复杂。上面这个例子当然是不恰当的使
+用 CPS。CPS 可以实现所有 call/cc 能实现的功能，但是你的程序
+有可能需要完全重写。
+
+</p>
+
+<p>
+所有的 
+
+</p>
+
+<pre class="example">
+   thunk1
+   (call/cc (lambda (x) ...))
+   thunk2
+</pre>
+
+<p>
+都可以被改写为：
+
+</p>
+
+<pre class="example">
+((lambda ((lambda (v) thunk1 v thunk2)) ...))
+</pre>
+
+<p>
+但是，这个 thunk1 和 thunk2 到底有多长？它们有可能是经过了很
+多次函数嵌套调用到达 call/cc 的，如果要使用 CPS，这些函数全
+部要加一个参数 k，就像上面的例子。这是不实际的。
+
+</p>
+
+<p>
+但是 CPS 有某些 call/cc 没有的功能。
+
+</p>
+
+<ul>
+<li>CPS 能实现多参数 continuation，而 call/cc 不行。举个例子：
+</li>
+</ul>
+
+<pre class="example">
+
+(define car&amp;cdr
+  (lambda (p k)
+    (k (car p) (cdr p))))
+
+(car&amp;cdr '(a b c)
+  (lambda (x y)
+    (list y x))) 
+
+;;==&gt; ((b c) a)
+
+(car&amp;cdr '(a b c) cons) 
+
+;;==&gt; (a b c)
+
+(car&amp;cdr '(a b c a d) memv)
+
+;;==&gt;  (a d)
+
+</pre>
+
+<p>
+这里，函数 car&cdr 接受一个两个参数，第一个参数是一个 pair
+p, 第二个参数是一个 continuation k. 它返回
+
+</p>
+
+<pre class="example">
+(k (car p) (cdr p))
+</pre>
+
+<p>
+也就是说，我把 (car p) 和 (cdr p) 作为参数传递给 k, 随便 k
+是干什么的。
+
+</p>
+
+<p>
+这样，如果用 
+
+</p>
+
+<pre class="example">
+(lambda (x y)
+    (list y x))
+</pre>
+
+<p>
+作为 k，传递给 car&cdr，那么意思就是说：“亲爱的car&cdr函数，
+你返回给我的两个值 x 和 y，我将要把它们作为 list 的参数，我
+将要把 (list y x) 返回给我的调用者。
+
+</p>
+
+<p>
+另外两个，cons 和 memv 也很好理解了。
+
+</p>
+
+<ul>
+<li>CPS 能够传递多个 continuation，函数可以按情况选择把结果交
+   给哪一个. 举个例子：
+</li>
+</ul>
+
+<pre class="example">
+(define integer-divide
+  (lambda (x y success failure)
+    (if (= y 0)
+        (failure &quot;divide by zero&quot;)
+        (let ((q (quotient x y)))
+          (success q (- x (* q y)))))))
+
+(integer-divide 10 3 list (lambda (x) x)) ==&gt; (3 1)
+(integer-divide 10 0 list (lambda (x) x)) ==&gt; &quot;divide by zero&quot;
+</pre>
+
+<p>
+调用 integer-divide 的时候，我们传递两个 continuation 给它，
+第一个是在成功的时候使用的，是说：“把返回值做成一个 list 返
+回给我的上层。” 第二个是在失败的时候使用的，是说：“把返回
+值原封不动返回给我的上层。”
+
+</p>
+
+<!-- Page published by Emacs Wiki ends here -->
+    <div class="navfoot">
+    <hr>
+      <table width="100%" border="0" summary="Footer navigation">
+	<tr>
+	  <td width="33%" align="left">
+	    <span class="footdate">最后更新：2003-06-09</span>
+	  </td>
+	  <td width="60%" align="center">
+	    <span class="foothome">
+	      <a href="../index.html">王垠的主页</a> / <a href="WelcomePage.html">WiKi首页</a>/<a href="WikiIndex.html">索引</a>/<a href="wiki_frame.html" target=_parent>框架页</a>/<a href="ContinuationPassingStyle.html" target=_parent>取消框架</a>
+	    </span>
+	  </td>
+	  <td width="33%" align="right">
+	    
+	  </td>
+	</tr>
+      </table>
+    </div>
+
+
+  </body>
+</html>

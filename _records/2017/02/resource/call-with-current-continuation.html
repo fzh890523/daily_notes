@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>call-with-current-continuation</title
+><base href="http://community.schemewiki.org/"><link rel="alternate" type="application/rss+xml" title="RSS" href="/?c=rss"><link rel="stylesheet" href="/css/default.css" type="text/css"></head
+><body><h1 id="title"><div><a href="/?c=s&amp;key=[[call-with-current-continuation]]">call-with-current-continuation</a
+></div
+></h1
+><div id="nav"><a href="/">[Top Page]</a
+><a href="/?c=r">[Recent Changes]</a
+><a href="/?c=a">[All Pages]</a
+><a href="/?c=settings">[Settings]</a
+><a href="/?category-category">[Categories]</a
+><a href="/?wiki-howto">[Wiki Howto]</a
+><br><a href="/?p=call-with-current-continuation&amp;c=e">[Edit]</a
+><a href="/?p=call-with-current-continuation&amp;c=h">[Edit History]</a
+><br><form method="POST" action="/" style="margin:0pt; padding:0pt"><input type="hidden" name="c" value="s" style="margin:0pt; padding:0pt"><span>Search:<input type="text" name="key" size="10"></span
+></form
+></div
+><hr><h2 id="H-10ewd34">A short introduction to <tt>call-with-current-continuation</tt
+>
+</h2
+><p>Scheme provides a very powerful control abstraction named <tt>call-with-current-continuation</tt
+>.  Not only is the name intimidating, but many introductions to its semantics are as well.  This introduction tries to be much gentler.  C programmers can also read <a href="/?call-with-current-continuation-for-C-programmers">call-with-current-continuation-for-C-programmers</a
+>.
+</p
+><p>To understand this text, you should be aware and secure in your use of higher order procedures
+like <tt>map</tt
+> and <tt>for-each</tt
+>, the use of <tt>lambda</tt
+>, passing procedures to other
+procedures, and returning procedures from procedures.
+</p
+><p>First of all, though, this introduction uses an abbreviation for the long-winded name: <tt>call/cc</tt
+>.  This is somewhat less intimidating and a bit easier on the fingers.  Some implementations provide an alias variable already; if not it is trivial to define for running the example code in this tutorial:
+</p
+><pre class="scheme"> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> <span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call-with-current-continuation</a
+></span
+>)</span
+> 
+</pre
+><h3 id="H-1psdtq9">Exit Continuations: Get me out of here
+</h3
+><p>One of the simplest uses of <tt>call/cc</tt
+> is to provide a simple escape
+mechanism out of any nested computation. In some languages, such as Java or C,
+this is known under names such as <tt>break</tt
+>, <tt>continue</tt
+>, and <tt>return</tt
+>. I now
+have a problem, though. Using normal recursion, most problems that
+mandate the use of any of those keywords in those languages (for
+example, iterating over a two-dimensional array) are trivial when
+written in the recursive of Scheme. So you now have to bear with me
+when I take some far-fetched examples.
+</p
+><p>Let's take for example a simple search for an entry in a list. We can
+of course manually recurse over the list, and just not recurse anymore
+when we've found it. Yet, there's the procedure <tt>for-each</tt
+> for traversing a
+list. We somehow are forced to use it. It would be useful if we could
+just write the following:
+</p
+><pre class="scheme"> <span class="comment">;;; Return the first element in LIST for which WANTED? returns a true 
+</span
+> <span class="comment">;;; value. 
+</span
+> <span class="comment">;;; NOTE: This is not working Scheme code! 
+</span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(search wanted? lst)</span
+> 
+   <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_560" class="scheme-documentation">for-each</a
+></span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(element)</span
+> 
+               <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_98" class="scheme-documentation">if</a
+></span
+> <span class="paren">(wanted? element)</span
+> 
+                   <span class="paren">(return element)</span
+>)</span
+>)</span
+> 
+             lst)</span
+> 
+   <span class="hash-expr"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_356" class="scheme-documentation">#f</a
+></span
+>)</span
+> 
+</pre
+><p>We use a procedure named <tt>return</tt
+> here which would, hopefully, return
+from <tt>search</tt
+>, and use the value of <tt>element</tt
+> which we pass as an argument
+as the return value of <tt>search</tt
+>. If <tt>for-each</tt
+> comes to an end, we haven't
+found what we were looking for, and can return <tt>#f</tt
+>.
+</p
+><p>Sadly, such a procedure does not exist in Scheme. But, <tt>call/cc</tt
+> to the
+rescue! Using it, we can get this procedure. Now, how do we use
+<tt>call/cc</tt
+>? The procedure gets as an argument another procedure, which is
+then called with a single argument: The <tt>return</tt
+> procedure we above were
+looking for! As soon as the <tt>return</tt
+> procedure is called, the
+call to <tt>call/cc</tt
+> returns. Specifically, <tt>call/cc</tt
+> returns the argument
+passed to the <tt>return</tt
+> procedure. In a concrete example, the code above
+can be written in actual working Scheme:
+</p
+><pre class="scheme"> <span class="comment">;;; Return the first element in LST for which WANTED? returns a true 
+</span
+> <span class="comment">;;; value. 
+</span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(search wanted? lst)</span
+> 
+   <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> 
+     <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(return)</span
+> 
+       <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_560" class="scheme-documentation">for-each</a
+></span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(element)</span
+> 
+                   <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_98" class="scheme-documentation">if</a
+></span
+> <span class="paren">(wanted? element)</span
+> 
+                       <span class="paren">(return element)</span
+>)</span
+>)</span
+> 
+                 lst)</span
+> 
+       <span class="hash-expr"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_356" class="scheme-documentation">#f</a
+></span
+>)</span
+>)</span
+>)</span
+> 
+</pre
+><p>Here we can see how the procedure <tt>return</tt
+> is introduced into the scope
+of the <tt>for-each</tt
+> expression where we are using it. As soon as we found
+the element we were looking for, we pass it to the <tt>return</tt
+> procedure.
+As soon as this happens, the <tt>call/cc</tt
+> expression returns this value.
+Nothing else is done. The whole expression terminates. You can picture
+this as a kind of <tt>goto</tt
+> - you just jump through the code and all the
+calls to the <tt>call/cc</tt
+> and return from it.
+</p
+><p>A note is appropriate here. Dijkstra's famous paper <em>GOTO Statement Considered Harmful</em
+> is appropriate here as well: <tt>call/cc</tt
+> can be very
+confusing for programs. Its use should be carefully limited and
+preferably abstracted away so that it can not interfere with the
+normal understanding of the program. 
+</p
+><p>Now that I issued this warning, let's continue. Is your brain twisted
+enough already? You haven't seen much of what <tt>call/cc</tt
+> is able to do.
+</p
+><p>As <tt>return</tt
+> is just a normal variable, we can of course pass it around.
+Again stretching examples a bit to be able to concentrate on the issue
+at hand, let's say we pass not a predicate <tt>wanted?</tt
+>, but a procedure
+<tt>treat</tt
+> that accepts two arguments: an element, and a procedure to call
+if it likes that element. 
+</p
+><pre class="scheme"> <span class="comment">;;; Call LIKE-IT with a custom argument when we like ELEMENT. 
+</span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(treat element like-it)</span
+> 
+   <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_98" class="scheme-documentation">if</a
+></span
+> <span class="paren">(good-element? element)</span
+> 
+       <span class="paren">(like-it <span class="reader-macro"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_88" class="scheme-documentation">'</a
+></span
+>fnord)</span
+>)</span
+>)</span
+> 
+  
+ <span class="comment">;;; Call TREAT with every element in the LIST and a procedure to call 
+</span
+> <span class="comment">;;; when TREAT likes this element. 
+</span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(search treat lst)</span
+> 
+   <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> 
+     <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(return)</span
+> 
+       <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_560" class="scheme-documentation">for-each</a
+></span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(element)</span
+> 
+                   <span class="paren">(treat element return)</span
+>)</span
+> 
+                 lst)</span
+> 
+       <span class="hash-expr"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_356" class="scheme-documentation">#f</a
+></span
+>)</span
+>)</span
+>)</span
+> 
+</pre
+><p>As you can see, we pass <tt>treat</tt
+> the <tt>return</tt
+> procedure we got from
+<tt>call/cc</tt
+>. <tt>Treat</tt
+> then proceeds to do some processing, and in the event
+that it likes it, calls the <tt>return</tt
+> procedure with a value it's liking.
+As we remember, as soon as we call the <tt>return</tt
+> procedure, the argument
+to it is returned from the call to <tt>call/cc</tt
+> that created the
+<tt>return</tt
+> procedure. We are effectively jumping from within the <tt>treat</tt
+> procedure to
+the invocation of <tt>call/cc</tt
+> in <tt>search</tt
+>.
+</p
+><p>This is no different from the use of <tt>return</tt
+> above, but as you can see,
+it works from anywhere in the program. That property gave this kind of
+operation a special name: non-local exit. We are not exiting locally
+at the location of the exit instruction, but at a completely different
+place, or locality.
+</p
+><h3 id="H-1lyba6t">Full Continuations: And back in!
+</h3
+><p>So far we have seen a trivial use of <tt>call/cc</tt
+> only. All we did so far
+was escaping from a deeply nested call structure - many calls of
+procedures deep, we were able to use the <tt>return</tt
+> procedure to leave all
+these calls behind and go up, to exit. These are called <em>exit continuations</em
+>. Only now, the word continuation which is part of
+<tt>call/cc</tt
+> shows up again. Exit continuations are a special kind of
+continuation, and <tt>call/cc</tt
+> creates the general kind.
+</p
+><p>A continuation is something that is used to continue. The <tt>return</tt
+> we
+used above was a continuation we used to continue back up where we
+created it. We <em>continued</em
+> the computation at the location of
+<tt>call/cc</tt
+>.
+</p
+><p>What happens if the continuation created with <tt>call/cc</tt
+> escapes the body
+of the procedure passed to <tt>call/cc</tt
+>? Let's say, for example:
+</p
+><pre class="scheme"> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> return <span class="hash-expr"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_356" class="scheme-documentation">#f</a
+></span
+>)</span
+> 
+  
+ <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_278" class="scheme-documentation">+</a
+> 1 <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> 
+        <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(cont)</span
+> 
+          <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> return cont)</span
+> 
+          1)</span
+>)</span
+>)</span
+> 
+</pre
+><p>The evaluator will print the value 2, because the body of the <tt>call/cc</tt
+>
+expression terminated normally, returning the value of 1. This is then
+added to 1, which yields 2. But! We have a variable named <tt>return</tt
+> now,
+which is bound to the continuation created with this <tt>call/cc</tt
+> there.
+What happens if we call it with a parameter of, say, 22?
+</p
+><pre class="scheme"> <a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_258" class="scheme-documentation">&gt;</a
+> <span class="paren">(return 22)</span
+> 
+ 23 
+</pre
+><p>Now what happened here? The <tt>return</tt
+> procedure did the same thing it did
+above: The 22 passed to <tt>return</tt
+> is used as the return value of the
+<tt>call/cc</tt
+> call. This return value is then added to 1, which yield
+23. And this is what we got. We never returned from the call to
+<tt>return</tt
+>, but returned from the addition way above there.
+</p
+><p>The difference here is that we re-entered the computation from
+outside, we did not just leave it. This is a big brain-twister. Be
+sure to understand it!
+</p
+><h3 id="H-juh1on">Coroutines: And out. And in. And out...
+</h3
+><p>Let's assume we have a procedure which does a lengthy task. We don't
+want to block the system completely, so we separate the task in little
+steps. After we did one of those steps, we call a procedure which lets the system carry out any task it might want to do right now. Now comes the twist: This procedure is passed a procedure, specifically a continuation, which it should call to resume the lengthy computation:
+</p
+><pre class="scheme"> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(hefty-computation do-other-stuff)</span
+> 
+    <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_124" class="scheme-documentation">let</a
+></span
+> loop <span class="paren">(<span class="paren">(n 5)</span
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_624" class="scheme-documentation">display</a
+> <span class="string">&quot;Hefty computation: &quot;</span
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_624" class="scheme-documentation">display</a
+> n)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_626" class="scheme-documentation">newline</a
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> do-other-stuff <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> do-other-stuff)</span
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_624" class="scheme-documentation">display</a
+> <span class="string">&quot;Hefty computation (b)&quot;</span
+>)</span
+>  
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_626" class="scheme-documentation">newline</a
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> do-other-stuff <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> do-other-stuff)</span
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_624" class="scheme-documentation">display</a
+> <span class="string">&quot;Hefty computation (c)&quot;</span
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_626" class="scheme-documentation">newline</a
+>)</span
+> 
+      <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> do-other-stuff <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> do-other-stuff)</span
+>)</span
+> 
+      <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_98" class="scheme-documentation">if</a
+></span
+> <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_258" class="scheme-documentation">&gt;</a
+> n 0)</span
+> 
+          <span class="paren">(loop <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_282" class="scheme-documentation">-</a
+> n 1)</span
+>)</span
+>)</span
+>)</span
+>)</span
+> 
+</pre
+><p>When <tt>do-other-stuff</tt
+> calls the procedure it got passed by <tt>call/cc</tt
+>, the
+computation will resume right here, the loop will recurse, and the
+next step is done. Of course, besides such a hefty computation, every
+other computation is superfluous. Since it's superfluous, it should do
+the same as pointed, and let the system do other stuff when possible:
+</p
+><pre class="scheme"> <span class="comment">;; notionally displays a clock 
+</span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_idx_190" class="scheme-documentation">define</a
+></span
+> <span class="paren">(superfluous-computation do-other-stuff)</span
+> 
+    <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_124" class="scheme-documentation">let</a
+></span
+> loop <span class="paren">()</span
+> 
+      <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_560" class="scheme-documentation">for-each</a
+></span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(graphic)</span
+> 
+                  <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_624" class="scheme-documentation">display</a
+> graphic)</span
+> 
+                  <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_626" class="scheme-documentation">newline</a
+>)</span
+> 
+                  <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> do-other-stuff <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> do-other-stuff)</span
+>)</span
+>)</span
+> 
+                <span class="reader-macro"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_88" class="scheme-documentation">'</a
+></span
+><span class="paren">(<span class="string">&quot;Straight up.&quot;</span
+> <span class="string">&quot;Quarter after.&quot;</span
+> <span class="string">&quot;Half past.&quot;</span
+>  <span class="string">&quot;Quarter til.&quot;</span
+>)</span
+>)</span
+> 
+      <span class="paren">(loop)</span
+>)</span
+>)</span
+> 
+</pre
+><p>What happens now if you enter the following input:
+</p
+><pre class="scheme"> <a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_258" class="scheme-documentation">&gt;</a
+> <span class="paren">(hefty-computation superfluous-computation)</span
+> 
+ Hefty computation: 5 
+ Straight up. 
+ Hefty computation <span class="paren">(b)</span
+> 
+ Quarter after. 
+ Hefty computation <span class="paren">(c)</span
+> 
+ Half past. 
+ Hefty computation: 4 
+ Quarter til. 
+ . 
+ . 
+ . 
+</pre
+><p>Now what is happening here? The hefty computation did one step, and
+passed the control to the superfluous computation. This in turn did one
+step and passed control back to the hefty computation. Now this of
+course did a step and passed control to the superfluous computation.
+And... You get the pattern. These two procedures are calling each
+other alternatingly, passing control between the two. Of course, this
+is not limited to two procedures, but could be done between any number of procedures. Procedures which pass control between them like this are called Coroutines, since they are effectively processed in parallel.
+</p
+><p>I hope you now have a basic understanding of continuations, and will
+be able to tell anyone who is scared about them that they're not scary
+at all. But let me repeat my earlier warning: Continuations can be
+easily abused. Don't overdo it. You don't have to use continuations
+everywhere, really!
+</p
+><hr><p>See also <a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566">call-with-current-continuation</a
+> in the <a href="/?R5RS">R5RS</a
+>.
+</p
+><hr><p><a href="/?category-learning-scheme">category-learning-scheme</a
+>
+</p
+><hr><div class="footer" style="text-align:right">Last modified : 2011-01-29 04:40:05<br><a href="http://www.shiro.dreamhost.com/scheme/wiliki/wiliki.cgi">WiLiKi 0.5-tekili-7</a
+> running on <a href="http://www.shiro.dreamhost.com/scheme/gauche/">Gauche 0.9</a
+></div
+></body
+></html
+>
