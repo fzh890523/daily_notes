@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="client-nojs">
+<head>
+<meta charset="UTF-8"/>
+<title>Improving performance - ArchWiki</title>
+<script>document.documentElement.className = document.documentElement.className.replace( /(^|\s)client-nojs(\s|$)/, "$1client-js$2" );</script>
+<script>window.RLQ = window.RLQ || []; window.RLQ.push( function () {
+mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":!1,"wgNamespaceNumber":0,"wgPageName":"Improving_performance","wgTitle":"Improving performance","wgCurRevisionId":467249,"wgRevisionId":467249,"wgArticleId":3978,"wgIsArticle":!0,"wgIsRedirect":!1,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":["Hardware","System administration","Pages or sections flagged with Template:Style","Pages or sections flagged with Template:Accuracy","Pages or sections flagged with Template:Expansion"],"wgBreakFrames":!1,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"Improving_performance",
+"wgRelevantArticleId":3978,"wgIsProbablyEditable":!1,"wgRestrictionEdit":[],"wgRestrictionMove":[]});mw.loader.implement("user.options",function($,jQuery){mw.user.options.set({"variant":"en"});});mw.loader.implement("user.tokens",function($,jQuery){mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\"});});mw.loader.load(["mediawiki.page.startup","mediawiki.legacy.wikibits"]);
+} );</script>
+<link rel="stylesheet" href="/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor%7Cmediawiki.skinning.content.externallinks%7Cmediawiki.skinning.interface%7Cskins.archlinux.styles&amp;only=styles&amp;skin=archlinux"/>
+<!--[if IE 6]><link rel="stylesheet" href="/skins/ArchLinux/IE60Fixes.css?303" media="screen"/><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="/skins/ArchLinux/IE70Fixes.css?303" media="screen"/><![endif]-->
+<meta name="ResourceLoaderDynamicStyles" content=""/>
+<link rel="stylesheet" href="/load.php?debug=false&amp;lang=en&amp;modules=site&amp;only=styles&amp;skin=archlinux"/>
+<style></style>
+<script async="" src="/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=archlinux"></script>
+<meta name="generator" content="MediaWiki 1.26.4"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch_desc.php" title="ArchWiki (en)"/>
+<link rel="EditURI" type="application/rsd+xml" href="https://wiki.archlinux.org/api.php?action=rsd"/>
+<link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html"/>
+<link rel="alternate" type="application/atom+xml" title="ArchWiki Atom feed" href="/index.php?title=Special:RecentChanges&amp;feed=atom"/>
+</head>
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-Improving_performance skin-archlinux action-view">
+
+		<div id="archnavbar"><!-- Arch Linux global navigation bar -->
+			<div id="archnavbarlogo">
+				<p><a id="logo" href="https://www.archlinux.org/"></a></p>
+			</div>
+			<div id="archnavbarmenu">
+				<ul id="archnavbarlist">
+					<li id="anb-home"><a href="https://www.archlinux.org/">Home</a></li><li id="anb-packages"><a href="https://www.archlinux.org/packages/">Packages</a></li><li id="anb-forums"><a href="https://bbs.archlinux.org/">Forums</a></li><li id="anb-wiki" class="anb-selected"><a href="https://wiki.archlinux.org/">Wiki</a></li><li id="anb-bugs"><a href="https://bugs.archlinux.org/">Bugs</a></li><li id="anb-aur"><a href="https://aur.archlinux.org/">AUR</a></li><li id="anb-download"><a href="https://www.archlinux.org/download/">Download</a></li>				</ul>
+			</div>
+		</div><!-- #archnavbar -->
+
+		<div id="globalWrapper">
+		<div id="column-content">
+			<div id="content" class="mw-body" role="main">
+				<a id="top"></a>
+				
+				<div class="mw-indicators">
+</div>
+				<h1 id="firstHeading" class="firstHeading" lang="en">Improving performance</h1>
+				
+				<div id="bodyContent" class="mw-body-content">
+					<div id="siteSub">From ArchWiki</div>
+					<div id="contentSub"></div>
+										<div id="jump-to-nav" class="mw-jump">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>
+
+					<!-- start content -->
+					<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div style="float:right; clear:right; width:25%; margin: 0 0 0.5em 0.5em;"><p style="background:#333; color:white; padding:0.2em; border-bottom:5px #08c solid; margin:0; text-align:center; font-weight:bold;">Related articles</p><ul style="list-style-type:none; margin:0; padding:0.3em;">
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Improving_performance/Boot_process" title="Improving performance/Boot process">Improving performance/Boot process</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Pacman/Tips_and_tricks#Performance" title="Pacman/Tips and tricks">Pacman/Tips and tricks#Performance</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/SSH#Speeding_up_SSH" title="SSH" class="mw-redirect">SSH#Speeding up SSH</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/LibreOffice#Speed_up_LibreOffice" title="LibreOffice">LibreOffice#Speed up LibreOffice</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Openoffice#Speed_up_OpenOffice" title="Openoffice" class="mw-redirect">Openoffice#Speed up OpenOffice</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Laptop" title="Laptop">Laptop</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Preload" title="Preload">Preload</a></li>
+<li style="padding:0.4em 0; line-height:1;"><a href="/index.php/Cpulimit" title="Cpulimit">Cpulimit</a></li>
+</ul></div>
+<p>This article provides information on basic system diagnostics relating to performance as well as steps that may be taken to reduce resource consumption or to otherwise optimize the system with the end-goal being either perceived or documented improvements to a system's performance.
+</p>
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#The_basics"><span class="tocnumber">1</span> <span class="toctext">The basics</span></a>
+<ul>
+<li class="toclevel-2 tocsection-2"><a href="#Know_your_system"><span class="tocnumber">1.1</span> <span class="toctext">Know your system</span></a></li>
+<li class="toclevel-2 tocsection-3"><a href="#Benchmarking"><span class="tocnumber">1.2</span> <span class="toctext">Benchmarking</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-4"><a href="#Storage_devices"><span class="tocnumber">2</span> <span class="toctext">Storage devices</span></a>
+<ul>
+<li class="toclevel-2 tocsection-5"><a href="#Multiple_hardware_paths"><span class="tocnumber">2.1</span> <span class="toctext">Multiple hardware paths</span></a></li>
+<li class="toclevel-2 tocsection-6"><a href="#Partitioning"><span class="tocnumber">2.2</span> <span class="toctext">Partitioning</span></a>
+<ul>
+<li class="toclevel-3 tocsection-7"><a href="#Multiple_drives"><span class="tocnumber">2.2.1</span> <span class="toctext">Multiple drives</span></a></li>
+<li class="toclevel-3 tocsection-8"><a href="#Layout_on_HDDs"><span class="tocnumber">2.2.2</span> <span class="toctext">Layout on HDDs</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-9"><a href="#Choosing_and_tuning_your_filesystem"><span class="tocnumber">2.3</span> <span class="toctext">Choosing and tuning your filesystem</span></a>
+<ul>
+<li class="toclevel-3 tocsection-10"><a href="#Mount_options"><span class="tocnumber">2.3.1</span> <span class="toctext">Mount options</span></a>
+<ul>
+<li class="toclevel-4 tocsection-11"><a href="#Reiserfs"><span class="tocnumber">2.3.1.1</span> <span class="toctext">Reiserfs</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-12"><a href="#Tuning_kernel_parameters"><span class="tocnumber">2.4</span> <span class="toctext">Tuning kernel parameters</span></a>
+<ul>
+<li class="toclevel-3 tocsection-13"><a href="#USB_storage_devices"><span class="tocnumber">2.4.1</span> <span class="toctext">USB storage devices</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-14"><a href="#Tuning_IO_schedulers"><span class="tocnumber">2.5</span> <span class="toctext">Tuning IO schedulers</span></a>
+<ul>
+<li class="toclevel-3 tocsection-15"><a href="#Background"><span class="tocnumber">2.5.1</span> <span class="toctext">Background</span></a></li>
+<li class="toclevel-3 tocsection-16"><a href="#Change_at_runtime"><span class="tocnumber">2.5.2</span> <span class="toctext">Change at runtime</span></a></li>
+<li class="toclevel-3 tocsection-17"><a href="#Persisting_the_change"><span class="tocnumber">2.5.3</span> <span class="toctext">Persisting the change</span></a>
+<ul>
+<li class="toclevel-4 tocsection-18"><a href="#Kernel_parameter_.28for_a_single_device.29"><span class="tocnumber">2.5.3.1</span> <span class="toctext">Kernel parameter (for a single device)</span></a></li>
+<li class="toclevel-4 tocsection-19"><a href="#systemd-tmpfiles"><span class="tocnumber">2.5.3.2</span> <span class="toctext">systemd-tmpfiles</span></a></li>
+<li class="toclevel-4 tocsection-20"><a href="#Using_udev_for_one_device_or_HDD.2FSSD_mixed_environment"><span class="tocnumber">2.5.3.3</span> <span class="toctext">Using udev for one device or HDD/SSD mixed environment</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-21"><a href="#Power_management_configuration"><span class="tocnumber">2.6</span> <span class="toctext">Power management configuration</span></a></li>
+<li class="toclevel-2 tocsection-22"><a href="#Reduce_disk_reads.2Fwrites"><span class="tocnumber">2.7</span> <span class="toctext">Reduce disk reads/writes</span></a>
+<ul>
+<li class="toclevel-3 tocsection-23"><a href="#Show_disk_writes"><span class="tocnumber">2.7.1</span> <span class="toctext">Show disk writes</span></a></li>
+<li class="toclevel-3 tocsection-24"><a href="#Relocate_files_to_tmpfs"><span class="tocnumber">2.7.2</span> <span class="toctext">Relocate files to tmpfs</span></a></li>
+<li class="toclevel-3 tocsection-25"><a href="#Compiling_in_tmpfs"><span class="tocnumber">2.7.3</span> <span class="toctext">Compiling in tmpfs</span></a></li>
+<li class="toclevel-3 tocsection-26"><a href="#Disabling_journaling_on_the_filesystem"><span class="tocnumber">2.7.4</span> <span class="toctext">Disabling journaling on the filesystem</span></a></li>
+<li class="toclevel-3 tocsection-27"><a href="#Swap_space"><span class="tocnumber">2.7.5</span> <span class="toctext">Swap space</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-28"><a href="#Storage_I.2FO_scheduling_with_ionice"><span class="tocnumber">2.8</span> <span class="toctext">Storage I/O scheduling with ionice</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-29"><a href="#CPU"><span class="tocnumber">3</span> <span class="toctext">CPU</span></a>
+<ul>
+<li class="toclevel-2 tocsection-30"><a href="#Overclocking"><span class="tocnumber">3.1</span> <span class="toctext">Overclocking</span></a></li>
+<li class="toclevel-2 tocsection-31"><a href="#Frequency_scaling"><span class="tocnumber">3.2</span> <span class="toctext">Frequency scaling</span></a></li>
+<li class="toclevel-2 tocsection-32"><a href="#Alternative_CPU_scheduler"><span class="tocnumber">3.3</span> <span class="toctext">Alternative CPU scheduler</span></a></li>
+<li class="toclevel-2 tocsection-33"><a href="#Adjusting_priorities_of_processes"><span class="tocnumber">3.4</span> <span class="toctext">Adjusting priorities of processes</span></a>
+<ul>
+<li class="toclevel-3 tocsection-34"><a href="#Verynice"><span class="tocnumber">3.4.1</span> <span class="toctext">Verynice</span></a></li>
+<li class="toclevel-3 tocsection-35"><a href="#Ananicy"><span class="tocnumber">3.4.2</span> <span class="toctext">Ananicy</span></a></li>
+<li class="toclevel-3 tocsection-36"><a href="#cgroups"><span class="tocnumber">3.4.3</span> <span class="toctext">cgroups</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-37"><a href="#irqbalance"><span class="tocnumber">3.5</span> <span class="toctext">irqbalance</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-38"><a href="#Graphics"><span class="tocnumber">4</span> <span class="toctext">Graphics</span></a>
+<ul>
+<li class="toclevel-2 tocsection-39"><a href="#Xorg.conf_configuration"><span class="tocnumber">4.1</span> <span class="toctext">Xorg.conf configuration</span></a></li>
+<li class="toclevel-2 tocsection-40"><a href="#Driconf"><span class="tocnumber">4.2</span> <span class="toctext">Driconf</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-41"><a href="#RAM_and_swap"><span class="tocnumber">5</span> <span class="toctext">RAM and swap</span></a>
+<ul>
+<li class="toclevel-2 tocsection-42"><a href="#Clock_frequency_and_timings"><span class="tocnumber">5.1</span> <span class="toctext">Clock frequency and timings</span></a></li>
+<li class="toclevel-2 tocsection-43"><a href="#Root_on_RAM_overlay"><span class="tocnumber">5.2</span> <span class="toctext">Root on RAM overlay</span></a></li>
+<li class="toclevel-2 tocsection-44"><a href="#Zram_or_zswap"><span class="tocnumber">5.3</span> <span class="toctext">Zram or zswap</span></a>
+<ul>
+<li class="toclevel-3 tocsection-45"><a href="#Swap_on_zRAM_using_a_udev_rule"><span class="tocnumber">5.3.1</span> <span class="toctext">Swap on zRAM using a udev rule</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-46"><a href="#Using_the_graphic_card.27s_RAM"><span class="tocnumber">5.4</span> <span class="toctext">Using the graphic card's RAM</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-47"><a href="#Network"><span class="tocnumber">6</span> <span class="toctext">Network</span></a></li>
+<li class="toclevel-1 tocsection-48"><a href="#Watchdogs"><span class="tocnumber">7</span> <span class="toctext">Watchdogs</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="The_basics">The basics</span></h2>
+<h3><span class="mw-headline" id="Know_your_system">Know your system</span></h3>
+<p>The best way to tune a system is to target bottlenecks, or subsystems which limit overall speed. The system specifications can help identify them.
+</p>
+<ul><li> If the computer becomes slow when large applications (such as OpenOffice.org and Firefox) run at the same time, check if the amount of RAM is sufficient. Use the following command, and check the "available" column:</li></ul>
+<pre>$ free -h
+</pre>
+<ul><li> If boot time is slow, and applications take a long time to load at first launch (only), then the hard drive is likely to blame. The speed of a hard drive can be measured with the <code>hdparm</code> command:</li></ul>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #DDDDFF; border: thin solid #BBBBDD; overflow: hidden;"><strong> Note: </strong><span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=hdparm">hdparm</a></span> indicates only the pure read speed of a hard drive, and is not a valid benchmark. A value higher than 40MB/s (while idle) is however acceptable on an average system.</div>
+<pre># hdparm -t /dev/sdx
+</pre>
+<ul><li> If CPU load is consistently high even with enough RAM available, then try to lower CPU usage by disabling running <a href="/index.php/Daemons" title="Daemons">daemons</a> and/or processes. This can be monitored in several ways, for example with <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=htop">htop</a></span>, <code>pstree</code> or any other <a href="/index.php/List_of_applications#System_monitoring" title="List of applications">system monitoring</a> tool:</li></ul>
+<pre>$ htop
+</pre>
+<ul><li> If applications using direct rendering are slow (i.e those which use the GPU, such as video players, games, or even a <a href="/index.php/Window_manager" title="Window manager">window manager</a>), then improving GPU performance should help. The first step is to verify if direct rendering is actually enabled. This is indicated by the <code>glxinfo</code> command, part of the <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=mesa-demos">mesa-demos</a></span> package:</li></ul>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">$ glxinfo | grep direct</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+direct rendering: Yes
+</pre>
+<ul><li> When running a <a href="/index.php/Desktop_environment" title="Desktop environment">desktop environment</a>, disabling (unused) visual desktop effects may reduce GPU usage. Use a more lightweight environment or create a <a href="/index.php/Desktop_environment#Custom_environments" title="Desktop environment">custom environment</a> if the current does not meet the hardware and/or personal requirements.</li></ul>
+<h3><span class="mw-headline" id="Benchmarking">Benchmarking</span></h3>
+<p>The effects of optimization are often difficult to judge. They can however be measured by <a href="/index.php/Benchmarking" title="Benchmarking">benchmarking</a> tools.
+</p>
+<h2><span class="mw-headline" id="Storage_devices">Storage devices</span></h2>
+<h3><span class="mw-headline" id="Multiple_hardware_paths">Multiple hardware paths</span></h3>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-edit-clear.png" class="image"><img alt="Tango-edit-clear.png" src="/images/8/87/Tango-edit-clear.png" width="48" height="48" /></a><b>This article or section needs language, wiki syntax or style improvements.</b><a href="/index.php/File:Tango-edit-clear.png" class="image"><img alt="Tango-edit-clear.png" src="/images/8/87/Tango-edit-clear.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> Subjective writing (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>An internal hardware path is how the storage device is connected to your motherboard.  There are different ways to connect to the motherboard such as TCP/IP through a NIC, plugged in directly using PCIe/PCI, Firewire, Raid Card, USB, etc.  By spreading your storage devices across these multiple connection points you maximize the capabilities of your motherboard, for example 6 hard-drives connected via USB would be much much slower than 3 over USB and 3 over Firewire.  The reason is that each entry path into the motherboard is like a pipe, and there is a set limit to how much can go through that pipe at any one time. The good news is that the motherboard usually has several pipes.
+</p><p>More Examples
+</p>
+<ol><li> Directly to the motherboard using pci/PCIe/ata</li>
+<li> Using an external enclosure to house the disk over USB/Firewire</li>
+<li> Turn the device into a network storage device by connecting over tcp/ip</li></ol>
+<p>Note also that if you have a 2 USB ports on the front of your machine, and 4 USB ports on the back, and you have 4 disks, it would probably be fastest to put 2 on front/2 on back or 3 on back/1 on front.  This is because internally the front ports are likely a separate Root Hub than the back, meaning you can send twice as much data by using both than just 1.  Use the following commands to determine the various paths on your machine.
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">USB Device Tree</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">$ lsusb -tv</pre>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">PCI Device Tree</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">$ lspci -tv</pre>
+<h3><span class="mw-headline" id="Partitioning">Partitioning</span></h3>
+<p>Make sure that your partitions are <a href="/index.php/Partitioning#Partition_alignment" title="Partitioning">properly aligned</a>.
+</p>
+<h4><span class="mw-headline" id="Multiple_drives">Multiple drives</span></h4>
+<p>If you have multiple disks available, you can set them up as a software <a href="/index.php/RAID" title="RAID">RAID</a> for serious speed improvements.
+</p><p>Creating <a href="/index.php/Swap" title="Swap">swap</a> on a separate disk can also help quite a bit, especially if your machine swaps frequently.
+</p>
+<h4><span class="mw-headline" id="Layout_on_HDDs">Layout on HDDs</span></h4>
+<p>If using a traditional spinning HDD, your partition layout can influence the system's performance. Sectors at the beginning of the drive (closer to the outside of the disk) are faster than those at the end. Also, a smaller partition requires less movements from the drive's head, and so speed up disk operations. Therefore, it is advised to create a small partition (10GB, more or less depending on your needs) only for your system, as near to the beginning of the drive as possible. Other data (pictures, videos) should be kept on a separate partition, and this is usually achieved by separating the home directory (<code>/home/<i>user</i></code>) from the system (<code>/</code>).
+</p>
+<h3><span class="mw-headline" id="Choosing_and_tuning_your_filesystem">Choosing and tuning your filesystem</span></h3>
+<p>Choosing the best filesystem for a specific system is very important because each has its own strengths. The <a href="/index.php/File_systems" title="File systems">File systems</a> article provides a short summary of the most popular ones. You can also find relevant articles <a href="/index.php/Category:File_systems" title="Category:File systems">here</a>.
+</p>
+<h4><span class="mw-headline" id="Mount_options">Mount options</span></h4>
+<p>The <a href="/index.php/Fstab#atime_options" title="Fstab">noatime</a> option is known to improve performance of the filesystem.
+</p><p>Other mount options are filesystem specific, therefore see the relevant articles for the filesystems:
+</p>
+<ul><li> <a href="/index.php/Ext3" title="Ext3">Ext3</a></li>
+<li> <a href="/index.php/Ext4#Tips_and_tricks" title="Ext4">Ext4#Tips and tricks</a></li>
+<li> <a href="/index.php/JFS_Filesystem#Optimizations" title="JFS Filesystem" class="mw-redirect">JFS Filesystem#Optimizations</a></li>
+<li> <a href="/index.php/XFS" title="XFS">XFS</a></li>
+<li> <a href="/index.php/Btrfs#Defragmentation" title="Btrfs">Btrfs#Defragmentation</a> and <a href="/index.php/Btrfs#Compression" title="Btrfs">Btrfs#Compression</a></li>
+<li> <a href="/index.php/ZFS#Tuning" title="ZFS">ZFS#Tuning</a></li></ul>
+<h5><span class="mw-headline" id="Reiserfs">Reiserfs</span></h5>
+<p>The <code>data=writeback</code> mount option improves speed, but may corrupt data during power loss. The <code>notail</code> mount option increases the space used by the filesystem by about 5%, but also improves overall speed. You can also reduce disk load by putting the journal and data on separate drives. This is done when creating the filesystem: 
+</p>
+<pre># mkreiserfs –j /dev/sd<b>a1</b> /dev/sd<b>b1</b>
+</pre>
+<p>Replace <code>/dev/sd<b>a1</b></code> with the partition reserved for the journal, and <code>/dev/sd<b>b1</b></code> with the partition for data.  You can learn more about reiserfs with this <a rel="nofollow" class="external text" href="http://www.funtoo.org/Funtoo_Filesystem_Guide,_Part_2">article</a>.
+</p>
+<h3><span class="mw-headline" id="Tuning_kernel_parameters">Tuning kernel parameters</span></h3>
+<p>There are several key tunables affecting the performance of block devices, see <a href="/index.php/Sysctl#Virtual_memory" title="Sysctl">sysctl#Virtual memory</a> for more information.
+</p>
+<h4><span class="mw-headline" id="USB_storage_devices">USB storage devices</span></h4>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> Commands still unclear (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>If USB drives like pendrives are slow to copy files, append these three lines in a <a href="/index.php/Systemd" title="Systemd">systemd</a> tmpfile:
+</p><p>(this should not be needed anymore: <a rel="nofollow" class="external autonumber" href="https://lwn.net/Articles/475405/">[1]</a>)
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/tmpfiles.d/local.conf</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+w /sys/kernel/mm/transparent_hugepage/enabled - - - - madvise
+w /sys/kernel/mm/transparent_hugepage/defrag - - - - madvise
+w /sys/kernel/mm/transparent_hugepage/khugepaged/defrag - - - - 0
+</pre>
+<p>See also <a rel="nofollow" class="external autonumber" href="http://unix.stackexchange.com/questions/107703/why-is-my-pc-freezing-while-im-copying-a-file-to-a-pendrive">[2]</a>, <a rel="nofollow" class="external autonumber" href="http://lwn.net/Articles/572911/">[3]</a> and <a rel="nofollow" class="external autonumber" href="http://lwn.net/Articles/467328/">[4]</a>.
+</p>
+<h3><span class="mw-headline" id="Tuning_IO_schedulers">Tuning IO schedulers</span></h3>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #FFDDDD; border: thin solid #DDBBBB; overflow: hidden;"><strong> Warning: </strong>Only the CFQ scheduler supports setting IO priorities with ionice. Some background processes rely on this capability to perform background IO unobtrusively by reducing their IO priority, for example KDE's file indexer baloo. Using a different scheduler than the default CFQ scheduler can worsen the user experience on desktops. <a rel="nofollow" class="external autonumber" href="https://blogs.kde.org/2014/10/15/ubuntus-linux-scheduler-or-why-baloo-might-be-slowing-your-system-1404">[5]</a></div>
+<p>The kernel officially supports the following schedulers for storage disk in-/output (IO):
+</p>
+<ul><li><a href="https://en.wikipedia.org/wiki/CFQ" class="extiw" title="wikipedia:CFQ">CFQ</a> scheduler (Completely Fair Queuing)</li>
+<li><a href="https://en.wikipedia.org/wiki/NOOP_scheduler" class="extiw" title="wikipedia:NOOP scheduler">NOOP</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Deadline_scheduler" class="extiw" title="wikipedia:Deadline scheduler">Deadline</a>.</li></ul>
+<p>Unofficial support is available through the <a href="/index.php/Linux-ck#How_to_enable_the_BFQ_I.2FO_Scheduler" title="Linux-ck">BFQ</a> (Budget Fair Queueing) which is compiled the <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=linux-zen">linux-zen</a></span> kernel as well as many kernels in the <a href="/index.php/AUR" title="AUR" class="mw-redirect">AUR</a>.
+</p><p>A more contemporary option (since kernel version 3.16) is <a rel="nofollow" class="external text" href="https://www.thomas-krenn.com/en/wiki/Linux_Multi-Queue_Block_IO_Queueing_Mechanism_(blk-mq)">Multi-Queue Block IO Queuing Mechanism</a> or blk-mq for short.  Blk-mq leverages a CPU with multiple cores to map I/O queries to multiple queues. The tasks are distributed across multiple threads and therefore to multiple CPU cores (per-core software queues) and can speed up read/write operations vs. traditional I/O schedulers.
+</p><p>One can be enable blk-mq by adding the following to the kernel's boot line:
+</p>
+<pre>scsi_mod.use_blk_mq=y dm_mod.use_blk_mq=y
+</pre>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #DDDDFF; border: thin solid #BBBBDD; overflow: hidden;"><strong> Note: </strong>Using blk_mq is an all-or-nothing proposition.  When enabled all IO schedulers are disabled which is fine for SSDs but doing this may <a rel="nofollow" class="external text" href="https://mahmoudhatem.wordpress.com/2016/02/08/oracle-uek-4-where-is-my-io-scheduler-none-multi-queue-model-blk-mq/">negatively impact performance of rotational discs</a>.</div>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-edit-clear.png" class="image"><img alt="Tango-edit-clear.png" src="/images/8/87/Tango-edit-clear.png" width="48" height="48" /></a><b>This article or section needs language, wiki syntax or style improvements.</b><a href="/index.php/File:Tango-edit-clear.png" class="image"><img alt="Tango-edit-clear.png" src="/images/8/87/Tango-edit-clear.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> Theoretical background should be described at the top or the bottom, not in the middle. Use subsections to make the structure more clear. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<h4><span class="mw-headline" id="Background">Background</span></h4>
+<p>A HDD has spinning disks and head that move physically to the required location. Such structure leads to following characteristics:
+</p>
+<ul><li> random latency is quite high, for modern HDDs it is ~10ms (ignoring a disk controller write buffer).</li>
+<li> sequential access provides much higher throughput. In this case the head needs to move less distance.</li></ul>
+<p>If we have a lot of running processes that make IO requests to different parts of storage (i.e. random access) then we can expect that a disk handles ~100 IO requests per second. Because modern systems can easily generate load much higher than 100 requests per second we have a queue of requests that have to wait for access to the storage. One way to improve throughput is to linearize access, i.e. order waiting requests by its logical address and always choose the closest request. Historically this was the first Linux IO scheduler called <b>elevator</b> scheduler.
+</p><p>One of the problems with the elevator algorithm is that it makes suffer processes with sequential access. Such processes read a block of data then process it for several microseconds then read next block and so on. The elevator scheduler does not know that the process is going to read another block nearby and, thus, moves to another request at some other location. To overcome the problem <b>anticipatory IO</b> scheduler was added. For synchronous requests this algorithm waits for a short amount of time before moving to another request.
+</p><p>While these schedulers try to improve total throughput they also might leave some unlucky requests waiting for a very long time. As an example, imagine the majority of processes make requests at the beginning of storage space while an unlucky process makes a request at the other end of storage. So developers tried to make the algorithm more fair and the <b>deadline</b> scheduler was added. It has a queue ordered by address (the same as elevator). If some request sits in this queue for a long time then it moves to an "expired" queue ordered by expire time. The scheduler checks the expire queue first and processes requests from there and only then moves to elevator queue. It is important to understand that this algorithm sacrifices total throughput for fairness.
+</p>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> The CFQ scheduler now contains optimizations for SSDs. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>CFQ (the default scheduler nowadays) aggregates all ideas from above and adds <code>cgroup</code> support that allows to reserve some amount of IO to a specific <code>cgroup</code>. It is useful on shared (and cloud) hosting - users who paid for 20 IO/s want to get their share if needed.
+</p>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> The deadline scheduler can perform better than noop even for SSDs. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>The characteristics of a SSD are different. It does not have moving parts. Random access is as fast as sequential one. An SSD can handle multiple requests at the same time. Modern devices' throughput ~10K IO/s, which is higher than workload on most systems. Essentially a user cannot generate enough requests to saturate a SDD, the requests queue is effectively always empty. In this case IO scheduler does not provide any improvements. Thus, it is recommended to use the <b>noop</b> scheduler for an SSD.
+</p>
+<h4><span class="mw-headline" id="Change_at_runtime">Change at runtime</span></h4>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> Bits below were restored from <a rel="nofollow" class="external autonumber" href="https://wiki.archlinux.org/index.php?title=Solid_State_Drives&amp;diff=next&amp;oldid=411764">[6]</a>. The blk-mq scheduler discussed above may be activated differently. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>It is possible to change the scheduler at runtime and even to use different schedulers for separate storage devices at the same time. Available schedulers can be queried by viewing the contents of <code>/sys/block/sd<b>X</b>/queue/scheduler</code> (the active scheduler is denoted by brackets):
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">$ cat /sys/block/sd<b>X</b>/queue/scheduler</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+noop deadline [cfq]
+</pre>
+<p>Users can change the active scheduler at runtime without the need to reboot, for example:
+</p>
+<pre># echo noop &gt; /sys/block/sd<b>X</b>/queue/scheduler
+</pre>
+<p>This method is non-persistent and will be lost upon rebooting.
+</p>
+<h4><span class="mw-headline" id="Persisting_the_change">Persisting the change</span></h4>
+<h5><span class="mw-headline" id="Kernel_parameter_.28for_a_single_device.29">Kernel parameter (for a single device)</span></h5>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> The deadline scheduler can perform better than noop even for SSDs. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>If the sole storage device in the system is an SSD, consider setting the I/O scheduler for the entire system via the <code>elevator=noop</code> <a href="/index.php/Kernel_parameter" title="Kernel parameter" class="mw-redirect">kernel parameter</a>.
+</p>
+<h5><span class="mw-headline" id="systemd-tmpfiles">systemd-tmpfiles</span></h5>
+<p>If you have more than one storage device, or wish to avoid clutter on the kernel cmdline, you can set the I/O scheduler via <code>systemd-tmpfiles</code>:
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/tmpfiles.d/10_ioscheduler.conf</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">w /sys/block/sdX/queue/scheduler - - - - noop</pre>
+<p>For more detail on <code>systemd-tmpfiles</code> see <a href="/index.php/Systemd#Temporary_files" title="Systemd">Systemd#Temporary files</a>.
+</p>
+<h5><span class="mw-headline" id="Using_udev_for_one_device_or_HDD.2FSSD_mixed_environment">Using udev for one device or HDD/SSD mixed environment</span></h5>
+<p>Though the above will undoubtedly work, it is probably considered a reliable workaround.  Ergo, it would be preferred to use the system that is responsible for the devices in the first place to implement the scheduler.  In this case it is udev, and to do this, all one needs is a simple <a href="/index.php/Udev" title="Udev">udev</a> rule.
+</p><p>To do this, create the following:
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/udev/rules.d/60-schedulers.rules</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+# set deadline scheduler for non-rotating disks
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="deadline"
+</pre>
+<p>Of course, set Deadline/CFQ to the desired schedulers.  Changes should occur upon next boot.  To check success of the new rule:
+</p>
+<pre>$ cat /sys/block/sd<b>X</b>/queue/scheduler  # where <b>X</b> is the device in question
+</pre>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #DDDDFF; border: thin solid #BBBBDD; overflow: hidden;"><strong> Note: </strong>In the example sixty is chosen because that is the number udev uses for its own persistent naming rules. Thus, it would seem that block devices are at this point able to be modified and this is a safe position for this particular rule. But the rule can be named anything so long as it ends in <code>.rules</code>.)</div>
+<h3><span class="mw-headline" id="Power_management_configuration">Power management configuration</span></h3>
+<p>When dealing with traditional rotational disks (HDD's) you may want to <a href="/index.php/Hdparm#Power_management_configuration" title="Hdparm">lower or disable power saving features</a> completely.
+</p>
+<h3><span class="mw-headline" id="Reduce_disk_reads.2Fwrites">Reduce disk reads/writes</span></h3>
+<p>Avoiding unnecessary access to slow storage drives is good for performance and also increasing lifetime of the devices, although on modern hardware the difference in life expectancy is usually negligible.
+</p>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #DDDDFF; border: thin solid #BBBBDD; overflow: hidden;"><strong> Note: </strong>A 32GB SSD with a mediocre 10x write amplification factor, a standard 10000 write/erase cycle, and <b>10GB of data written per day</b>, would get an <b>8 years life expectancy</b>. It gets better with bigger SSDs and modern controllers with less write amplification. Also compare <a rel="nofollow" class="external autonumber" href="http://techreport.com/review/25889/the-ssd-endurance-experiment-500tb-update">[7]</a> when considering whether any particular strategy to limit disk writes is actually needed.</div>
+<h4><span class="mw-headline" id="Show_disk_writes">Show disk writes</span></h4>
+<p>The <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=iotop">iotop</a></span> package can sort by disk writes, and show how much and how frequently programs are writing to the disk. See <span class="plainlinks archwiki-template-man" title="$ man 8 iotop"><a rel="nofollow" class="external text" href="http://man7.org/linux/man-pages/man8/iotop.8.html">iotop(8)</a></span> for details.
+</p>
+<h4><span class="mw-headline" id="Relocate_files_to_tmpfs">Relocate files to tmpfs</span></h4>
+<p>Relocate files, such as your browser profile, to a <a href="/index.php/Tmpfs" title="Tmpfs">tmpfs</a> file system, for improvements in application response as all the files are now stored in RAM:
+</p>
+<ul><li> Refer to <a href="/index.php/Profile-sync-daemon" title="Profile-sync-daemon">Profile-sync-daemon</a> for syncing browser profiles. Certain browsers might need special attention, see e.g. <a href="/index.php/Firefox_on_RAM" title="Firefox on RAM" class="mw-redirect">Firefox on RAM</a>.</li>
+<li> Refer to <a href="/index.php/Anything-sync-daemon" title="Anything-sync-daemon">Anything-sync-daemon</a> for syncing any specified folder.</li>
+<li> Refer to <a href="/index.php/Makepkg#tmpfs" title="Makepkg">Makepkg#tmpfs</a> for improving compile times when building packages.</li></ul>
+<h4><span class="mw-headline" id="Compiling_in_tmpfs">Compiling in tmpfs</span></h4>
+<p>See <a href="/index.php/Makepkg#Improving_compile_times" title="Makepkg">Makepkg#Improving compile times</a>.
+</p>
+<h4><span class="mw-headline" id="Disabling_journaling_on_the_filesystem">Disabling journaling on the filesystem</span></h4>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #FFDDDD; border: thin solid #DDBBBB; overflow: hidden;"><strong> Warning: </strong>Using a filesystem with journaling disabled is data loss as a result of an ungraceful dismount (i.e. post power failure, kernel lockup, etc.). With modern SSDs, <a rel="nofollow" class="external text" href="http://tytso.livejournal.com/61830.html">Ted Tso</a> advocates that journaling can be enabled with minimal added read/write cycles under most circumstances.</div>
+<p>Using a journaling filesystem such as ext4 on an SSD <b>without</b> a journal is an option to decrease read/writes. With <i>ext4</i>, this is done by enabling the <code>nointegrity</code> option. See <a href="/index.php/Fstab" title="Fstab">Fstab</a>.
+</p>
+<h4><span class="mw-headline" id="Swap_space">Swap space</span></h4>
+<p>See <a href="/index.php/Swap#Swappiness" title="Swap">Swap#Swappiness</a>.
+</p>
+<h3><span class="mw-headline" id="Storage_I.2FO_scheduling_with_ionice">Storage I/O scheduling with ionice</span></h3>
+<p>Many tasks such as backups do not rely on a short storage I/O delay or high storage I/O bandwidth to fulfil their task, they can be classified as background tasks.
+On the other hand quick I/O is necessary for good UI responsiveness on the desktop.
+Therefore it is beneficial to reduce the amount of storage bandwidth available to background tasks, whilst other tasks are in need of storage I/O. This can be achieved by making use of the linux I/O scheduler CFQ, which allows setting different priorities for processes.
+</p><p>The I/O priority of a background process can be reduced to the "Idle" level by starting it with
+</p>
+<pre># ionice -c 3 command
+</pre>
+<p>See man ionice(1) and <a rel="nofollow" class="external autonumber" href="https://www.cyberciti.biz/tips/linux-set-io-scheduling-class-priority.html">[8]</a> for more information.
+</p>
+<h2><span class="mw-headline" id="CPU">CPU</span></h2>
+<h3><span class="mw-headline" id="Overclocking">Overclocking</span></h3>
+<p><a href="https://en.wikipedia.org/wiki/Overclocking" class="extiw" title="w:Overclocking">Overclocking</a> improves the computational performance of the CPU by increasing its peak clock frequency. The ability to overclock depends on the combination of CPU model and motherboard model. It is most frequently done through the BIOS. Overclocking also has disadvantages and risks. It is neither recommended nor discouraged here.
+</p><p>Many Intel chips will not correctly report their clock frequency to acpi_cpufreq and most other utilities. This will result in excessive messages in dmesg, which can be avoided by unloading and blacklisting the kernel module <code>acpi_cpufreq</code>.
+To read their clock speed use <code>i7z</code>, available trough the <code>i7z</code> and <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/i7z-git/">i7z-git</a></span><sup><small>AUR</small></sup> packages.
+</p>
+<h3><span class="mw-headline" id="Frequency_scaling">Frequency scaling</span></h3>
+<p>See <a href="/index.php/CPU_frequency_scaling" title="CPU frequency scaling">CPU frequency scaling</a>.
+</p>
+<h3><span class="mw-headline" id="Alternative_CPU_scheduler">Alternative CPU scheduler</span></h3>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-view-fullscreen.png" class="image"><img alt="Tango-view-fullscreen.png" src="/images/3/38/Tango-view-fullscreen.png" width="48" height="48" /></a><b>This article or section needs expansion.</b><a href="/index.php/File:Tango-view-fullscreen.png" class="image"><img alt="Tango-view-fullscreen.png" src="/images/3/38/Tango-view-fullscreen.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> MuQSS is not the only alternative scheduler. (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance">Talk:Improving performance#</a>)</div>
+</div>
+<p>The default CPU scheduler in the mainline Linux kernel is <a href="https://en.wikipedia.org/wiki/Completely_Fair_Scheduler" class="extiw" title="w:Completely Fair Scheduler">CFS</a>.
+</p><p>An alternative scheduler designed to be used on desktop computers is MuQSS, developed by <a rel="nofollow" class="external text" href="http://users.tpg.com.au/ckolivas/kernel/">Con Kolivas</a>, which is focused on desktop interactivity and responsiveness. MuQSS is available either as a stand-alone patch or as part of a wider patchset, the <b>-ck</b> patchset. See <a href="/index.php/Linux-ck" title="Linux-ck">Linux-ck</a> and <a href="/index.php/Linux-pf" title="Linux-pf">Linux-pf</a> for more information on the patchset.
+</p>
+<h3><span class="mw-headline" id="Adjusting_priorities_of_processes">Adjusting priorities of processes</span></h3>
+<h4><span class="mw-headline" id="Verynice">Verynice</span></h4>
+<p><a href="/index.php/VeryNice" title="VeryNice">VeryNice</a> is a daemon, available in the <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/verynice/">verynice</a></span><sup><small>AUR</small></sup> package, for dynamically adjusting the nice levels of executables. The nice level represents the priority of the executable when allocating CPU resources. Simply define executables for which responsiveness is important, like X or multimedia applications, as <i>goodexe</i> in <code>/etc/verynice.conf</code>. Similarly, CPU-hungry executables running in the background, like make, can be defined as <i>badexe</i>. This prioritization greatly improves system responsiveness under heavy load.
+</p>
+<h4><span class="mw-headline" id="Ananicy">Ananicy</span></h4>
+<p><a rel="nofollow" class="external text" href="https://github.com/Nefelim4ag/Ananicy">Ananicy</a> is a daemon, available in the <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/ananicy-git/">ananicy-git</a></span><sup><small>AUR</small></sup> package, for auto adjusting the nice levels of executables. The nice level represents the priority of the executable when allocating CPU resources.
+</p>
+<h4><span class="mw-headline" id="cgroups">cgroups</span></h4>
+<p>See <a href="/index.php/Cgroups" title="Cgroups">cgroups</a>.
+</p>
+<h3><span class="mw-headline" id="irqbalance">irqbalance</span></h3>
+<p>The purpose of <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=irqbalance">irqbalance</a></span> is distribute hardware interrupts across processors on a multiprocessor system in order to increase performance. It can be <a href="/index.php/Systemd#Using_units" title="Systemd">controlled</a> by the provided <code>irqbalance.service</code>.
+</p>
+<h2><span class="mw-headline" id="Graphics">Graphics</span></h2>
+<p>As with CPUs, overclocking can directly improve performance, but is generally recommended against. There are several packages in the <a href="/index.php/AUR" title="AUR" class="mw-redirect">AUR</a>, such as <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/amdoverdrivectrl/">amdoverdrivectrl</a></span><sup><small>AUR</small></sup> (ATI) and <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/nvclock/">nvclock</a></span><sup><small>AUR</small></sup> (NVIDIA).
+</p>
+<h3><span class="mw-headline" id="Xorg.conf_configuration">Xorg.conf configuration</span></h3>
+<p>Graphics performance may depend on the settings in <code>/etc/X11/xorg.conf</code>; see the <a href="/index.php/NVIDIA" title="NVIDIA">NVIDIA</a>, <a href="/index.php/ATI" title="ATI">ATI</a> and <a href="/index.php/Intel" title="Intel" class="mw-redirect">Intel</a> articles. Improper settings may stop Xorg from working, so caution is advised.
+</p>
+<h3><span class="mw-headline" id="Driconf">Driconf</span></h3>
+<p><span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=driconf">driconf</a></span> is a small utility which allows to change direct rendering settings for open source drivers. Enabling <i>HyperZ</i> may improve performance.
+</p>
+<h2><span class="mw-headline" id="RAM_and_swap">RAM and swap</span></h2>
+<h3><span class="mw-headline" id="Clock_frequency_and_timings">Clock frequency and timings</span></h3>
+<p>RAM can run at different clock frequencies and timings, which can be configured in the BIOS. Memory performance depends on both values. Selecting the highest preset presented by the BIOS usually improves the performance over the default setting. Note that increasing the frequency to values not supported by both motherboard and RAM vendor is overclocking, and similar risks and disdvantages apply, see <a href="/index.php/Improving_performance#Overclocking" title="Improving performance">Improving_performance#Overclocking</a>.
+</p>
+<h3><span class="mw-headline" id="Root_on_RAM_overlay">Root on RAM overlay</span></h3>
+<p>If running off a slow writing medium (USB, spinning HDDs) and storage requirements are low, the root may be run on a RAM overlay ontop of read only root (on disk). This can vastly improve performance at the cost of a limited writable space to root. See <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/liveroot/">liveroot</a></span><sup><small>AUR</small></sup>.
+</p>
+<h3><span class="mw-headline" id="Zram_or_zswap">Zram or zswap</span></h3>
+<p>The <a rel="nofollow" class="external text" href="https://www.kernel.org/doc/Documentation/blockdev/zram.txt">zram</a> kernel module (previously called <b>compcache</b>) provides a compressed block device in RAM. If you use it as swap device, the RAM can hold much more information but uses more CPU. Still, it is much quicker than swapping to a hard drive. If a system often falls back to swap, this could improve responsiveness. Using zram is also a good way to reduce disk read/write cycles due to swap on SSDs.
+</p><p>Similar benefits (at similar costs) can be achieved using <a href="/index.php/Zswap" title="Zswap">zswap</a> rather than zram. The two are generally similar in intent although not operation: zswap operates as a compressed RAM cache and neither requires (nor permits) extensive userspace configuration.
+</p><p>Example: To set up one lz4 compressed zram device with 32GiB capacity and a higher-than-normal priority (only for the current session):
+</p>
+<pre># modprobe zram
+# echo lz4 &gt; /sys/block/zram0/comp_algorithm
+# echo 32G &gt; /sys/block/zram0/disksize
+# mkswap --label zram0 /dev/zram0
+# swapon --priority 100 /dev/zram0
+</pre>
+<p>To disable it again, either reboot or run
+</p>
+<pre># swapoff /dev/zram0
+# rmmod zram
+</pre>
+<p>A detailed explanation of all steps, options and potential problems is provided in the official documentation of the module <a rel="nofollow" class="external text" href="https://www.kernel.org/doc/Documentation/blockdev/zram.txt">here</a>.
+</p><p>The <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://www.archlinux.org/packages/?name=systemd-swap">systemd-swap</a></span> package provides a <code>systemd-swap.service</code> unit to automatically initialize zram devices. Configuration is possible in <code>/etc/systemd/swap.conf</code>.
+</p><p>The package <span class="plainlinks archwiki-template-pkg"><a rel="nofollow" class="external text" href="https://aur.archlinux.org/packages/zramswap/">zramswap</a></span><sup><small>AUR</small></sup> provides an automated script for setting up such swap devices with optimal settings for your system (such as RAM size and CPU core number). The script creates one zram device per CPU core with a total space equivalent to the RAM available, so you will have a compressed swap with higher priority than regular swap, which will utilize multiple CPU cores for compessing data. To do this automatically on every boot, <a href="/index.php/Enable" title="Enable" class="mw-redirect">enable</a> <code>zramswap.service</code>.
+</p>
+<h4><span class="mw-headline" id="Swap_on_zRAM_using_a_udev_rule">Swap on zRAM using a udev rule</span></h4>
+<p>The example below describes how to set up swap on zRAM automatically at boot with a single udev rule. No extra package should be needed to make this work.
+</p><p>First, enable the module:
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/modules-load.d/zram.conf</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+zram
+</pre>
+<p>Configure the number of /dev/zram nodes you need.
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/modprobe.d/zram.conf</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+options zram num_devices=2
+</pre>
+<p>Create the udev rule as shown in the example.
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/udev/rules.d/99-zram.rules</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+KERNEL=="zram0", ATTR{disksize}="512M" RUN="/usr/bin/mkswap /dev/zram0", TAG+="systemd"
+KERNEL=="zram1", ATTR{disksize}="512M" RUN="/usr/bin/mkswap /dev/zram1", TAG+="systemd"
+</pre>
+<p>Add /dev/zram to your fstab.
+</p>
+<pre style="margin-bottom: 0; border-bottom:none; padding-bottom:0.8em;">/etc/fstab</pre>
+<pre style="margin-top: 0; border-top-style:dashed; padding-top: 0.8em;">
+/dev/zram0 none swap defaults 0 0
+/dev/zram1 none swap defaults 0 0
+</pre>
+<h3><span class="mw-headline" id="Using_the_graphic_card.27s_RAM">Using the graphic card's RAM</span></h3>
+<p>In the unlikely case that you have very little RAM and a surplus of video RAM, you can use the latter as swap. See <a href="/index.php/Swap_on_video_ram" title="Swap on video ram">Swap on video ram</a>.
+</p>
+<h2><span class="mw-headline" id="Network">Network</span></h2>
+<p>Every time a connection is made, the system must first resolve a fully qualified domain name to an IP address before the actual connection can be established. Response times of network requests can be improved by caching DNS queries locally. Common tools for this purpose include <a href="/index.php/Pdnsd" title="Pdnsd">pdnsd</a>, <a href="/index.php/Dnsmasq" title="Dnsmasq">dnsmasq</a>, <a href="/index.php/Unbound" title="Unbound">unbound</a> and <a href="/index.php/Rescached" title="Rescached">rescached</a>.
+</p>
+<h2><span class="mw-headline" id="Watchdogs">Watchdogs</span></h2>
+<div class="noprint archwiki-template-message">
+<p><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a><b>The factual accuracy of this article or section is disputed.</b><a href="/index.php/File:Tango-inaccurate.png" class="image"><img alt="Tango-inaccurate.png" src="/images/d/d6/Tango-inaccurate.png" width="48" height="48" /></a></p>
+<div><b>Reason:</b> Is it safe to disable (a) watchdog(s)? Also does it really help tweaking performance? (Discuss in <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Talk:Improving_performance#Watchdog_section">Talk:Improving performance#Watchdog section</a>)</div>
+</div>
+<p>According to <a rel="nofollow" class="external autonumber" href="https://en.wikipedia.org/wiki/Watchdog_timer">[9]</a>:
+</p>
+<dl><dd>A watchdog timer [...] is an electronic timer that is used to detect and recover from computer malfunctions. During normal operation, the computer regularly resets the watchdog timer [...]. If, [...], the computer fails to reset the watchdog, the timer will elapse and generate a timeout signal [...] used to initiate corrective [...] actions [...] typically include placing the computer system in a safe state and restoring normal system operation.</dd></dl>
+<p>Many users need this feature due to their system's mission-critical role (i.e. servers), or because of the lack of power reset (i.e. embedded devices). Thus, this feature is required for a good operation in some situations. On the other hand, normal users (i.e. desktop and laptop) do not need this feature and can disable it.
+</p><p>To disable watchdog timers (both software and hardware), append <code>nowatchdog</code> to your boot parameters.
+</p><p>To check the new configuration do:
+</p>
+<pre># cat /proc/sys/kernel/watchdog
+</pre>
+<p>or use:
+</p>
+<pre># wdctl
+</pre>
+<p>After you disabled watchdogs, you can <i>optionally</i> avoid the loading of the module responsible of the hardware watchdog, too. Do it by <a href="/index.php/Kernel_modules#Blacklisting" title="Kernel modules">blacklisting</a> the related module, e.g. <code>iTCO_wdt</code>.
+</p>
+<div style="padding: 5px; margin: 0.50em 0; background-color: #DDDDFF; border: thin solid #BBBBDD; overflow: hidden;"><strong> Note: </strong>Some users <a rel="nofollow" class="external text" href="https://bbs.archlinux.org/viewtopic.php?id=221239">reported</a> the <code>nowatchdog</code> parameter doesn't work as expected but they have successfully disabled the watchdog (at least the hardware one) by blacklisting the above-mentioned module.</div>
+<p>Either action will speed up your boot and shutdown, because one less module is loaded. Additionally disabling watchdog timers increases performance and <a rel="nofollow" class="external text" href="https://wiki.archlinux.org/index.php/Power_management#Disabling_NMI_watchdog">lowers power consumption</a>.
+</p><p>See <a rel="nofollow" class="external autonumber" href="https://bbs.archlinux.org/viewtopic.php?id=163768">[10]</a>, <a rel="nofollow" class="external autonumber" href="https://bbs.archlinux.org/viewtopic.php?id=165834">[11]</a>, <a rel="nofollow" class="external autonumber" href="http://0pointer.de/blog/projects/watchdog.html">[12]</a>, and <a rel="nofollow" class="external autonumber" href="https://www.kernel.org/doc/Documentation/watchdog/watchdog-parameters.txt">[13]</a> for more information.
+</p>
+<!-- 
+NewPP limit report
+Cached time: 20170207021155
+Cache expiry: 86400
+Dynamic content: false
+CPU time usage: 0.047 seconds
+Real time usage: 0.051 seconds
+Preprocessor visited node count: 1211/1000000
+Preprocessor generated node count: 2904/1000000
+Post‐expand include size: 25644/2097152 bytes
+Template argument size: 12384/2097152 bytes
+Highest expansion depth: 8/40
+Expensive parser function count: 0/100
+-->
+
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%   27.045      1 - -total
+ 14.41%    3.897      5 - Template:Note
+ 13.49%    3.648      9 - Template:META_Message
+ 11.18%    3.022      6 - Template:Accuracy
+ 11.16%    3.019      5 - Template:META_Box_Blue
+  8.94%    2.417     29 - Template:Ic
+  8.93%    2.414      7 - Template:META_Box
+  7.39%    2.000      1 - Template:Related_articles_start
+  7.29%    1.971     11 - Template:Hc
+  7.19%    1.945      2 - Template:Style
+-->
+
+<!-- Saved in parser cache with key archwiki:pcache:idhash:3978-0!*!0!!en!5!* and timestamp 20170207021155 and revision id 467249
+ -->
+</div><div class="printfooter">
+Retrieved from "<a dir="ltr" href="https://wiki.archlinux.org/index.php?title=Improving_performance&amp;oldid=467249">https://wiki.archlinux.org/index.php?title=Improving_performance&amp;oldid=467249</a>"</div>
+					<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="/index.php/Special:Categories" title="Special:Categories">Categories</a>: <ul><li><a href="/index.php/Category:Hardware" title="Category:Hardware">Hardware</a></li><li><a href="/index.php/Category:System_administration" title="Category:System administration">System administration</a></li></ul></div><div id="mw-hidden-catlinks" class="mw-hidden-catlinks mw-hidden-cats-hidden">Hidden categories: <ul><li><a href="/index.php/Category:Pages_or_sections_flagged_with_Template:Style" title="Category:Pages or sections flagged with Template:Style">Pages or sections flagged with Template:Style</a></li><li><a href="/index.php/Category:Pages_or_sections_flagged_with_Template:Accuracy" title="Category:Pages or sections flagged with Template:Accuracy">Pages or sections flagged with Template:Accuracy</a></li><li><a href="/index.php/Category:Pages_or_sections_flagged_with_Template:Expansion" title="Category:Pages or sections flagged with Template:Expansion">Pages or sections flagged with Template:Expansion</a></li></ul></div></div>					<!-- end content -->
+										<div class="visualClear"></div>
+				</div>
+			</div>
+		</div>
+		<div id="column-one">
+			<h2>Navigation menu</h2>
+					<div id="p-cactions" class="portlet" role="navigation">
+			<h3>Views</h3>
+
+			<div class="pBody">
+				<ul>
+				<li id="ca-nstab-main" class="selected"><a href="/index.php/Improving_performance" title="View the content page [c]" accesskey="c">Page</a></li>
+				<li id="ca-talk"><a href="/index.php/Talk:Improving_performance" rel="discussion" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				<li id="ca-viewsource"><a href="/index.php?title=Improving_performance&amp;action=edit" title="This page is protected.&#10;You can view its source [e]" accesskey="e">View source</a></li>
+				<li id="ca-history"><a href="/index.php?title=Improving_performance&amp;action=history" title="Past revisions of this page [h]" accesskey="h">History</a></li>
+				</ul>
+							</div>
+		</div>
+				<div class="portlet" id="p-personal" role="navigation">
+				<h3>Personal tools</h3>
+
+				<div class="pBody">
+					<ul>
+													<li id="pt-createaccount"><a href="/index.php?title=Special:UserLogin&amp;returnto=Improving+performance&amp;type=signup" title="You are encouraged to create an account and log in; however, it is not mandatory">Create account</a></li>
+													<li id="pt-login"><a href="/index.php?title=Special:UserLogin&amp;returnto=Improving+performance" title="You are encouraged to log in; however, it is not mandatory [o]" accesskey="o">Log in</a></li>
+											</ul>
+				</div>
+			</div>
+			<div class="portlet" id="p-logo" role="banner">
+				<a href="/index.php/Main_page" class="mw-wiki-logo" title="Visit the main page"></a>
+			</div>
+				<div class="generated-sidebar portlet" id="p-navigation" role="navigation">
+		<h3>Navigation</h3>
+		<div class='pBody'>
+							<ul>
+											<li id="n-mainpage-description"><a href="/index.php/Main_page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+											<li id="n-categories"><a href="/index.php/Table_of_contents">Categories</a></li>
+											<li id="n-portal"><a href="/index.php/Getting_involved" title="Various ways Archers can contribute to the community">Getting involved</a></li>
+											<li id="n-currentevents"><a href="/index.php/ArchWiki:News" title="The latest lowdown on the wiki">Wiki news</a></li>
+											<li id="n-randompage"><a href="/index.php/Special:Random" title="Load a random page [x]" accesskey="x">Random page</a></li>
+									</ul>
+					</div>
+		</div>
+			<div id="p-search" class="portlet" role="search">
+			<h3><label for="searchInput">Search</label></h3>
+
+			<div id="searchBody" class="pBody">
+				<form action="/index.php" id="searchform">
+					<input type='hidden' name="title" value="Special:Search"/>
+					<input type="search" name="search" placeholder="Search" title="Search ArchWiki [f]" accesskey="f" id="searchInput"/>
+					<input type="submit" name="go" value="Go" title="Go to a page with this exact name if it exists" id="searchGoButton" class="searchButton"/>&#160;
+						<input type="submit" name="fulltext" value="Search" title="Search the pages for this text" id="mw-searchButton" class="searchButton"/>
+				</form>
+
+							</div>
+		</div>
+		<div class="generated-sidebar portlet" id="p-interaction" role="navigation">
+		<h3>interaction</h3>
+		<div class='pBody'>
+							<ul>
+											<li id="n-help"><a href="/index.php/Category:Help" title="Wiki navigation, reading, and editing help">Help</a></li>
+											<li id="n-Contributing"><a href="/index.php/ArchWiki:Contributing">Contributing</a></li>
+											<li id="n-recentchanges"><a href="/index.php/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+											<li id="n-Recent-talks"><a href="https://wiki.archlinux.org/index.php/Special:RecentChanges?namespace=0&amp;invert=1" rel="nofollow">Recent talks</a></li>
+											<li id="n-newpages"><a href="/index.php/Special:NewPages">New pages</a></li>
+											<li id="n-Statistics"><a href="/index.php/ArchWiki:Statistics">Statistics</a></li>
+											<li id="n-Reports"><a href="/index.php/ArchWiki:Reports">Reports</a></li>
+											<li id="n-Requests"><a href="/index.php/ArchWiki:Requests">Requests</a></li>
+									</ul>
+					</div>
+		</div>
+			<div class="portlet" id="p-tb" role="navigation">
+			<h3>Tools</h3>
+
+			<div class="pBody">
+				<ul>
+											<li id="t-whatlinkshere"><a href="/index.php/Special:WhatLinksHere/Improving_performance" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li>
+											<li id="t-recentchangeslinked"><a href="/index.php/Special:RecentChangesLinked/Improving_performance" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+											<li id="t-specialpages"><a href="/index.php/Special:SpecialPages" title="A list of all special pages [q]" accesskey="q">Special pages</a></li>
+											<li id="t-print"><a href="/index.php?title=Improving_performance&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>
+											<li id="t-permalink"><a href="/index.php?title=Improving_performance&amp;oldid=467249" title="Permanent link to this revision of the page">Permanent link</a></li>
+											<li id="t-info"><a href="/index.php?title=Improving_performance&amp;action=info" title="More information about this page">Page information</a></li>
+									</ul>
+							</div>
+		</div>
+				<div id="p-lang" class="portlet" role="navigation">
+				<h3>In other languages</h3>
+
+				<div class="pBody">
+					<ul>
+													<li class="interlanguage-link interwiki-ar"><a href="https://wiki.archlinux.org/index.php/Maximizing_performance_(%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9)" title="Maximizing performance – العربية" lang="ar" hreflang="ar">العربية</a></li>
+													<li class="interlanguage-link interwiki-es"><a href="https://wiki.archlinux.org/index.php/Improving_performance_(Espa%C3%B1ol)" title="Improving performance – español" lang="es" hreflang="es">Español</a></li>
+													<li class="interlanguage-link interwiki-ja"><a href="https://wiki.archlinuxjp.org/index.php/%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E3%81%AE%E6%9C%80%E5%A4%A7%E5%8C%96" title="パフォーマンスの最大化 – 日本語" lang="ja" hreflang="ja">日本語</a></li>
+													<li class="interlanguage-link interwiki-ru"><a href="https://wiki.archlinux.org/index.php/Maximizing_performance_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)" title="Maximizing performance – русский" lang="ru" hreflang="ru">Русский</a></li>
+													<li class="interlanguage-link interwiki-zh-hans"><a href="https://wiki.archlinux.org/index.php/Maximizing_performance_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)" title="Maximizing performance – 中文（简体）‎" lang="zh-Hans" hreflang="zh-Hans">中文（简体）‎</a></li>
+											</ul>
+
+									</div>
+			</div>
+				</div><!-- end of the left (by default at least) column -->
+		<div class="visualClear"></div>
+					<div id="footer" role="contentinfo">
+						<ul id="f-list">
+									<li id="lastmod"> This page was last modified on 30 January 2017, at 23:07.</li>
+									<li id="copyright">Content is available under <a class="external" rel="nofollow" href="http://www.gnu.org/copyleft/fdl.html">GNU Free Documentation License 1.3 or later</a> unless otherwise noted.</li>
+									<li id="privacy"><a href="/index.php/ArchWiki:Privacy_policy" title="ArchWiki:Privacy policy">Privacy policy</a></li>
+									<li id="about"><a href="/index.php/ArchWiki:About" title="ArchWiki:About">About ArchWiki</a></li>
+									<li id="disclaimer"><a href="/index.php/ArchWiki:General_disclaimer" title="ArchWiki:General disclaimer">Disclaimers</a></li>
+							</ul>
+		</div>
+		</div>
+		<script>window.RLQ = window.RLQ || []; window.RLQ.push( function () {
+mw.loader.state({"user":"ready","user.groups":"ready"});mw.loader.load(["mediawiki.toc","mediawiki.action.view.postEdit","site","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest"]);
+} );</script><script>window.RLQ = window.RLQ || []; window.RLQ.push( function () {
+mw.config.set({"wgBackendResponseTime":14});
+} );</script></body><!-- Cached/compressed 20170207041340 -->
+</html>

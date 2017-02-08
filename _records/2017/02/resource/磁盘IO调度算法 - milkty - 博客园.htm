@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>磁盘IO调度算法 - milkty - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=03KQeESEmpLfzDqUo0NiWUg5Zd5aRam3JHBZTK05Wug1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/summerGarden/bundle-summerGarden.css?v=R6EW1cwbYc7SqZ5y0CMKPNjYaFnIdEGDIwRo4NL-lHw1"/>
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="/skins/summerGarden/bundle-summerGarden-mobile.css?v=XhmJ-ICMWx53v1ANrdeX-26dBCQXX65qkXO-9IjGWo81"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/kongzhongqijing/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/kongzhongqijing/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/kongzhongqijing/wlwmanifest.xml"/>
+<script src="//common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'kongzhongqijing', cb_enable_mathjax=false;var isLogined=false;</script>
+<script src="/bundles/blog-common.js?v=-bALmSVMs4TxziLU-8qnrDkC3oSggOmpcvJQ9HLhzQ41" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+<!--PageBeginHtml Block Begin-->
+有人会因为无法作出决定就推迟决定，然而实际上推迟决定是最差的决定。在推迟决定期间，时间悄悄流逝，你却没有任何一条路上的积累，白白浪费了时间。来自《暗时间》
+<!--PageBeginHtml Block End-->
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/kongzhongqijing/"><img id="blogLogo" src="/Skins/custom/images/logo.gif" alt="返回主页" /></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/kongzhongqijing/">milkty</a></h1>
+<h2>芝兰生于深谷，不以无人而不芳。君子修身养德，不以穷困而改志。</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+	<li><a id="blog_nav_sitehome" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+	<li><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/kongzhongqijing/">首页</a></li>
+	<li><a href="http://news.cnblogs.com/">新闻</a></li>
+	<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+	<li><a id="blog_nav_contact" accesskey="9" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/milkty">联系</a></li>
+	<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+	<li><a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/kongzhongqijing/rss">订阅</a>
+	<a id="blog_nav_rss_image" class="aHeaderXML" href="http://www.cnblogs.com/kongzhongqijing/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a></li>
+</ul>
+
+
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<!--done-->
+随笔- 57&nbsp;
+文章- 313&nbsp;
+评论- 8&nbsp;
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class = "post">
+		<h1 class = "postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/kongzhongqijing/articles/5786002.html">磁盘IO调度算法</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>I/O 调度算法在各个进程竞争磁盘I/O的时候担当了裁判的角色。他要求请求的次序和时机做最优化的处理，以求得尽可能最好的整体I/O性能。</p>
+<p>Linux 4.0 IO协议栈框架图</p>
+<p>&nbsp;<img src="http://images2015.cnblogs.com/blog/430613/201608/430613-20160829163117043-334080469.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>I/O调度程序的总结:</p>
+<p>1)当向设备写入数据块或是从设备读出数据块时,请求都被安置在一个队列中等待完成.<br />2)每个块设备都有它自己的队列.<br />3)I/O调度程序负责维护这些队列的顺序,以更有效地利用介质.I/O调度程序将无序的I/O操作变为有序的I/O操作.<br />4)内核必须首先确定队列中一共有多少个请求,然后才开始进行调度.</p>
+<p>&nbsp;</p>
+<h2>I/O调度的4种算法：</h2>
+<p><strong>CFQ(完全公平排队I/O调度程序)</strong></p>
+<p>&nbsp;</p>
+<p>在最新的内核版本和发行版中,都选择CFQ<strong>做为默认的I/O调度器</strong>,对于通用的服务器也是最好的选择。CFQ对于多媒体应用(video,audio)和桌面系统是最好的选择。CFQ赋予I/O请求一个优先级，而I/O优先级请求独立于进程优先级，高优先级的进程的读写不能自动地继承高的I/O优先级。</p>
+<p>对于很多IO压力较大的场景就并不是很适应，尤其是IO压力集中在某些进程上的场景。因为这种场景我们需要更多的满足某个或者某几个进程的IO响应速度，而不是让所有的进程公平的使用IO，比如数据库应用。</p>
+<p><br />CFQ试图均匀地分布对I/O带宽的访问,避免进程被饿死并实现较低的延迟,是deadline和as调度器的折中.</p>
+<p><br />工作原理:<br />CFQ为每个进程/线程,单独创建一个队列来管理该进程所产生的请求,也就是说每个进程一个队列,每个队列按照上述规则进行merge和sort。各队列之间的调度使用时间片来调度,以此来保证每个进程都能被很好的分配到I/O带宽.I/O调度器每次执行一个进程的4次请求。可以调 queued 和 quantum 来优化</p>
+<p>&nbsp;</p>
+<p><strong>NOOP(电梯式调度程序)</strong></p>
+<p><br />在Linux2.4或更早的版本的调度程序,那时只有这一种I/O调度算法.I/O请求被分配到队列，调度由硬件进行，只有当CPU时钟频率比较有限时进行。</p>
+<p>Noop对于I/O不那么操心，对所有的I/O请求都用FIFO队列形式处理，默认认为 I/O不会存在性能问题。这也使得CPU也不用那么操心。它像电梯的工作主法一样对I/O请求进行组织,当有一个新的请求到来时,它将请求合并到最近的请求之后,以此来保证请求同一介质.</p>
+<p>NOOP倾向饿死读而利于写.<br />NOOP对于闪存设备,RAM,嵌入式系统是最好的选择.</p>
+<p>电梯算法饿死读请求的解释:<br />因为写请求比读请求更容易.<br />写请求通过文件系统cache,不需要等一次写完成,就可以开始下一次写操作,写请求通过合并,堆积到I/O队列中.<br />读请求需要等到它前面所有的读操作完成,才能进行下一次读操作.在读操作之间有几毫秒时间,而写请求在这之间就到来,饿死了后面的读请求.</p>
+<p>&nbsp;</p>
+<p><strong>Deadline(截止时间调度程序)</strong></p>
+<p><br />通过时间以及硬盘区域进行分类,这个分类和合并要求类似于noop的调度程序.<br />Deadline确保了在一个截止时间内服务请求,这个截止时间是可调整的,而默认读期限短于写期限.这样就防止了写操作因为不能被读取而饿死的现象.<br />Deadline对数据库环境(ORACLE RAC,MYSQL等)是最好的选择。</p>
+<p>deadline实现了四个队列，其中两个分别处理正常read和write，按扇区号排序，进行正常io的合并处理以提高吞吐量.因为IO请求可能会集中在某些磁盘位置，这样会导致新来的请求一直被合并，于是可能会有其他磁盘位置的io请求被饿死。于是实现了另外两个处理超时read和write的队列，按请求创建时间排序，如果有超时的请求出现，就放进这两个队列，调度算法保证超时（达到最终期限时间）的队列中的请求会优先被处理，防止请求被饿死。由于deadline的特点，无疑在这里无法区分进程，也就不能实现针对进程的io资源控制。</p>
+<p>&nbsp;</p>
+<p><strong>AS(预料I/O调度程序)</strong></p>
+<p><br />本质上与Deadline一样,但在最后一次读操作后,要等待6ms,才能继续进行对其它I/O请求进行调度.可以从应用程序中预订一个新的读请求,改进读操作的执行,但以一些写操作为代价.它会在每个6ms中插入新的I/O操作,而会将一些小写入流合并成一个大写入流,用写入延时换取最大的写入吞吐量.<br />AS适合于写入较多的环境,比如文件服务器<br />AS对数据库环境表现很差.</p>
+<p>&nbsp;</p>
+<p>从原理上看：</p>
+<p>1、cfq是一种比较通用的调度算法，是一种以进程为出发点考虑的调度算法，保证大家尽量公平。</p>
+<p>2、deadline是一种以提高机械硬盘吞吐量为思考出发点的调度算法，只有当有io请求达到最终期限的时候才进行调度，非常适合业务比较单一并且IO压力比较重的业务，比如数据库。</p>
+<p>3、noop？思考对象如果拓展到固态硬盘，那么你就会发现，无论cfq还是deadline，都是针对机械硬盘的结构进行的队列算法调整，而这种调整对于固态硬盘来说，完全没有意义。对于固态硬盘来说，IO调度算法越复杂，效率就越低，因为额外要处理的逻辑越多。所以，固态硬盘这种场景下，使用noop是最好的，deadline次之，而cfq由于复杂度的原因，无疑效率最低。</p>
+<p>&nbsp;</p>
+<p>各调度方法的原理，详细内容可见：<a href="http://liwei.life/2016/03/14/linux_io_scheduler/" target="_blank">linux的IO调度</a></p>
+<p><strong>I/O调度方法的查看与设置</strong></p>
+<p>1)查看当前系统的I/O调度方法:</p>
+<p># cat /sys/block/sda/queue/scheduler&nbsp;<br />noop anticipatory deadline [cfq]</p>
+<p>2)临地更改I/O调度方法:<br />例如:想更改到noop电梯调度算法:<br />echo noop &gt; /sys/block/sda/queue/scheduler</p>
+<p>3)想永久的更改I/O调度方法:<br />修改内核引导参数,加入elevator=调度程序名<br /># vi /boot/grub/menu.lst<br />更改到如下内容:<br />kernel /boot/vmlinuz-2.6.18-8.el5 ro root=LABEL=/ elevator=deadline rhgb quiet</p>
+<p>重启之后,查看调度方法:<br /># cat /sys/block/sda/queue/scheduler&nbsp;<br />noop anticipatory [deadline] cfq&nbsp;<br />已经是deadline了</p>
+<p>&nbsp;</p>
+<p>参考文章：</p>
+<p><a href="http://blog.csdn.net/xie1xiao1jun/article/details/20629145">磁盘IO过高 处理办法</a></p>
+<p><a href="http://blog.chinaunix.net/uid-10915175-id-4474266.html">linux下io磁盘调度策略</a>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<div class = "postDesc">posted @ <span id="post-date">2016-08-19 00:09</span> <a href='http://www.cnblogs.com/kongzhongqijing/'>milkty</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>) &nbsp;<a href="https://i.cnblogs.com/EditArticles.aspx?postid=5786002" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(5786002);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=168506,cb_entryId=5786002,cb_blogApp=currentBlogApp,cb_blogUserGuid='26615f77-3fd5-e111-aa3f-842b2b196315',cb_entryCreatedDate='2016/8/19 0:09:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id='comment_form' class='commentform'>
+<a name='commentform'></a>
+<div id='divCommentShow'></div>
+<div id='comment_nav'><span id='span_refresh_tips'></span><a href='javascript:void(0);' onclick='return RefreshCommentList();' id='lnk_RefreshComments' runat='server' clientidmode='Static'>刷新评论</a><a href='#' onclick='return RefreshPage();'>刷新页面</a><a href='#top'>返回顶部</a></div>
+<div id='comment_form_container'></div>
+<div class='ad_text_commentbox' id='ad_text_under_commentbox'></div>
+<div id='ad_t2'></div>
+<div id='opt_under_post'></div>
+<div id='ad_c1' class='c_ad_block'></div>
+<div id='under_post_news'></div>
+<div id='ad_c2' class='c_ad_block'></div>
+<div id='under_post_kb'></div>
+<div id='HistoryToday' class='c_ad_block'></div>
+<script type='text/javascript'>
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<DIV id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</DIV>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright &copy;2017 milkty
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+</body>
+</html>
