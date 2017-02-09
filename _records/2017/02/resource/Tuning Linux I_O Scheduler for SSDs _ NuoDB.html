@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="iem7"  lang="en" dir="ltr"><![endif]-->
+<!--[if lte IE 6]><html class="lt-ie9 lt-ie8 lt-ie7"  lang="en" dir="ltr"><![endif]-->
+<!--[if (IE 7)&(!IEMobile)]><html class="lt-ie9 lt-ie8"  lang="en" dir="ltr"><![endif]-->
+<!--[if IE 8]><html class="lt-ie9"  lang="en" dir="ltr"><![endif]-->
+<!--[if (gte IE 9)|(gt IEMobile 7)]><!--><html  lang="en" dir="ltr" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# book: http://ogp.me/ns/book# profile: http://ogp.me/ns/profile# video: http://ogp.me/ns/video# product: http://ogp.me/ns/product# content: http://purl.org/rss/1.0/modules/content/ dc: http://purl.org/dc/terms/ foaf: http://xmlns.com/foaf/0.1/ rdfs: http://www.w3.org/2000/01/rdf-schema# sioc: http://rdfs.org/sioc/ns# sioct: http://rdfs.org/sioc/types# skos: http://www.w3.org/2004/02/skos/core# xsd: http://www.w3.org/2001/XMLSchema#"><!--<![endif]-->
+
+<head>
+  <meta charset="utf-8" />
+<link rel="shortcut icon" href="http://www.nuodb.com/sites/all/themes/nuodb/favicon.ico" type="image/vnd.microsoft.icon" />
+<script src="https://www.google.com/recaptcha/api.js?hl=en" async="async" defer="defer"></script>
+  <title>Tuning Linux I/O Scheduler for SSDs | NuoDB</title>
+
+      <meta name="MobileOptimized" content="width">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- <meta name="format-detection" content="telephone=no"> !-->
+    <meta http-equiv="cleartype" content="on">
+
+  <link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_kShW4RPmRstZ3SpIC-ZvVGNFVAi0WEMuCnI0ZkYIaFw.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_hTLrwzbU9bZhjvzx-j5entbJFEHkjJyd6RgHEla8FhA.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_csaOpYzmMJub3Q3ddsUWGCCJWpFA8Vvmk4_4vqyw8us.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_TU2XSkzPoxsnOkuxhBaLD7vk2Zrc3mF9RTY2AgOCBq4.css" media="all" />
+<style>#siteBannerFooterBanner,#siteBannerHeaderBanner{background-color:#ff0000;color:#ffffff;}
+</style>
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_dn85xHAdaoGqNARBQLilFTx1jgvl_T4YB2BCJ1voLCc.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_LRmtx_7FhPxjEkOtHZX6TSoPBnp6jMBKy7dMBg75N2I.css" media="screen" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css__n3Kh0ykAs0ppbApckHc3UsRKZ2vOPS7YR9HZXdPZy8.css" media="print" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_h0nQ7EX-2ZmzKjFbdygVvpCAgbbzlidTsPSxMxGedJU.css" media="screen" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_KGZcOm3i1wmtbgZsjo-3V9FM4wZ-5UDcpJ7Vfzmt45E.css" media="all" />
+<link type="text/css" rel="stylesheet" href="http://www.nuodb.com/sites/default/files/css/css_tSpQYa6oARwNpRcCY5nIfbSGGRaM6mnqs7srEY1xTls.css" media="all" />
+  <script src="http://www.nuodb.com/sites/default/files/js/js_ri60QNjcazMKdlAmWmDsmRb0iKaVkkXUQxH2MsgpmVo.js"></script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_eEP0uBjV37uYG8G94DrYjhvA_GfzH-9CGBIc24dccNA.js"></script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_XGna9FfmCJZMSLKue_qxI0K0j8FOD4Ws0oiXzOQS9a4.js"></script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_MBs0D5Nom663VXHOk6uCkCT-NTetexjsFOw3l45OI14.js"></script>
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_-9tLBYFHMLZK1a5ShiGdPTEifWI3ZZFIAa9jO9TXtN4.js"></script>
+<script>document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin-beta.js' type='text/javascript'%3E%3C/script%3E"));</script>
+<script>Munchkin.init('139-YPK-485');</script>
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-20578225-1', 'auto');
+  ga('send', 'pageview');</script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_7dqJgcgeELO-G6VyeNuxypPue692xT3sjFYwOQvL2BI.js"></script>
+<script src="http://www.nuodb.com/sites/default/files/js/js_NL8NDStz3vzPU5M30xuIHBEXzXirbzgly5XoUkHNBdI.js"></script>
+<script>jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"nuodb","theme_token":"xqEPW02Dm1GqINnLWM82kCrlNIWM8PZ5M1-oohbxhKY","jquery_version":"1.8","js":{"0":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/jquery\/1.8\/jquery.min.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/ui\/minified\/jquery.ui.core.min.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/ui\/minified\/jquery.ui.widget.min.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/ui\/minified\/jquery.ui.position.min.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/ui\/minified\/jquery.ui.menu.min.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/ui\/minified\/jquery.ui.autocomplete.min.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/ui\/external\/jquery.cookie.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/jquery.form\/3\/jquery.form.min.js":1,"misc\/ajax.js":1,"sites\/all\/modules\/contrib\/jquery_update\/js\/jquery_update.js":1,"sites\/all\/modules\/contrib\/gss\/scripts\/autocomplete.js":1,"sites\/all\/modules\/contrib\/marketo_ma\/js\/marketo_ma.js":1,"sites\/all\/modules\/contrib\/fancybox\/fancybox.js":1,"sites\/all\/libraries\/fancybox\/source\/jquery.fancybox.pack.js":1,"sites\/all\/libraries\/fancybox\/lib\/jquery.mousewheel-3.0.6.pack.js":1,"sites\/all\/libraries\/fancybox\/source\/helpers\/jquery.fancybox-media.js":1,"misc\/progress.js":1,"sites\/all\/modules\/contrib\/ctools\/js\/modal.js":1,"sites\/all\/modules\/custom\/nuodb_modal_forms\/src\/nuodb_modal_init.js":1,"https:\/\/www.google.com\/recaptcha\/api.js":1,"sites\/all\/modules\/contrib\/captcha\/captcha.js":1,"sites\/all\/modules\/custom\/nuodb_ckeditor\/js\/nuodb_ckeditor.js":1,"misc\/textarea.js":1,"modules\/filter\/filter.js":1,"sites\/all\/modules\/contrib\/ajax_comments\/ajax_comments.js":1,"1":1,"2":1,"3":1,"sites\/all\/modules\/custom\/site_banner_cb\/site_banner_cb.js":1,"sites\/all\/libraries\/superfish\/jquery.hoverIntent.minified.js":1,"sites\/all\/libraries\/superfish\/superfish.js":1,"sites\/all\/libraries\/superfish\/supersubs.js":1,"sites\/all\/modules\/contrib\/superfish\/superfish.js":1,"sites\/all\/themes\/nuodb\/dist\/js\/theme.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"misc\/ui\/jquery.ui.core.css":1,"misc\/ui\/jquery.ui.theme.css":1,"misc\/ui\/jquery.ui.menu.css":1,"misc\/ui\/jquery.ui.autocomplete.css":1,"modules\/comment\/comment.css":1,"sites\/all\/modules\/contrib\/date\/date_api\/date.css":1,"sites\/all\/modules\/contrib\/date\/date_popup\/themes\/datepicker.1.7.css":1,"modules\/field\/theme\/field.css":1,"sites\/all\/modules\/contrib\/mollom\/mollom.css":1,"modules\/node\/node.css":1,"modules\/search\/search.css":1,"modules\/user\/user.css":1,"sites\/all\/modules\/contrib\/views\/css\/views.css":1,"sites\/all\/modules\/contrib\/ckeditor\/css\/ckeditor.css":1,"sites\/all\/modules\/contrib\/ctools\/css\/ctools.css":1,"sites\/all\/libraries\/fancybox\/source\/jquery.fancybox.css":1,"sites\/all\/modules\/contrib\/geshifilter\/geshifilter.css":1,"sites\/all\/modules\/contrib\/ctools\/css\/modal.css":1,"sites\/all\/modules\/custom\/nuodb_modal_forms\/src\/nuodb_modal.css":1,"sites\/all\/modules\/contrib\/typogrify\/typogrify.css":1,"0":1,"sites\/all\/modules\/custom\/nuodb_ckeditor\/nuodb_ckeditor.css":1,"modules\/filter\/filter.css":1,"sites\/all\/modules\/contrib\/site_banner\/site_banner_screen.css":1,"sites\/all\/modules\/contrib\/site_banner\/site_banner_print.css":1,"sites\/all\/modules\/custom\/site_banner_cb\/site_banner_cb.css":1,"sites\/all\/libraries\/superfish\/css\/superfish.css":1,"sites\/all\/themes\/nuodb\/system.menus.css":1,"sites\/all\/themes\/nuodb\/dist\/css\/style.css":1}},"fancybox":{"helpers":{"media":[]},"selectors":[".lightbox"]},"gss":{"key":"007549398488342747220:WMX-1089329921"},"CToolsModal":{"loadingText":"Loading...","closeText":"Close Window","closeImage":"\u003Cimg typeof=\u0022foaf:Image\u0022 src=\u0022http:\/\/www.nuodb.com\/sites\/all\/modules\/contrib\/ctools\/images\/icon-close-window.png\u0022 alt=\u0022Close window\u0022 title=\u0022Close window\u0022 \/\u003E","throbber":"\u003Cimg typeof=\u0022foaf:Image\u0022 src=\u0022http:\/\/www.nuodb.com\/sites\/all\/modules\/contrib\/ctools\/images\/throbber.gif\u0022 alt=\u0022Loading\u0022 title=\u0022Loading...\u0022 \/\u003E"},"nuodbModalFormsInfo":{"modalSize":{"type":"fixed","width":475,"height":435},"modalOptions":{"opacity":0.65,"background-color":"#000"},"closeImage":"\u003Cimg typeof=\u0022foaf:Image\u0022 src=\u0022http:\/\/www.nuodb.com\/sites\/all\/modules\/custom\/nuodb_modal_forms\/src\/btn-close.png\u0022 alt=\u0022Close window\u0022 title=\u0022Close window\u0022 \/\u003E","loadingText":"","closeText":""},"nuodbModalFormsRegistration":{"modalSize":{"type":"fixed","width":475,"height":600},"modalOptions":{"opacity":0.65,"background-color":"#000"},"closeImage":"\u003Cimg typeof=\u0022foaf:Image\u0022 src=\u0022http:\/\/www.nuodb.com\/sites\/all\/modules\/custom\/nuodb_modal_forms\/src\/btn-close.png\u0022 alt=\u0022Close window\u0022 title=\u0022Close window\u0022 \/\u003E","loadingText":"","closeText":""},"nuodbModalFormsLogin":{"modalSize":{"type":"fixed","width":300,"height":300},"modalOptions":{"opacity":0.65,"background-color":"#000"},"closeImage":"\u003Cimg typeof=\u0022foaf:Image\u0022 src=\u0022http:\/\/www.nuodb.com\/sites\/all\/modules\/custom\/nuodb_modal_forms\/src\/btn-close.png\u0022 alt=\u0022Close window\u0022 title=\u0022Close window\u0022 \/\u003E","loadingText":"","closeText":""},"ws_fs":{"type":"button_count","app_id":"150123828484431","css":""},"ws_lsb":{"countmode":""},"better_exposed_filters":{"views":{"tech_blog":{"displays":{"block_1":{"filters":[]}}},"tags":{"displays":{"block":{"filters":[]}}}}},"marketo_ma":{"track":true,"key":"139-YPK-485","library":"\/\/munchkin.marketo.net\/munchkin.js","initParams":[]},"urlIsAjaxTrusted":{"\/techblog\/tuning-linux-io-scheduler-ssds":true,"\/system\/ajax":true,"\/comment\/reply\/7062":true},"superfish":{"1":{"id":"1","sf":{"animation":{"opacity":"show","height":"show"},"speed":"\u0027fast\u0027","autoArrows":false,"dropShadows":false,"disableHI":false},"plugins":{"supposition":false,"bgiframe":false,"supersubs":{"minWidth":"12","maxWidth":"27","extraWidth":1}}}},"nuodb_ckeditor":{"include_path":"\/sites\/all\/modules\/custom\/nuodb_ckeditor\/ckeditor-plugins"},"ckeditor_geshi":{"languages":{"bash":"Bash","c":"C","cpp":"C++","drupal5":"Drupal 5","drupal6":"Drupal 6","java":"Java","javascript":"Javascript","php":"PHP","python":"Python","ruby":"Ruby","sql":"SQL"},"tag_open":"\u003C","tag_close":"\u003E"},"ckeditor":{"input_formats":{"filtered_html":{"customConfig":"\/sites\/all\/modules\/custom\/ckeditor_geshi\/plugins\/ckeditor.config.js","defaultLanguage":"en","toolbar":"[\n    [\u0027Source\u0027],\n    [\u0027Cut\u0027,\u0027Copy\u0027,\u0027Paste\u0027,\u0027PasteText\u0027,\u0027PasteFromWord\u0027,\u0027-\u0027,\u0027SpellChecker\u0027, \u0027Scayt\u0027],\n    [\u0027Undo\u0027,\u0027Redo\u0027,\u0027Find\u0027,\u0027Replace\u0027,\u0027-\u0027,\u0027SelectAll\u0027],\n    [\u0027Image\u0027,\u0027Media\u0027,\u0027Flash\u0027,\u0027Table\u0027,\u0027HorizontalRule\u0027,\u0027Smiley\u0027,\u0027SpecialChar\u0027],\n    [\u0027Maximize\u0027, \u0027ShowBlocks\u0027],\n    \u0027\/\u0027,\n    [\u0027Format\u0027],\n    [\u0027Bold\u0027,\u0027Italic\u0027,\u0027Underline\u0027,\u0027Strike\u0027,\u0027-\u0027,\u0027Subscript\u0027,\u0027Superscript\u0027,\u0027-\u0027,\u0027RemoveFormat\u0027],\n    [\u0027NumberedList\u0027,\u0027BulletedList\u0027,\u0027-\u0027,\u0027Outdent\u0027,\u0027Indent\u0027,\u0027Blockquote\u0027],\n    [\u0027JustifyLeft\u0027,\u0027JustifyCenter\u0027,\u0027JustifyRight\u0027,\u0027JustifyBlock\u0027,\u0027-\u0027,\u0027BidiLtr\u0027,\u0027BidiRtl\u0027],\n    [\u0027Link\u0027,\u0027Unlink\u0027,\u0027Anchor\u0027,\u0027Linkit\u0027]\n]\n    ","enterMode":1,"shiftEnterMode":2,"toolbarStartupExpanded":true,"width":"100%","skin":"moono","format_tags":"p;div;pre;address;h1;h2;h3;h4;h5;h6","show_toggle":"t","default":"t","ss":"2","loadPlugins":{"drupalbreaks":{"name":"drupalbreaks","desc":"Plugin for inserting Drupal teaser and page breaks.","path":"\/sites\/all\/modules\/contrib\/ckeditor\/plugins\/drupalbreaks\/","buttons":{"DrupalBreak":{"label":"DrupalBreak","icon":"images\/drupalbreak.png"}},"default":"t"},"tableresize":{"name":"tableresize","desc":"Table Resize plugin. See \u003Ca href=\u0022http:\/\/ckeditor.com\/addon\/tableresize\u0022\u003Eaddon page\u003C\/a\u003E for more details.","path":"\/\/cdn.ckeditor.com\/4.4.3\/full-all\/plugins\/tableresize\/","buttons":false,"default":"t"}},"entities":false,"entities_greek":false,"entities_latin":false,"scayt_autoStartup":false,"filebrowserBrowseUrl":"\/imce?app=ckeditor%7Csendto%40ckeditor_imceSendTo%7C","stylesCombo_stylesSet":"drupal:\/sites\/all\/modules\/contrib\/ckeditor\/ckeditor.styles.js","contentsCss":["\/sites\/all\/modules\/contrib\/ckeditor\/css\/ckeditor.css?ok8j9a","\/\/cdn.ckeditor.com\/4.4.3\/full-all\/contents.css?ok8j9a"]},"full_html":{"customConfig":"\/sites\/all\/modules\/custom\/ckeditor_geshi\/plugins\/ckeditor.config.js","defaultLanguage":"en","toolbar":"[\n    [\u0027Styles\u0027,\u0027TextColor\u0027],\n    [\u0027Undo\u0027,\u0027Redo\u0027],\n    [\u0027Bold\u0027,\u0027Italic\u0027,\u0027Link\u0027,\u0027Unlink\u0027,\u0027Anchor\u0027,\u0027RemoveFormat\u0027,\u0027JustifyLeft\u0027,\u0027JustifyCenter\u0027,\u0027JustifyRight\u0027,\u0027Blockquote\u0027],\n    [\u0027NumberedList\u0027,\u0027BulletedList\u0027],\n    [\u0027Outdent\u0027,\u0027Indent\u0027],\n    [\u0027SpellChecker\u0027,\u0027Scayt\u0027],\n    [\u0027Table\u0027,\u0027HorizontalRule\u0027,\u0027Image\u0027,\u0027MediaEmbed\u0027,\u0027SpecialChar\u0027,\u0027geshi\u0027,\u0027CreateDiv\u0027,\u0027ShowBlocks\u0027,\u0027Source\u0027],\n    [\u0027Maximize\u0027]\n]","enterMode":1,"shiftEnterMode":2,"toolbarStartupExpanded":true,"width":"100%","skin":"moono","format_tags":"p;div;h1;h2;h3;h4;h5;h6","show_toggle":"f","default":"t","allowedContent":true,"ss":"2","loadPlugins":{"ckeditor_link":{"name":"drupal_path","desc":"CKEditor Link - A plugin to easily create links to Drupal internal paths","path":"\/sites\/all\/modules\/contrib\/ckeditor_link\/plugins\/link\/","buttons":false},"drupalbreaks":{"name":"drupalbreaks","desc":"Plugin for inserting Drupal teaser and page breaks.","path":"\/sites\/all\/modules\/contrib\/ckeditor\/plugins\/drupalbreaks\/","buttons":{"DrupalBreak":{"label":"DrupalBreak","icon":"images\/drupalbreak.png"}},"default":"t"},"geshi":{"name":"geshi","desc":"Provides GeSHi code highlighting.","path":"\/sites\/all\/modules\/custom\/ckeditor_geshi\/plugins\/","buttons":{"geshi":{"icon":"ckeditor_geshi.png","label":"GeSHi"}}},"tableresize":{"name":"tableresize","desc":"Table Resize plugin. See \u003Ca href=\u0022http:\/\/ckeditor.com\/addon\/tableresize\u0022\u003Eaddon page\u003C\/a\u003E for more details.","path":"\/\/cdn.ckeditor.com\/4.4.3\/full-all\/plugins\/tableresize\/","buttons":false,"default":"t"}},"entities":false,"entities_greek":false,"entities_latin":false,"scayt_autoStartup":false,"forcePasteAsPlainText":true,"filebrowserBrowseUrl":"\/imce?app=ckeditor%7Csendto%40ckeditor_imceSendTo%7C","js_conf":{"allowedContent":true,"colorButton_colors":"\u0027282828,404040,7f7f7f,b0b0b0,f4f4f4,ffffff,d54945,f59231,c1cd23,36af75,29abe3,566f7b,98a0ad\u0027"},"stylesCombo_stylesSet":"drupal:\/sites\/all\/themes\/nuodb\/\/js\/ckeditor.styles.js","contentsCss":["\/sites\/all\/themes\/nuodb\/dist\/css\/style.css?ok8j9a","\/sites\/all\/modules\/contrib\/ckeditor\/css\/ckeditor.css?ok8j9a"]}},"plugins":[],"textarea_default_format":{"edit-comment-body-und-0-value":"plain_text"}},"ajax":{"edit-ajax-comments-reply-form-7062-0-0":{"callback":"ajax_comments_submit_js","wrapper":"ajax-comments-reply-form-7062-0-0","method":"replaceWith","effect":"fade","event":"mousedown","keypress":true,"prevent":"click","url":"\/system\/ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"Submit"}},"preview-ajax-comments-reply-form-7062-0-0":{"callback":"ajax_comments_preview_js","wrapper":"ajax-comments-reply-form-7062-0-0","method":"replaceWith","effect":"fade","event":"mousedown","keypress":true,"prevent":"click","url":"\/system\/ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"Preview"}}}});</script>
+      <!--[if lt IE 9]>
+    <script src="/sites/all/themes/zen/js/html5-respond.js"></script>
+    <![endif]-->
+  </head>
+<body class="html not-front not-logged-in no-sidebars page-node page-node- page-node-7062 node-type-blog section-techblog tech-blog" >
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-N2KJQB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);var dl=l!='dataLayer'?'&l='+l:'';j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;j.type='text/javascript';j.async=true;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-N2KJQB');</script>
+<!-- End Google Tag Manager -->
+      <p id="skip-link">
+      <a href="#main-menu" class="element-invisible element-focusable">Jump to navigation</a>
+    </p>
+      <div class="region region-page-top">
+    <div id="siteBannerHeaderBanner" class="toolbar clearfix toolbar-processed overlay-displace-top"><div class="site-banner-cb-title">Feb 15 webinar: "Getting Started with NuoDB" (Demo and Q&amp;A)<a href="http://go.nuodb.com/CE-Webinar-Getting-Started.html?utm_source=site_banner" class="site-banner-cb-link">Register now! ❯</a></div><a title="Close site banner" alt="Close site banner" class="site-banner-cb" id="site-banner-cb"></a></div>
+  </div>
+  <div id="page" class="clearfix">
+  <header id="header" role="banner">
+    <div class="wrapper">
+      <div id="header-content">
+                  <a href="/" title="Home" rel="home" id="logo"><img src="http://www.nuodb.com/sites/all/themes/nuodb/logo.png" alt="Home" id="bitmap-logo" /><img src="/sites/all/themes/nuodb/logo.svg" id="svg-logo" /></a>
+                          <hgroup id="name-and-slogan">
+                          <h1 id="site-name">
+                <a href="/" title="Home" rel="home"><span>NuoDB</span></a>
+              </h1>
+            
+                      </hgroup><!-- /#name-and-slogan -->
+                
+          <div class="header__region region region-header">
+    <div id="block-menu-menu-quick-links" class="block block-menu plain first odd" role="navigation">
+
+      
+	<div class="content">
+  <ul class="menu"><li class="menu__item is-leaf first leaf resources icon"><a href="http://go.nuodb.com/gartner-critical-capabilities.html?utm_source=side" class="menu__link">Gartner DBMS Analysis</a></li>
+<li class="menu__item is-leaf leaf blog icon"><a href="/blog" class="menu__link">Read our Corporate Blog</a></li>
+<li class="menu__item is-leaf leaf download icon"><a href="http://www.nuodb.com/product/evaluate-nuodb" class="menu__link">Download NuoDB</a></li>
+<li class="menu__item is-leaf leaf community icon"><a href="http://support.nuodb.com/" class="menu__link">Online Support</a></li>
+<li class="menu__item is-leaf last leaf contact icon"><a href="http://go.nuodb.com/contact-us.html" target="_blank" class="menu__link">Contact Us</a></li>
+</ul>	</div>
+
+</div><!-- /.block -->
+<div id="block-system-main-menu" class="block block-system block-menu even" role="navigation">
+
+        <h2 class="block__title block-title">Main menu</h2>
+    
+	<div class="content">
+  <ul class="menu"><li class="menu__item is-expanded first expanded"><a href="/product-overview" class="menu__link">Product</a><ul class="menu"><li class="menu__item is-leaf first leaf"><a href="/product-overview" class="menu__link">Product Overview</a></li>
+<li class="menu__item is-leaf leaf"><a href="/product/durable-distributed-cache" class="menu__link">Under the Hood</a></li>
+<li class="menu__item is-leaf leaf"><a href="/product/database-comparison" class="menu__link">Database Comparison</a></li>
+<li class="menu__item is-leaf last leaf"><a href="/product/evaluate-nuodb" class="menu__link">Evaluate NuoDB</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded"><a href="/nuodb-use-cases" class="menu__link">Use Cases</a><ul class="menu"><li class="menu__item is-leaf first leaf"><a href="/nuodb-use-cases" class="menu__link">NuoDB Use Cases</a></li>
+<li class="menu__item is-leaf leaf"><a href="/application-migration-cloud" class="menu__link">Migrate Applications to the Cloud</a></li>
+<li class="menu__item is-leaf leaf"><a href="/develop-new-cloud-applications" class="menu__link">Develop New Cloud Applications</a></li>
+<li class="menu__item is-leaf leaf"><a href="/modernizing-cloud-applications" class="menu__link">Modernize Cloud Applications</a></li>
+<li class="menu__item is-leaf leaf"><a href="/elastic-scalability" class="menu__link">Elastic Scalability</a></li>
+<li class="menu__item is-leaf leaf"><a href="/database-built-continuous-availability" class="menu__link">Continuous Availability</a></li>
+<li class="menu__item is-leaf leaf"><a href="/active-active-database" class="menu__link">Active-Active Database</a></li>
+<li class="menu__item is-leaf leaf"><a href="/hybrid-workloads-and-htap" class="menu__link">Hybrid Workloads &amp; HTAP</a></li>
+<li class="menu__item is-leaf last leaf"><a href="http://go.nuodb.com/jump-start-program.html" class="menu__link">NuoDB for Start-Ups</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded"><a href="/resources/content-library" class="menu__link">Resources</a><ul class="menu"><li class="menu__item is-leaf first leaf"><a href="/resources/content-library" class="menu__link">Content Library</a></li>
+<li class="menu__item is-leaf leaf"><a href="/resources/videos" class="menu__link">Videos</a></li>
+<li class="menu__item is-leaf leaf"><a href="/resources/events-and-webinars" class="menu__link">Events/Webinars</a></li>
+<li class="menu__item is-leaf leaf"><a href="/resources/success-stories" class="menu__link">Success Stories</a></li>
+<li class="menu__item is-leaf leaf"><a href="/resources/professional-database-services" class="menu__link">Professional Services</a></li>
+<li class="menu__item is-leaf last leaf"><a href="/resources/technical-support-services" class="menu__link">Support</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded"><a href="/company" class="menu__link">Company</a><ul class="menu"><li class="menu__item is-leaf first leaf"><a href="/company" class="menu__link">About Us</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/leadership-team" class="menu__link">Leadership Team</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/our-investors" class="menu__link">Our Investors</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/press-releases" class="menu__link">Press Releases</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/news" class="menu__link">Media Coverage</a></li>
+<li class="menu__item is-leaf leaf"><a href="/blog" class="menu__link">Blog</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/careers" class="menu__link">Careers</a></li>
+<li class="menu__item is-leaf leaf"><a href="/company/office-locations" class="menu__link">Office Locations</a></li>
+<li class="menu__item is-leaf last leaf"><a href="http://go.nuodb.com/contact-us.html" class="menu__link">Contact Us</a></li>
+</ul></li>
+<li class="menu__item is-active-trail is-expanded expanded active-trail"><a href="/dev-center" class="menu__link is-active-trail active-trail">Dev Center</a><ul class="menu"><li class="menu__item is-leaf first leaf"><a href="http://doc.nuodb.com/Latest/Default.htm" class="menu__link">Documentation</a></li>
+<li class="menu__item is-active-trail is-expanded expanded active-trail"><a href="/dev-center/techblog" class="menu__link is-active-trail active-trail">TechBlog</a><ul class="menu"><li class="menu__item is-active-trail is-leaf first last leaf active-trail"><a href="/techblog/tuning-linux-io-scheduler-ssds" class="menu__link is-active-trail menu-position-link active-trail active">Tuning Linux I/O Scheduler for SSDs</a></li>
+</ul></li>
+<li class="menu__item is-leaf leaf"><a href="http://support.nuodb.com/hc/en-us" class="menu__link">Online Support</a></li>
+<li class="menu__item is-leaf last leaf"><a href="/dev-center/community-edition-download" class="menu__link">Product Download</a></li>
+</ul></li>
+<li class="menu__item is-leaf leaf"><a href="/product/evaluate-nuodb?utm_source=tm" class="menu__link">Download</a></li>
+<li class="menu__item is-leaf last leaf"><a href="http://go.nuodb.com/gartner-critical-capabilities.html?utm_source=home" target="_blank" class="menu__link">Gartner DBMS Analysis ❯</a></li>
+</ul>	</div>
+
+</div><!-- /.block -->
+<div id="block-search-form" class="block block-search odd" role="search">
+
+      
+	<div class="content">
+  <form class="gss" action="/techblog/tuning-linux-io-scheduler-ssds" method="post" id="search-block-form" accept-charset="UTF-8"><div><div class="container-inline">
+      <h2 class="element-invisible">Search form</h2>
+    <div class="form-item form-type-textfield form-item-search-block-form">
+  <label class="element-invisible" for="edit-search-block-form--2">Search </label>
+ <input title="Enter the terms you wish to search for." type="text" id="edit-search-block-form--2" name="search_block_form" value="" size="15" maxlength="128" class="form-text" />
+</div>
+<div class="form-actions form-wrapper" id="edit-actions--2"><input type="submit" id="edit-submit" name="op" value="Search" class="form-submit" /></div><input type="hidden" name="form_build_id" value="form-8GBdkEsM1SzPcRoSUOC3u_TN5pz5xvcp_JzCEzA1z4k" />
+<input type="hidden" name="form_id" value="search_block_form" />
+</div>
+</div></form>	</div>
+
+</div><!-- /.block -->
+<div id="block-superfish-1" class="block block-superfish plain last even">
+
+      
+	<div class="content">
+  <ul id="superfish-1" class="menu sf-menu sf-main-menu sf-horizontal sf-style-none sf-total-items-7 sf-parent-items-5 sf-single-items-2"><li id="menu-5020-1" class="first odd sf-item-1 sf-depth-1 sf-total-children-4 sf-parent-children-0 sf-single-children-4 menuparent"><a href="/product-overview" class="sf-depth-1 menuparent">Product</a><ul><li id="menu-7028-1" class="first odd sf-item-1 sf-depth-2 sf-no-children"><a href="/product-overview" class="sf-depth-2">Product Overview</a></li><li id="menu-6058-1" class="middle even sf-item-2 sf-depth-2 sf-no-children"><a href="/product/durable-distributed-cache" class="sf-depth-2">Under the Hood</a></li><li id="menu-7642-1" class="middle odd sf-item-3 sf-depth-2 sf-no-children"><a href="/product/database-comparison" class="sf-depth-2">Database Comparison</a></li><li id="menu-7643-1" class="last even sf-item-4 sf-depth-2 sf-no-children"><a href="/product/evaluate-nuodb" class="sf-depth-2">Evaluate NuoDB</a></li></ul></li><li id="menu-5033-1" class="middle even sf-item-2 sf-depth-1 sf-total-children-9 sf-parent-children-0 sf-single-children-9 menuparent"><a href="/nuodb-use-cases" class="sf-depth-1 menuparent">Use Cases</a><ul><li id="menu-7027-1" class="first odd sf-item-1 sf-depth-2 sf-no-children"><a href="/nuodb-use-cases" class="sf-depth-2">NuoDB Use Cases</a></li><li id="menu-7085-1" class="middle even sf-item-2 sf-depth-2 sf-no-children"><a href="/application-migration-cloud" class="sf-depth-2">Migrate Applications to the Cloud</a></li><li id="menu-7617-1" class="middle odd sf-item-3 sf-depth-2 sf-no-children"><a href="/develop-new-cloud-applications" class="sf-depth-2">Develop New Cloud Applications</a></li><li id="menu-7616-1" class="middle even sf-item-4 sf-depth-2 sf-no-children"><a href="/modernizing-cloud-applications" class="sf-depth-2">Modernize Cloud Applications</a></li><li id="menu-7105-1" class="middle odd sf-item-5 sf-depth-2 sf-no-children"><a href="/elastic-scalability" class="sf-depth-2">Elastic Scalability</a></li><li id="menu-7106-1" class="middle even sf-item-6 sf-depth-2 sf-no-children"><a href="/database-built-continuous-availability" class="sf-depth-2">Continuous Availability</a></li><li id="menu-7649-1" class="middle odd sf-item-7 sf-depth-2 sf-no-children"><a href="/active-active-database" class="sf-depth-2">Active-Active Database</a></li><li id="menu-7112-1" class="middle even sf-item-8 sf-depth-2 sf-no-children"><a href="/hybrid-workloads-and-htap" class="sf-depth-2">Hybrid Workloads &amp; HTAP</a></li><li id="menu-7356-1" class="last odd sf-item-9 sf-depth-2 sf-no-children"><a href="http://go.nuodb.com/jump-start-program.html" class="sf-depth-2">NuoDB for Start-Ups</a></li></ul></li><li id="menu-4001-1" class="middle odd sf-item-3 sf-depth-1 sf-total-children-6 sf-parent-children-0 sf-single-children-6 menuparent"><a href="/resources/content-library" class="sf-depth-1 menuparent">Resources</a><ul><li id="menu-4003-1" class="first odd sf-item-1 sf-depth-2 sf-no-children"><a href="/resources/content-library" class="sf-depth-2">Content Library</a></li><li id="menu-4002-1" class="middle even sf-item-2 sf-depth-2 sf-no-children"><a href="/resources/videos" class="sf-depth-2">Videos</a></li><li id="menu-4004-1" class="middle odd sf-item-3 sf-depth-2 sf-no-children"><a href="/resources/events-and-webinars" class="sf-depth-2">Events/Webinars</a></li><li id="menu-7032-1" class="middle even sf-item-4 sf-depth-2 sf-no-children"><a href="/resources/success-stories" class="sf-depth-2">Success Stories</a></li><li id="menu-7030-1" class="middle odd sf-item-5 sf-depth-2 sf-no-children"><a href="/resources/professional-database-services" class="sf-depth-2">Professional Services</a></li><li id="menu-7296-1" class="last even sf-item-6 sf-depth-2 sf-no-children"><a href="/resources/technical-support-services" class="sf-depth-2">Support</a></li></ul></li><li id="menu-5034-1" class="middle even sf-item-4 sf-depth-1 sf-total-children-9 sf-parent-children-0 sf-single-children-9 menuparent"><a href="/company" class="sf-depth-1 menuparent">Company</a><ul><li id="menu-7020-1" class="first odd sf-item-1 sf-depth-2 sf-no-children"><a href="/company" class="sf-depth-2">About Us</a></li><li id="menu-7002-1" class="middle even sf-item-2 sf-depth-2 sf-no-children"><a href="/company/leadership-team" class="sf-depth-2">Leadership Team</a></li><li id="menu-7026-1" class="middle odd sf-item-3 sf-depth-2 sf-no-children"><a href="/company/our-investors" class="sf-depth-2">Our Investors</a></li><li id="menu-4005-1" class="middle even sf-item-4 sf-depth-2 sf-no-children"><a href="/company/press-releases" class="sf-depth-2">Press Releases</a></li><li id="menu-4006-1" class="middle odd sf-item-5 sf-depth-2 sf-no-children"><a href="/company/news" class="sf-depth-2">Media Coverage</a></li><li id="menu-5001-1" class="middle even sf-item-6 sf-depth-2 sf-no-children"><a href="/blog" class="sf-depth-2">Blog</a></li><li id="menu-7021-1" class="middle odd sf-item-7 sf-depth-2 sf-no-children"><a href="/company/careers" class="sf-depth-2">Careers</a></li><li id="menu-5040-1" class="middle even sf-item-8 sf-depth-2 sf-no-children"><a href="/company/office-locations" class="sf-depth-2">Office Locations</a></li><li id="menu-7620-1" class="last odd sf-item-9 sf-depth-2 sf-no-children"><a href="http://go.nuodb.com/contact-us.html" class="sf-depth-2">Contact Us</a></li></ul></li><li id="menu-7262-1" class="active-trail middle odd sf-item-5 sf-depth-1 sf-total-children-4 sf-parent-children-1 sf-single-children-3 menuparent"><a href="/dev-center" class="sf-depth-1 menuparent">Dev Center</a><ul><li id="menu-5037-1" class="first odd sf-item-1 sf-depth-2 sf-no-children"><a href="http://doc.nuodb.com/Latest/Default.htm" class="sf-depth-2">Documentation</a></li><li id="menu-7263-1" class="active-trail middle even sf-item-2 sf-depth-2 sf-total-children-1 sf-parent-children-0 sf-single-children-1 menuparent"><a href="/dev-center/techblog" class="sf-depth-2 menuparent">TechBlog</a><ul><li id="menu-7266-1" class="active-trail firstandlast odd sf-item-1 sf-depth-3 sf-no-children"><a href="/techblog/tuning-linux-io-scheduler-ssds" class="menu-position-link sf-depth-3 active">Tuning Linux I/O Scheduler for SSDs</a></li></ul></li><li id="menu-7023-1" class="middle odd sf-item-3 sf-depth-2 sf-no-children"><a href="http://support.nuodb.com/hc/en-us" class="sf-depth-2">Online Support</a></li><li id="menu-7264-1" class="last even sf-item-4 sf-depth-2 sf-no-children"><a href="/dev-center/community-edition-download" class="sf-depth-2">Product Download</a></li></ul></li><li id="menu-7647-1" class="middle even sf-item-6 sf-depth-1 sf-no-children"><a href="/product/evaluate-nuodb?utm_source=tm" class="sf-depth-1">Download</a></li><li id="menu-7114-1" class="last odd sf-item-7 sf-depth-1 sf-no-children"><a href="http://go.nuodb.com/gartner-critical-capabilities.html?utm_source=home" target="_blank" class="sf-depth-1">Gartner DBMS Analysis ❯</a></li></ul>	</div>
+
+</div><!-- /.block -->
+  </div>
+      </div><!-- /#header-content -->
+    </div><!-- /.wrapper -->
+  </header>
+  <div id="navigation">
+    <div class="wrapper">
+      <div class="navigation-content">
+                      </div><!-- /#navigation-content -->
+    </div><!-- /.wrapper -->
+  </div><!-- /#navigation -->
+  <div id="sharing">
+    <div class="wrapper">
+        <div class="region region-sharing">
+    <div id="block-menu-block-2" class="block block-menu-block plain first odd" role="navigation">
+
+      
+	<div class="content">
+  <div class="menu-block-wrapper menu-block-2 menu-name-main-menu parent-mlid-0 menu-level-2">
+  <ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-5037"><a href="http://doc.nuodb.com/Latest/Default.htm" class="menu__link">Documentation</a></li>
+<li class="menu__item is-active-trail is-parent is-leaf leaf has-children active-trail menu-mlid-7263"><a href="/dev-center/techblog" class="menu__link is-active-trail active-trail">TechBlog</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7023"><a href="http://support.nuodb.com/hc/en-us" class="menu__link">Online Support</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7264"><a href="/dev-center/community-edition-download" class="menu__link">Product Download</a></li>
+</ul></div>
+	</div>
+
+</div><!-- /.block -->
+<div id="block-service-links-service-links" class="block block-service-links plain last even">
+
+        <h2 class="block__title block-title">Bookmark/Search this post</h2>
+    
+	<div class="content">
+  <div class="service-links"><div class="item-list"><ul><li class="first"><a href="http://twitter.com/share?url=http%3A//www.nuodb.com/techblog/tuning-linux-io-scheduler-ssds&amp;count=horizontal&amp;via=nuodb&amp;text=Tuning%20Linux%20I/O%20Scheduler%20for%20SSDs&amp;counturl=http%3A//www.nuodb.com/techblog/tuning-linux-io-scheduler-ssds" class="twitter-share-button service-links-twitter-widget" title="Tweet This" rel="nofollow" target="_blank"><span class="element-invisible">Tweet Widget</span></a></li>
+<li><a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=http%3A//www.nuodb.com/techblog/tuning-linux-io-scheduler-ssds&amp;title=Tuning%20Linux%20I/O%20Scheduler%20for%20SSDs&amp;summary=Hello%20Techblog%20readers%21%0D%0A%0D%0AI%27m%20going%20to%20talk%20about%20tuning%20the%20Linux%20I/O%20scheduler%20to%20increase%20throughput%20and%20decrease%20latency%20on%20an%20SSD.%20I%27ll%20also%20cover%20another%20interesting%20topic%20about%20tuning%20the%20performance%20of%20NuoDB%20by%20specifying%20storage%20for%20the%20archive%20and%20journal%20directories.&amp;source=NuoDB" title="Share on Linkedin" class="service-links-linkedin-share-button" rel="nofollow" target="_blank"><span class="element-invisible">Linkedin Share Button</span></a></li>
+<li><a href="http://www.facebook.com/sharer.php" title="Share this post on Facebook" class="service-links-facebook-share" rel="http://www.nuodb.com/techblog/tuning-linux-io-scheduler-ssds" target="_blank"><span class="element-invisible">Share on Facebook</span></a></li>
+<li class="last"><a href="http://www.nuodb.com/forward?path=node/7062" title="Send to a friend" class="service-links-forward" rel="nofollow" target="_blank">Forward</a></li>
+</ul></div></div>	</div>
+
+</div><!-- /.block -->
+  </div>
+    </div><!-- /.wrapper -->
+  </div><!-- /#social-sharing -->
+  <div id="skrollr-body">
+    <div id="hero">
+      <div class="wrapper">
+                <div id="hero-overlay" class="light">
+                      <h1 class="title" id="page-title">Tuning Linux I/O Scheduler for SSDs</h1>
+                            </div>
+      </div><!-- /.wrapper -->
+      <div id="scroll-to-content"><a href="#main">Scroll to content</a></div>
+    </div><!-- /#hero -->
+  <div id="main">
+    <div class="wrapper">
+      <div id="main-content">
+        <div id="banner">
+                    </div>
+        <div id="content" class="column" role="main">
+			<div class="wrapper">
+          <div class="utilities">
+            <nav class="breadcrumb" role="navigation"><h2 class="element-invisible">You are here</h2><ol><li><a href="/">Home</a> › </li><li><a href="/dev-center">Dev Center</a> › </li><li><a href="/dev-center/techblog">TechBlog</a> › </li></ol></nav>      	          	              </div>
+          <a id="main-content"></a>
+                                <div id="page-title-wrapper"><h1 class="title" id="page-title">Tuning Linux I/O Scheduler for SSDs</h1></div>
+                                                    <section class="region region-content">
+      
+
+<div  about="/techblog/tuning-linux-io-scheduler-ssds" typeof="sioc:Item foaf:Document" class="ds-1col node node-blog view-mode-full tech-blog-post clearfix">
+
+  
+  <div class="field field-name-post-date">Sep 10 2013</div><div class="field field-name-author-first-last"><a href="/users/mrice">Michael Rice</a></div><div class="field field-name-body field-type-text-with-summary field-label-hidden"><div class="field-items"><div class="field-item even" property="content:encoded"><p>Hello Techblog readers!</p>
+
+<p>I&#8217;m going to talk about tuning the Linux I/O scheduler to increase throughput and decrease latency on an SSD. I&#8217;ll also cover another interesting topic about tuning the performance of NuoDB by specifying storage for the archive and journal directories.</p>
+
+<h3>Tuning the&nbsp;Linux I/O Scheduler</h3>
+
+<p>Linux gives you the option to select the I/O scheduler. The scheduler can be changed without rebooting too! You may be asking at this point, why would I ever want to change the I/O scheduler? Changing the scheduler makes sense when the overhead of optimizing the I/O (re-ordering I/O requests) is unnecessary and expensive. This setting should be fine-tuned per storage device. The best setting for an SSD&nbsp;will not be a good setting for an HDD.</p>
+
+<p>The current I/O scheduler can be viewed by typing the following command:</p>
+
+<pre>
+
+&nbsp;</pre>
+
+<div class="geshifilter">
+<pre class="text geshifilter-text" style="font-family:monospace;">
+mrice@host:~$ cat /sys/block/sda/queue/scheduler
+noop anticipatory deadline [cfq]</pre>
+</div>
+
+<p>The current I/O scheduler (in brackets) for /dev/sda on this machine is <a href="http://en.wikipedia.org/wiki/CFQ">CFQ</a>,&nbsp;Completely Fair Queuing. This setting became the default in kernel 2.6.18 and it works well for HDDs. However, SSDs don&#8217;t have rotating platters or magnetic heads. The I/O optimization algorithms in CFQ don&#8217;t apply to SSDs. For an SSD,&nbsp; the <a href="http://en.wikipedia.org/wiki/Noop_scheduler">NOOP</a>&nbsp;I/O scheduler can reduce I/O latency and increase throughput as well as eliminate the CPU time spent re-ordering I/O requests. This scheduler typically works well on SANs, SSDs, Virtual Machines, and even fancy Fusion I/O cards.&nbsp; At this point you&#8217;re probably thinking “Ok, I&#8217;m sold! How do I change the scheduler already?”&nbsp; You can use the echo command as shown below:</p>
+
+<pre>
+<span class="geshifilter"><span class="geshifilter"><code class="text geshifilter-text">mrice@host:~$ echo noop | sudo tee /sys/block/sda/queue/scheduler</code></span></span></pre>
+
+<p>To see the change, just cat the scheduler again.</p>
+
+<pre>
+
+&nbsp;</pre>
+
+<div class="geshifilter">
+<pre class="text geshifilter-text" style="font-family:monospace;">
+mrice@host:~$ cat /sys/block/sda/queue/scheduler
+[noop] anticipatory deadline cfq </pre>
+</div>
+
+<p>Notice that noop is now selected in brackets. This change is only temporary and will reset back to the default scheduler, CFQ in this case, when the machine reboots. You need to edit the grub configuration in order to keep the setting permanently. However, this will change the I/O scheduler for all block devices. The problem is that NOOP is not a good choice for HDD. I&#8217;d only permanently change the setting if the machine only has SSDs.&nbsp;</p>
+
+<p>On Grub 2</p>
+
+<pre>
+
+&nbsp;</pre>
+
+<div class="geshifilter">
+<pre class="text geshifilter-text" style="font-family:monospace;">
+Edit: /etc/default/grub
+Add "elevator=noop" to the GRUB_CMDLINE_LINUX_DEFAULT line.
+sudo update-grub</pre>
+</div>
+
+<p>At this point, you&#8217;ve changed the I/O scheduler to NOOP. How do you know if it made a difference? You could run a benchmark against it and compare the numbers (just remember to flush the file-system cache). The other way is to take a look at the output from iostat. I/O requests spend less time in the queue with the NOOP I/O scheduler. This can be seen with in the “await” field from iostat. Here&#8217;s an example of a larger write operation with NOOP.</p>
+
+<pre>
+<span class="geshifilter"><span class="geshifilter"><code class="text geshifilter-text">iostat -x 1 /dev/sda</code></span></span></pre>
+
+<table style="width:300px"><tbody><tr><td>Device:</td>
+			<td>sda</td>
+		</tr><tr><td>rrqm/s</td>
+			<td>0.00</td>
+		</tr><tr><td>wrqm/s</td>
+			<td>143819.00</td>
+		</tr><tr><td>r/s</td>
+			<td>6.00</td>
+		</tr><tr><td>w/s</td>
+			<td>2881.00</td>
+		</tr><tr><td>rkB/s</td>
+			<td>24.00</td>
+		</tr><tr><td>wkB/s</td>
+			<td>586800.00</td>
+		</tr><tr><td>avgrq-sz</td>
+			<td>406.53</td>
+		</tr><tr><td>avgqu-sz</td>
+			<td>0.94</td>
+		</tr><tr><td>await</td>
+			<td>0.33</td>
+		</tr><tr><td>r_await</td>
+			<td>3.33</td>
+		</tr><tr><td>w_await</td>
+			<td>0.32</td>
+		</tr><tr><td>svctm</td>
+			<td>0.11</td>
+		</tr><tr><td>%util</td>
+			<td>31.00</td>
+		</tr></tbody></table><h3>&nbsp;</h3>
+
+<h3>Tuning&nbsp;NuoDB Performance</h3>
+
+<p>Now that you&#8217;ve learned about the NOOP I/O scheduler, I&#8217;ll talk about tuning NuoDB with an SSD. If you&#8217;ve read the tech blogs you&#8217;ll know that there are two building blocks for a NuoDB database; the Transaction Engine, TE for short, and the Storage Manager, SM.&nbsp; The TE is an in-memory only copy of the database (actually a portion of the database). As a result, an SSD won&#8217;t help the performance of a TE because, it doesn&#8217;t store atoms to disk. The SM contains two modules that write to disk; the archive and the journal. The archive stores atoms to disk when archive configuration parameter points&nbsp;to a file system (versus HDFS <span class="amp">&amp;</span> S3). The journal on the other hand,&nbsp;synchronously writes messages to disk. If you read the&nbsp;blog post on&nbsp;<a href="http://dev.nuodb.com/techblog/durability-and-redundancy-nuodb">durability</a>, you may remember that the “Remote Commit with Journaling” setting provides the highest level of durability but at the cost of slower speed. Using an SSD in this situation&nbsp;can drastically improve performance.</p>
+
+<p>To tune this setting, we&#8217;ll need to make a nuodb directory on the SSD:</p>
+
+<pre>
+<span class="geshifilter"><span class="geshifilter"><code class="text geshifilter-text">mkdir -p /ssd/nuodb</code></span></span></pre>
+
+<p>The SSD in this example has the mount point /ssd on this machine. Easy right? I&#8217;m assuming you&#8217;ve already set the linux I/O scheduler for the SSD to NOOP. The next step is to configure NuoDB to use this path when creating the journal directory. The journal has a direct correlation on the transaction throughput because the journal has to finish the disk write before an ACK for the transaction commit is sent by the SM back to the TE. What about the archive? The archive is decoupled from the transaction commit, the atoms will remain in memory and gradually make their way to disk. This will have very little effect on the TPS of the database. As a result, the archive directory can be placed on just a regular HDD. The quick guide for tuning performance is to put the journal on an SSD and archive can be placed on an HDD.</p>
+
+<p>Here are the commands:</p>
+
+<pre>
+
+&nbsp;</pre>
+
+<div class="geshifilter">
+<pre class="text geshifilter-text" style="font-family:monospace;">
+nuodbmgr --broker localhost --password bird
+nuodb [domain]&gt; start process sm
+Database: hockey
+Host: s1
+Process command-line options: --journal enable --journal-dir /ssd/nuodb/demo-journal
+Archive directory: /var/opt/nuodb/demo-archives
+Initialize archive: true
+Started: [SM] s1/127.0.0.1:37880 [ pid = 25036 ] ACTIVE</pre>
+</div>
+
+<div class="geshifilter">
+<pre class="text geshifilter-text" style="font-family:monospace;">
+nuodb [domain/hockey]&gt; start process te
+Host: t1
+Process command-line options: --dba-user dba --dba-password goalie
+Started: [TE] t1/127.0.0.1:48315 [ pid = 25052 ] ACTIVE</pre>
+</div>
+
+<p>The important point with this tuned configuration is that only the journal is on an SSD. As a result, the SSD doesn&#8217;t have to be one of these massive TB drives. The costs of SSDs have significantly dropped in price and a single 128 GB or 256 GB SSD would be adequate for the journal data. This configuration should rival the local commit performance which is wicked awesome considering it is the highest durability level! I encourage you to try it out and ask some questions.</p>
+</div></div></div><div class="field field-name-field-techblog-tags"><a href="/tags/io" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">I/O</a><a href="/tags/ssd" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">SSD</a><a href="/tags/archive" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">archive</a><a href="/tags/durability" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">durability</a><a href="/tags/linux" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">linux</a><a href="/tags/newsql" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">NewSQL</a><a href="/tags/nuodb" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">NuoDB</a><a href="/tags/performance" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">performance</a><a href="/tags/storage" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">storage</a><a href="/tags/tuning" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">tuning</a></div><section id="comments" class="comments comment-wrapper comment-wrapper-nid-7062">
+      
+  
+      <h2 class="comments__form-title title comment-form">Add new comment</h2>
+    <form class="comment-form user-info-from-cookie ajax-comments-reply-form-7062-0-0 ajax-comments-form-add" id="ajax-comments-reply-form-7062-0-0" action="/comment/reply/7062" method="post" accept-charset="UTF-8"><div><div class="form-item form-type-textfield form-item-name">
+  <label for="edit-name">Your name <span class="form-required" title="This field is required.">*</span></label>
+ <input type="text" id="edit-name" name="name" value="" size="30" maxlength="60" class="form-text required" />
+</div>
+<div class="form-item form-type-textfield form-item-mail">
+  <label for="edit-mail">E-mail <span class="form-required" title="This field is required.">*</span></label>
+ <input type="text" id="edit-mail" name="mail" value="" size="30" maxlength="64" class="form-text required" />
+<div class="description">The content of this field is kept private and will not be shown publicly.</div>
+</div>
+<div class="form-item form-type-textfield form-item-homepage">
+  <label for="edit-homepage">Homepage </label>
+ <input type="text" id="edit-homepage" name="homepage" value="" size="30" maxlength="255" class="form-text" />
+</div>
+<div class="form-item form-type-textfield form-item-subject">
+  <label for="edit-subject">Subject </label>
+ <input type="text" id="edit-subject" name="subject" value="" size="60" maxlength="64" class="form-text" />
+</div>
+<div class="field-type-text-long field-name-comment-body field-widget-text-textarea form-wrapper" id="edit-comment-body"><div id="comment-body-add-more-wrapper"><div class="text-format-wrapper"><div class="form-item form-type-textarea form-item-comment-body-und-0-value">
+  <label for="edit-comment-body-und-0-value">Comment <span class="form-required" title="This field is required.">*</span></label>
+ <div class="form-textarea-wrapper resizable"><textarea class="text-full form-textarea required" id="edit-comment-body-und-0-value" name="comment_body[und][0][value]" cols="60" rows="5"></textarea></div>
+</div>
+<div class="filter-wrapper form-wrapper" id="edit-comment-body-und-0-format"></div></div>
+</div></div><input type="hidden" name="form_build_id" value="form-DwoP-9JJjYpz23y_u91l-axXKgue8eqIZLgHcHIjM28" />
+<input type="hidden" name="form_id" value="comment_node_blog_form" />
+<div class="captcha"><input type="hidden" name="captcha_sid" value="308167" />
+<input type="hidden" name="captcha_token" value="ab37e6dacd70542a4baa3f0725cb94f7" />
+<input type="hidden" name="captcha_response" value="Google no captcha" />
+<div class="g-recaptcha" data-sitekey="6LcsDxcTAAAAAIfd_vPOA4RbA2NaDhbTIm0yXoIs" data-theme="light" data-type="image" data-tabindex="5"></div></div><div class="form-actions form-wrapper" id="edit-actions"><input type="submit" id="edit-ajax-comments-reply-form-7062-0-0" name="op" value="Submit" class="form-submit" /><input type="submit" id="preview-ajax-comments-reply-form-7062-0-0" name="op" value="Preview" class="form-submit" /></div></div></form>  </section>
+</div>
+
+  </section>
+          
+                	</div>
+		</div><!-- /#content -->
+                      </div><!-- /#main-content -->
+    </div><!-- /.wrapper -->        
+  </div><!-- /#main -->
+      <footer id="footer">
+      <div class="back-top-button" title="Back to the top"><a href="#top">Top</a></div>
+      <div class="wrapper">
+          <div class="region region-footer-content">
+    <div id="block-bean-6172" class="block block-bean plain first odd">
+
+      
+	<div class="content">
+  <div  about="/block/sign-up-for-nuodb-news-updates-a" typeof="" class="ds-1col entity entity-bean bean-background-image view-mode-default clearfix">
+
+  
+  <div class="field field-name-field-body field-type-text-with-summary field-label-hidden"><div class="field-items"><div class="field-item even"><p>Sign up for NuoDB news,&nbsp;updates and upcoming events!</p>
+
+<form action="http://go.nuodb.com/index.php/leadCapture/save" class="newsletter_form clearfix" enctype="application/x-www-form-urlencoded" id="mktForm_134" method="post" name="mktForm_134">
+<ul><li><label>First Name:</label><span><input id="FirstName" maxlength="255" name="FirstName" tabindex="1" type="text" value=""></span></li>
+	<li><label>Last Name:</label><span><input id="LastName" maxlength="255" name="LastName" tabindex="2" type="text" value=""></span></li>
+	<li><label>Company:</label><span><input id="Company" maxlength="255" name="Company" tabindex="3" type="text" value=""></span></li>
+	<li><label>Email:*</label><span><input id="Email" maxlength="255" name="Email" tabindex="4" type="text" value=""></span></li>
+	<li id="mktFrmButtons"><label>&nbsp;</label><input id="mktFrmSubmit" name="submitButton" onclick='formSubmit(document.getElementById("mktForm_134")); return false;' type="submit" value="Join">&nbsp;<input id="mktFrmReset" name="resetButton" onclick='formReset(document.getElementById("mktForm_134")); return false;' style="display: none;" type="reset" value="Clear"></li>
+</ul><span style="display:none;"><input name="_marketo_comments" type="text" value=""></span> <input name="lpId" type="hidden" value="3170"><input name="subId" type="hidden" value="151"><input name="munchkinId" type="hidden" value="139-YPK-485"><input name="kw" type="hidden" value=""><input name="cr" type="hidden" value=""><input name="searchstr" type="hidden" value=""><input name="lpurl" type="hidden" value="http://go.nuodb.com/SubscribetoMLwFirstLastNameTest.html?cr={creative}&amp;kw={keyword}"><input name="formid" type="hidden" value="134"><input name="returnURL" type="hidden" value="http://www.nuodb.com/resources/newsletter-follow-up"><input name="retURL" type="hidden" value="http://www.nuodb.com/resources/newsletter-follow-up"><input name="_mkt_disp" type="hidden" value="return"><input name="_mkt_trk" type="hidden" value="id:139-YPK-485&amp;token:_mch-nuodb.com-1456283762162-92786"></form>
+</div></div></div></div>
+
+	</div>
+
+</div><!-- /.block -->
+<div id="block-menu-block-1" class="block block-menu-block plain last even" role="navigation">
+
+      
+	<div class="content">
+  <div class="menu-block-wrapper menu-block-1 menu-name-main-menu parent-mlid-0 menu-level-1">
+  <ul class="menu"><li class="menu__item is-expanded first expanded menu-mlid-5020"><a href="/product-overview" class="menu__link sf-depth-1 menuparent">Product</a><ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-7028"><a href="/product-overview" class="menu__link sf-depth-2">Product Overview</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-6058"><a href="/product/durable-distributed-cache" class="menu__link sf-depth-2">Under the Hood</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7642"><a href="/product/database-comparison" class="menu__link sf-depth-2">Database Comparison</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7643"><a href="/product/evaluate-nuodb" class="menu__link sf-depth-2">Evaluate NuoDB</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded menu-mlid-5033"><a href="/nuodb-use-cases" class="menu__link sf-depth-1 menuparent">Use Cases</a><ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-7027"><a href="/nuodb-use-cases" class="menu__link sf-depth-2">NuoDB Use Cases</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7085"><a href="/application-migration-cloud" class="menu__link sf-depth-2">Migrate Applications to the Cloud</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7617"><a href="/develop-new-cloud-applications" class="menu__link sf-depth-2">Develop New Cloud Applications</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7616"><a href="/modernizing-cloud-applications" class="menu__link sf-depth-2">Modernize Cloud Applications</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7105"><a href="/elastic-scalability" class="menu__link sf-depth-2">Elastic Scalability</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7106"><a href="/database-built-continuous-availability" class="menu__link sf-depth-2">Continuous Availability</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7649"><a href="/active-active-database" class="menu__link sf-depth-2">Active-Active Database</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7112"><a href="/hybrid-workloads-and-htap" class="menu__link sf-depth-2">Hybrid Workloads &amp; HTAP</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7356"><a href="http://go.nuodb.com/jump-start-program.html" class="menu__link">NuoDB for Start-Ups</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded menu-mlid-4001"><a href="/resources/content-library" class="menu__link sf-depth-1 menuparent">Resources</a><ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-4003"><a href="/resources/content-library" class="menu__link sf-depth-2">Content Library</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-4002"><a href="/resources/videos" class="menu__link sf-depth-2">Videos</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-4004"><a href="/resources/events-and-webinars" class="menu__link sf-depth-2">Events/Webinars</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7032"><a href="/resources/success-stories" class="menu__link sf-depth-2">Success Stories</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7030"><a href="/resources/professional-database-services" class="menu__link sf-depth-2">Professional Services</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7296"><a href="/resources/technical-support-services" class="menu__link sf-depth-2">Support</a></li>
+</ul></li>
+<li class="menu__item is-expanded expanded menu-mlid-5034"><a href="/company" class="menu__link sf-depth-1 menuparent">Company</a><ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-7020"><a href="/company" class="menu__link sf-depth-2">About Us</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7002"><a href="/company/leadership-team" class="menu__link sf-depth-2">Leadership Team</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7026"><a href="/company/our-investors" class="menu__link sf-depth-2">Our Investors</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-4005"><a href="/company/press-releases" class="menu__link sf-depth-2">Press Releases</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-4006"><a href="/company/news" class="menu__link sf-depth-2">Media Coverage</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-5001"><a href="/blog" class="menu__link sf-depth-2">Blog</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-7021"><a href="/company/careers" class="menu__link sf-depth-2">Careers</a></li>
+<li class="menu__item is-leaf leaf menu-mlid-5040"><a href="/company/office-locations" class="menu__link sf-depth-2">Office Locations</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7620"><a href="http://go.nuodb.com/contact-us.html" class="menu__link">Contact Us</a></li>
+</ul></li>
+<li class="menu__item is-active-trail is-expanded expanded active-trail menu-mlid-7262"><a href="/dev-center" class="menu__link is-active-trail sf-depth-1 menuparent active-trail">Dev Center</a><ul class="menu"><li class="menu__item is-leaf first leaf menu-mlid-5037"><a href="http://doc.nuodb.com/Latest/Default.htm" class="menu__link">Documentation</a></li>
+<li class="menu__item is-active-trail is-expanded expanded active-trail menu-mlid-7263"><a href="/dev-center/techblog" class="menu__link is-active-trail sf-depth-2 menuparent active-trail">TechBlog</a><ul class="menu"><li class="menu__item is-active is-active-trail is-leaf first last leaf active-trail active menu-mlid-7266"><a href="/techblog/tuning-linux-io-scheduler-ssds" class="menu__link is-active-trail menu-position-link active-trail active">Tuning Linux I/O Scheduler for SSDs</a></li>
+</ul></li>
+<li class="menu__item is-leaf leaf menu-mlid-7023"><a href="http://support.nuodb.com/hc/en-us" class="menu__link">Online Support</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7264"><a href="/dev-center/community-edition-download" class="menu__link sf-depth-2">Product Download</a></li>
+</ul></li>
+<li class="menu__item is-leaf leaf menu-mlid-7647"><a href="/product/evaluate-nuodb?utm_source=tm" class="menu__link sf-depth-1">Download</a></li>
+<li class="menu__item is-leaf last leaf menu-mlid-7114"><a href="http://go.nuodb.com/gartner-critical-capabilities.html?utm_source=home" target="_blank" class="menu__link">Gartner DBMS Analysis ❯</a></li>
+</ul></div>
+	</div>
+
+</div><!-- /.block -->
+  </div>
+        <div id="bottom-content">
+            <div class="region region-bottom">
+    <div id="block-bean-6063" class="block block-bean plain first odd">
+
+      
+	<div class="content">
+  <div  about="/block/copyright" typeof="" class="ds-1col entity entity-bean bean-background-image view-mode-default clearfix">
+
+  
+  <div class="field field-name-field-body field-type-text-with-summary field-label-hidden"><div class="field-items"><div class="field-item even"><p>&copy;&nbsp;2017&nbsp;NuoDB, Inc. All rights reserved.</p>
+</div></div></div></div>
+
+	</div>
+
+</div><!-- /.block -->
+<div id="block-menu-menu-tertiary-menu" class="block block-menu plain even" role="navigation">
+
+      
+	<div class="content">
+  <ul class="menu"><li class="menu__item is-leaf first leaf"><a href="/privacy-policy" class="menu__link">Privacy Policy</a></li>
+<li class="menu__item is-leaf leaf"><a href="/terms-use" class="menu__link">Terms of Use</a></li>
+<li class="menu__item is-leaf last leaf"><a href="/sitemap" class="menu__link">Site Map</a></li>
+</ul>	</div>
+
+</div><!-- /.block -->
+<div id="block-menu-menu-social-links" class="block block-menu plain last odd" role="navigation">
+
+      
+	<div class="content">
+  <ul class="menu"><li class="menu__item is-leaf first leaf"><a href="http://twitter.com/nuodb" class="menu__link twitter icon">Twitter</a></li>
+<li class="menu__item is-leaf leaf"><a href="http://www.linkedin.com/company/nuodb" class="menu__link linkedin icon">Linked In</a></li>
+<li class="menu__item is-leaf leaf"><a href="https://www.facebook.com/NUODB" class="menu__link facebook icon">Facebook</a></li>
+<li class="menu__item is-leaf last leaf"><a href="https://www.youtube.com/channel/UCWOlI6x_O6F8X6Iof6GN7Ug" class="menu__link youtube icon">YouTube</a></li>
+</ul>	</div>
+
+</div><!-- /.block -->
+  </div>
+        </div><!-- /#bottom-content -->
+      </div><!-- /.wrapper -->
+      <div class="dlcredit"><a href="http://www.digital-loom.com" title="Website by Digital Loom">Website by Digital Loom</a></div>
+    </footer>
+  </div><!-- /#skrollr-body -->
+</div><!-- /#page -->
+  <script>
+      setTimeout(function(){var a=document.createElement("script");
+      var b=document.getElementsByTagName('script')[0];
+      a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0043/1978.js";
+      a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+      </script>
+  <!-- LeadLander code-->
+  <script type="text/javascript" language="javascript">
+    var sf14gv = 21099;
+    (function() {
+      var sf14g = document.createElement('script'); sf14g.type = 'text/javascript'; sf14g.async = true;
+      sf14g.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 't.sf14g.com/sf14g.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sf14g, s);
+    })();
+  </script>
+  <!-- /LeadLander code-->
+</body>
+</html>

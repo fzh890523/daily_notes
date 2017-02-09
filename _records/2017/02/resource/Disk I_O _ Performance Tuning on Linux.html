@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Disk I/O | Performance Tuning on Linux</title>
+		<meta name="description" content="How to optimize the Linux kernel disk I/O performance with queue algorithm selection, memory management and cache tuning." />
+				<!-- standard header -->
+		<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1">
+		<!--[if lt IE 9]>
+			<script src="/js/html5shiv.js"></script>
+			<script src="/js/respond.min.js"></script>
+		<![endif]-->
+
+		<!-- style -->
+		<link rel="stylesheet" href="/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/css/bootstrap-theme.css" />
+		<link rel="stylesheet" href="/css/style.css" />
+
+		<link rel="icon" type="image/png" href="/pictures/favicon.png" />
+		<!-- Safari -->
+		<link rel="apple-touch-icon" href="/pictures/touch-icon-iphone-152x152.png" />
+		<link rel='canonical' href='http://cromwell-intl.com/linux/performance-tuning/disks.html' />
+<meta property='og:title' content='Disk I/O | Performance Tuning on Linux'/>
+		<meta name='twitter:title' content='Disk I/O | Performance Tuning on Linux'/>
+		<meta name='twitter:description' content=''/>
+		<meta property="og:type" content="article" />
+		<meta property="og:url" content="http://cromwell-intl.com/linux/performance-tuning/disks.html\n" />
+		<meta name="twitter:url" content="http://cromwell-intl.com/linux/performance-tuning/disks.html\n" />
+		<meta property="og:site_name" content="Bob Cromwell: Travel, Linux, Cybersecurity" />
+		<meta name="twitter:image" content="http://cromwell-intl.com/pictures/headshot-2484-23pc.jpg" />
+
+		<!-- Google Page-level ads -->
+		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<script>
+		  (adsbygoogle = window.adsbygoogle || []).push({
+		    google_ad_client: "ca-pub-5845932372655417",
+		    enable_page_level_ads: true
+		   });
+		</script>
+
+		<!-- Google webmaster tools -->
+		<meta name="google-site-verification" content="-QwRAzF67ZlYJ9S4v3SCsyDceuoD2J7wLepdqiSX_Q4" />
+		<link rel="author" href="https://plus.google.com/+BobCromwell" />
+		<!-- Bing webmaster tools -->
+		<meta name="msvalidate.01" content="3E2092BE1413B6791596BCC09A493E58" />
+		<!-- Google Website Translator -->
+		<meta name="google-translate-customization" content="e577b45d2703b3f4-274692b0024c3c77-gc02a134c617e3801-12" />
+
+		<!-- Amazon Affiliate -->
+			</head>
+
+	<body>
+		<article itemscope itemtype="http://schema.org/Article" class="container">
+				<span itemprop="image" itemscope itemtype="http://schema.org/imageObject">
+			<meta itemprop="url" content="http://cromwell-intl.com/pictures/headshot-2484-23pc.jpg" />
+			<meta itemprop="width" content="713px" />
+			<meta itemprop="height" content="596px" />
+		</span>
+		<meta itemprop="author" content="Bob Cromwell" />
+		<span itemprop="publisher" itemscope itemtype="http://schema.org/organization">
+			<meta itemprop="name" content="Cromwell International" />
+			<span itemprop="logo" itemscope itemtype="http://schema.org/imageObject">
+				<meta itemprop="url" content="http://cromwell-intl.com/pictures/cartoon-headshot-2484-10pc.jpg" />
+				<meta itemprop="width" content="310px" />
+				<meta itemprop="height" content="259px" />
+			</span>
+		</span>
+				<meta itemprop='headline' content='Disk I/O | Performance Tuning on Linux' />
+		<meta itemprop='datePublished' content=' 2016-07-20
+' />
+		<meta itemprop='dateModified' content=' 2016-07-20
+' />
+		<meta itemprop='mainEntityOfPage' content='http://cromwell-intl.com.com/linux/performance-tuning/disks.html' />
+		<meta itemprop="about" content="Linux" />
+		<header>
+		<div>
+		<img src="/linux/pictures/motherboard-105304-banner.jpg"
+			alt="Micro-Star International motherboard with AMD Phenom II 4-core processor." />
+		</div>
+		<h1>Performance Tuning on Linux &mdash; Disk I/O</h1>
+		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle responsive-banner"
+	style="display:inline-block;"
+	data-ad-client="ca-pub-5845932372655417"
+	data-ad-slot="4849215406"></ins>
+<script>
+	(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+		</header>
+		<div class="fr textright">
+
+<div class="fb-like" style="clear:right; float:right; margin-left:4px;" data-href=www.cromwell-intl.com/linux/performance-tuning/disks.html data-layout="button" data-action="like" data-show-faces="false" data-share="true" data-colorscheme="light"></div>
+<a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-count="none" style="margin-top:3px;">Tweet</a>
+
+<div id="google_translate_element" style="clear:right;"></div>
+<script type="text/javascript">
+function googleTranslateElementInit() {
+	new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+}
+</script>
+<script async type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</div>
+
+		<section>
+		<h2 class="centered">
+			Tune Disk I/O </h2>
+
+		<p>
+		<strong>Disks are <em>block</em> devices and we can
+			access related kernel data structures through
+			<a href="/linux/sysfs.html">Sysfs</a>.</strong>
+		We can use the kernel data structures under <code>/sys</code>
+		to select and tune I/O queuing algorithms for the block
+		devices.
+		"Block" and "character" are misleading names for device types. 
+		The important distinction is that unbuffered "character"
+		devices provide direct access to the device,
+		while buffered "block" devices are accessed through
+		a buffer which can greatly improve performance.
+		Contradicting their common names,
+		"character" devices can enforce block boundaries, and you
+		can read or write "block" devices in blocks of any size
+		including one byte at a time.
+		</p>
+
+		<p>
+		The operating system uses RAM for both <em>write buffer</em>
+		and <em>read cache.</em>
+		The idea is that data to be stored is written into the
+		write buffer, where it can be sorted or grouped.
+		A mechanical disk needs its data sorted into order so
+		a sequence of write operations can happen as the arm moves
+		in one direction across the platter, instead of
+		seeking back and forth and greatly increasing overall time.
+		If the storage system is RAID, then the data should be
+		grouped by RAID stripe so that one stripe can be written in
+		one operation.
+		</p>
+
+		<p>
+		As for reading, recently-read file system data is stored in RAM.
+		If the blocks are "clean", unmodified since the last read,
+		then the data can be read directly from cache RAM instead of
+		accessing the much slower mechanical disks.
+		Reading is made more efficient by appropriate decisions
+		about which blocks to store and which to discard.
+		</p>
+
+		</section>
+		<section>
+		<h2> Disk Queuing Algorithms </h2>
+
+		<p>
+		Pending I/O events are scheduled or sorted by
+		a queuing algorithm also called an <em>elevator</em>
+		because analogous algorithms can be used
+		to most efficiently schedule elevators.
+		There is no single best algorithm, the choice depends
+		some on your hardware and more on the work load.
+		</p>
+		<p>
+		Tuning is done by disk, not by partition,
+		so if your first disk has partitions containing
+		<code>/</code>,
+		<code>/boot</code>, and
+		<code>/boot/efi</code>,
+		all three file systems must be handled the same way.
+		Since things under <code>/boot</code> are needed only
+		infrequently after booting, if ever, then consider your
+		use of your root partition to select an algorithm
+		for all of <code>/dev/sda</code>.
+		This foreshadows the coming file system discussion where
+		we want to limit the I/O per physical device.
+		</p>
+
+		<p>
+		Tuning is done with the kernel object
+		<code>/sys/block/sd*/queue/scheduler</code>.
+		You can read its current contents with <code>cat</code>
+		or similar.
+		The output lists all queuing algorithms supported by the kernel.
+		The one currently in use is surrounded by square brackets.
+		</p>
+
+		<pre style="clear: both;">
+# grep . /sys/block/sd*/queue/scheduler
+/sys/block/sda/queue/scheduler:noop deadline [cfq] 
+/sys/block/sdb/queue/scheduler:noop deadline [cfq] 
+/sys/block/sdc/queue/scheduler:noop deadline [cfq] 
+/sys/block/sdd/queue/scheduler:noop deadline [cfq] </pre>
+
+		<p>
+		You can modify the kernel object contents
+		and change the algorithm with <code>echo</code>.
+		</p>
+
+		<pre>
+# cat /sys/block/sdd/queue/scheduler 
+noop deadline [cfq] 
+# echo deadline &gt; /sys/block/sdd/queue/scheduler 
+# cat /sys/block/sdd/queue/scheduler 
+noop [deadline] cfq
+</pre>
+
+		<p class="caption fr" style="max-width: 160px; margin-left: 2em;">
+		If you're looking for information on the Anticipatory I/O
+		scheduler, you are using some old references.
+		<a href="http://www.linux-mag.com/id/7724/">
+			It was removed</a>
+		from the 2.6.33 kernel.
+		</p>
+
+		<p>
+		<strong>The shortest explanation: Use Deadline
+			for interactive systems and
+			NOOP for unattended computation.</strong>
+		But read on for details on why, and other parameters to tune.
+		</p>
+
+		</section>
+		<section>
+		<h3> Deadline Scheduler </h3>
+
+		<p>
+		The <strong>deadline</strong> algorithm attempts to limit
+		the maximum latency and keep the humans happy.
+		Every I/O request is assigned its own deadline and
+		it should be completed before that timer expires.
+		</p>
+		<p>
+		Two queues are maintained per device, one sorted by
+		sector and the other by deadline.
+		As long as no deadlines are expiring, the I/O requests
+		are done in sector order to minimize head motion and
+		provide best throughput.
+		</p>
+
+		<p>
+		<strong>Reasons to use the deadline scheduler include:</strong>
+		</p>
+		<p>
+		<strong>1: People use your system interactively.</strong>
+		Your work load is dominated by interactive
+		applications, either users who otherwise may
+		complain of sluggish performance
+		or databases with many I/O operations.
+		</p>
+		<p>
+		2: Read operations happen significantly more often
+		than write operations, as applications are more
+		likely to block waiting to read data.
+		</p>
+		<p>
+		3: Your storage hardware is a SAN (Storage Area Network)
+		or RAID array with deep I/O buffers.
+		</p>
+		<p>
+		Red Hat uses deadline by default for non-SATA disks
+		starting at RHEL 7.
+		IBM System z uses deadline by default for all disks.
+		</p>
+
+		</section>
+		<section>
+		<div class="fr responsive-skyscraper" style="padding: 0; z-index: 101; position: relative;">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle responsive-skyscraper"
+	style="display:inline-block;"
+	data-ad-client="ca-pub-5845932372655417"
+	data-ad-slot="3269907407"></ins>
+<script>
+	(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+		<h3> CFQ Scheduler </h3>
+
+		<p>
+		The <strong>CFQ</strong> or Completely Fair Queuing algorithm
+		first divides processes into the three classes of Real Time,
+		Best Effort, and Idle.
+		Real Time processes are served before Best Effort processes,
+		which in turn are served before Idle processes.
+		Within each class, the kernel attempts to give every thread
+		the same number of time slices.
+		Processes are assigned to the Best Effort class by default,
+		you can change the I/O priority for a process with
+		<code>ionice</code>.
+		The kernel uses recent I/O patterns to anticipate whether
+		an application will issue more requests in the near future,
+		and if more I/O is anticipated, the kernel will wait
+		even though other processes have pending I/O.
+		</p>
+		<p>
+		CFQ can improve throughput at the cost of worse latency.
+		Users are sensitive to latency and will not like the result
+		when their applications are bound by CFQ.
+		</p>
+		<p>
+		<strong>Reasons to use the CFQ scheduler:</strong>
+		</p>
+		<p>
+		<strong>1: People do not use your system interactively,
+			at least not much.</strong>
+		Throughput is more important than latency,
+		but latency is still important enough that you
+		don't want to use NOOP.
+		</p>
+		<p>
+		<strong>2: You are not using XFS.</strong>
+		<a href="http://xfs.org/index.php/XFS_FAQ#Q:_I_want_to_tune_my_XFS_filesystems_for_.3Csomething.3E">
+			According to xfs.org</a>,
+		the CFQ scheduler defeats much of the parallelization in XFS.
+		</p>
+		<p>
+		Red Hat uses this by default for SATA disks
+		starting at RHEL 7.
+		<em>And</em> they use XFS by default...
+		</p>
+
+		</section>
+		<section>
+		<h3> NOOP Scheduler </h3>
+
+		<p>
+		The <strong>NOOP</strong> scheduler does nothing to change
+		the order or priority, it simply handles the requests in
+		the order they were submitted.
+		</p>
+		<p>
+		This can provide the best throughput, especially on storage
+		subsystems that provide their own queuing such as
+		solid-state drives, intelligent RAID controllers with their
+		own buffer and cache, and Storage Area Networks.
+		</p>
+		<p>
+		This usually makes for the worst latency, so it would be
+		a poor choice for interactive use.
+		</p>
+		<p>
+		<strong>Reasons to use the noop scheduler include:</strong>
+		</p>
+		<p>
+		<strong>1: Throughput is your dominant concern,
+			you don't care about latency.</strong>
+		Users don't use the system interactively.
+		</p>
+		<p>
+		<strong>2: Your work load is CPU-bound: most of the time we're
+			waiting for the CPU to finish something, I/O events are
+			relatively small and widely spaced.</strong>
+		</p>
+		<p>
+		Both of those suggest that you are doing
+		high-throughput unattended jobs such as data mining,
+		scientific high-performance computing, or rendering.
+		</p>
+
+		</section>
+		<section>
+		<h3> Tuning the Schedulers </h3>
+
+		<p style="margin-bottom: 1px;">
+		Recall (or <a href="/linux/sysfs.html">learn here</a>)
+		that Sysfs is the hierarchy under <code>/sys</code> and it
+		maps internal kernel constructs to a file system so that:
+		</p>
+		<ul style="margin-top: 1px;">
+			<li>
+			Directories represent kernel objects,
+			</li>
+			<li>
+			Files represent attributes of those objects, and
+			</li>
+			<li>
+			Symbolic links represent relationships (usually
+			identity) between objects
+			</li>
+		</ul>
+
+		<p>
+		Different files (attributes) appear in the
+		<code>queue/iosched</code> subdirectory (object)
+		when you change the content (setting)
+		of the <code>queue/scheduler</code> file (attribute).
+		It's easier to look at than to explain.
+		The directories for the disks themselves contain the same
+		files and subdirectories, including the file
+		<code>queue/scheduler</code> and the subdirectory
+		<code>queue/iosched/</code>:
+		</p>
+
+		<pre>
+# ls -F /sys/block/sdb/
+alignment_offset  discard_alignment  holders/  removable  stat
+bdi@              events             inflight  ro         subsystem@
+capability        events_async       power/    sdb1/      trace/
+dev               events_poll_msecs  queue/    size       uevent
+device@           ext_range          range     slaves/
+
+# ls -F /sys/block/sdb/queue
+add_random           max_hw_sectors_kb       optimal_io_size
+discard_granularity  max_integrity_segments  physical_block_size
+discard_max_bytes    max_sectors_kb          read_ahead_kb
+discard_zeroes_data  max_segment_size        rotational
+hw_sector_size       max_segments            rq_affinity
+iosched/             minimum_io_size         scheduler
+iostats              nomerges                write_same_max_bytes
+logical_block_size   nr_request </pre>
+
+		<p>
+		Let's assign three different schedulers and see what tunable
+		parameters appear in their <code>queue/iosched</code>
+		subdirectories:
+		</p>
+
+		<pre>
+# echo cfq &gt; /sys/block/sdb/queue/scheduler 
+# echo deadline &gt; /sys/block/sdc/queue/scheduler 
+# echo noop &gt; /sys/block/sdd/queue/scheduler 
+
+# ls -F /sys/block/sd[bcd]/queue/iosched/
+/sys/block/sdb/queue/iosched/:
+back_seek_max      fifo_expire_sync  quantum         slice_idle
+back_seek_penalty  group_idle        slice_async     slice_sync
+fifo_expire_async  low_latency       slice_async_rq  target_latency
+
+/sys/block/sdc/queue/iosched/:
+fifo_batch  front_merges  read_expire  write_expire  writes_starved
+
+/sys/block/sdd/queue/iosched/: </pre>
+
+		<p>
+		So we see that the cfq scheduler has twelve readable
+		and tunable parameters,
+		the deadline scheduler has five,
+		and the noop scheduler has none (which makes sense
+		as it's the not-scheduler).
+		</p>
+
+		</section>
+		<section>
+		<h4> Tuning The CFQ Scheduler </h4>
+
+		<p>
+		Remember that this is for mostly to entirely non-interactive
+		work where latency is of lower concern.
+		You care some about latency, but your main concern is
+		throughput.
+		</p>
+
+		<table class="bordered">
+			<tr class="centered">
+				<td> <strong> Attribute </strong> </td>
+				<td> <strong> Meaning and suggested tuning </strong> </td>
+			</tr>
+
+			<tr>
+				<td> <code>fifo_expire_async</code> </td>
+				<td> Number of milliseconds an asynchronous
+					request (buffered write) can remain
+					unserviced.
+					<br />
+					<strong>If lowered buffered write
+						latency is needed, either
+						decrease from default 250 msec
+						or consider switching to
+						deadline scheduler.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>fifo_expire_sync</code> </td>
+				<td> Number of milliseconds a synchronous
+					request (read, or O_DIRECT unbuffered
+					write) can remain unserviced.
+					<br />
+					<strong>If lowered read latency
+						is needed, either decrease
+						from default 125 msec or
+						consider switching to
+						deadline scheduler.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>low_latency</code> </td>
+				<td>	0=disabled:
+					Latency is ignored, give each process
+					a full time slice.
+					<br />
+					1=enabled:
+					Favor fairness over throughput,
+					enforce a maximum wait time of
+					300 milliseconds for each process
+					issuing I/O requests for a device.
+					<br />
+					<strong>Select this if using CFQ with
+						applications requiring it,
+						such as real-time media
+						streaming.</strong>
+					</td>
+			</tr>
+
+			<tr>
+				<td> <code>quantum</code> </td>
+				<td> Number of I/O requests sent to a device
+					at one time, limiting the queue depth.
+					request (read, or O_DIRECT unbuffered
+					write) can remain unserviced.
+					<br />
+					<strong>Increase this to improve
+						throughput on storage hardware
+						with its own deep I/O buffer
+						such as SAN and RAID,
+						at the cost of increased
+						latency.</strong>
+					</td>
+			</tr>
+
+			<tr>
+				<td> <code>slice_idle</code> </td>
+				<td> Length of time in milliseconds that cfq
+					will idle while waiting for further
+					requests.
+					<br />
+					<strong>Set to 0 for solid-state drives
+						or for external RAID with its
+						own cache.
+						Leave at default of 8
+						milliseconds for internal
+						non-RAID storage to reduce
+						seek operations.
+						</strong>
+					</td>
+			</tr>
+
+		</table>
+
+		</section>
+		<section>
+		<h4> Tuning The Deadline Scheduler </h4>
+
+		<p>
+		Remember that this is for interactive work where latency
+		above about 100 milliseconds will really bother your users.
+		Throughput would be nice, but we must keep the latency down.
+		</p>
+
+		<table class="bordered">
+			<tr class="centered">
+				<td> <strong> Attribute </strong> </td>
+				<td> <strong> Meaning and suggested tuning </strong> </td>
+			</tr>
+
+			<tr>
+				<td> <code>fifo_batch</code> </td>
+				<td> Number of read or write operations to
+					issue in one batch.
+					<br />
+					<strong>Lower values may further
+						reduce latency.</strong>
+					<br />
+					Higher values can increase throughput
+					on rotating mechanical disks,
+					but at the cost of worse latency.
+					<br />
+					<strong>You selected the deadline
+						scheduler to limit latency,
+						so you probably don't want to
+						increase this, at least not
+						by very much.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>read_expire</code> </td>
+				<td> Number of milliseconds within which a
+					read request should be served.
+					<br />
+					<strong>Reduce this from the default
+						of 500 to 100 on a system with
+						interactive users.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>write_expire</code> </td>
+				<td> Number of milliseconds within which a
+					write request should be served.
+					<br />
+					<strong>Leave at default of 5000, let
+						write operations be done
+						asynchronously in the background
+						unless your specialized application
+						uses many synchronous writes.
+						</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>writes_starved</code> </td>
+				<td> Number read batches that can be processed
+					before handling a write batch.
+					<br />
+					<strong>Increase this from default of 2
+						to give higher priority to
+						read operations.</strong>
+				</td>
+			</tr>
+
+		</table>
+
+		</section>
+		<section>
+		<h4> Tuning The NOOP Scheduler </h4>
+
+		<p>
+		Remember that this is for entirely non-interactive work where
+		throughput is all that matters.
+		Data mining, high-performance computing and rendering,
+		and CPU-bound systems with fast storage.
+		</p>
+		<p>
+		The whole point is that NOOP <em>isn't</em> a scheduler,
+		I/O requests are handled strictly first come, first served.
+		All we can tune are some block layer parameters in
+		<code>/sys/block/sd*/queue/*</code>, which could also be
+		tuned for other schedulers, so...
+		</p>
+
+		</section>
+		<section>
+		<h4> Tuning General Block I/O Parameters </h4>
+
+		<p>
+		These are in <code>/sys/block/sd*/queue/</code>.
+		</p>
+
+		<table class="bordered">
+			<tr class="centered">
+				<td> <strong> Attribute </strong> </td>
+				<td> <strong> Meaning and suggested tuning </strong> </td>
+			</tr>
+
+			<tr>
+				<td> <code>max_sectors_kb</code> </td>
+				<td> Maximum allowed size of an I/O request
+					in kilobytes, which must be within
+					these bounds:
+					<br />
+					Min value = max(1, <code>logical_block_size</code>/1024)
+					<br />
+					Max value = <code>max_hw_sectors_kb</code>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>nr_requests</code> </td>
+				<td> Maximum number of read and write requests
+					that can be queued at one time before
+					the next process requesting a read or
+					write is put to sleep.
+					Default value of 128 means 128 read
+					requests <em>and</em> 128 write
+					requests can be queued at once.
+					<br />
+					<strong>Larger values may increase
+						throughput for workloads
+						writing many small files,
+						smaller values increase
+						throughput with larger
+						I/O operations.</strong>
+					<br />
+					<strong>You <em>could</em> decrease
+						this if you are using
+						latency-sensitive applications,
+						but then you shouldn't be using
+						NOOP if latency is sensitive!</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>optimal_io_size</code> </td>
+				<td> If non-zero, the storage device has reported
+					its own optimal I/O size.
+					<br />
+					<strong>If you are developing your
+						own applications, make its I/O
+						requests in multiples of this
+						size if possible.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>read_ahead_kb</code> </td>
+				<td> Number of kilobytes the kernel will read
+					ahead during a sequential read
+					operation.
+					128 kbytes by default, if the disk is
+					used with LVM the device mapper may
+					benefit from a higher value.
+					<br />
+					<strong>If your workload does a lot
+						of large streaming reads,
+						larger values may improve
+						performance.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code>rotational</code> </td>
+				<td> Should be 0 (no) for solid-state disks,
+					but some do not correctly report
+					their status to the kernel.
+					<br />
+					<strong>If incorrectly set to 1 for
+						an SSD, set it to 0 to disable
+						unneeded scheduler logic meant
+						to reduce number of seeks.</strong>
+				</td>
+			</tr>
+
+		</table>
+
+		</section>
+		<section>
+		<h3> Automatically Tuning the Schedulers </h3>
+
+		<p>
+		Sysfs is an in-memory file system, everything goes back
+		to the defaults at the next boot.
+		You could add settings to <code>/etc/rc.d/rc.local</code>:
+		</p>
+
+		<pre>
+... preceding lines omitted ...
+
+## Added for disk tuning this read-heavy interactive system
+for DISK in sda sdb sdc sdd
+do
+	# Select deadline scheduler first
+	echo deadline &gt; /sys/block/${DISK}/queue/scheduler
+	# Now set deadline scheduler parameters
+	echo 100 &gt; /sys/block/${DISK}/queue/iosched/read_expire
+	echo 4 &gt; /sys/block/${DISK}/queue/iosched/writes_starved
+done </pre>
+
+
+		</section>
+		<section>
+		<h2> Tune Virtual Memory Management to Improve I/O Performance </h2>
+
+		<p>
+		This work is done in Procfs, under <code>/proc</code>
+		and specifically in <code>/proc/sys/vm/*</code>.
+		You can experiment interactively with <code>echo</code>
+		and <code>sysctl</code>.
+		When you have decided on a set of tuning parameters,
+		create a new file named <code>/etc/sysctl.d/</code>
+		and enter your settings there.
+		Leave the file <code>/etc/sysctl.conf</code> with the
+		distribution's defaults, files you add overwrite those
+		changes.
+		</p>
+		<p>
+		The new file must be named <code>*.conf</code>, the
+		recommendation is that its name be two digits, a dash,
+		a name, and then the required <code>.conf</code>.
+		So, something like:
+		</p>
+
+		<pre>
+# ls /etc/sysctl*
+/etc/sysctl.conf
+
+/etc/sysctl.d:
+01-diskIO.conf  02-netIO.conf
+		
+# cat /etc/sysctl.d/01-diskIO.conf
+vm.dirty_ratio = 6
+vm.dirty_background_ratio = 3
+vm.vfs_cache_pressure = 50 </pre>
+
+		<p>
+		Now, for the virtual memory data structures we might
+		constructively manipulate:
+		</p>
+
+		<table class="bordered">
+			<tr class="centered">
+				<td> <strong> Attribute </strong> </td>
+				<td> <strong> Meaning and suggested tuning </strong> </td>
+			</tr>
+
+			<tr>
+				<td> <code> dirty_ratio </code> </td>
+				<td> "Dirty" memory is that waiting to be
+					written to disk.
+					<code>dirty_ratio</code> is the number
+					of memory pages at which a <em>process</em>
+					will start writing out dirty data,
+					expressed as a percentage out of the
+					total free and reclaimable pages.
+					A default of 20 is reasonable.
+					<strong>Increase to 40 to improve
+						throughput, decrease it to
+						5 to 10 to improve latency,
+						even lower on systems with
+						a lot of memory.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code> dirty_background_ratio </code> </td>
+				<td> Similar, but this is the number
+					of memory pages at which the
+					<em>kernel background flusher thread</em>
+					will start writing out dirty data,
+					expressed as a percentage out of the
+					total free and reclaimable pages.
+					Set this lower than <code>dirty_ratio</code>,
+					<code>dirty_ratio</code>/2 makes sense
+					and is what the kernel does by default.
+					<a href="https://sites.google.com/site/sumeetsingh993/home/experiments/dirty-ratio-and-dirty-background-ratio">
+						This page</a>
+					shows that <code>dirty_ratio</code>
+					has the greater effect.
+					Tune <code>dirty_ratio</code> for
+					performance, then set
+					<code>dirty_background_ratio</code>
+					to half that value.
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code> overcommit_memory </code> </td>
+				<td> Allows for poorly designed programs which
+					<code>malloc()</code> huge amounts of
+					memory "just in case" but never really
+					use it.
+					<strong>Set this to 0 (disabled) unless
+						you really need it.</strong>
+				</td>
+			</tr>
+
+			<tr>
+				<td> <code> vfs_cache_pressure </code> </td>
+				<td> This sets the "pressure" or the importance
+					the kernel places upon reclaiming
+					memory used for caching directory
+					and inode objects.
+					The default of 100 or relative "fair"
+					is appropriate for compute servers.
+					<strong>Set to lower than 100 for file
+						servers on which the cache
+						should be a priority.
+						Set higher, maybe 500 to 1000,
+						for interactive systems.</strong>
+				</td>
+			</tr>
+
+		</table>
+
+		<div class="fr responsive-rectangle" style="padding: 0; z-index: 101; position: relative;">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle responsive-rectangle"
+	style="display:inline-block;"
+	data-ad-client="ca-pub-5845932372655417"
+	data-ad-slot="3269907407"></ins>
+<script>
+	(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+		<p>
+		There is further information in the
+		<a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Performance_Tuning_Guide/index.html">
+			Red Hat Enterprise Linux
+			Performance Tuning Guide</a>.
+		</p>
+
+		<p>
+		Also see
+		<a href="https://www.kernel.org/doc/Documentation/sysctl/vm.txt">
+			<code>/usr/src/linux/Documentation/sysctl/vm.txt</code></a>.
+		</p>
+
+
+		</section>
+		<section>
+		<h2 id="benchmark"> Measuring Disk I/O </h2>
+
+		<p>
+		Once you have selected and created file systems as
+		discussed in
+		<a href="file-systems.html">the next page</a>,
+		you can have a choice of tools for testing file system I/O.
+		</p>
+		<p>
+		<a href="http://www.textuality.com/bonnie/" class="btn btn-info">
+			Bonnie</a>
+		<a href="http://www.coker.com.au/bonnie++/" class="btn btn-info">
+			Bonnie++</a>
+		<a href="http://www.iozone.org/" class="btn btn-info">
+			IOzone benchmark</a>
+		<a href="http://www.spec.org/sfs2014/" class="btn btn-info">
+			SPEC SFS 2014</a>
+		</p>
+
+		</section>
+		<section>
+		<h2> And next... </h2>
+
+		<p>
+		<strong>The next step is to select appropriate
+			<a href="file-systems.html">file systems</a>
+			and their creation and use options.</strong>
+		</p>
+
+		</section>
+
+		<nav>
+		<div class="row centered">
+
+			<div class="col-xs-12 col-sm-4">
+			<a href="hardware.html" class="btn btn-lg btn-primary btn-block">
+				<strong>RAM and disk storage</strong><br />
+				RAM I/O speeds,
+				disk controllers and interfaces,
+				rotating versus solid-state disks,
+				performance versus power saving</a>
+			</div>
+
+			<div class="col-xs-12 col-sm-4">
+			<a href="disks.html" class="btn btn-lg btn-primary btn-block">
+				<strong>Disk I/O</strong><br />
+				Elevator sorting algorithms,
+				tuning the scheduler,
+				disk memory management,
+				measuring disk I/O
+				</a>
+			</div>
+
+			<div class="col-xs-12 col-sm-4">
+			<a href="file-systems.html" class="btn btn-lg btn-success btn-block">
+				<strong>Next:</strong>
+				<strong>File Systems</strong><br />
+				Use multiple file systems,
+				choose a file system type,
+				create file systems,
+				limit fragmentation,
+				mount options,
+				journaling modes
+				</a>
+			</div>
+
+			<div class="clearfix visible-sm visible-md visible-lg"></div>
+
+			<div class="col-xs-12 col-sm-5">
+			<a href="ethernet.html" class="btn btn-lg btn-info btn-block">
+				<strong>Ethernet options</strong><br />
+				Capacity planning,
+				measuring utilization,
+				enabling jumbo frames,
+				driver tuning with <code>ethtool</code>,
+				protocol offload,
+				kernel parameters for queue length
+				</a>
+			</div>
+
+			<div class="col-xs-12 col-sm-3">
+			<a href="tcp.html" class="btn btn-lg btn-info btn-block">
+				<strong>TCP tuning</strong><br />
+				Memory management,
+				TCP options,
+				initial window sizes
+				</a>
+			</div>
+
+			<div class="col-xs-12 col-sm-4">
+			<a href="nfs.html" class="btn btn-lg btn-info btn-block">
+				<strong>NFS tuning</strong><br />
+				NFS versions,
+				performance goals,
+				client options,
+				server options
+				server daemon threads,
+				RDMA,
+				security issues
+				</a>
+			</div>
+
+			<div class="clearfix visible-sm visible-md visible-lg"></div>
+
+			<div class="col-xs-12 col-sm-6">
+			<a href="applications.html" class="btn btn-lg btn-info btn-block">
+				<strong>Measuring and Tuning Applications</strong>
+				</a>
+			</div>
+
+			<div class="col-xs-12 col-sm-6">
+			<a href="measurements.html" class="btn btn-lg btn-info btn-block">
+				<strong>Taking Meaningful Measurements</strong>
+				</a>
+			</div>
+
+			<div class="col-xs-12">
+			<a href="/linux/performance-tuning/" class="btn btn-info btn-block">
+				<strong>Back to the introduction</strong>
+				</a>
+			</div>
+
+		</div>
+		</nav>
+
+		<a href="/linux" class="btn btn-info btn-lg">
+			To the Linux / Unix Page</a>
+
+		<footer>
+<nav class="cb centered">
+<hr style="margin-bottom: 2px; padding-bottom: 0px;" />
+<div class="centered">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+	style="display:block"
+	data-ad-client="ca-pub-5845932372655417"
+	data-ad-slot="9123376601"
+	data-ad-format="autorelaxed"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+<script type="text/javascript">
+amzn_assoc_placement = "adunit0";
+amzn_assoc_enable_interest_ads = "true";
+amzn_assoc_tracking_id = "cromwelintern-20";
+amzn_assoc_ad_mode = "auto";
+amzn_assoc_ad_type = "smart";
+amzn_assoc_marketplace = "amazon";
+amzn_assoc_region = "US";
+amzn_assoc_linkid = "3a150c24993489c4ae1e28dd4879ccc1";
+</script>
+<script src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US"></script>
+
+<!-- Amazon Tap -->
+<div class="centered">  
+<script type='text/javascript'>
+ amzn_assoc_ad_type = 'banner';
+ amzn_assoc_tracking_id = 'cromwelintern-20';
+ amzn_assoc_marketplace = 'amazon';
+ amzn_assoc_region = 'US';
+ amzn_assoc_placement = 'assoc_banner_placement_default';
+ amzn_assoc_linkid = '32KLLWTOS6X3YZDQ';
+ amzn_assoc_campaigns = 'amzn_tap_launch';
+ amzn_assoc_banner_type = 'category';
+ amzn_assoc_isresponsive = 'true';
+</script>
+<script src='//z-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&Operation=GetScript&ID=OneJS&WS=1'></script>
+</div>
+
+<div class="row centered" style="margin-top:1px; padding-top:0; margin-bottom: 2px;">
+	<div class="col-xs-6 col-sm-3 col-md-1">
+	<a href="/" class="btn btn-info btn-sm btn-block">
+		Home</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-2">
+	<a href="/travel/" class="btn btn-info btn-sm btn-block">
+		Travel</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-2">
+	<a href="/linux/" class="btn btn-info btn-sm btn-block">
+		Linux/Unix</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-2">
+	<a href="/cybersecurity/" class="btn btn-info btn-sm btn-block">
+		Cybersecurity</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-2">
+	<a href="/networking/" class="btn btn-info btn-sm btn-block">
+		Networking</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-1">
+	<a href="/technical/" class="btn btn-info btn-sm btn-block">
+		Technical</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-1">
+	<a href="/radio/" class="btn btn-info btn-sm btn-block">
+		Radio</a>
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-1">
+	<a href="/site-map.html" class="btn btn-info btn-sm btn-block">
+		Site Map</a>
+	</div>
+</div>
+
+<!--
+<div style="float: left; margin-right: 5px;">
+-->
+
+<!-- facebook button -->
+<!--
+<div class="fb-like" data-href="www.cromwell-intl.com/linux/performance-tuning/disks.html" data-layout="button" data-action="like" data-show-faces="false" data-share="true" data-colorscheme="light" style="margin-bottom:5px;"></div><br />
+-->
+<!-- twitter button -->
+<!--
+<a href="https://twitter.com/share" class="twitter-share-button" data-lang="en" data-count="none" style="margin-top:3px;">Tweet</a>
+-->
+<!-- linked in button
+<script async src="//platform.linkedin.com/in.js" type="text/javascript"> </script> <script type="IN/Share"> </script>
+-->
+
+<!-- google+ button -->
+<!--
+<div class="g-plusone" data-size="medium" data-annotation="none"></div>
+<sup><a href="https://plus.google.com/115430095140332257519?rel=author" rel="publisher" style="font-size:8pt;">Google+</a></sup>
+<a href="https://plus.google.com/115430095140332257519" rel="publisher"></a>
+-->
+
+<!-- pinterest button
+<a href="https://www.pinterest.com/pin/create/button/" data-pin-do="buttonBookmark" ><img src="http://assets.pinterest.com/images/pidgets/pin_it_button.png" alt="Pinterest" /></a>
+-->
+<!-- reddit button -->
+<!--
+<a href="https://www.reddit.com/login?dest=https%3A%2F%2Fwww.reddit.com%2Fsubmit" onclick="window.location = 'https://www.reddit.com/login?dest=https%3A%2F%2Fwww.reddit.com%2Fsubmit' + encodeURIComponent(window.location); return false"> <img src="https://www.reddit.com/static/spreddit6.gif" alt="submit to reddit" /> </a>
+</div>
+-->
+
+<div class="fr hidden-xs">
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+<img src="/ssi/valid-css.png"
+	alt="Valid CSS.  Validate it here."
+	style="padding: 8px 0 0 0; margin: 0;" /></a>
+</div>
+<div class="fr hidden-xs">
+<!--
+<a href="http://validator.w3.org/check?uri=referer&amp;ss=1">
+-->
+<a href="http://validator.w3.org/nu/?showsource=yes&amp;doc=http://cromwell-intl.com/linux/performance-tuning/disks.html"><img src="/ssi/html5-badge-h-css3-semantics.png"
+	alt="Valid HTML 5.  Validate it here."
+	style="padding: 0; margin: 0;" /></a>
+</div>
+<div class="fr hidden-xs">
+<a href="http://www.unicode.org/">
+<img src="/ssi/unicode.png"
+	alt="Valid Unicode."
+	style="padding: 8px 0 0 0; margin: 0;" /></a>
+</div>
+
+<aside>
+<p style="float: right; margin-left: 5px; font-size: 80%; text-align: right;">Viewport size:<br />
+<span id="w"></span>
+<span id="h"></span>
+<script>
+	(function() {
+		if (typeof(document.documentElement.clientWidth) != 'undefined') {
+			var $w = document.getElementById('w'),
+			$h = document.getElementById('h'),
+			$ua = document.getElementById('ua');
+			$w.innerHTML = document.documentElement.clientWidth;
+			$h.innerHTML = ' &times; ' + document.documentElement.clientHeight;
+			window.onresize = function(event) {
+				$w.innerHTML = document.documentElement.clientWidth;
+				$h.innerHTML = ' &times; ' + document.documentElement.clientHeight;
+			};
+			$ua.innerHTML = navigator.userAgent;
+	}
+	})();
+</script>
+</aside>
+
+<p style="clear:right; font-size:90%; text-align:center;">
+&#x00a9; by
+<a href="/contact.html">Bob Cromwell</a>
+Feb 2017. Created with
+<a href="http://thomer.com/vi/vi.html"><code>vim</code></a>
+and
+<a href="http://www.imagemagick.org/">ImageMagick</a>,
+hosted on
+<a href="http://www.openbsd.org/">OpenBSD</a>
+with
+<a href="http://httpd.apache.org/">Apache</a>.
+<br />
+Root password available
+<a href="/cybersecurity/root-password.html">here</a>,
+privacy policy <a href="/cybersecurity/privacy-policy.html">here</a>,
+contact info <a href="/contact.html">here</a>.
+</p>
+
+</nav>
+
+
+</footer>
+</article>
+
+<!-- Javascript block needed for Google Analytics -->
+<script>
+ (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+ })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-54088886-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+<!-- moved to footer and async load for speed -->
+<script async src="/js/modernizr.min.js"></script>
+<script async src="/js/jquery.min.js"></script>
+<script async src="/js/bootstrap.min.js"></script>
+
+<!-- social media button support -->
+<!-- twitter support -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<!-- facebook support -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "http://connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- google +1 -->
+<script type="text/javascript">
+   window.___gcfg = { lang: 'en-US' };
+   (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })(); </script>
+<!-- pinterest -->
+<!--
+<script type="text/javascript">
+(function(d){
+  var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');
+  p.type = 'text/javascript';
+  p.async = true;
+  p.src = '//assets.pinterest.com/js/pinit.js';
+  f.parentNode.insertBefore(p, f);
+}(document));
+</script>
+-->
+
+	</body>
+</html>
