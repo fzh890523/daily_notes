@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><script type="text/javascript" charset="gbk" id="tanx-s-mm_10010445_2281291_9250865" async="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/ex.js"></script><meta charset="utf-8"><title>磁盘写导致IO wait飙升的问题深入排查</title><meta name="keywords" content=""><meta name="description" content="遇到了一个因在线数据传输引发了大量IOwait的问题，觉得非常有意义，对于运维同学来说也算是经常遇到的问题，因此发上来供大家参考下。问题总体描述：1、检索服务Q…，本作文被阅读：103次。"><link href="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/home.css" rel="stylesheet" type="text/css"><link rel="alternate" media="only screen and(max-width: 640px)" href="http://3g.sanwen.net/a/tfxhvoo.html"><style>.wrapper{width:1050px;}
+#main{width:700px;}
+#sidebar{width:336px;}
+.content img{max-width:100%;}
+</style><script type="text/javascript" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/common.js"></script><link href="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/bdsstyle.css" rel="stylesheet" type="text/css"><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/logger.js"></script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/like.js"></script><link href="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/like.css" rel="stylesheet" type="text/css"></head><body><div><iframe id="bdshareboxIfr" style="position:absolute;display:none;z-index:10000;" frameborder="0"></iframe><div id="bdlike_sharebox" class="bdsharebox" style="display:none;"><div class="bdsharebox-inner"><h4>分享到</h4><ul><li><a href="###" class="bds_mshare">一键分享</a></li><li><a href="###" class="bds_baidu">百度搜藏</a></li><li><a href="###" class="bds_bdxc">百度相册</a></li><li><a href="###" class="bds_kaixin001">开心网</a></li><li><a href="###" class="bds_tqf">腾讯朋友</a></li><li><a href="###" class="bds_tieba">百度贴吧</a></li><li><a href="###" class="bds_douban">豆瓣网</a></li><li><a href="###" class="bds_tsohu">搜狐微博</a></li><li><a href="###" class="bds_bdhome">百度新首页</a></li><li><a href="###" class="bds_sqq">QQ好友</a></li><li><a href="###" class="bds_thx">和讯微博</a></li><li><a href="###" class="bds_qq">QQ收藏</a></li><li><a href="###" class="bds_taobao">我的淘宝</a></li><li><a href="###" class="bds_hi">百度空间</a></li><li><a href="###" class="bds_msn">MSN</a></li><li><a href="###" class="bds_sohu">搜狐白社会</a></li><li><a href="###" class="bds_qy">奇艺奇谈</a></li><li><a href="###" class="bds_meilishuo">美丽说</a></li><li><a href="###" class="bds_mogujie">蘑菇街</a></li><li><a href="###" class="bds_diandian">点点网</a></li><li><a href="###" class="bds_huaban">花瓣</a></li><li><a href="###" class="bds_leho">爱乐活</a></li><li><a href="###" class="bds_share189">手机快传</a></li><li><a href="###" class="bds_duitang">堆糖</a></li><li><a href="###" class="bds_hx">和讯</a></li><li><a href="###" class="bds_tfh">凤凰微博</a></li><li><a href="###" class="bds_fx">飞信</a></li><li><a href="###" class="bds_youdao">有道云笔记</a></li><li><a href="###" class="bds_sdo">麦库记事</a></li><li><a href="###" class="bds_qingbiji">轻笔记</a></li><li><a href="###" class="bds_ifeng">凤凰快博</a></li><li><a href="###" class="bds_people">人民微博</a></li><li><a href="###" class="bds_xinhua">新华微博</a></li><li><a href="###" class="bds_ff">饭否</a></li><li><a href="###" class="bds_mail">邮件分享</a></li><li><a href="###" class="bds_kanshou">搜狐随身看</a></li><li><a href="###" class="bds_yaolan">摇篮空间</a></li><li><a href="###" class="bds_wealink">若邻网</a></li><li><a href="###" class="bds_tuita">推他</a></li><li><a href="###" class="bds_xg">鲜果</a></li><li><a href="###" class="bds_ty">天涯社区</a></li><li><a href="###" class="bds_fbook">Facebook</a></li><li><a href="###" class="bds_twi">Twitter</a></li><li><a href="###" class="bds_ms">Myspace</a></li><li><a href="###" class="bds_deli">delicious</a></li><li><a href="###" class="bds_s51">51游戏社区</a></li><li><a href="###" class="bds_s139">139说客</a></li><li><a href="###" class="bds_linkedin">linkedin</a></li><li><a href="###" class="bds_copy">复制网址</a></li><li><a href="###" class="bds_print">打印</a></li></ul><p><a target="_blank" href="http://share.baidu.com/">百度分享</a></p></div></div></div><iframe style="display: none;" frameborder="0"></iframe><div id="bdshare_s" style="display: block;"><iframe id="bdsIfr" style="position:absolute;display:none;z-index:9999;" frameborder="0"></iframe><div id="bdshare_l" style="display: none;"><div id="bdshare_l_c"><h6>分享到</h6><ul><li><a href="#" class="bds_mshare mshare">一键分享</a></li><li><a href="#" class="bds_qzone qqkj">QQ空间</a></li><li><a href="#" class="bds_tsina xlwb">新浪微博</a></li><li><a href="#" class="bds_bdysc bdysc">百度云收藏</a></li><li><a href="#" class="bds_renren rrw">人人网</a></li><li><a href="#" class="bds_tqq txwb">腾讯微博</a></li><li><a href="#" class="bds_bdxc bdxc">百度相册</a></li><li><a href="#" class="bds_kaixin001 kxw">开心网</a></li><li><a href="#" class="bds_tqf txpy">腾讯朋友</a></li><li><a href="#" class="bds_tieba bdtb">百度贴吧</a></li><li><a href="#" class="bds_douban db">豆瓣网</a></li><li><a href="#" class="bds_tsohu shwb">搜狐微博</a></li><li><a href="#" class="bds_bdhome bdhome">百度新首页</a></li><li><a href="#" class="bds_sqq sqq">QQ好友</a></li><li><a href="#" class="bds_thx thx">和讯微博</a></li><li><a href="#" class="bds_more">更多...</a></li></ul><p><a href="#" class="goWebsite">百度分享</a></p></div></div></div><div class="wrapper"><div id="header"><div class="logo"><a href="http://sanwen.net/" title="名博馆"><img src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/xlogo.png"></a></div><div class="search"><form action="/dosearch" method="post" target="_blank"><input name="keyword" class="search-keyword"><input class="search-button" value="搜作文" type="submit"></form></div><div class="menu"><span style="float:right;"><a href="http://www.sanwen.net/sanwen/duanwujie/">端午节散文</a><a href="http://www.sanwen.net/shige/duanwujie/">诗歌</a></span><a href="http://www.sanwen.net/">散文网主站</a><a href="http://www.sanwen.net/sanwen/">散文</a><a href="http://www.sanwen.net/shige/">诗歌</a><a href="http://www.sanwen.net/suibi/">随笔</a><a href="http://u.sanwen.net/">日记</a></div></div><div id="content"><div id="main"><div id="article"><div class="path"><a href="http://b.sanwen.net/">名博馆</a><em>&gt;</em><a href="http://sanwen.net/mp/fiyvoo.html">java并发学习</a><em>&gt;</em>磁盘写导致IO wait飙升的问题深入排查</div><div class="title"><h1>磁盘写导致IO wait飙升的问题深入排查</h1></div><div class="info">2016-09-30 07:54<a href="http://sanwen.net/mp/fiyvoo.html">java并发学习</a> 推荐103次</div><div class="tags" style="text-align:center;"></div><div style="margin:10px auto;width:660px;"><script type="text/javascript">y('501374','660','250');</script><script type="text/javascript">var cpro_id='u501374';(window['cproStyleApi'] = window['cproStyleApi'] || {})[cpro_id]={at:'3',rsi0:'660',rsi1:'250',pat:'6',tn:'baiduCustNativeAD',rss1:'#FFFFFF',conBW:'1',adp:'1',ptt:'0'    ,titFF:'%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91',titFS:'14',rss2:'#000000',titSU:'0',ptbg:'90',piw:'0',pih:'0',ptp:'0'}</script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/c.js" type="text/javascript"></script>
+</div><div class="content" id="ac">
+<p style="text-align:center"><img src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_008.jpg" title="磁盘写导致IO wait飙升的问题深入排查" alt="磁盘写导致IO wait飙升的问题深入排查"></p>
+<p><span style="">遇到了一个因在线数据传输引发了大量IOwait的问题，觉得非常有意义，对于运维同学来说也算是经常遇到的问题，因此发上来供大家参考下。</span></p>
+<p><span style=""></span></p>
+<h1 style="">问题总体描述：</h1>
+<p><span style="">1、检索服务QP的全量数据（约130-170G）在线传输过程中（9点至10点），上游大面积遇到访问下游超时问题，表现为QP服务的latency飙高数倍。</span><br style=""><span style="">2、QP服务之前一直都是在线传输数据的，数据量有差别，但处于一个量级，之前却完全没有类似性能问题。</span><br style=""><span style="">3、即使是凌晨的数据传输，也同样有超时问题，只是因为流量小，问题不明显。</span><br style=""><br style=""><span style="">latency上涨的问题原因定位：</span><br style=""><span style="">本次latency上涨的原因是：写阻塞读</span><br style=""><span style="">具体描述：latency上涨 &lt;-- 服务线程等待IO &lt;-- 写阻塞读 &lt;-- 高读写并发 &lt;-- 大量数据传输（写） &lt;-- 服务持续有大量读请求</span><br style=""><br style=""><br style=""><span style="">待查明的问题总结：</span><br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>实时、平均的读io从哪里来？</p>
+</li><li>
+<p>为何并发读写会导致io等待飙升？</p>
+</li><li>
+<p>同样的数据传输方法，以前为什么没有性能问题？</p>
+</li></ul><h1 style=""><br style="box-sizing: border-box;">初遇问题，确定超时来源</h1>
+<p><span style="">QP每天有一次在线的全量数据传输，期间服务不下线，数据量约90-170G左右，用的是搜索这边的cscp链式传输工具。</span><br style=""><span style="">话说这天上午9点半左右，有反馈上游到QP到超时率达到了惊人的8%，经过排查，确定是由于全量推送延时，导致在上午高峰期时推送全量数据引发了超时。</span><br style=""><br style=""><span style="">全量推送已经跑很久了，高峰期也发过多次，一直没有超时的问题，不应该引起线上超时。</span><br style=""><img src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_005.png" style="" class="" data-type="png" data-ratio="0.4316546762589928" data-w="" height="307" width="712"><br style=""><span style="">可以看到传输过程中一直有超时，每分钟达到几万，非常严重。</span><br style=""></p>
+<blockquote style=""><h4 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 10px; margin-bottom: 10px; font-size: 18px;">初步排除问题</h4></blockquote><ol style="" class=" list-paddingleft-2"><li>
+<p>去年7月份，QP也同样遇到过超时问题（见上一次的分析，待插入链接），那一次的问题是由于日志同步写入，阻塞了服务线程导致超时，之后将日志改为异步写就解决了问题。<br style="box-sizing: border-box;">抱着这种心情，首先也从日志的方面查起，但很快就确定日志全部是异步写入，并不会阻塞服务的处理线程。<br style="box-sizing: border-box;">日志异步写入配置：<br style="box-sizing: border-box;"></p>
+<pre style=""><code class="hljs stylus" style="">alog<span class="hljs-selector-class" style="box-sizing: border-box;">.appender</span><span class="hljs-selector-class" style="box-sizing: border-box;">.rootAppender</span><span class="hljs-selector-class" style="box-sizing: border-box;">.async_flush</span>=true</code></pre>
+<p style="box-sizing: border-box; margin-bottom: 10px;">&nbsp;</p>
+</li><li>
+<p>QP之前增加了几个日志记录，那是不是异步的配置有问题或者其他什么导致了性能问题？<br style="box-sizing: border-box;">尝试将日志全部关掉并重启服务，发现写阻塞读的情况依旧，至此日志问题排除。</p>
+</li><li>
+<p>QP服务所在机器上有多个服务，包括了多个采集、分析的agent，proxy和一些日志分析的脚本等，为了避免其他程序或任务的影响，决定把QP服务之外的所有进程全部停掉再次尝试。<br style="box-sizing: border-box;">服务全部停止后的测试表明，性能问题没有丝毫变化，排除了其他服务的影响。</p>
+</li><li>
+<p>顺便将QP的流量全部摘掉，io读确实稳定为0。</p>
+</li></ol><blockquote style="">至此，已经确定问题和QP服务直接相关。</blockquote>
+<p><br style=""><span style="">进一步观察QP服务在异常时的性能表现，发现如下线索：</span><br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>在未传输时QP服务的内存占用就比较大，大部分机器rss占用在110G左右，而QP机器也就128G内存。</p>
+</li><li>
+<p>数据传输过程中，QP服务的内存波动很大，一般都是先上升，然后呈明显下降趋势。</p>
+</li><li>
+<p>数据加载过程中内存再次出现较大波动。</p>
+</li><li>
+<p>传输过程中的机器读写IO均处于高位，读IO比较平均，写IO有明显尖峰。</p>
+</li></ul>
+<p><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAgbQXXB7YzVLsklLpRR8bjR6gb8xdMmia0wzqDkxkiaUNibSbFebBYZ1Dw/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.3273381294964029" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_002.jpg" height="239" width="732"><br style=""><br style=""><span style="">由于数据传输会刷cache，且QP的数据加载用的MMAP_UNLOCK方式，内存不足时数据会换出，而被换出的数据如果再遇到query需要访问，就会重新读磁盘，从而产生读请求。</span><br style=""><span style="">根据以上线索结合理论分析，瞬间就觉得问题比较清楚了，一定是和内存变化密切相关。</span><br style=""><br style=""><span style="">就这样，通过现象和经验很快的就下了结论，断定问题的结论是QP因内存不足的内存换出 + 同时传输全量版本。</span><br style=""><span style="">回头来看，虽然结论是完全正确的，但不够具体，其中的结论完全基于理论推断，证据几乎没有，问题间的关联也没有想明白，细节可推敲的地方还很多。这些细节才是决定本次问题的关键。</span><br style=""><br style=""><br style=""></p>
+<h1 style="">问题推演，从流程上搞清楚整个过程</h1>
+<p><span style="">在自己推演的过程中，做了大量的复现测试，最终发现，只要在任何一台QP机器上做写操作就会稳定复现此问题，例如dd。</span><br style=""><br style=""><span style="">为了分析信息，用上了公司的tsar分析工具。tsar和vmstat、iostat比较接近，只不过做了信息整合，来看看服务异常情况下的性能表现：</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaApwXViahznWy3f5wbQBSfHA3NjuXSbgZvfNIAktARiaRkGNkLkoluzx6w/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.11510791366906475" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_013.jpg" height="80" width="690"><br style=""><span style="">通过tsar可以很清楚的看到，服务性能下降时，机器的读写都很大，同时await和svctm很高，说明此时读写都很繁忙，io的处理时间和等待时间均非常久了。而读写只要有一个下降，则整体性能立刻恢复。</span><br style=""><span style="">介绍下QP服务所在机器的硬件情况，这是A8机型，128G内存，SSD硬盘，通过和其他人的交流，了解到ssd有读写通道共享的问题，当写入很高时会阻塞读请求。</span><br style=""><br style=""><span style="">另外，既然推测起因是内存换出，那么磁盘写的时候，程序的内存变化也应该稳定。</span><br style=""><span style="">于是在dd数据写入的时候看了下程序占用物理内存的变化，果然，dd 40G的文件，程序内存稳定减少30G左右，有出入但符合预期。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAYH7KcZWtvbRgibpVibQyjYnMKnpibTkC6PecyiaC5SQAHVt1DK0xbZsibRQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.36510791366906475" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_002.png" height="249" width="682"><br style=""><br style=""><br style=""><span style="">到这时整个流程基本能说通了：</span><br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>因内存不足，数据传输写入磁盘时需要交换内存空间，之前cache的部分QP数据会被清出内存。</p>
+</li><li>
+<p>QP数据被清出内存后，这部分数据对应的query访问时，QP又需要重新从磁盘上读取这部分数据，从而产生读请求。</p>
+</li><li>
+<p>由于ssd的多通道共享问题，写请求过大时阻塞了读请求，从而服务线程需要等读io，此时服务线程对应的cpu处于iowait状态，而引发了latency上涨。</p>
+</li></ul>
+<p><br style=""><br style=""><span style="">总结，到这里看似问题已经查清楚了，但缺少验证过程，且还有几个问题没有解释清楚，经不起推敲：</span><br style=""></p>
+<ol style="" class=" list-paddingleft-2"><li>
+<p>QP是全内存服务，正常的检索服务的读请求应该是0，那么QP的持续读请求是怎么来的？</p>
+</li><li>
+<p>读请求的变化和内存的变化之间关联模糊，是否说明读请求和内存毫无关系？<br style="box-sizing: border-box;">例如有时free达到50G，而读请求没有丝毫变化，有时free已经减到1G一下，读请求也还是比较平稳。</p>
+</li><li>
+<p>全量分发一直存在，为何QP最近才出现这个性能问题？</p>
+</li><li>
+<p>写操作时首先刷cache，一定条件下刷回磁盘，也就是说真正的磁盘写操作并不是一直存在的，但为何超时情况却一直严重？</p>
+</li><li>
+<p>写请求具体为何会阻塞读请求？阻塞的程度？如何验证？应该怎么优化？</p>
+</li><li>
+<p>数据传输完成后，机器的free内存已经明显上涨，为何读请求完全没减少</p>
+</li></ol>
+<p><br style=""></p>
+<h1 style="">探索内存换出和读IO来源</h1>
+<p><span style="">结合以上几个问题，做了大量的实验摸索。</span><br style=""><br style=""><span style="">首先，既然读请求和内存关系不明朗，那如果数据全部载入内存，不就可以确定了么。因此打算尝试下数据全内存化。</span><br style=""><span style="">QP的全量总量为172G，但其中存在部分冷数据，于是找了一台192G内存的机器，专门用来做测试，应该是足够了。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAcbwsKeg86IX6xvqBSVWYt2J4H0tHeBA2eYof2Xx92ZoTGoatbHgTkg/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.09352517985611511" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_005.jpg" height="56" width="599"><br style=""></p>
+<blockquote style=""><h3 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 30px; margin-bottom: 10px; font-size: 24px; border-bottom-width: 1px; border-bottom-style: dashed; border-bottom-color: rgb(221, 221, 221);">测试1：流量回放测试</h3></blockquote>
+<p><span style="">测试的方案是启动服务后，用abench将流量回放压测5分钟，理论上可以覆盖到95%以上的请求了，这样，大多数需要被访问的数据都会在内存中。</span><br style=""><span style="">但是测试流量回放完之后，发现机器的mem free依然维持在60G高位，而rsecs却一直维持在5M（5K*1K）左右，非常高的数值。</span><br style=""><span style="">由于QP 172G数据中可能存在部分冷数据，因此QP实际占用了130G左右的内存认为也是合理的。而这种情况下竟然还有很稳定的读，那是否说明读请求和内存换出已经没什么关系了？</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAxzTMQ0q7TzMUHh1p8yNJU2U4a7WgzpQB61ibMaarPWGplboT1ve4p5w/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.3057553956834532" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640.png" height="216" width="705"><br style=""><span style="">测试发现，流量压测5分钟后，依然有非常稳定的大量读请求产生。而按照理论预估，5分钟可以覆盖到绝大部分常用数据，那么应该说大部分数据都已经加载在内存中了，即使有少量没有加载，对这些冷数据的加载应该也不会很频繁才对，也就是说读请求不应该持续很高。</span><br style=""><br style=""><span style="">这时候开始怀疑自己的结论，但还是做下本地的dd写入测试吧，方法就是本地直接dd写入。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAFOOnfnIR4qfCJLmC82Z7sXq5W6OhYzXn83ZGorNf37nRPevO0UbTfA/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.3597122302158273" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_012.jpg" height="252" width="702"><br style=""><span style="">如图，毫无疑问，依旧稳定复现了服务能力下降的问题，可以看到，本地dd写入时，由于刷page cache的缘故，free快速下降，wsecs飞速上涨，同时await处于极高的高位，测试失败。</span><br style=""><span style="">从这个测试结果看，似乎说明了读请求的产生和数据加载之间的关系不明确。（后面有对这个测试为何不生效的解释）</span><br style=""><br style=""><br style=""><span style="">这时候突发奇想，既然内存够，干脆就把所有QP数据都载入内存，再看下效果。</span><br style=""><br style=""></p>
+<blockquote style=""><h3 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 30px; margin-bottom: 10px; font-size: 24px; border-bottom-width: 1px; border-bottom-style: dashed; border-bottom-color: rgb(221, 221, 221);">测试2：所有数据载入内存的测试</h3></blockquote>
+<p><span style="">所有数据载入内存的方法很简单，直接挨个cat所有文件：</span><br style=""></p>
+<pre style=""><code class="hljs typescript" style=""><span class="hljs-keyword" style="box-sizing: border-box; color: rgb(249, 38, 114);">for</span> i <span class="hljs-keyword" style="box-sizing: border-box; color: rgb(249, 38, 114);">in</span> $(find -<span class="hljs-keyword" style="box-sizing: border-box; color: rgb(249, 38, 114);">type</span> f);<span class="hljs-keyword" style="box-sizing: border-box; color: rgb(249, 38, 114);">do</span> cat $i &gt;<span class="hljs-regexp" style="box-sizing: border-box; color: rgb(174, 129, 255);">/dev/</span><span class="hljs-literal" style="box-sizing: border-box; color: rgb(174, 129, 255);">null</span> ;done</code></pre>
+<p><br style=""><span style="">成功了！看资源显示，如下图，可以很明显看到，cache了170G内容，而读请求也稳定为0，和推测的一致，即读请求确实和本地数据文件的读取有关，也确实和内存不足有关。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAyYzTWlXPia854SicRsxjh06SUKBXV0BIefHF8EYmoIxDIzfOibfDGPmicA/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.3327338129496403" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_003.png" height="236" width="710"><br style=""><span style="">至此，问题的结论已经明确，即读请求确实来源于QP数据文件的重新读。</span><br style=""><br style=""><span style="">那么在这种情况下，如果继续做本地写操作，会不会还有读请求产生？</span><br style=""><span style="">从理论上来说，由于此时所有数据都cache在内存中了，如果直接写，会挤占部分内存，将会有数据被换出，因而重新会有读请求，但如果direct io去写，理论上没有数据会换出，也就不应该有读请求产生了。</span><br style=""><span style="">所以做2个测试，在数据全缓存的基础上，第一个用direct io方式直接写文件，第二个用cache io方式写文件。</span></p>
+<blockquote style=""><h4 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 10px; margin-bottom: 10px; font-size: 18px;">io测试1：direct io写文件，测试不刷cache的表现</h4></blockquote>
+<pre style=""><code class="hljs nix" style="">dd <span class="hljs-attr" style="box-sizing: border-box;">if=/dev/zero</span> <span class="hljs-attr" style="box-sizing: border-box;">of=./big_file</span> <span class="hljs-attr" style="box-sizing: border-box;">bs=100M</span> <span class="hljs-attr" style="box-sizing: border-box;">count=400</span> <span class="hljs-attr" style="box-sizing: border-box;">oflag=direct</span></code></pre>
+<p style="">&nbsp;<br style="box-sizing: border-box;"><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAvZ1kqGGRjezpqsIicsFqI9P1UEgsAwml7NOC1NhfQtib3wjjeyzWq9Ng/640?wx_fmt=png" style="box-sizing: border-box; border: 0px none; vertical-align: middle; display: inline;" class="" data-type="png" data-ratio="0.5881294964028777" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_004.jpg" height="418" width="711"></p>
+<p><span style="">结果符合预期，写文件期间，磁盘写入每秒高达400M左右（400K*1K），相应的写入await也非常高，而
+cache和free的数值完全没有变化， 读请求也是始终为0（前面出现了几十K的读请求，是本机增量任务用cache 
+io写导致的，数据量很小，可以忽略）。</span><br style=""><br style=""></p>
+<blockquote style=""><h4 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 10px; margin-bottom: 10px; font-size: 18px;">io测试2：第二个测试，采用cache io方式做本地写入测试</h4></blockquote>
+<pre style=""><code class="hljs nix" style="">dd <span class="hljs-attr" style="box-sizing: border-box;">if=/dev/zero</span> <span class="hljs-attr" style="box-sizing: border-box;">of=./big_file</span> <span class="hljs-attr" style="box-sizing: border-box;">bs=100M</span> <span class="hljs-attr" style="box-sizing: border-box;">count=300</span></code></pre>
+<p><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAoEU1oYUjGs6oEOcewxDVOWu6ibAusVib6eDjD4v2X8LAvKaG9TcSIEibQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.5467625899280576" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_003.jpg" height="393" width="718"><br style=""><span style="">如图，写入过程中free出现很大的波动，始终在内存不断减少 -&gt; 内存回收，内存变多 -&gt; 内存再变少之间徘徊，同时，写入量和上一个实验一样保持在400M，但读请求却飙升到了几十M的量级，符合预期。</span><br style=""><br style=""><span style="">总结：</span><br style=""><span style="">通过全内存读取的实验，和两种写入方式的测试，可以完全确定读请求和读文件有密切关系了。</span><br style=""><br style=""><br style=""><span style="">到这里结束了么？no！</span><br style=""><span style="">这样的实验仍然不够严谨，虽然通过多个实验证明了读请求和内存换出有关，但其实不能完全确定读的是什么数据，说不定读取的是其他文件，也不是不可能。</span><br style=""><span style="">也就是说，如果不能证明读取的就是QP数据，那么还是图样图森破。</span><br style=""><br style=""><br style=""><br style=""></p>
+<h1 style="">深入探究IO读的来源</h1>
+<p><span style="">回想一下，既然cache不足时读一直有，说明有对文件的读，用strace看系统调用应该能找到正在读取的文件信息，这样就可以确定是不是读取的QP业务数据了。</span><br style=""><span style="">一般正常的open文件，系统调用里面会有类似这样的语句：</span><br style=""><span style="box-sizing: border-box;  widows: 1; color: rgb(64, 0, 64); font-family: 新宋体; line-height: 24px; background-color: rgb(251, 252, 252);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; open("/home/admin/QP/data_center/current_version.txt",&nbsp;O_RDONLY)&nbsp;=&nbsp;3</span><br style=""></p>
+<blockquote style=""><h4 style="box-sizing: border-box; font-family: inherit; line-height: 1.1; color: inherit; margin-top: 10px; margin-bottom: 10px; font-size: 18px;">io测试3：用strace查看写入测试过程中的文件读系统调用，命令如下：</h4></blockquote>
+<pre style=""><code class="hljs bash" style="">strace <span class="hljs-_" style="box-sizing: border-box;">-f</span> <span class="hljs-_" style="box-sizing: border-box;">-e</span> trace=all -t -p 25072 -o ~/pedir/tmp/output -T</code></pre>
+<p style="">&nbsp;</p>
+<p><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAibRE8PPbKuHciboGqbSsHib3iayBpEGRhnucn26kiaKJJPEjCeOKUTicNeOQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.3920863309352518" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_014.jpg" height="308" width="787"><br style=""><span style="">不管是通篇看下来，还是grep了open，都未能发现比较明显的文件打开记录，如上图截取的一段内容。</span><br style=""><span style="">在proc下面排查了几个strace里面出现的fd，也全都是socket记录，看来都是正常的query读写。</span><br style=""><br style=""><span style="">这样，对于正在读取的文件排查陷入了可能是又无法证明的僵局。</span><br style=""><span style="">经过和身边一些同事的了解，以及在google查阅了相关资料，对mmap有了大概了解。</span><br style=""><span style="">我的总结：mmap是一种基于内核的内存和磁盘映射操作，说的直白点是用户进程空间和文件系统缓冲区的映射，比系统调用更底层，并且只在初始时有一次系统调用，后续的读写都是直接访问的内存，所以通过strace是看不出文件的重复读操作的。</span><br style=""><span style="">mmap的大致原理就是：&nbsp;&nbsp;</span><br style=""><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 进程地址空间 &lt;--&gt; 文件系统缓冲区 &lt;--&gt; 内核空间</span><br style=""><span style="">另外，mmap实际上仅仅是做了映射，并不涉及到文件的实际读取，因此文件的内容读取还是取决于后续的访问。</span><br style=""><br style=""><span style="">google了一张图，可以说清mmap这个内核空间和进程空间映射的过程，过程比想象的复杂，也印证了之前的结论，大家看一下即可。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAOn6xkGnM0ib1BX97D35ic8tkEphf86mXgK1uu9qscqBcoTlS2nHKoFAw/640?wx_fmt=jpeg" style="display: inline;" class="" data-type="jpeg" data-ratio="0.716566866267465" data-w="501" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_010.jpg" height="359" width="501"><br style=""><br style=""><br style=""><span style="">另外，QP这边还发现一个有趣的现象，可能和数据文件读取的点有关，仅作为思考。</span><br style=""><span style="">proc的进程fd下有很多句柄指向数据全路径，这个大家都知道，但在QP这边，发现这些特征：</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAYpoToXWZMWscvSxyMTpfLPrS7Lk8ZqybibljJOF21E8NroFWZgyFjXA/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.4370503597122302" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640.jpg" height="324" width="741"><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAAxgqML2ibZjsicngibia3dDl6mnhbln3ENBDqSgfAocAAqUDMlH0v06IUQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.34172661870503596" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_009.jpg" height="252" width="738"><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAJiciaB2CFwTvwWiclWn0XYvb4iaFR0bxK0R4t0XqVdSofslUI4XHsThEcg/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.13309352517985612" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_004.png" height="91" width="686"><br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>打开了非常多指向数据文件的fd。</p>
+</li><li>
+<p>每个fd的时间戳是会经常性更新的（不定时，触发条件未知），而对应的数据本身时间戳是根本没有更新的，如下图。<br style="box-sizing: border-box;">比如我截下面这个图的时间是4-26 10:09，而fd的时间戳则是1分钟之前，而对应的，服务重启时间是上午7点38分，实际文件的时间戳则是05:31。</p>
+</li><li>
+<p>通过文件的stat查看属性，发现ctime/mtime全都是同一时间，证明是新创建的，一般比如ctime的时间只有内容写入才会变化，对于软链来说，我认为是创建。</p>
+</li><li>
+<p>会有多个fd指向同一个文件的情况，创建时间也不同，比如最多的是26个fd指向同一个fd。</p>
+</li></ul>
+<p><br style=""><span style="">通过以上信息，我认为和文件的实时读取有一定关系，是否某文件被彻底清出cache后，当重新读取时，会重新创建fd？是否多线程读取文件时，会打开多个fd？不得而知。</span><br style=""><br style=""></p>
+<blockquote style="">总结：</blockquote>
+<p><span style="">通过系统调用无法证明读请求来源于QP的数据读取，但通过之前数据全加载就稳定没有读，以及通过mmap的系统原理可以解释通长时间平均读io的产生，再通过proc下fd的时间戳变化，我认为基本是可以证明实时读的内容就是QP的数据文件。</span><br style=""><br style=""><br style=""><br style=""></p>
+<h1 style="">写阻塞读的原因分析</h1>
+<p><span style="">上面提到了，写阻塞读的原因在于ssd的多通道共享，如果写把所有通道占满，则读请求需要排队等待。</span><br style=""><span style="">实际情况真的是这样么，怎么证明？</span><br style=""><br style="">通过和公司硬件组的同学交流，了解到如下信息：<br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>A8的ssd是intel的，8通道，8存储单元，8*N die，最大读写并发8-16。</p>
+</li><li>
+<p>只能通过读写的每秒字节数或iostat的utils指标来判断读写性能是否到瓶颈。</p>
+</li><li>
+<p>读写阻塞是很正常的，读写请求在ssd内部在3个地方会产生冲突，分别是：</p>
+</li><ul style="list-style-type: square;" class=" list-paddingleft-2"><li>
+<p>主控芯片</p>
+</li><li>
+<p>每一个通道</p>
+</li><li>
+<p>每一个die</p>
+</li></ul><li>
+<p>对于ssd来说，写是FTL层根据WL策略自主均衡，而读是不受控制的，所以很难确定读写冲突的可能性有多大。</p>
+</li><li>
+<p>对于高读写的应用，建议用2块ssd。</p>
+</li><li>
+<p>总体来说，同时读写量越大的，阻塞的可能性越大。</p>
+</li></ul>
+<p><br style=""><span style="">ssd的内部图大概情况就是这样。</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAgibsyvYtGusiaDuWalnRLGgfPpRfTcAuCO5gwyibBBW8YhRibCBh7wowAQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.7146017699115044" data-w="452" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_011.jpg" height="323" width="452"><br style=""><br style=""></p>
+<blockquote style="">数据传输过程整体ssd的读写状况：</blockquote><ul style="" class=" list-paddingleft-2"><li>
+<p>写，数据传输的实时写速率约40-80M/s；如果是dd，则实时写速率可以达到200M-300M/s。<br style="box-sizing: border-box;">由于有page cache的存在，这些请求并不会实时写硬件，符合一定条件才会刷回磁盘，受时间或剩余内存量2个指标影响。<br style="box-sizing: border-box;">这也是为什么，查看机器的写入量，会显示很平均的写入速率，而不是预期中的一段时间一次的写入量，我认为这里有可能只统计了写入vfs的量（实际写了cache），而不是真正写磁盘的量，可能有点误导，求证。<br style="box-sizing: border-box;"><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAdQK8x7jwrK2psTRw4CJNQqlia5Dkic0bibWvu4R6lLvJUFWNUv0KVUrMg/640?wx_fmt=png" style="box-sizing: border-box; border: 0px none; vertical-align: middle; display: inline;" class="" data-type="png" data-ratio="0.30120481927710846" data-w="498" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_007.jpg" height="156" width="519"></p>
+</li><li>
+<p>读，高峰期约20M/s的读请求量，量不算很严重，但考虑到如果有多线程的4k random读，iops就不好说了，毕竟这款ssd的4k iops上限才7w5</p>
+</li></ul><blockquote style="">再来看下应用层面读写状况：</blockquote><ul style="" class=" list-paddingleft-2"><li>
+<p>写，链式分发基本上还是单进程的，所以写入速度受限速影响，之前没有控制，大约在50M的速率。</p>
+</li><li>
+<p>读，QP的读请求在服务线程上，QP正常情况下约8-10个线程，而哪些线程会出现需要读磁盘的请求是未知的，可以认为1-10个线程的并发读请求。</p>
+</li></ul><blockquote style="">操作系统的读写策略：</blockquote><ul style="" class=" list-paddingleft-2"><li>
+<p>写操作，由于cache的存在，需要定期回写系统，受剩余内存或定期2个因素的影响：</p>
+</li><ul style="list-style-type: square;" class=" list-paddingleft-2"><li>
+<p>writeback策略，dirty_writeback_centisecs，QP机器上是5秒定期刷一次，如下图，很稳定。</p>
+</li><li>
+<p>剩余内存量，这点受linux回收的3套标准来的（min/low/high），简单说小于low就会触发pdflush回收page直至high，小于min就会在进程上下文中强制回收page。但目前数据对不上，这点暂时先忽略。</p>
+</li></ul><li>
+<p>读操作，操作系统的io调度策略主要有几种，noop，deadline，cfq等，一般都是cfq。<br style="box-sizing: border-box;">在机器上对多个调度算法做了测试，基本没有什么变化。</p>
+</li></ul>
+<p><br style=""><span style="">通过下图的iostat结果可以看到，每5秒稳定出现一波写入高峰，持续时间约1-2s，写入量约100-200M/s的量级。（小的毛刺是每5秒没写完的部分，以及中间可能的增量写影响）</span><br style=""><img data-original="http://w6.sanwen8.cn/mmbiz/uan3IH8dZHDcg82Nhu7mCh8THPaWPfiaAlhzIfduzfgiaJeqrqcrvEjPHV0WhPoY2RPooAkMcP6tUodzDQ3yrzJQ/640?wx_fmt=png" style="display: inline;" class="" data-type="png" data-ratio="0.5629496402877698" data-w="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/640_006.jpg" height="337" width="598"><br style=""></p>
+<blockquote style="">总结：</blockquote>
+<p><span style="">由于cache io，线上QP机器cache刷磁盘的频率是5s，而ssd的写延时高达3ms，因此每5s刷磁盘时，就会造成短时间内大量写阻塞读请求，导致这段时间的读超时严重。</span><br style=""><br style=""><br style=""></p>
+<h1 style="">整体回顾，详细原因总结</h1><ol style="" class=" list-paddingleft-2"><li>
+<p>QP服务数据量增长，内存逐渐开始不足，表现出来的是QP服务所能缓存的数据量越来越少，这是大背景。</p>
+</li><li>
+<p>每天全量数据传输过程中，QP服务实际cache的数据量不足60G，大部分之前在内存中的数据被drop。</p>
+</li><li>
+<p>由于QP的全量是在线传输，期间服务不下线，因此cache不足的结果，是服务线程内的非常大一部分query请求需要访问磁盘读取对应的数据块。而由于mmap的读取策略，这部分读是很平滑的，因而看上去就产生了大量且平均的读请求。</p>
+</li><li>
+<p>在线数据传输并未做限速（约50M/s），这部分数据量会全部写入page cache，并按照一定条件刷回磁盘，QP机器的刷磁盘频率是5秒，因此导致每5s就有出现一次较大的写入量，这样，就相当于出现了高读写的并发请求。</p>
+</li><li>
+<p>这样，大量的读写请求碰撞在一起，需要同时对磁盘做操作。而由于ssd的读写队列共享问题，读写请求在3处需要同时排队，同时写的平均延时比读慢非常多（3ms），因此写阻塞读更为严重，大量读请求在排队。</p>
+</li><li>
+<p>服务线程的读请求被阻塞，query请求自然超时，且服务线程对应的cpu全部处于iowait状态，不可复用，因此表现出来就是单位时间内的idle狂降，query请求严重超时，最终影响到了前端整体请求的失败率。</p>
+</li></ol>
+<p><br style=""><br style=""></p>
+<h1 style="">之前的疑点解惑</h1>
+<p><span style="">回过头来，解释下开始提到的几个主要疑点：</span><br style=""></p>
+<ol style="" class=" list-paddingleft-2"><li>
+<p>当初做流量回放压测的时候，为何5分钟的流量压测后，依旧有大量持续的io读？<br style="box-sizing: border-box;">这
+ 是因为mmap过程仅仅做了映射，并没有读取任何数据，因此当有query需要读取数据时，应用程序会将对应的block读入page 
+cache，也仅仅只是部分block，因此要读入整个文件可能需要大量不重复的query，而我们压测的仅仅只有几分钟，其中可能还存在大量重复的 
+query，导致的结果可能是每个文件都读入了一小部分block（从压测时进程对应的所有fd同时更新时间戳可以验证），因此后续query仍然需要读
+ 数据，因此造成了持续的io读。<br style="box-sizing: border-box;">这也说明了为何流量压测不行，而所有数据cat就没有这个问题，因为已经全在内存中了。</p>
+</li><li>
+<p>全量分发一直存在，为何QP最近才出现这个性能问题？</p>
+</li><ol style="list-style-type: lower-alpha;" class=" list-paddingleft-2"><li>
+<p>关键因素是近段时间QP数据占用的内存量上涨明显。<br style="box-sizing: border-box;">虽然没有明确数据，但我所知道的数据量就至少上涨超过30G。由于QP的内存没有mlock可重复利用，因此对于内存的变化一直不太敏感，导致数据量上涨后可cache的数据量减少，需要请求磁盘的数量增加。<br style="box-sizing: border-box;">而由于QP的大数据分发一般都发生在凌晨，虽然有超时但都非常少，因此也一直没引起重视。</p>
+</li><li>
+<p>ssd自身性能变差。<br style="box-sizing: border-box;">这点没有足够的证据证明，但由于这批A8机器使用时间很长，且相比去年已经过去快1年，io性能变差也是理所当然的。</p>
+</li></ol><li>
+<p>写请求具体为何会阻塞读请求？如何验证？<br style="box-sizing: border-box;">上面已经详细解答。<br style="box-sizing: border-box;"><br style="box-sizing: border-box;"></p>
+</li></ol>
+<p><br style=""><br style=""></p>
+<h1 style="">解决方案</h1>
+<p><span style="">知道了所有原因，优化方案就很简单了：</span><br style=""></p>
+<ol style="" class=" list-paddingleft-2"><li>
+<p><span style="box-sizing: border-box; font-size: 14px;"><span style="box-sizing: border-box; font-weight: 700;">减少读IO。</span></span></p>
+</li><ol style="list-style-type: lower-alpha;" class=" list-paddingleft-2"><li>
+<p>数据写操作采用direct io，不刷cache，完全没有读io。</p>
+</li><li>
+<p>数据传输设置cache limit，比如500M，这样cache写到500M就会flush回磁盘，可以有效减少读io，避免对磁盘过多的写，同时也能减少内存被挤占的可能。</p>
+</li><li>
+<p>限速，限速不能解决问题，但可以缓解读写并存时的io延时问题，对io wait帮助不小。<br style="box-sizing: border-box;">以链式传输的DP2举例，代码如下：<br style="box-sizing: border-box;"></p>
+<pre style=""><code class="hljs autohotkey" style=""><span class="hljs-symbol" style="box-sizing: border-box; color: rgb(249, 38, 114);">void TableDeployItem::</span>GenerateDeployDataOption(DataOption &amp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>) {
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.retryCountLimit = deploy_config_.retry_count_limit_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span>
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.blockSize = deploy_config_.block_size_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span>
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.checkData = deploy_config_.check_data_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span>
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.useDirectIo = deploy_config_.use_direct_io_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span>
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.pageCacheLimit = deploy_config_.page_cache_limit_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span>
+ &nbsp; &nbsp;dat<span class="hljs-built_in" style="box-sizing: border-box; color: rgb(230, 219, 116);">a_option</span>.syncSizeLimit = deploy_config_.sync_size_limit_<span class="hljs-comment" style="box-sizing: border-box; color: rgb(117, 113, 94);">;</span></code></pre>
+<p>再比如dd也有类似oflag=direct的方式实现direct io。<br style="box-sizing: border-box;">但是比如scp或自己写的一些工具就没有这个功能了。</p>
+</li><li>
+<p>内存相关回收参数的调整，我分析了一下，效果不大，因此没列。</p>
+</li></ol><li>
+<p><span style="box-sizing: border-box; font-weight: 700;"><span style="box-sizing: border-box; font-size: 14px;">数据大小优化</span>。</span><br style="box-sizing: border-box;">数据精简，理论上少于内存total就可以不用换出，但如果没有direct写磁盘的话还是会走cache，因此数据越小，换出的可能就越小，最终导致的iops自然也会小。</p>
+</li></ol>
+<p><br style=""></p>
+<h1 style="">仍留存的疑点</h1>
+<p><span style="">仍然有非常多的点没有查到底：</span><br style=""></p>
+<ul style="" class=" list-paddingleft-2"><li>
+<p>怎么判断mmap正在读取的是什么文件？</p>
+</li><li>
+<p>数据传输完成后，机器的free内存已经明显上涨，为何读请求完全没减少</p>
+</li><li>
+<p>数据传输过程中，机器经常会free到50G左右内存，但根据linux内存回收的策略（watermark[high]），是根本不需要回收到超过50G内存的(因为总共才128G)，何解？</p>
+</li></ul>
+<p><span style=""><br></span><br></p>
+<br>
+
+</div><div style="margin:10px auto;width:660px;"><script>y('1474451','660','350');</script><script type="text/javascript">var cpro_id='u1474451';(window['cproStyleApi'] = window['cproStyleApi'] || {})[cpro_id]={at:'3',rsi0:'660',rsi1:'350',pat:'6',tn:'baiduCustNativeAD',rss1:'#FFFFFF',conBW:'1',adp:'1',ptt:'0'    ,titFF:'%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91',titFS:'14',rss2:'#000000',titSU:'0',ptbg:'90',piw:'0',pih:'0',ptp:'0'}</script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/c.js" type="text/javascript"></script>
+</div><div class="docommend"><div class="bdlikebutton bdlikebutton-orange bdlikebutton-large bdlikebutton-large-orange" style="margin-left:auto;margin-right:auto;"><div class="bdlikebutton-inner"><span class="bdlikebutton-add">+1</span><div class="bdlikebutton-count">0</div><div class="bdlikebutton-text">该内容对我有帮助</div></div></div></div><!-- Baidu Button BEGIN --><div style="height:20px;line-height:15px;overflow:hidden;zoom:1;padding:10px 10px 15px;"><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare"><a class="bds_qzone" title="分享到QQ空间" href="#">QQ空间</a><a class="bds_tsina" title="分享到新浪微博" href="#">新浪微博</a><a class="bds_tqq" title="分享到腾讯微博" href="#">腾讯微博</a><a class="bds_renren" title="分享到人人网" href="#">人人网</a><a class="bds_t163" title="分享到网易微博" href="#">网易微博</a><span class="bds_more">更多</span><a class="shareCount" href="#" title="累计分享0次">0</a></div></div><!-- Baidu Button END --></div><!--article--><!--related--><div id="comment"><h2>java并发学习的的最新文章</h2><div class="articlelist"></div></div><!--comment--></div><!--main--><div id="sidebar"><div class="smod" style="overflow:hidden;zoom:1;padding:10px 0;"><a href="http://sanwen.net/mp/fiyvoo.html"><img src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/java_concurrent.jpg" alt="java并发学习" style="float:left;margin-right:5px;" width="130"></a><div style="padding:5px 0 0;"><a href="http://sanwen.net/mp/fiyvoo.html" style="color:red;font-size:20px;">java并发学习</a></div><div style="color:blue">公众号：java_concurrent</div><div style="font-size:12px;line-height:20px;padding:0 5px 0 0;">java学习，java并发编程研究，学习java高级编程开发，专注java技术交流分享，欢迎大家投稿，推荐好文章。</div></div><div style="margin-bottom:10px;"><script>g336280();</script><script async="" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/adsbygoogle.js"></script>
+<ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-1637650971853106" data-ad-slot="8518937716"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div><div class="smod"><h3>最新文章</h3><ul><li><a href="http://sanwen.net/a/eotrxqo.html">阿呗塔国际幼稚园全体员工一日流程培训</a></li><li><a href="http://sanwen.net/a/yotrxqo.html">能说出来的都不叫孤独</a></li><li><a href="http://sanwen.net/a/xotrxqo.html">拼了命熬过那段黑色岁月</a></li><li><a href="http://sanwen.net/a/kotrxqo.html">冬天这么冷  要喝一杯热糖水</a></li><li><a href="http://sanwen.net/a/rotrxqo.html">等我跨过星辰大海 等我走到你身边</a></li><li><a href="http://sanwen.net/a/hotrxqo.html">爱情经不起九九八十一难</a></li><li><a href="http://sanwen.net/a/gotrxqo.html">冬季单品 | 抓住冬天的尾巴，赶紧时髦起来</a></li><li><a href="http://sanwen.net/a/iotrxqo.html">购车月 | 成功破密你以为我会夸你？我还会拿钱奖你呢</a></li><li><a href="http://sanwen.net/a/wotrxqo.html">世上所有节日，都是大家聚一起的动力</a></li><li><a href="http://sanwen.net/a/qotrxqo.html">这个圣诞，你想怎么玩？</a></li></ul></div><div style="margin-bottom:15px;"><script type="text/javascript">y('1415198','336','280');</script><script type="text/javascript">var cpro_id='u1415198';(window['cproStyleApi'] = window['cproStyleApi'] || {})[cpro_id]={at:'3',rsi0:'336',rsi1:'280',pat:'6',tn:'baiduCustNativeAD',rss1:'#FFFFFF',conBW:'1',adp:'1',ptt:'0'    ,titFF:'%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91',titFS:'14',rss2:'#000000',titSU:'0',ptbg:'90',piw:'0',pih:'0',ptp:'0'}</script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/c.js" type="text/javascript"></script>
+</div><div class="smod"><h3>相关作者文章</h3><ul><li><a href="http://sanwen.net/a/vfxhvoo.html">jvm诊断工具jinfo、jstack 、jmap、jstat探究</a></li><li><a href="http://sanwen.net/a/tfxhvoo.html">磁盘写导致IO wait飙升的问题深入排查</a></li><li><a href="http://sanwen.net/a/sfxhvoo.html">一个jstack/jmap等不能用的case</a></li><li><a href="http://sanwen.net/a/pmuhkoo.html">grep 命令系列：如何在 Linux/UNIX 中使用 grep 命令</a></li><li><a href="http://sanwen.net/a/jdvpkoo.html">mac电脑iTerm免密登陆</a></li><li><a href="http://sanwen.net/a/jlgftbo.html">shell教程之-sed用法</a></li><li><a href="http://sanwen.net/a/elgftbo.html">数据库事务和Tair分布式锁线上问题排查</a></li></ul></div><div style="margin-bottom:10px;"><script type="text/javascript">        document.write('<a style="display:none!important" id="tanx-a-mm_10010445_2281291_9250865"></a>');
+        tanx_s = document.createElement("script");
+        tanx_s.type = "text/javascript";
+        tanx_s.charset = "gbk";
+        tanx_s.id = "tanx-s-mm_10010445_2281291_9250865";
+        tanx_s.async = true;
+        tanx_s.src = "//p.tanx.com/ex?i=mm_10010445_2281291_9250865";
+        tanx_h = document.getElementsByTagName("head")[0];
+        if(tanx_h)tanx_h.insertBefore(tanx_s,tanx_h.firstChild);
+</script><a style="display:none!important" id="tanx-a-mm_10010445_2281291_9250865"></a></div><div class="smod"><h3>对这篇文章不满意？</h3><ul class="article_list"><li>您可以继续搜索：</li><li>百度：<a href="https://www.baidu.com/s?wd=%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5" target="_blank" rel="nofollow">磁盘写导致IO wait飙升的问题深入排查</a></li><li>搜狗：<a href="http://www.sogou.com/web?query=%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5" target="_blank" rel="nofollow">磁盘写导致IO wait飙升的问题深入排查</a></li></ul></div><!--smod--><div><script type="text/javascript">y('1708737','336','280');</script><script type="text/javascript">var cpro_id='u1708737';(window['cproStyleApi'] = window['cproStyleApi'] || {})[cpro_id]={at:'3',rsi0:'336',rsi1:'280',pat:'6',tn:'baiduCustNativeAD',rss1:'#FFFFFF',conBW:'1',adp:'1',ptt:'0'    ,titFF:'%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91',titFS:'14',rss2:'#000000',titSU:'0',ptbg:'90',piw:'0',pih:'0',ptp:'0'}</script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/c.js" type="text/javascript"></script>
+</div></div><!--sidebar--></div><div id="footer"><div class="copyright">© 2014 <a href="http://b.sanwen.net/">名博馆</a> 版权所有</div><div class="note">感谢您阅读磁盘写导致IO wait飙升的问题深入排查，本文由网友投稿产生，如果侵犯了您的相关权益，请联系管理员。</div></div></div><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/jquery.js"></script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/jquery_002.js"></script><script>$("#ac img").lazyload({
+    effect : "fadeIn"
+});
+var id=22522262;
+var wid='3528kgp';
+var liked = false;
+$(function(){ 
+$(".bdlikebutton").click(function(){
+	if(liked==true) return false;
+	$.post('/do/docommend',{'id':id},function(msg){},'json');
+	liked = true;
+});
+});
+</script><script id="bdlike_shell" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/like_shell.js"></script><script>var bdShare_config = {
+	"type":"large",
+	"color":"orange",
+	"uid":"13499"
+};
+document.getElementById("bdlike_shell").src="http://bdimg.share.baidu.com/static/js/like_shell.js?t=" + Math.ceil(new Date()/3600000);
+</script><script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=13499" src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/bds_s_v2.js"></script><script type="text/javascript">document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script><!--tongji--><script type="text/javascript">var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F0d803ac5e7f679f6de993e2e71659201' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/h.js" type="text/javascript"></script><div style="display:none;"><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/stat_002.php" language="JavaScript"></script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/core.php" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=1256884439" target="_blank" title="站长统计">站长统计</a><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/stat.php" language="JavaScript"></script><script src="%E7%A3%81%E7%9B%98%E5%86%99%E5%AF%BC%E8%87%B4IO%20wait%E9%A3%99%E5%8D%87%E7%9A%84%E9%97%AE%E9%A2%98%E6%B7%B1%E5%85%A5%E6%8E%92%E6%9F%A5_files/core_002.php" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=4724841" target="_blank" title="站长统计">站长统计</a></div><!--tongji--></body></html>

@@ -1,0 +1,8 @@
+a { text-decoration: none; }
+h1 { font-family: verdana; font-size: 10pt; }
+p { font-family: verdana; font-size: 10pt; }
+li { font-family: verdana; font-size: 10pt; }
+td { font-family: verdana; font-size: 9pt; }
+td.border { font-family: verdana; border-style: solid; border-width: 1px; border-color: black; }
+td.bcont { font-family: verdana; border-style: solid solid solid none; border-width: 1px; border-color: black; }
+td.tiny { font-family: verdana; font-size: 4pt; padding: 0px; }
