@@ -1,0 +1,1310 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>  
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>深入浅出RxJava四-在Android中使用响应式编程 - 大头鬼Bruce
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="﻿﻿Android studio每次打开project时，Gradle都会sync检查整个工程。有时导入一个新的project，即open an existing android studio project时，会更新gradle。今天打开新project时，android studio一直提示正在后台下载http://services.gradle.org/distributions/g" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/lzyzsd/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+ 
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?6bcd52f51e9b3dce32bec4a3997715ac";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+</head>
+<body>
+
+
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/lzyzsd">大头鬼Bruce</a></h2>
+            <h3>程序人生</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        
+     
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>           
+                <li id="btnContents"><a href="http://blog.csdn.net/lzyzsd?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/lzyzsd?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/lzyzsd/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+            
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "lzyzsd";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/lzyzsd";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+
+<a href="http://bss.csdn.net/m/topic/edu_exam
+">
+<font color=blue>2017直通软考，拿证无忧
+
+
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp
+
+<a href="http://edu.csdn.net/huiyiCourse/detail/274
+">
+<font color=red>程序员简历优化指南！ 
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/PK.html">
+<font color=blue>【观点】移动原生App开发 PK HTML 5开发
+</font></a>
+
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://bss.csdn.net/m/product/aliyun_essay/index
+">
+<font color=red>云端应用征文大赛，秀绝招，赢无人机！
+</font></a>
+
+
+</div>                        </div>
+                        
+
+
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+
+
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+      
+      var fasrc="http://my.csdn.net/my/favorite/miniadd?t=%e6%b7%b1%e5%85%a5%e6%b5%85%e5%87%baRxJava%e5%9b%9b-%e5%9c%a8Android%e4%b8%ad%e4%bd%bf%e7%94%a8%e5%93%8d%e5%ba%94%e5%bc%8f%e7%bc%96%e7%a8%8b&u=http://blog.csdn.net/lzyzsd/article/details/45033611"
+
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Translated"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/lzyzsd/article/details/45033611">
+        深入浅出RxJava四-在Android中使用响应式编程            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/android' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">android</a><a href='http://www.csdn.net/tag/RxJava' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">RxJava</a><a href='http://www.csdn.net/tag/RxAndroid' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">RxAndroid</a><a href='http://www.csdn.net/tag/%e5%93%8d%e5%ba%94%e5%bc%8f%e7%bc%96%e7%a8%8b' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">响应式编程</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2015-04-13 22:41</span>
+            <span class="link_view" title="阅读次数">77607人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(30)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('%e6%b7%b1%e5%85%a5%e6%b5%85%e5%87%baRxJava%e5%9b%9b-%e5%9c%a8Android%e4%b8%ad%e4%bd%bf%e7%94%a8%e5%93%8d%e5%ba%94%e5%bc%8f%e7%bc%96%e7%a8%8b','45033611');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(45033611,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            try
+            {
+                var lib = eval("("+$("#lib").attr("value")+")");
+                var html = "";
+                if (lib.err == 0) {
+                    $.each(lib.data, function (i) {
+                        var obj = lib.data[i];
+                        //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                        html += ' <a href="' + obj.url + '" target="_blank">';
+                        html += ' <img src="' + obj.logo + '">';
+                        html += ' <em><b>' + obj.name + '</b></em>';
+                        html += ' </a>';
+                    });
+                    if (html != "") {
+                        setTimeout(function () {
+                            $("#lib").html(html);                      
+                            $("#embody").show();
+                        }, 100);
+                    }
+                }      
+            } catch (err)
+            { }
+            
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('2767743','lzyzsd','top','45033611');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">RxJava<em>（6）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/lzyzsd/article/category/2767743"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_2767743">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+        <div class="markdown_views"><p><a href="http://blog.danlew.net/2014/10/08/grokking-rxjava-part-4/">原文链接</a></p>
+
+<p>在第<a href="http://blog.csdn.net/lzyzsd/article/details/41833541">1</a>，<a href="http://blog.csdn.net/lzyzsd/article/details/44094895">2</a>，<a href="http://blog.csdn.net/lzyzsd/article/details/44891933">3</a>篇中，我大概介绍了RxJava是怎么使用的。下面我会介绍如何在Android中使用RxJava.</p>
+
+<h2 id="rxandroid">RxAndroid</h2>
+
+<p>RxAndroid是RxJava的一个针对Android平台的扩展。它包含了一些能够简化Android开发的工具。</p>
+
+<p>首先，AndroidSchedulers提供了针对Android的线程系统的调度器。需要在UI线程中运行某些代码？很简单，只需要使用AndroidSchedulers.mainThread():</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="retrofitService.getImage(url)
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(bitmap -> myImageView.setImageBitmap(bitmap));" data-snippet-id="ext.3a908fae292922ee747bf3812b96776b" data-snippet-saved="false" data-csrftoken="S209BuyF-Lns6GQjjtUA1GXU7g2AjoeSbBLo" data-codota-status="done"><code class="language-java hljs ">retrofitService.getImage(url)
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(bitmap -&gt; myImageView.setImageBitmap(bitmap));</code></pre>
+
+<p>如果你已经创建了自己的Handler，你可以使用HandlerThreadScheduler1将一个调度器链接到你的handler上。</p>
+
+<p>接着要介绍的就是AndroidObservable，它提供了跟多的功能来配合Android的生命周期。bindActivity()和bindFragment()方法默认使用AndroidSchedulers.mainThread()来执行观察者代码，这两个方法会在Activity或者Fragment结束的时候通知被观察者停止发出新的消息。</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="AndroidObservable.bindActivity(this, retrofitService.getImage(url))
+    .subscribeOn(Schedulers.io())
+    .subscribe(bitmap -> myImageView.setImageBitmap(bitmap);" data-snippet-id="ext.5c0de8f9c2ae22479f3d20dab3f49a93" data-snippet-saved="false" data-csrftoken="pa7T2xOV-_9wQlmPqxddxNWED8_HVfRfbm_s" data-codota-status="done"><code class="language-java hljs ">AndroidObservable.bindActivity(<span class="hljs-keyword">this</span>, retrofitService.getImage(url))
+    .subscribeOn(Schedulers.io())
+    .subscribe(bitmap -&gt; myImageView.setImageBitmap(bitmap);</code></pre>
+
+<p>我自己也很喜欢AndroidObservable.fromBroadcast()方法，它允许你创建一个类似BroadcastReceiver的Observable对象。下面的例子展示了如何在网络变化的时候被通知到：</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+AndroidObservable.fromBroadcast(context, filter)
+    .subscribe(intent -> handleConnectivityChange(intent));" data-snippet-id="ext.e011f49bd631e648f381276e70924f95" data-snippet-saved="false" data-csrftoken="vcuSp9tp-dX4aB9Q8q3vr91Z2enxvDqF1b_A" data-codota-status="done"><code class="language-java hljs ">IntentFilter filter = <span class="hljs-keyword">new</span> IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+AndroidObservable.fromBroadcast(context, filter)
+    .subscribe(intent -&gt; handleConnectivityChange(intent));</code></pre>
+
+<p>最后要介绍的是ViewObservable,使用它可以给View添加了一些绑定。如果你想在每次点击view的时候都收到一个事件，可以使用ViewObservable.clicks()，或者你想监听TextView的内容变化，可以使用ViewObservable.text()。</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="ViewObservable.clicks(mCardNameEditText, false)
+    .subscribe(view -> handleClick(view));" data-snippet-id="ext.54eeae84d71d086888c0cb38e7023cd7" data-snippet-saved="false" data-csrftoken="mOlBEDl3-Xr-9fLzCU1zcZ7hhlBIw2a3j7Rw" data-codota-status="done"><code class="language-java hljs ">ViewObservable.clicks(mCardNameEditText, <span class="hljs-keyword">false</span>)
+    .subscribe(view -&gt; handleClick(view));</code></pre>
+
+
+
+<h2 id="retrofit">Retrofit</h2>
+
+<p>大名鼎鼎的Retrofit库内置了对RxJava的支持。通常调用发可以通过使用一个Callback对象来获取异步的结果：</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="@GET(&quot;/user/{id}/photo&quot;)
+void getUserPhoto(@Path(&quot;id&quot;) int id, Callback<Photo> cb);" data-snippet-id="ext.7a31d4059ecdeb90f2f566f1b8c62f15" data-snippet-saved="false" data-csrftoken="m19MGMH8-hYztJoNLtvDZVVl1m8IALT4MZW0" data-codota-status="done"><code class="language-java hljs "><span class="hljs-annotation">@GET</span>(<span class="hljs-string">"/user/{id}/photo"</span>)
+<span class="hljs-keyword">void</span> getUserPhoto(<span class="hljs-annotation">@Path</span>(<span class="hljs-string">"id"</span>) <span class="hljs-keyword">int</span> id, Callback&lt;Photo&gt; cb);</code></pre>
+
+<p>使用RxJava，你可以直接返回一个Observable对象。</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="@GET(&quot;/user/{id}/photo&quot;)
+Observable<Photo> getUserPhoto(@Path(&quot;id&quot;) int id);" data-snippet-id="ext.37f2570f60d4a415a1fb28d477d3f29a" data-snippet-saved="false" data-csrftoken="aQNpWi6E-5bod-zx4ssrYSATHwDlaHqZFMlI" data-codota-status="done"><code class="language-java hljs "><span class="hljs-annotation">@GET</span>(<span class="hljs-string">"/user/{id}/photo"</span>)
+Observable&lt;Photo&gt; getUserPhoto(<span class="hljs-annotation">@Path</span>(<span class="hljs-string">"id"</span>) <span class="hljs-keyword">int</span> id);</code></pre>
+
+<p>现在你可以随意使用Observable对象了。你不仅可以获取数据，还可以进行变换。 <br>
+Retrofit对Observable的支持使得它可以很简单的将多个REST请求结合起来。比如我们有一个请求是获取照片的，还有一个请求是获取元数据的，我们就可以将这两个请求并发的发出，并且等待两个结果都返回之后再做处理：</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="Observable.zip(
+    service.getUserPhoto(id),
+    service.getPhotoMetadata(id),
+    (photo, metadata) -> createPhotoWithData(photo, metadata))
+    .subscribe(photoWithData -> showPhoto(photoWithData));" data-snippet-id="ext.48b9d99e151ee7e659a7a26dfa7a78ec" data-snippet-saved="false" data-csrftoken="47xhRNOo-2pL0oPWdScqONWfr_gmYoz0nt9k" data-codota-status="done"><code class="language-java hljs ">Observable.zip(
+    service.getUserPhoto(id),
+    service.getPhotoMetadata(id),
+    (photo, metadata) -&gt; createPhotoWithData(photo, metadata))
+    .subscribe(photoWithData -&gt; showPhoto(photoWithData));</code></pre>
+
+<p>在第二篇里我展示过一个类似的例子（使用flatMap()）。这里我只是想展示以下使用RxJava+Retrofit可以多么简单地组合多个REST请求。</p>
+
+
+
+<h2 id="遗留代码运行极慢的代码">遗留代码，运行极慢的代码</h2>
+
+<p>Retrofit可以返回Observable对象，但是如果你使用的别的库并不支持这样怎么办？或者说一个内部的内码，你想把他们转换成Observable的？有什么简单的办法没？</p>
+
+<p>绝大多数时候Observable.just() 和 Observable.from() 能够帮助你从遗留代码中创建 Observable 对象:</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="private Object oldMethod() { ... }
+
+public Observable<Object> newMethod() {
+    return Observable.just(oldMethod());
+}" data-snippet-id="ext.1d3b99e0bb2fdd136e8b043becb6f68a" data-snippet-saved="false" data-csrftoken="I1Xi5q3Z-wZUtCbDkDzCnRt_SvWLOmQfWzOk" data-codota-status="done"><code class="language-java hljs "><span class="hljs-keyword">private</span> Object <span class="hljs-title">oldMethod</span>() { ... }
+
+<span class="hljs-keyword">public</span> Observable&lt;Object&gt; <span class="hljs-title">newMethod</span>() {
+    <span class="hljs-keyword">return</span> Observable.just(oldMethod());
+}</code></pre>
+
+<p>上面的例子中如果oldMethod()足够快是没有什么问题的，但是如果很慢呢？调用oldMethod()将会阻塞住他所在的线程。 <br>
+为了解决这个问题，可以参考我一直使用的方法–使用defer()来包装缓慢的代码：</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="private Object slowBlockingMethod() { ... }
+
+public Observable<Object> newMethod() {
+    return Observable.defer(() -> Observable.just(slowBlockingMethod()));
+}" data-snippet-id="ext.45b2205f0083a19731df7194d3298699" data-snippet-saved="false" data-csrftoken="A4ULhuPG-ikgrpuFDeO8PtIUgUhKGUjXtVl0" data-codota-status="done"><code class="language-java hljs "><span class="hljs-keyword">private</span> Object <span class="hljs-title">slowBlockingMethod</span>() { ... }
+
+<span class="hljs-keyword">public</span> Observable&lt;Object&gt; <span class="hljs-title">newMethod</span>() {
+    <span class="hljs-keyword">return</span> Observable.defer(() -&gt; Observable.just(slowBlockingMethod()));
+}</code></pre>
+
+<p>现在，newMethod()的调用不会阻塞了，除非你订阅返回的observable对象。</p>
+
+
+
+<h2 id="生命周期">生命周期</h2>
+
+<p>我把最难的不分留在了最后。如何处理Activity的生命周期？主要就是两个问题： <br>
+1.在configuration改变（比如转屏）之后继续之前的Subscription。</p>
+
+<p>比如你使用Retrofit发出了一个REST请求，接着想在listview中展示结果。如果在网络请求的时候用户旋转了屏幕怎么办？你当然想继续刚才的请求，但是怎么搞？</p>
+
+<p>2.Observable持有Context导致的内存泄露</p>
+
+<p>这个问题是因为创建subscription的时候，以某种方式持有了context的引用，尤其是当你和view交互的时候，这太容易发生！如果Observable没有及时结束，内存占用就会越来越大。 <br>
+不幸的是，没有银弹来解决这两个问题，但是这里有一些指导方案你可以参考。</p>
+
+<p>第一个问题的解决方案就是使用RxJava内置的缓存机制，这样你就可以对同一个Observable对象执行unsubscribe/resubscribe，却不用重复运行得到Observable的代码。cache() (或者 replay())会继续执行网络请求（甚至你调用了unsubscribe也不会停止）。这就是说你可以在Activity重新创建的时候从cache()的返回值中创建一个新的Observable对象。</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="Observable<Photo> request = service.getUserPhoto(id).cache();
+Subscription sub = request.subscribe(photo -> handleUserPhoto(photo));
+
+// ...When the Activity is being recreated...
+sub.unsubscribe();
+
+// ...Once the Activity is recreated...
+request.subscribe(photo -> handleUserPhoto(photo));" data-snippet-id="ext.c38cefa0d5c2cd722eecf1ec2bf8b914" data-snippet-saved="false" data-csrftoken="WgDIcGsX-xtXrcOg8kNgWCiPSx8wU-XBUJIE" data-codota-status="done"><code class="language-java hljs ">Observable&lt;Photo&gt; request = service.getUserPhoto(id).cache();
+Subscription sub = request.subscribe(photo -&gt; handleUserPhoto(photo));
+
+<span class="hljs-comment">// ...When the Activity is being recreated...</span>
+sub.unsubscribe();
+
+<span class="hljs-comment">// ...Once the Activity is recreated...</span>
+request.subscribe(photo -&gt; handleUserPhoto(photo));</code></pre>
+
+<p>注意，两次sub是使用的同一个缓存的请求。当然在哪里去存储请求的结果还是要你自己来做，和所有其他的生命周期相关的解决方案一延虎，必须在生命周期外的某个地方存储。（retained fragment或者单例等等）。</p>
+
+<p>第二个问题的解决方案就是在生命周期的某个时刻取消订阅。一个很常见的模式就是使用CompositeSubscription来持有所有的Subscriptions，然后在onDestroy()或者onDestroyView()里取消所有的订阅。</p>
+
+
+
+<div class="top-box hide"><div class="alert-info"></div></div><pre class="prettyprint prettyprinted" data-original-code="private CompositeSubscription mCompositeSubscription
+    = new CompositeSubscription();
+
+private void doSomething() {
+    mCompositeSubscription.add(
+        AndroidObservable.bindActivity(this, Observable.just(&quot;Hello, World!&quot;))
+        .subscribe(s -> System.out.println(s)));
+}
+
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+
+    mCompositeSubscription.unsubscribe();
+}" data-snippet-id="ext.d775ddce16082cd2478fc901fd87fca9" data-snippet-saved="false" data-csrftoken="xf55M4dO--mTGTk5nw0ID2YfonmCoL34o5uI" data-codota-status="done"><code class="language-java hljs "><span class="hljs-keyword">private</span> CompositeSubscription mCompositeSubscription
+    = <span class="hljs-keyword">new</span> CompositeSubscription();
+
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doSomething</span>() {
+    mCompositeSubscription.add(
+        AndroidObservable.bindActivity(<span class="hljs-keyword">this</span>, Observable.just(<span class="hljs-string">"Hello, World!"</span>))
+        .subscribe(s -&gt; System.out.println(s)));
+}
+
+<span class="hljs-annotation">@Override</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onDestroy</span>() {
+    <span class="hljs-keyword">super</span>.onDestroy();
+
+    mCompositeSubscription.unsubscribe();
+}</code></pre>
+
+<p>你可以在Activity/Fragment的基类里创建一个CompositeSubscription对象，在子类中使用它。</p>
+
+<p>注意! 一旦你调用了 CompositeSubscription.unsubscribe()，这个CompositeSubscription对象就不可用了, 如果你还想使用CompositeSubscription，就必须在创建一个新的对象了。</p>
+
+<p>两个问题的解决方案都需要添加额外的代码，如果谁有更好的方案，欢迎告诉我。</p>
+
+
+
+<h2 id="总结">总结</h2>
+
+<p>RxJava还是一个很新的项目，RxAndroid更是。RxAndroid目前还在活跃开发中，也没有多少好的例子。我打赌一年之后我的一些建议就会被看做过时了。</p></div>
+        <script  type="text/javascript">
+            $(function () {
+                $('pre.prettyprint code').each(function () {
+                    var lines = $(this).text().split('\n').length;
+                    var $numbering = $('<ul/>').addClass('pre-numbering').hide();
+                    $(this).addClass('has-numbering').parent().append($numbering);
+                    for (i = 1; i <= lines; i++) {
+                        $numbering.append($('<li/>').text(i));
+                    };
+                    $numbering.fadeIn(1700);
+                });
+            });
+        </script>
+   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.15-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+
+        <div id="digg" ArticleId="45033611" >
+            <dl id="btnDigg" class="digg digg_disable"  onclick="btndigga();">
+               
+                 <dt>顶</dt>
+                <dd>65</dd>
+            </dl>
+           
+              
+            <dl id="btnBury" class="digg digg_disable"  onclick="btnburya();">
+              
+                  <dt>踩</dt>
+                <dd>5</dd>               
+            </dl>
+            
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);" >&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);" >&nbsp;</a></div>
+    <script type="text/javascript">
+                function btndigga() {
+                    $(".tracking-ad[data-mod='popu_222'] a").click();
+                }
+                function btnburya() {
+                    $(".tracking-ad[data-mod='popu_223'] a").click();
+                }
+            </script>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/lzyzsd/article/details/44891933';">上一篇</span><a href="/lzyzsd/article/details/44891933" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">深入浅出RxJava三--响应式的好处</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/lzyzsd/article/details/46934187';">下一篇</span><a href="/lzyzsd/article/details/46934187" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">Gradle Tips#1-tasks</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article"  style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c"style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('2767743','lzyzsd','foot','45033611');">RxJava<em>（6）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141"  style="max-height:195px;">
+                        <a href="http://blog.csdn.net" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    <script  type="text/javascript">
+        $(function () {
+            GetCategoryArticles('2767743', 'lzyzsd','foot','45033611');
+        });
+    </script>
+      
+</div>
+
+    <div>
+            <ins data-revive-zoneid="205" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+     </div>
+
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/lzyzsd/svc/GetSuggestContent/45033611",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "45033611",
+                username: "",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = '深入浅出RxJava四-在Android中使用响应式编程' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+
+    <div id="ad_cen">        
+<ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>    </div>  
+
+    <!-- 广告位开始 -->
+    <ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '45033611';
+    var commentscount = 30;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/lzyzsd/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+               
+    <div class="side">
+
+
+<div id="custom_column_40147755" class="panel">
+<ul class="panel_head"><span>我的微博</span></ul>
+<ul class="panel_body">
+
+<a title="微博" href="https://weibo.com/brucefromsdu" target="_blank"><br>
+<span>hi大头&#39740;hi</span> <br>
+</a>
+
+</ul>
+</div>
+
+<div id="custom_column_40147753" class="panel">
+<ul class="panel_head"><span>我的其他资料</span></ul>
+<ul class="panel_body">
+
+<a title="Github" href="https://github.com/lzyzsd" target="_blank"><br>
+<span>我的Github</span> <br>
+</a>
+
+</ul>
+</div><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/lzyzsd/article/category/2556181" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android</a><span>(15)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/2559671" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Animation</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/2739389" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Gesture</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/2767743" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">RxJava</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/2785077" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Square</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/2795779" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Gradle</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/5828129" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">open resty</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/6324276" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">weex</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/lzyzsd/article/category/6324277" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">rn</a><span>(1)</span>
+                </li>
+</ul>
+</div><div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/lzyzsd/article/details/41833541" title="深入浅出RxJava（一：基础篇）">深入浅出RxJava（一：基础篇）</a><span>(223151)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/45033611" title="深入浅出RxJava四-在Android中使用响应式编程">深入浅出RxJava四-在Android中使用响应式编程</a><span>(77546)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/44094895" title="深入浅出RxJava(二：操作符)">深入浅出RxJava(二：操作符)</a><span>(64879)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/44891933" title="深入浅出RxJava三--响应式的好处">深入浅出RxJava三--响应式的好处</a><span>(53636)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/50120801" title="RxJava使用场景小结">RxJava使用场景小结</a><span>(29593)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/49843581" title="Android热更新实现原理">Android热更新实现原理</a><span>(26612)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/41492783" title="Android实现类似QQ的滑动删除效果">Android实现类似QQ的滑动删除效果</a><span>(17413)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/50110355" title="RxJava基本流程和lift源码分析">RxJava基本流程和lift源码分析</a><span>(17022)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/42016681" title="Otto使用入门">Otto使用入门</a><span>(14983)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/42438515" title="深入浅出Android Gradle构建系统(三:build  task)">深入浅出Android Gradle构建系统(三:build  task)</a><span>(8862)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/lzyzsd/article/details/41833541" title="深入浅出RxJava（一：基础篇）">深入浅出RxJava（一：基础篇）</a><span>(115)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/44094895" title="深入浅出RxJava(二：操作符)">深入浅出RxJava(二：操作符)</a><span>(86)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/45033611" title="深入浅出RxJava四-在Android中使用响应式编程">深入浅出RxJava四-在Android中使用响应式编程</a><span>(30)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/44891933" title="深入浅出RxJava三--响应式的好处">深入浅出RxJava三--响应式的好处</a><span>(26)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/50110355" title="RxJava基本流程和lift源码分析">RxJava基本流程和lift源码分析</a><span>(14)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/50120801" title="RxJava使用场景小结">RxJava使用场景小结</a><span>(14)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/49843581" title="Android热更新实现原理">Android热更新实现原理</a><span>(12)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/41492783" title="Android实现类似QQ的滑动删除效果">Android实现类似QQ的滑动删除效果</a><span>(10)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/39212583" title="使用动画和fragment改善Android表单">使用动画和fragment改善Android表单</a><span>(6)</span>
+</li>
+<li>
+<a href="/lzyzsd/article/details/42438515" title="深入浅出Android Gradle构建系统(三:build  task)">深入浅出Android Gradle构建系统(三:build  task)</a><span>(5)</span>
+</li>
+</ul>
+</div>
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/lzyzsd" target="_blank">
+    <img src="http://avatar.csdn.net/F/C/2/1_lzyzsd.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/lzyzsd" class="user_name" target="_blank">lzyzsd</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=lzyzsd','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+                                            <a  target="_blank">
+                                                    <img src="http://c.csdnimg.cn/jifen/images/xunzhang/xunzhang/chizhiyiheng.png" onmouseover="m_over_m(this,4)" onmouseout="m_out_m()" alt="2" >
+                                            </a>
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>729328次</span></li>
+    <li>积分：<span>2719</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog5.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：2719 </div>
+        </span>  </li>
+    <li>排名：<span>第10849名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>15篇</span></li>
+    <li>转载：<span>0篇</span></li>
+    <li>译文：<span>12篇</span></li>
+    <li>评论：<span>339条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/lzyzsd/article/month/2016/07">2016年07月</a><span>(1)</span></li><li><a href="/lzyzsd/article/month/2015/12">2015年12月</a><span>(1)</span></li><li><a href="/lzyzsd/article/month/2015/11">2015年11月</a><span>(4)</span></li><li><a href="/lzyzsd/article/month/2015/10">2015年10月</a><span>(1)</span></li><li><a href="/lzyzsd/article/month/2015/09">2015年09月</a><span>(1)</span></li><li><a href="/lzyzsd/article/month/2015/07">2015年07月</a><span>(3)</span></li><li><a href="/lzyzsd/article/month/2015/04">2015年04月</a><span>(2)</span></li><li><a href="/lzyzsd/article/month/2015/03">2015年03月</a><span>(1)</span></li><li><a href="/lzyzsd/article/month/2015/01">2015年01月</a><span>(3)</span></li><li><a href="/lzyzsd/article/month/2014/12">2014年12月</a><span>(5)</span></li><li><a href="/lzyzsd/article/month/2014/11">2014年11月</a><span>(2)</span></li><li><a href="/lzyzsd/article/month/2014/09">2014年09月</a><span>(3)</span></li>
+</div>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/laoyang360/article/details/53843771" target="_blank">* 而立之年——三线城市程序员的年终告白</a></li>
+<li><a href="http://blog.csdn.net/sdkfjksf/article/details/54380659" 
+target="_blank">* Java集合框架中隐藏的设计套路</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/54092364" 
+target="_blank">* Python脚本下载今日头条视频(附加Android版本辅助下载器)</a></li>
+<li><a href="http://blog.csdn.net/caowenbin/article/details/54406716" target="_blank">* 人工智能的冷思考</a></li>
+<li><a href="http://blog.csdn.net/it_talk/article/details/54346566" 
+target="_blank">* React Native 实战系列教程之热更新原理分析与实现</a></li>
+
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/lzyzsd/article/details/41833541#comments">深入浅出RxJava（一：基础篇）</a>
+    <p style="margin:0px;"><a href="/yeyincai" class="user_name">yeyincai</a>:
+好玩
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44891933#comments">深入浅出RxJava三--响应式的好处</a>
+    <p style="margin:0px;"><a href="/qq_15003505" class="user_name">qq_15003505</a>:
+retrieveImage(url)放在subscribeOn之前与之后有区别吗？放在前面表示子线程...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava(二：操作符)</a>
+    <p style="margin:0px;"><a href="/qq_15003505" class="user_name">qq_15003505</a>:
+lambda是趋势，你看不懂不要怪作者好吗，不看没人求你看，反正不进步的人都是会被淘汰的
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava(二：操作符)</a>
+    <p style="margin:0px;"><a href="/a476777389" class="user_name">a476777389</a>:
+将打印url变成获取title的那个例子，将flatMap换乘map会更容易理解吧。
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava(二：操作符)</a>
+    <p style="margin:0px;"><a href="/ivolianer" class="user_name">ivolianer</a>:
+个人感觉用了表达式后比较清晰，否则各种参数泛型看着晕。
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava三--响应式的好处</a>
+    <p style="margin:0px;"><a href="/u011208377" class="user_name">u011208377</a>:
+原来是    @Override    public final void unsubscribe(...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava三--响应式的好处</a>
+    <p style="margin:0px;"><a href="/u011208377" class="user_name">u011208377</a>:
+unsubscribe()是怎么实现的，Subscription没有发现实现类
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/44094895#comments">深入浅出RxJava(二：操作符)</a>
+    <p style="margin:0px;"><a href="/wangzaieee" class="user_name">wangzaieee</a>:
+lambda有点像groovy的语法，也就是gradle构建脚本的语法
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/46935405#comments">Gradle tip #3-Task顺序</a>
+    <p style="margin:0px;"><a href="/a631855639" class="user_name">a631855639</a>:
+遇到了这么个情况：A dependsOn BA执行了B却没有执行换成A.doFirst{B.exec...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/lzyzsd/article/details/46935405#comments">深入浅出RxJava(二：操作符)</a>
+    <p style="margin:0px;"><a href="/qq285016127" class="user_name">qq285016127</a>:
+看到一些傻逼评论我也是醉了 自己去学学lambda不好？人家写博客容易吗？自己技术差怪别人
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 --> 
+                    <ins data-revive-zoneid="190" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+                    <!-- 广告位结束 -->
+
+           </div>   
+
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=362493"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+    <script type="text/javascript" src="http://passport.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+    <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_code.css" />
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/saveToCode.js"></script>
+      <script type="text/javascript" src="//csdnimg.cn/rabbit/tracking-ad/main.js?75eacd8"></script>
+
+     <link rel="stylesheet" href="http://static.blog.csdn.net/css/fa.css" />
+
+    <div class="pop_CA_cover"  style="display:none"></div>
+    <div class="pop pop_CA"  style="display:none">
+          <div class="CA_header">
+            收藏助手
+            <span class="cancel_icon"  id="fapancle"  onclick="$('.pop_CA').hide();$('.pop_CA_cover').hide();"></span>
+          </div>
+          <iframe src="" id="fa" frameborder="0" width="100%" height="360"  scrolling="no" />
+    </div>
+</body>
+</html>   
+ 

@@ -1,0 +1,1546 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>  
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>IO系统性能之二：缓存和RAID如何提高IO - 赵磊的博客-CSDN
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="第一章 配置 Kali Linux  作者：Gilberto Najera-Gutierrez    译者：飞龙    协议：CC BY-NC-SA 4.0简介在第一章中，我们会涉及如何准备我们的 Kali 以便能够遵循这本书中的秘籍，并使用虚拟机建立带有存在漏洞的 Web 应用的实验室。1.1 升级和更新 Kali在我们开始 Web 应用安全测试之前，我们需要确保我们拥有所有必要的最新" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/elf8848/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+ 
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?6bcd52f51e9b3dce32bec4a3997715ac";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+</head>
+<body>
+
+
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/elf8848">赵磊的博客-CSDN</a></h2>
+            <h3></h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        
+     
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>           
+                <li id="btnContents"><a href="http://blog.csdn.net/elf8848?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/elf8848?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/elf8848/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+            
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "elf8848";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/elf8848";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "yonka";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+
+<a href="http://bss.csdn.net/m/topic/edu_exam
+">
+<font color=blue>2017直通软考，拿证无忧
+
+
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp
+
+<a href="http://edu.csdn.net/huiyiCourse/detail/274
+">
+<font color=red>程序员简历优化指南！ 
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/PK.html">
+<font color=blue>【观点】移动原生App开发 PK HTML 5开发
+</font></a>
+
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://bss.csdn.net/m/product/aliyun_essay/index
+">
+<font color=red>云端应用征文大赛，秀绝招，赢无人机！
+</font></a>
+
+
+</div>                        </div>
+                        
+
+
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+
+
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+      
+      var fasrc="http://my.csdn.net/my/favorite/miniadd?t=IO%e7%b3%bb%e7%bb%9f%e6%80%a7%e8%83%bd%e4%b9%8b%e4%ba%8c%ef%bc%9a%e7%bc%93%e5%ad%98%e5%92%8cRAID%e5%a6%82%e4%bd%95%e6%8f%90%e9%ab%98IO&u=http://blog.csdn.net/elf8848/article/details/39927119"
+
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/elf8848/article/details/39927119">
+        IO系统性能之二：缓存和RAID如何提高IO            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_r">
+            <span class="link_postdate">2014-10-09 10:51</span>
+            <span class="link_view" title="阅读次数">361人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(0)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('IO%e7%b3%bb%e7%bb%9f%e6%80%a7%e8%83%bd%e4%b9%8b%e4%ba%8c%ef%bc%9a%e7%bc%93%e5%ad%98%e5%92%8cRAID%e5%a6%82%e4%bd%95%e6%8f%90%e9%ab%98IO','39927119');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(39927119,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            try
+            {
+                var lib = eval("("+$("#lib").attr("value")+")");
+                var html = "";
+                if (lib.err == 0) {
+                    $.each(lib.data, function (i) {
+                        var obj = lib.data[i];
+                        //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                        html += ' <a href="' + obj.url + '" target="_blank">';
+                        html += ' <img src="' + obj.logo + '">';
+                        html += ' <em><b>' + obj.name + '</b></em>';
+                        html += ' </a>';
+                    });
+                    if (html != "") {
+                        setTimeout(function () {
+                            $("#lib").html(html);                      
+                            $("#embody").show();
+                        }, 100);
+                    }
+                }      
+            } catch (err)
+            { }
+            
+        });
+    </script>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+        <div   class="bog_copyright">         
+            <p  class="copyright_p" >版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+<div style="font-size: 14px;" class="iteye-blog-content-contain">
+<p>http://storage.it168.com/a2011/0325/1170/000001170565_all.shtml</p>
+<p> </p>
+<p> </p>
+<p>从上一篇文章：<a href="http://storage.it168.com/a2011/0323/1169/000001169755.shtml" target="_blank"><span style="color: #0000ff;">IO系统性能之一：衡量性能的几个指标</span></a>的计算中我们可以看到一个15k转速的磁盘在随机读写访问的情况下IOPS竟然只有140左右，但在实际应用中我们却能看到很多标有5000IOPS甚至更高的存储系统，有这么大IOPS的存储系统怎么来的呢?这就要归结于各种存储技术的使用了，在这些存储技术中使用最广的就是高速缓存(Cache)和磁盘冗余阵列(RAID)了，本文就将探讨缓存和<a title="磁盘阵列" class="nounderline" href="http://product.it168.com/list/b/0707_1.shtml" target="_blank">磁盘阵列</a>提高存储IO性能的方法。</p>
+<p>　　<strong>高速缓存(Cache)</strong></p>
+<p>　　在当下的各种存储产品中，按照速度从快到慢应该就是<a title="内存" class="nounderline" href="http://product.it168.com/list/b/0205_1.shtml" target="_blank">内存</a>&gt;闪存&gt;磁盘&gt;<a title="磁带" class="nounderline" href="http://product.it168.com/list/b/0667_1.shtml" target="_blank">磁带</a>了，然而速度越快也就意味着价格越高，闪存虽然说是发展势头很好，但目前来说却还是因为价格问题无法普及，因此现在还是一个磁盘作霸王的时代。与<a title="CPU" class="nounderline" href="http://product.it168.com/list/b/0217_1.shtml" target="_blank">CPU</a>和<a title="内存" class="nounderline" href="http://product.pcpop.com/Memory/10734_1.html" target="_blank">内存</a>速度相比，磁盘的速度无疑是计算机系统中最大的瓶颈了，所以在必须使用磁盘而又想提高性能的情况下，人们想出了在磁盘中嵌入一块高速的内存用来保存经常访问的数据从而提高读写效率的方法来折中的解决，这块嵌入的内存就被称为高速缓存。</p>
+<p>　　说到缓存，这东西应用现在已经是无处不在，从处于上层的应用，到<a title="操作系统" class="nounderline" href="http://product.it168.com/list/b/0501_1.shtml" target="_blank">操作系统</a>层，再到磁盘控制器，还有<a title="CPU" class="nounderline" href="http://product.pcpop.com/CPU/10734_1.html" target="_blank">CPU</a>内部，单个磁盘的内部也都存在缓存，所有这些缓存存在的目的都是相同的，就是提高系统执行的效率。</p>
+<p>　　当然在这里我们只关心跟IO性能相关的缓存，与IO性能直接相关的几个缓存分别是文件系统缓存(File System Cache)、磁盘控制器缓存(Disk Controller Cache)和磁盘缓存(Disk Cache,也称为Disk Buffer)，不过当在计算一个磁盘系统性能的时候文件系统缓存也是不会考虑在内的，因此我们重点考察的就是磁盘控制器缓存和磁盘缓存。</p>
+<p>　　不管是控制器缓存还是磁盘缓存，他们所起的作用主要是分为三部分：缓存数据、预读(Read-ahead)和回写(Write-back)。</p>
+<p> </p>
+<p>　　<strong>缓存数据</strong></p>
+<p>　　首先是系统读取过的数据会被缓存在高速缓存中，这样下次再次需要读取相同的数据的时候就不用在访问磁盘，直接从缓存中取数据就可以了。当然使用过的数据也不可能在缓存中永久保留的，缓存的数据一般那是采取LRU算法来进行管理，目的是将长时间不用的数据清除出缓存，那些经常被访问的却能一直保留在缓存中，直到缓存被清空。</p>
+<p>　　<strong>预读</strong></p>
+<p>　　预读是指采用预读算法在没有系统的IO请求的时候事先将数据从磁盘中读入到缓存中，然后在系统发出读IO请求的时候，就会实现去检查看看缓存里面是否存在要读取的数据，如果存在(即命中)的话就直接将结果返回，这时候的磁盘不再需要寻址、旋转等待、读取数据这一序列的操作了，这样是能节省很多时间的;如果没有命中则再发出真正的读取磁盘的命令去取所需要的数据。</p>
+<p>　　缓存的命中率跟缓存的大小有很大的关系，理论上是缓存越大的话，所能缓存的数据也就越多，这样命中率也自然越高，当然缓存不可能太大，毕竟成本在那儿呢。如果一个容量很大的存储系统配备了一个很小的读缓存的话，这时候问题会比较大的，因为小缓存缓存的数据量非常小，相比整个存储系统来说比例非常低，这样随机读取(数据库系统的大多数情况)的时候命中率也自然就很低，这样的缓存不但不能提高效率(因为绝大部分读IO都还要读取磁盘)，反而会因为每次去匹配缓存而浪费时间。</p>
+<p>　　执行读IO操作是读取数据存在于缓存中的数量与全部要读取数据的比值称为缓存命中率(Read Cache Hit Radio)，假设一个存储系统在不使用缓存的情况下随机小IO读取能达到150IOPS，而它的缓存能提供10%的缓存命中率的话，那么实际上它的IOPS可以达到150/(1-10%)=166。</p>
+<p>　　<strong>回写</strong></p>
+<p>　　首先说一下，用于回写功能的那部分缓存被称为写缓存(Write Cache)。在一套写缓存打开的存储中，<a title="操作系统" class="nounderline" href="http://product.pcpop.com/Operating_System/10734_1.html" target="_blank">操作系统</a>所发出的一系列写IO命令并不会被挨个的执行，这些写IO的命令会先写入缓存中，然后再一次性的将缓存中的修改推到磁盘中，这就相当于将那些相同的多个IO合并成一个，多个连续操作的小IO合并成一个大的IO，还有就是将多个随机的写IO变成一组连续的写IO，这样就能减少磁盘寻址等操作所消耗的时间，大大的提高磁盘写入的效率。</p>
+<p>　　读缓存虽然对效率提高是很明显的，但是它所带来的问题也比较严重，因为缓存和普通内存一样，掉点以后数据会全部丢失，当操作系统发出的写IO命令写入到缓存中后即被认为是写入成功，而实际上数据是没有被真正写入磁盘的，此时如果掉电，缓存中的数据就会永远的丢失了，这个对应用来说是灾难性的，目前解决这个问题最好的方法就是给缓存配备<a title="电池" class="nounderline" href="http://product.it168.com/list/b/1304_1.shtml" target="_blank">电池</a>了，保证存储掉电之后缓存数据能如数保存下来。</p>
+<p>　　和读一样，写缓存也存在一个写缓存命中率(Write Cache Hit Radio)，不过和读缓存命中情况不一样的是，尽管缓存命中，也不能将实际的IO操作免掉，只是被合并了而已。</p>
+<p>　　控制器缓存和磁盘缓存除了上面的作用之外还承当着其他的作用，比如磁盘缓存有保存IO命令队列的功能，单个的磁盘一次只能处理一个IO命令，但却能接收多个IO命令，这些进入到磁盘而未被处理的命令就保存在缓存中的IO队列中。</p>
+<p> </p>
+<p>　　<strong>RAID(Redundant Array Of Inexpensive Disks)</strong></p>
+<p>　　如果你是一位数据库管理员或者经常接触<a title="服务器" class="nounderline" href="http://product.it168.com/list/b/0402_1.shtml" target="_blank">服务器</a>，那对RAID应该很熟悉了，作为最廉价的存储解决方案，RAID早已在<a title="服务器" class="nounderline" href="http://product.pcpop.com/Server/10734_1.html" target="_blank">服务器</a>存储中得到了普及。在RAID的各个级别中，应当以RAID10和RAID5(不过RAID5已经基本走到头了，RAID6正在崛起中，看看这里了解下原因)应用最广了。下面将就RAID0，RAID1，RAID5，RAID6，RAID10这几种级别的RAID展开说一下<a title="磁盘阵列" class="nounderline" href="http://product.pcpop.com/raid/10734_1.html" target="_blank">磁盘阵列</a>对于磁盘性能的影响，当然在阅读下面的内容之前你必须对各个级别的RAID的结构和工作原理要熟悉才行，这样才不至于满头雾水，推荐查看wikipedia上面的如下条目：RAID，Standard RAID levels，Nested RAID levels。</p>
+<p>　<strong>　RAID0</strong></p>
+<p>　　RAID0将数据条带化(striping)将连续的数据分散在多个磁盘上进行存取，系统发出的IO命令(不管读IO和写IO都一样)就可以在磁盘上被并行的执行，每个磁盘单独执行自己的那一部分请求，这样的并行的IO操作能大大的增强整个存储系统的性能。假设一个RAID0阵列有n(n&gt;=2)个磁盘组成，每个磁盘的随机读写的IO能力都达到140的话，那么整个磁盘阵列的IO能力将是140*n。同时如果在阵列总线的传输能力允许的话RAID0的吞吐率也将是单个磁盘的n倍。</p>
+<p>　<strong>　RAID1</strong></p>
+<p>　　RAID1在容量上相当于是将两个磁盘合并成一个磁盘来使用了，互为镜像的两个磁盘里面保存的数据是完全一样的，因此在并行读取的时候速度将是n个磁盘速度的总和，但是写入就不一样了，每次写入都必须同时写入到两个磁盘中，因此写入速度只有n/2。</p>
+<p>　　<strong>RAID5</strong></p>
+<p>　　我们那一个有n(n&gt;=3)个磁盘的RAID5阵列来看，首先看看RAID5阵列的读IO，RAID5是支持并行IO的，而磁盘上的数据呈条带状的分布在所有的磁盘上，因此读IO的速度相当于所有磁盘速度的总和。不过这是在没有磁盘损坏的情况下，当有一个磁盘故障的时候读取速度也是会下降的，因为中间需要花时间来计算丢失磁盘上面的数据。</p>
+<p>　　读取数据的情况相对就要复杂的多了，先来看下RAID5奇偶校验数据写入的过程，我们把写入的数据称为D1，当磁盘拿到一个写IO的命令的时候，它首先会读取一次要入的地址的数据块中修改之前的数据D0，然后再读取到当前条带中的校验信息P0，接下来就根据D0，P0，D1这三组数据计算出数据写入之后的条带的奇偶校验信息P1，最后发出两个写IO的命令，一个写入D1，另一个写入奇偶校验信息P1。可以看出阵列在实际操作的时候需要读、读、写、写一共4个IO才能完成一次写IO操作，也就是实际上的写入速度只有所有磁盘速度总和的1/4。从这点可以看出RAID5是非常不适合用在要大批量写入数据的系统上的。</p>
+<p>　<strong>　RAID6</strong></p>
+<p>　　RAID6和RAID5很类似，差别就在于RAID6多了一个用于校验的磁盘。就写IO速度上来说这两个是完全一样的，都是所有磁盘IO速度的总和。</p>
+<p>　　在写IO上也很是类似，不同的是RAID将一个命令分成了三次读、三次写一共6次IO命令才能完成，也就是RAID6实际写入磁盘的速度是全部磁盘速度之和的1/6。可以看出从写IO看RAID6比RAID5差别是很大的。</p>
+<p>　　<strong>RAID10</strong></p>
+<p>　　RAID0读写速度都很好，却没有冗余保护;RAID5和RAID6都有同样的毛病就是写入的时候慢，读取的时候快。那么RAID1呢?嗯，这里要说的就是RAID1，其实不管是RAID10还是RAID01，其实都是组合大于2块磁盘时候的RAID1，当先镜像后条带时候就称为RAID10，先条带后镜像的时候称为RAID01。从性能上看RAID01和RAID10都是一样的，都是RAID1嘛，但是RAID10在重建故障磁盘的时候性能比RAID01要快。</p>
+<p>　　因为RAID10其实就是RAID1，所以它的性能与RAID1也就是一样的了，这里不需要再做过多的讨论。</p>
+<p> </p>
+<p>　　<strong>四个性能指标的变化</strong></p>
+<p>　　<strong>IO响应时间(IO Response Time)</strong></p>
+<p>　　在任何时候IO响应时间值得都是单个IO的响应时间，因此，不管磁盘是否组成了磁盘阵列，它的IO响应时间应该都是一样的。从前面的计算中我们可以看到，如果IO响应时间在10ms左右的话是很正常的，但是当IO响应时间比这个值超出太多的时候，你就要开始注意了，很可能就意味着此时你的磁盘系统已经成为了一个瓶颈。</p>
+<p>　　<strong>IOPS</strong></p>
+<p>　　综合上面两个部分的讨论我们来估算一下阵列下的磁盘总体IOPS，在这里我们先假设组成阵列的单个磁盘的随机读写的IOPS为140，读写缓存命中率都为10%，组成阵列的磁盘个数为4。</p>
+<p>　　因为不管是那种阵列，磁盘的读取性能都是所有磁盘之和，所以可以得出下面的读取IOPS：</p>
+<p>　　<span style="color: #0000ff;">read IOPS = disk_IOPS/(1-read_cache_hit_ratio)*disk_num = 140/(1-10%)*4 = 622</span></p>
+<p>　　而写入性能就完全不一样了，根据上面的讨论我们可以得出下面结论：</p>
+<p>　　<span style="color: #0000ff;">RAID0: 1 IO request =&gt; need 1 actual IO on disk<br>　　RAID1: 1 IO request =&gt; need 2 actual IO on disk<br>　　RAID5: 1 IO request =&gt; need 4 actual IO on disk<br>　　RAID6: 1 IO request =&gt; need 6 actual IO on disk</span></p>
+<p>　　由此我们也可以计算出写入IOPS估算公式：</p>
+<p>　　<span style="color: #0000ff;">RAID0 write IOPS = disk_IOPS/(1-write_cache_hit_ratio)*disk_num/acture_IO_num = 140/(1-10%)*4/1 = 622<br>　　RAID1 write IOPS = disk_IOPS/(1-write_cache_hit_ratio)*disk_num/acture_IO_num = 140/(1-10%)*4/2 = 311<br>　　RAID5 write IOPS = disk_IOPS/(1-write_cache_hit_ratio)*disk_num/acture_IO_num = 140/(1-10%)*4/4 = 155<br>　　RAID6 write IOPS = disk_IOPS/(1-write_cache_hit_ratio)*disk_num/acture_IO_num = 140/(1-10%)*4/6 = 103</span></p>
+<p>　　实际上从通过上面的计算方法我们还可以估算当给定一个要求的IOPS的情况下，估计下使用各个阵列级别所需要的磁盘的数量。当然我们上面的计算方法只是一个估算，我们忽略很多其他的因素，得出的只是一个大概的数值，不过在实际的应用还是有一定的参考作用的。</p>
+<p>　　本篇最后附送一个计算磁盘系统IOPS的网站――wmarow’s disk &amp; disk array calculator，这个网站提供的计算公式还考虑了诸如阵列条带大小以及主机方面的因素，很有参考价值，至于怎么选择合适的条带大小，以后还会撰文解释。</p>
+<p>　　<strong>传输速度(Transfer Rate)/吞吐率(Throughput)</strong></p>
+<p>　　实际上估算除了随机读写的IOPS也就知道了随机读写的吞吐率。对于顺序读写的呢，还是跟前一篇所讲的一样，主要受限于磁盘的限制，不能再拿IOPS来衡量了。</p>
+<p>　　<span style="color: #0000ff;">random_throughtput = random_IOPS * IO_chunk_size</span></p>
+</div>   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.14-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+
+        <div id="digg" ArticleId="39927119" >
+            <dl id="btnDigg" class="digg digg_enable"  onclick="btndigga();">
+               
+                 <dt>顶</dt>
+                <dd>0</dd>
+            </dl>
+           
+              
+            <dl id="btnBury" class="digg digg_enable"  onclick="btnburya();">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>               
+            </dl>
+            
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);" >&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);" >&nbsp;</a></div>
+    <script type="text/javascript">
+                function btndigga() {
+                    $(".tracking-ad[data-mod='popu_222'] a").click();
+                }
+                function btnburya() {
+                    $(".tracking-ad[data-mod='popu_223'] a").click();
+                }
+            </script>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/elf8848/article/details/39927111';">上一篇</span><a href="/elf8848/article/details/39927111" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">IO系统性能之一：衡量性能的几个指标</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/elf8848/article/details/39927123';">下一篇</span><a href="/elf8848/article/details/39927123" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">IOmeter磁盘IO性能测试工具</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+      
+</div>
+
+    <div>
+            <script type="text/javascript">
+                /*博客内容页下方Banner1-728*90，创建于2016-12-13*/
+                var cpro_id = "u2843949";
+            </script>
+            <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script>
+     </div>
+
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/elf8848/svc/GetSuggestContent/39927119",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "39927119",
+                username: "yonka",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = 'IO系统性能之二：缓存和RAID如何提高IO' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+
+    <div id="ad_cen">        
+                    <script type="text/javascript">
+                        /*博客内容页下方Banner-728*90，创建于2014-7-3*/
+                        var cpro_id = "u1607657";
+                    </script>
+                    <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script>
+    </div>  
+
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '39927119';
+    var commentscount = 0;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/elf8848/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+               
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/elf8848" target="_blank">
+    <img src="http://avatar.csdn.net/0/A/0/1_elf8848.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/elf8848" class="user_name" target="_blank">elf8848</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=elf8848','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>104244次</span></li>
+    <li>积分：<span>4616</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog5.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：4616 </div>
+        </span>  </li>
+    <li>排名：<span>第5063名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>376篇</span></li>
+    <li>转载：<span>0篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>4条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/elf8848/article/category/2619927" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JavaScript</a><span>(21)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619929" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Firefox</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619931" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">浏览器</a><span>(17)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619933" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">spring3</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619935" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JSP</a><span>(20)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619937" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Struts</a><span>(13)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619939" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Eclipse</a><span>(10)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619941" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Web</a><span>(13)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619943" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XML</a><span>(18)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619945" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">IE</a><span>(15)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619947" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">F#</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619949" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XHTML</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619951" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HTML</a><span>(11)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619953" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Ajax</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619955" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">jQuery</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619957" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">框架</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619959" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">应用服务器</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619961" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Microsoft</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619963" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">cookie</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619965" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">URL编码</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619967" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Office</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619969" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">IDEA</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619971" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Bean</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619973" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Java</a><span>(9)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619975" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">json</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619979" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">CSS</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619981" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">工作</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619983" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Mootools</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619985" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619987" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C++</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619989" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C#</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619991" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">编程</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619993" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据结构</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619995" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">算法</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619997" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Bean工厂和应用上下文</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2619999" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">虚拟机</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620001" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Ubuntu</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620003" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SSH</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620005" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">vim</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620007" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XP</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620009" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux</a><span>(13)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620011" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">QQ</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620013" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">中国电信</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620015" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Security</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620019" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Qt</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620021" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Opera</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620023" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Google</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620025" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">D语言</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620027" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Spring</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620029" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Oracle</a><span>(10)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620031" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MySQL</a><span>(10)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620033" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SQL Server</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620035" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SQL</a><span>(22)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620037" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">配置管理</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620039" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">AOP</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620041" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">国际化</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620043" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">接口</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620045" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Hibernate</a><span>(25)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620047" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">DAO</a><span>(15)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620049" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JDBC</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620053" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">多线程</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620055" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">freemarker</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620057" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">velocity</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620059" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Servlet</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620061" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">.net</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620067" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Gmail</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620069" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">UML</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620073" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Spring的事务传播属性</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620075" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据库的隔离级别</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620079" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">音乐</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620089" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">prototype</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620091" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">脚本</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620093" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Aptana</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620095" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Firebug</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620097" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PHP</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620099" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Blog</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620101" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Apache</a><span>(9)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620103" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">金山</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620105" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">J#</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620111" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Myeclipse</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620113" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Spring Hibernate</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620115" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">junit</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620117" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Webwork</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620119" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">UI</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620121" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Struts2 Action的线程安全问题</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620123" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">log4j</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620125" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Comet</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620127" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Debian</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620129" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">互联网</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620131" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Cache</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620133" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">nginx</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620135" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">软件测试</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620139" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Oracle导入导出</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620141" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Tomcat</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620143" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Netbeans</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620145" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JDK</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620147" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">嵌入式</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620153" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux 命令</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620155" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Windows</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620157" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JVM</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620159" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Pascal</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620161" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">net命令</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620163" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ImageMagick</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620165" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">GraphicsMagick</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620167" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">图片处理</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620173" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">第三方支付</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620179" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">网络应用</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620183" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">项目管理</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620185" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">活动</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620187" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">咨询</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620189" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">八卦</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620191" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">百度</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620193" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Spring常用注解</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620197" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">CentOS</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620199" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">防火墙</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620207" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">RedHat</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620211" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">GCC</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620213" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Bash</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620215" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Safari</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620217" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ab</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620219" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">webbench</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620221" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Siege</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620223" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">http_load</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620225" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Web Application Stress</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620229" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Vmware</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620231" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">FreeBSD</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620233" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MySql5.1.58</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620235" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HP</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620237" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Servlet上下文路径</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620241" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Glassfish</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620243" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JSF</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620245" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">IDE</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620247" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Excel</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620249" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">设计模式</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620251" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ASP.net</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620253" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Flex</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620255" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SVN</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620257" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">subversion</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620259" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JPA</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620261" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">单元测试</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620263" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Struts2与Spring MVC性能对比</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620267" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Hadoop</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620269" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">lighttpd</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620271" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">memcached</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620273" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Swing</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620279" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">招聘</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620285" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SQL练习题</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620287" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MySQL批量操作</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620289" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JBoss</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620291" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ojdbc14.jar</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620293" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ojdbc5.jar</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620295" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ojdbc6.jar</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620299" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Spring MVC 教程</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620301" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">快速入门</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620303" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">测试基准</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620305" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Erlang</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620307" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Scala</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620309" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Groovy</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620313" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">NoSQL</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620315" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Redis</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620317" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">CouchDB</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620319" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HBase</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620321" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MongoDB</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620323" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">xfire</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620325" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">WebService</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620327" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">iphone ipad 开发视频教程</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620329" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XCode下载地址</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620331" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XCode4</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620333" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XCode3</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620335" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">xcode同时安装多个版本xcode</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620343" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JUDE-Community_5.5.2_典藏绿色汉化版.zip</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620345" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">astah6.5.1绿色版</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620347" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">port</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620349" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">概要设计</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620353" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Tomcat虚拟主机配置</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620363" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Performance Test Framework</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620367" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">线程池</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620375" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">IO</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620381" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Mac OS安装MySQL</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/elf8848/article/category/2620385" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PostgreSQL</a><span>(1)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/elf8848/article/month/2014/10">2014年10月</a><span>(376)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/elf8848/article/details/39927139" title="戴尔R720服务器评测">戴尔R720服务器评测</a><span>(1429)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926663" title="五种主流web报表工具的功能对比">五种主流web报表工具的功能对比</a><span>(985)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926875" title="千兆网卡如何才能达到全速">千兆网卡如何才能达到全速</a><span>(845)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39927131" title="RAID卡的缓存与磁盘自带的缓存的关系">RAID卡的缓存与磁盘自带的缓存的关系</a><span>(784)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926503" title="第三方支付平台对比">第三方支付平台对比</a><span>(783)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926829" title="Project Web Access ActiveX控件  安装">Project Web Access ActiveX控件  安装</a><span>(780)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926895" title="JUDE-Community（社区版） 5.5.2 典藏绿色中文版">JUDE-Community（社区版） 5.5.2 典藏绿色中文版</a><span>(728)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39927385" title="在浏览器中解析Base64编码图像">在浏览器中解析Base64编码图像</a><span>(713)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926657" title="WEB打印的几种方案">WEB打印的几种方案</a><span>(657)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926821" title="Macbook pro电池使用记录（一年了）">Macbook pro电池使用记录（一年了）</a><span>(656)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/elf8848/article/details/39926315" title="12 struts2拦截器">12 struts2拦截器</a><span>(1)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926775" title="你想建设一个能承受500万PV/每天的网站吗？如果计算呢？">你想建设一个能承受500万PV/每天的网站吗？如果计算呢？</a><span>(1)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39927327" title="select、poll、epoll之间的区别总结">select、poll、epoll之间的区别总结</a><span>(1)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39927497" title="将博客搬至CSDN">将博客搬至CSDN</a><span>(1)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926085" title="JSTL标签  参考手册">JSTL标签  参考手册</a><span>(0)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/40488905" title="SSO单点登录">SSO单点登录</a><span>(0)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926071" title="获取控件在网页中的绝对位置">获取控件在网页中的绝对位置</a><span>(0)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926067" title="1 struts2标签的定义文件 struts-tags.tld">1 struts2标签的定义文件 struts-tags.tld</a><span>(0)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926065" title="常用Apache Commons工具类备忘">常用Apache Commons工具类备忘</a><span>(0)</span>
+</li>
+<li>
+<a href="/elf8848/article/details/39926051" title="JSP自定义标签扩展----支持EL,访问Spring容器">JSP自定义标签扩展----支持EL,访问Spring容器</a><span>(0)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/laoyang360/article/details/53843771" target="_blank">* 而立之年——三线城市程序员的年终告白</a></li>
+<li><a href="http://blog.csdn.net/sdkfjksf/article/details/54380659" 
+target="_blank">* Java集合框架中隐藏的设计套路</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/54092364" 
+target="_blank">* Python脚本下载今日头条视频(附加Android版本辅助下载器)</a></li>
+<li><a href="http://blog.csdn.net/caowenbin/article/details/54406716" target="_blank">* 人工智能的冷思考</a></li>
+<li><a href="http://blog.csdn.net/it_talk/article/details/54346566" 
+target="_blank">* React Native 实战系列教程之热更新原理分析与实现</a></li>
+
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/elf8848/article/details/39926775#comments">你想建设一个能承受500万PV/每天的网站吗？如果计算呢？</a>
+    <p style="margin:0px;"><a href="/panyongcsd" class="user_name">panyongcsd</a>:
+关注博主
+    </p>
+    </li>
+    <li>
+   
+         <a href="/elf8848/article/details/39926315#comments">12 struts2拦截器</a>
+    <p style="margin:0px;"><a href="/gaojun6854" class="user_name">gaojun6854</a>:
+还是挺好的。
+    </p>
+    </li>
+    <li>
+   
+         <a href="/elf8848/article/details/39927497#comments">将博客搬至CSDN</a>
+    <p style="margin:0px;"><a href="/u012345283" class="user_name">u012345283</a>:
+记得之前在IT上看到过你
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 --> 
+                    <ins data-revive-zoneid="190" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+                    <!-- 广告位结束 -->
+
+           </div>   
+
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=181517"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+    <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_code.css" />
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/saveToCode.js"></script>
+      <script type="text/javascript" src="//csdnimg.cn/rabbit/tracking-ad/main.js?75eacd8"></script>
+
+     <link rel="stylesheet" href="http://static.blog.csdn.net/css/fa.css" />
+
+    <div class="pop_CA_cover"  style="display:none"></div>
+    <div class="pop pop_CA"  style="display:none">
+          <div class="CA_header">
+            收藏助手
+            <span class="cancel_icon"  id="fapancle"  onclick="$('.pop_CA').hide();$('.pop_CA_cover').hide();"></span>
+          </div>
+          <iframe src="" id="fa" frameborder="0" width="100%" height="360"  scrolling="no" />
+    </div>
+</body>
+</html>   
+ 

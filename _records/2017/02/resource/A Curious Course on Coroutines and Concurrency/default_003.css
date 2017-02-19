@@ -1,0 +1,147 @@
+/* ::::: http://twistedmatrix.com/trac/chrome/common/css/bootstrap.min.css ::::: */
+
+.nav { list-style: outside none none; }
+.nav > li > a { display: block; }
+.nav > li > a:hover { text-decoration: none; background-color: rgb(238, 238, 238); }
+.nav-tabs, .nav-pills {  }
+.nav-tabs::before, .nav-pills::before, .nav-tabs::after, .nav-pills::after { display: table; content: ""; }
+.nav-tabs::after, .nav-pills::after { clear: both; }
+.nav-tabs > li, .nav-pills > li { float: left; }
+.nav-tabs > li > a, .nav-pills > li > a { padding-right: 12px; padding-left: 12px; margin-right: 2px; line-height: 14px; }
+.nav-tabs { border-bottom: 1px solid rgb(204, 204, 204); }
+.nav-tabs > li { margin-bottom: -1px; }
+.nav-tabs > li > a { padding-top: 9px; padding-bottom: 9px; border: 1px solid transparent; border-radius: 4px 4px 0px 0px; position: relative; z-index: 1; }
+.nav-tabs > li > a:hover { border-color: rgb(238, 238, 238) rgb(238, 238, 238) rgb(221, 221, 221); }
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { color: rgb(85, 85, 85); background-color: rgb(255, 255, 255); border-width: 1px; border-style: solid; border-color: rgb(204, 204, 204) rgb(204, 204, 204) transparent; -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; cursor: default; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); }
+.tabbable::before, .tabbable::after { display: table; content: ""; }
+.tabbable::after { clear: both; }
+.tab-content > .tab-pane, .pill-content > .pill-pane { display: none; }
+.tab-content > .active, .pill-content > .active { display: block; }
+ul#frontpage-tabs { padding: 0px; }
+.tab-content { padding: 1em; margin-top: -1em; border-width: medium 1px 1px; border-style: none solid solid; border-color: -moz-use-text-color rgb(204, 204, 204) rgb(204, 204, 204); -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; background: rgb(255, 255, 255) none repeat scroll 0% 0%; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); position: relative; z-index: 2; }
+#frontpage-tabs li { padding: 0px; }
+#frontpage-tabs li a { text-decoration: none; }
+/* ::::: http://twistedmatrix.com/trac/chrome/common/css/trac.css ::::: */
+
+body { background: rgb(255, 255, 255) none repeat scroll 0% 0%; color: rgb(0, 0, 0); margin: 0px; padding: 0px; }
+body, th, td { font-family: "Helvetica Neue","Bitstream Vera Sans","Helvetica","Arial",sans-serif; }
+hr { border-width: 1px medium medium; border-style: solid none none; border-color: rgb(204, 204, 187) -moz-use-text-color -moz-use-text-color; -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; margin: 2em 0px; }
+img { border: medium none; }
+body { font-size: 81.25%; line-height: 1.25; }
+h1, h2, h3 { margin-top: 0px; margin-bottom: 0px; }
+h1 { font-size: 1.5em; padding: 1.45833em 0px 1em; }
+h2 { font-size: 1.33333em; padding: 1.25em 0px 0.2em; margin-bottom: 1em; }
+h3 { font-size: 1.16667em; padding: 1.1785em 0px 0.2em; margin-bottom: 0.4em; }
+h1, h2, h3, h4 { color: rgb(131, 165, 1); }
+tt, pre { font-family: monospace,monospace; }
+:link { color: rgb(29, 97, 190); }
+:visited { color: rgb(74, 29, 190); }
+:link:active, :visited:active { color: rgb(20, 65, 126); }
+:link:hover, :visited:hover { background-color: transparent; text-decoration: none; }
+h1 :link, h1 :visited, h2 :link, h2 :visited, h3 :link, h3 :visited, h4 :link, h4 :visited, h5 :link, h5 :visited, h6 :link, h6 :visited { color: inherit; }
+@media screen {
+	a.ext-link .icon { background: transparent url('extlink.gif') no-repeat scroll left center; padding-left: 16px; display: inline-block; width: 0px; }
+}
+input, textarea, select { margin: 0px; }
+input, select { vertical-align: middle; }
+input[type="button"], input[type="submit"], input[type="reset"] { background: rgb(224, 224, 224) none repeat scroll 0% 0%; color: rgb(102, 102, 102); border: 1px solid rgb(204, 204, 204); border-radius: 0.25em; padding: 0.3em 0.85em; font-size: 0.85em; font-weight: bold; text-transform: uppercase; }
+input[type="button"]::-moz-focus-inner, input[type="submit"]::-moz-focus-inner, input[type="reset"]::-moz-focus-inner { border: medium none; }
+input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover { cursor: pointer; color: rgb(68, 68, 68); border-color: rgb(153, 153, 153); background-image: -moz-linear-gradient(center top , transparent, rgba(0, 0, 0, 0.15)); box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.15); }
+input[type="button"]:focus, input[type="submit"]:focus, input[type="reset"]:focus { outline: 0px none transparent; border: 1px solid transparent; box-shadow: 0px 0px 0px 1px rgb(255, 255, 255) inset; }
+input[type="button"]:active, input[type="submit"]:active, input[type="reset"]:active { background: rgb(229, 229, 229) none repeat scroll 0% 0%; }
+input[type="text"], input.textwidget, textarea, select { padding: 0.25em; }
+input[type="text"], input.textwidget, textarea { border-width: 1px; border-style: solid; -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; border-color: rgb(187, 187, 187) rgb(221, 221, 221) rgb(221, 221, 221) rgb(187, 187, 187); color: rgb(0, 0, 0); }
+input[type="text"]:focus, input.textwidget:focus, textarea:focus { border-color: rgb(139, 190, 29); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1) inset; }
+#header img { border: medium none; }
+#header :link, #header :visited, #header :link:hover, #header :visited:hover { background: transparent none repeat scroll 0% 0%; color: rgb(85, 85, 85); border: medium none; }
+#search { float: right; padding: 0.75em 0.75em 1.35em; margin-right: 1.5em; }
+#search input[type="button"], #search input[type="submit"], #search input[type="reset"], #search input[type="text"], #search input.textwidget { background-color: rgb(34, 34, 34); color: rgb(221, 221, 221); border-color: rgb(102, 102, 102); }
+#search input[type="button"]:hover, #search input[type="submit"]:hover, #search input[type="reset"]:hover { color: rgb(255, 255, 255); border-color: rgb(136, 136, 136); background-color: rgb(42, 42, 42); background-image: -moz-linear-gradient(center bottom , transparent, rgba(255, 255, 255, 0.1)); box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5); }
+#search input[type="button"]:active, #search input[type="submit"]:active, #search input[type="reset"]:active { background: rgb(34, 34, 34) none repeat scroll 0% 0%; }
+#search input[type="text"], #search input.textwidget { border-color: rgb(68, 68, 68) rgb(102, 102, 102) rgb(102, 102, 102) rgb(68, 68, 68); }
+#search input[type="text"]:focus, #search input.textwidget:focus { border-color: rgb(188, 231, 21); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1) inset; }
+#search label { display: none; }
+.nav h2, .nav hr { display: none; }
+.nav ul { font-size: 0.85em; list-style: outside none none; margin: 0px; padding: 0px; text-align: right; }
+.nav li { border-right: 0px solid rgb(215, 215, 215); display: inline; padding: 0px 0.75em; white-space: nowrap; }
+.nav li.last { border-right: medium none; }
+#mainnav { background: rgb(85, 85, 85) none repeat scroll 0% 0%; border: medium none; margin: 0px; clear: both; position: relative; z-index: 1; }
+#mainnav ul { border-top: 1px solid rgb(34, 34, 34); padding: 0.3em 0px; }
+#mainnav li { padding: 0.3em 0px; }
+#mainnav :link, #mainnav :visited { background: transparent url('dots.gif') no-repeat scroll 0px 0px; border: medium none; color: rgb(238, 238, 238); padding: 0.3em 1.6em; }
+#mainnav :link:hover, #mainnav :visited:hover { color: rgb(238, 238, 238); background-color: rgb(68, 68, 68); z-index: -1; }
+#mainnav .active { position: relative; top: -1px; border-width: medium 1px 4px; border-style: none solid solid; border-color: -moz-use-text-color rgb(51, 51, 51) rgb(188, 231, 21); -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; }
+#mainnav .active :link, #mainnav .active :visited { background: rgb(68, 68, 68) none repeat scroll 0% 0%; border-bottom: 1px solid transparent; color: rgb(238, 238, 238); font-weight: bold; }
+#main { background: rgb(255, 255, 255) url('bg.png') repeat scroll 0% 0%; clear: both; }
+#banner a:link, #banner a:visited, #mainnav a:link, #mainnav a:visited, #ctxtnav a:link, #ctxtnav a:visited, .timeline a:link, .timeline a:visited { text-decoration: none; }
+#pagepath { padding: 0.5em 0.75em ! important; font-size: 0.85em ! important; }
+#ctxtnav { padding: 0.5em 0px; }
+#ctxtnav :link, #ctxtnav :visited { color: rgb(85, 85, 85); }
+#ctxtnav :link:hover, #ctxtnav :visited:hover { color: rgb(153, 153, 153); }
+#altlinks { clear: both; text-align: center; }
+#altlinks h3 { font-size: 12px; letter-spacing: normal; }
+#altlinks ul { list-style: outside none none; margin: 0px; padding: 0px 0px 1em; }
+#altlinks li { border-right: 1px solid rgb(215, 215, 215); display: inline; font-size: 11px; line-height: 16px; padding: 0px 1em; white-space: nowrap; }
+#altlinks li.last { border-right: medium none; }
+#altlinks li :link, #altlinks li :visited { background-position: 0px -1px; background-repeat: no-repeat; border: medium none; }
+#footer { clear: both; color: rgb(255, 255, 255); font-size: 0.85em; background: rgb(51, 51, 51) none repeat scroll 0% 0%; border-top: 0.5em solid rgb(85, 85, 85); padding: 1.5em 3em; }
+#footer :link, #footer :visited { color: rgb(187, 187, 187); }
+#footer .credits p { margin: 0px; }
+#footer .sitemeter { float: right; }
+#footer .credits { line-height: 2; float: left; }
+#footer .right { clear: both; }
+#content { padding: 0px 4em 4em; position: relative; }
+.wikipage { margin: 0px; }
+div.code, pre.wiki, pre.literal-block { background: rgb(237, 249, 192) none repeat scroll 0% 0%; border-width: 1px 0px; border-style: solid; border-color: rgb(188, 231, 21); margin: 2em; padding: 1em; overflow: auto; }
+@media screen {
+}
+#top_grad { background: rgb(188, 231, 21) none repeat scroll 0% 0%; height: 0.35em; }
+#tab { color: rgb(255, 255, 255); text-align: center; background: rgb(188, 231, 21) -moz-linear-gradient(center top , transparent, rgba(0, 0, 0, 0.3)) repeat scroll 0% 0%; float: right; border-style: solid; border-color: rgb(209, 253, 38); -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; border-image: none; border-width: 0px 0px 1px 1px; border-radius: 0px 0px 0px 0.35em; padding: 1em; font-weight: bold; }
+#tab :link, #tab :visited { color: rgb(68, 68, 68); padding: 1em; text-shadow: 0px 1px rgb(209, 253, 38); }
+#tab :link:hover, #tab :visited:hover { text-shadow: none; border-bottom: 0.5em solid rgb(255, 255, 255); border-radius: 0px 0.35em; background: white none repeat scroll 0% 0%; box-shadow: 0px 0px 0.5em rgba(0, 0, 0, 0.5); }
+#banner { background: rgb(68, 68, 68) -moz-linear-gradient(center bottom , transparent, rgba(0, 0, 0, 0.3)) repeat scroll 0% 0%; float: left; width: 100%; }
+#header { float: left; padding: 1em; }
+#metanav { padding: 0.75em; margin-top: 0.35em; float: right; }
+#metanav :link, #metanav :visited, #metanav button { color: rgb(255, 255, 255); }
+#metanav :link:hover, #metanav :visited:hover, #metanav button:hover { color: rgb(187, 187, 187); border-bottom: 1px dotted rgb(187, 187, 187); }
+#metanav ul li.first { color: rgb(204, 204, 204); }
+#download_icon { position: absolute; right: -20px; top: -25px; z-index: 99; }
+#download { background: rgb(85, 85, 85) -moz-linear-gradient(center top , transparent, rgba(0, 0, 0, 0.3)) repeat scroll 0% 0%; border-bottom: 2px solid rgb(188, 231, 21); border-radius: 0.35em; padding: 2em; position: relative; box-shadow: 0px 0px 0.5em rgba(0, 0, 0, 0.65); margin-bottom: 3em; margin-right: -3em; }
+#download > p { margin: 0px; }
+#download h1, #download h2 { color: rgb(238, 238, 238); text-shadow: 0px 1px rgb(34, 34, 34); border: 0px none; }
+#download h1 { padding-top: 0px; }
+#download h2 { color: rgb(187, 187, 187); padding: 0px; margin-bottom: 5px; }
+#download ul { list-style: outside none none; margin: 0.5em 0px; padding: 0px; }
+#download a:link, #download a:visited { display: block; padding: 0.25em 1em; margin: 0px -0.5em; background: transparent none repeat scroll 0% 0%; color: rgb(188, 231, 21); border: medium none; text-decoration: none; }
+#download a:hover { background: rgb(188, 231, 21) none repeat scroll 0% 0%; color: rgb(68, 68, 68); }
+.column-layout { width: 100%; margin: 0px -4em; }
+.leftcol { width: 15%; }
+.leftcolcol { padding: 1.5em; border-width: 0px 1px 1px 0px; margin-top: -1.25em; margin-right: 2em; border-radius: 0px 0px 0.35em; }
+.leftcolcol .wikipage h2 { box-shadow: none; }
+.centercol { padding: 0px 2em; }
+#main .twisted-sponsors a:link { display: block; border: medium none; text-align: center; padding: 0.5em 0px; }
+.side-panel { background: rgb(238, 238, 238) none repeat scroll 0% 0%; border: 1px solid rgb(208, 208, 208); border-radius: 0.35em; box-shadow: 0px 0px 0.5em rgba(0, 0, 0, 0.075); padding: 2em; position: relative; margin-right: -3em; }
+.side-panel h2 { padding-top: 0px; color: rgb(29, 97, 190); text-shadow: 0px 1px rgb(255, 255, 255); }
+.twisted-news { margin-bottom: 3em; }
+.twisted-news .feed-entry:nth-child(2n) { background: rgba(0, 0, 0, 0.05) none repeat scroll 0% 0%; }
+.donations p { margin-top: 0px; }
+.donation-buttons { width: 210px; text-align: center; }
+.wikipage div.code pre { background: transparent none repeat scroll 0% 0%; }
+.throbber { display: block; margin: auto; }
+#content .wikipage h2 { box-shadow: none; }
+/* ::::: http://twistedmatrix.com/trac/chrome/common/css/wiki.css ::::: */
+
+/* ::::: http://twistedmatrix.com/trac/chrome/common/css/code.css ::::: */
+
+div.code pre { margin: 0px; }
+#wikipage { clear: both; }
+.wikipage h2 { border-bottom: 1px solid rgb(221, 221, 221); box-shadow: 0.1em 0.4em 0.7em 0px rgb(242, 242, 242); }
+.wikipage h3 { border-bottom: 1px dashed rgb(221, 221, 221); padding: 0.2em 0.3em 0.1em; }
+.wikipage .trac-content { margin-left: -18px; padding-left: 28px; }
+#pagepath { font-size: 10px; float: left; padding: 0.4em 0px; }
+#pagepath :link, #pagepath :visited { margin: 0px 0.2em; }
+#pagepath .first:link, #pagepath .first:visited { color: rgb(153, 153, 136); }
+#pagepath .pathentry { float: left; }
+div.trac-modifiedby { margin: 0.3em 0.5em; color: rgb(136, 136, 136); font-size: 80%; font-style: italic; text-align: right; }
+div.trac-modifiedby :link, div.trac-modifiedby :visited { color: inherit; }
+div.trac-modifiedby span.trac-print { display: none; }

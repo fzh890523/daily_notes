@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title>call-with-current-continuation-for-C-programmers</title
+><base href="http://community.schemewiki.org/"><link rel="alternate" type="application/rss+xml" title="RSS" href="/?c=rss"><link rel="stylesheet" href="/css/default.css" type="text/css"></head
+><body><h1 id="title"><div><a href="/?c=s&amp;key=[[call-with-current-continuation-for-C-programmers]]">call-with-current-continuation-for-C-programmers</a
+></div
+></h1
+><div id="nav"><a href="/">[Top Page]</a
+><a href="/?c=r">[Recent Changes]</a
+><a href="/?c=a">[All Pages]</a
+><a href="/?c=settings">[Settings]</a
+><a href="/?category-category">[Categories]</a
+><a href="/?wiki-howto">[Wiki Howto]</a
+><br><a href="/?p=call-with-current-continuation-for-C-programmers&amp;c=e">[Edit]</a
+><a href="/?p=call-with-current-continuation-for-C-programmers&amp;c=h">[Edit History]</a
+><br><form method="POST" action="/" style="margin:0pt; padding:0pt"><input type="hidden" name="c" value="s" style="margin:0pt; padding:0pt"><span>Search:<input type="text" name="key" size="10"></span
+></form
+></div
+><hr><p>If you're a C programmer then you've probably read the various introductions and tutorials on <a href="/?call-with-current-continuation">call-with-current-continuation</a
+> (<tt>call/cc</tt
+>) and come out not much wiser about what it all really means.  Here's the secret: it's <tt>setjmp</tt
+>/<tt>longjmp</tt
+>.
+</p
+><p>But on no account say that to any Scheme programmers you know, it'll send them into paroxysms of rage as they tell you you don't know what you're talking about.  Oh, and if you're a Scheme programmer who's accidentally stumbled on this page then please, please, stop reading now, for the sake of your blood pressure.  (Or in any case remember this page is for refugee C programmers, not for you.)
+</p
+><h2 id="H-aa7lj1">C versus Scheme
+</h2
+><p>Basically <tt>call/cc</tt
+> is like <tt>setjmp</tt
+>.  It records a dynamic point in the program execution, one which you can return to, ie. jump to, later if you want.  <tt>setjmp</tt
+> does its thing by filling in a <tt>jmp_buf</tt
+> you supply, but <tt>call/cc</tt
+> creates a continuation object and calls your nominated bit of code with it.
+</p
+><p>The way <tt>call/cc</tt
+> calls a function to give you the contination can be confusing.  Essentially it's just a clean way to get the continuation to you and keep out of the way of subsequent jumps back to the saved point.  It's typical to do no more that save away the continuation object
+</p
+><pre class="scheme">     <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_idx_566" class="scheme-documentation">call/cc</a
+></span
+> <span class="paren">(<span class="keyword"><a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_96" class="scheme-documentation">lambda</a
+></span
+> <span class="paren">(cont)</span
+> 
+                <span class="paren">(<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_idx_102" class="scheme-documentation">set!</a
+> my-saved-cont cont)</span
+>)</span
+>)</span
+> 
+</pre
+><p>In the name &quot;<tt>call-with-current-continuation</tt
+>&quot;, &quot;<tt>call</tt
+>&quot; refers to the way a function is called to hand over the continuation.  Don't be confused by the fact the continuation object is later invoked by calling it, that's entirely separate.
+</p
+><p>Once you've got a continuation object, calling it as say <tt>(cont 123)</tt
+> is like a C code <tt>longjmp(jbuf, 123)</tt
+>.  It's a jump back to the original <tt>call/cc</tt
+> point, and the return value from the <tt>call/cc</tt
+> is the 123 in the invoking call, just like <tt>setjmp</tt
+> returns the value passed to <tt>longjmp</tt
+>.  In Scheme of course any object can be &quot;returned&quot; in this way (and even values<a href="/?p=values&amp;c=e">?</a
+> for more than one object), not just a single int.
+</p
+><p>This &quot;multiple returning&quot; by the <tt>call/cc</tt
+> shouldn't be any more confusing that the multiple returning of a <tt>setjmp</tt
+>.  However because Scheme is more flexible it's easy to be creative with what's returned and when and why, to create confusion where it shouldn't exist.  The key idea though remains a dynamic goto with a value passed.
+</p
+><p>In C it's only possible to jump up the stack, to a point in the current function or a higher calling function.  But in Scheme you can jump back down as well, or even &quot;sideways&quot;.  To do this <tt>call/cc</tt
+> effectively saves the whole stack.  In fact in some Scheme implementations (for example <a href="/?Guile">Guile</a
+>) a block copy of the stack is exactly how it's done.
+</p
+><p>This downwards/sideways jumping is a powerful feature.  Genuine co-routines can be implemented.  Or a long-running &quot;job&quot; can be suspended and resumed periodically, even becoming a cooperative (and portable) multi-tasking system.  Such things are not really possible (or only with some difficulty) in C with <tt>setjmp</tt
+>/<tt>longjmp</tt
+>.
+</p
+><p>An important note should be added about the way variables are saved in a continuation.  In C if you were to copy the stack then you copy the values in local variables (automatics), and restoring would put back the values copied.  But effectively in Scheme it's just &quot;what variables are visible&quot; which is saved and restored, the actual locations holding the values are separate.  So if you have a continuation, jump into it and change some values, and jump in again later then the changes you made are still there.  This is much the same as in the notion of a <a href="/?closure">closure</a
+>: the variables visible to it keep their values between invocations.
+</p
+><h2 id="H-10cmw12">Not a goto
+</h2
+><p>When Scheme folks get hot and bothered about continuations not being gotos what they normally mean is that the idea of a continuation is much more fundamental.
+</p
+><p>A continuation represents the &quot;what thing(s) to do next&quot; for a program and execution proceeds by manipulating that.  A function call expands the continuation with the body of the function (with its parameters bound to the called values).  A return reduces it back to the receiver of the result in question, etc.
+</p
+><p>This is an abstract idea about what program execution means, but in fact various Scheme implementations do it exactly this way, using the heap to record the current continuation.  At its simplest the current continuation in such systems is like a list grown by <a href="/?cons">cons</a
+>ing onto the front, and reduced by <a href="/?cdr">cdr</a
+>ing down.  In such a system capturing a continuation is merely saving a reference to the list, and jumping to it just plugs that back in as the current &quot;what to do&quot;.  (And it can be seen that method is fast, where a stack copy is slow, though both have advantages.)
+</p
+><hr><p><a href="/?category-learning-scheme">category-learning-scheme</a
+>
+</p
+><hr><div class="footer" style="text-align:right">Last modified : 2010-09-30 04:06:15<br><a href="http://www.shiro.dreamhost.com/scheme/wiliki/wiliki.cgi">WiLiKi 0.5-tekili-7</a
+> running on <a href="http://www.shiro.dreamhost.com/scheme/gauche/">Gauche 0.9</a
+></div
+></body
+></html
+>

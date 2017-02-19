@@ -1,0 +1,8 @@
+a.home { color: rgb(0, 0, 0); text-decoration: none; }
+p { font-family: verdana; font-size: 10pt; }
+p.title { font-family: verdana; font-size: 14pt; }
+p.ctitle { font-family: verdana; font-size: 14pt; text-decoration: underline; }
+li { font-family: verdana; font-size: 10pt; }
+em { font-family: verdana; font-size: 10pt; }
+td { font-family: verdana; font-size: 10pt; }
+table.about { float: right; }

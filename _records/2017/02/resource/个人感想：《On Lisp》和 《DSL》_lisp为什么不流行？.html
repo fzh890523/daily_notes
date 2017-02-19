@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" class="ua-windows ua-webkit">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <title>
+    个人感想：《On Lisp》和 《DSL》:lisp为什么不流行？
+</title>
+    
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+    
+    <script >var _head_start = new Date();</script>
+    <script src="https://img3.doubanio.com/f/shire/72ced6df41d4d158420cebdd254f9562942464e3/js/jquery.min.js"></script>
+    <script src="https://img3.doubanio.com/f/shire/f067a26090389e2f0433e64d90f3121eac481d1a/js/douban.js"></script>
+    <link href="https://img3.doubanio.com/f/shire/82d7c82f084d5157d7b87a17c76af984dd23dbbf/css/douban.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+    
+        
+    .ui-tooltip {
+      width: 270px;
+    }
+    .note img {
+      max-width:590px;
+    }
+    .tabs{font-size:0;letter-spacing:-0.31em;*letter-spacing:normal;word-spacing:-0.43em}.tabs a{display:inline-block;*display:inline;zoom:1;padding:1px 8px;margin-right:5px}.tabs a:link,.tabs a:visited,.tabs a:hover,.tabs a:active{font-size:13px;line-height:1.2;letter-spacing:normal;word-spacing:normal}.tabs a:hover,.tabs a:active{-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.tabs a.on:link,.tabs a.on:visited,.tabs a.on:hover,.tabs a.on:active{color:#fff;background:#83bf73;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.tabs{margin:40px 0 10px;padding-bottom:8px;border-bottom:1px solid #e6e6e6}.tabs a:first-child{padding-left:0}.tabs a:link,.tabs a:visited,.tabs a:hover,.tabs a:active{color:#37a;background:none}.tabs a.on:link,.tabs a.on:visited,.tabs a.on:hover,.tabs a.on:active{color:#000;background:none}.list,.list .content{overflow:hidden;zoom:1}.list .pic{float:left;margin-right:12px}.list p{margin:8px 0 0 0;background:#f9f9f9;padding:8px}.list .pubtime{position:absolute;top:10px;right:0;color:#999}.list .pic img{width:24px;height:24px}.list ul{margin-top:-15px}.list li{position:relative;padding-top:10px;margin-top:10px;border-top:1px dashed #e6e6e6;overflow:hidden;color:#666}.topic-fav-list .content{margin-top:4px;width:70%}.topic-fav-list .pubtime{top:14px}.topic-rec-list .pubtime a:link,.topic-rec-list .pubtime a:visited,.topic-fav-list .pubtime a:link,.topic-fav-list .pubtime a:visited,.topic-donate-list .pubtime a:link,.topic-donate-list .pubtime a:visited{color:#666}.topic-rec-list .pubtime a:hover,.topic-rec-list .pubtime a:active,.topic-fav-list .pubtime a:hover,.topic-fav-list .pubtime a:active,.topic-donate-list .pubtime a:hover,.topic-donate-list .pubtime a:active{color:#fff}.topic-rec-list p{padding:0}.topic-rec-list p a{display:block;background:#f9f9f9;padding:8px}.topic-rec-list p a:link,.topic-rec-list p a:visited{color:#666}.topic-rec-list p a:hover,.topic-rec-list p a:active{background-color:#f6f6f6;color:#666}.donation-total{padding:7px 0 15px;line-height:1;border-bottom:1px dashed #e6e6e6;color:#666}.donation-total+.list ul{margin-top:-11px}
+
+    p.presto-like {
+      margin-top: 5px;
+      background: #fff;
+      padding: 2px 0 15px 0;
+      text-align: right;
+    }
+    p.presto-rec {
+      margin-top: 5px;
+      padding: 2px 0 15px 0;
+      text-align: right;
+      background:initial;
+    }
+    p.presto-rec a{
+      display:initial;
+      padding:initial;
+      margin:initial;
+      background-color:white;
+    }
+    p.presto-rec a:link{
+      color:#37a;
+    }
+    p.presto-rec a:visited{
+      color:#666699;
+    }
+    p.presto-rec a:hover{
+      background-color:#37a;
+      color:white;
+    }
+    .copyright-claim.repost {
+      color: #999;
+      font-size: 13px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .copyright-claim.repost .rating_helper_wrap {
+      display: none;
+      position: absolute;
+      margin-top: -2px;
+    }
+    .copyright-claim.repost:hover .rating_helper_wrap {
+      display: inline-block;
+    }
+    .copyright-claim.repost .rating_helper_wrap a {
+      background: none;
+    }
+    .copyright-claim.repost .rating_helper_wrap .rating_helper_content {
+      width: 235px;
+    }
+    #link-report .report a {
+      visibility: visible;
+    }
+    #link-report .report {
+      white-space: normal;
+    }
+    #link-report {
+      margin-bottom: 13px;
+      position: relative;
+    }
+    .via {
+      font-size: 12px;
+      color: #bbb;
+      display: block;
+      margin-top: 10px;
+    }
+    .via a {
+      color: #bbb;
+      font-size: 12px;
+    }
+    .via a:hover {
+      color: #fff;
+    }
+    #dale_personal_note_bottom_super_banner {
+      padding-top: 20px;
+    }
+    .video-player {
+        margin: 10px 0;
+        text-align: center;
+    }
+    .video-title {
+        color: #999;
+    }
+
+    </style>
+    
+    <link rel="stylesheet" media="only print" href="https://img3.doubanio.com/f/sns/b9b17f151e4b3bda781bf9b2e7b8baa8eef7d76d/css/sns/print.css" />
+    <meta name="mobile-agent" content="format=html5; url=https://m.douban.com/note/332000398">
+    <meta property="og:title" content="个人感想：《On Lisp》和 《DSL》:lisp为什么不流行？" />
+    <meta property="og:site_name" content="豆瓣"/>
+    <meta property="og:url" content="https://www.douban.com/note/332000398/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:description" content="最近看了两本书《on lisp》和《领域特定语言》(DSL) 前者介绍lisp的一些特点，很多和SICP重合。有的很有用，比如如何写延后计算的一个无限长列表（流），如何写一个prolog的解释器，如何写简单和复杂的宏等等。 D..." />
+    <link type="text/css" href="https://img3.doubanio.com/f/shire/ce3ccd609585055eee51d0226a7c6bbe5563454a/css/lib/jquery.ui.tooltip.css" rel="stylesheet"/>
+    <link type="text/css" href="https://img3.doubanio.com/f/shire/6955e5a57af3e891380cbab06b7c68e8c919404c/css/doulist/tooltip.css" rel="stylesheet"/>
+    <link type="text/css" href="https://img3.doubanio.com/f/sns/dbe2f5ca3a0b45f3b928dce12138e26cd6e7a308/css/sns/tag.css" rel="stylesheet"/>
+    <script type="text/javascript" src="https://img3.doubanio.com/f/shire/77323ae72a612bba8b65f845491513ff3329b1bb/js/do.js" data-cfg-autoload="false"></script>
+    <script type="text/javascript" src="https://img3.doubanio.com/f/shire/e254005edae24d9a1808ede9c3d7fcc5b6d94e1b/js/lib/jquery.ui.min.js"></script>
+    <script type="text/javascript" src="https://img3.doubanio.com/f/shire/fbaca9d7108036ab6c1624a721de7d1a43f706c0/js/lib/jquery.ui.tooltip.js"></script>
+
+    <link rel="stylesheet" href="https://img3.doubanio.com/misc/mixed_static/5bda8e9c19ea2fcb.css">
+    <script></script>
+
+    <link rel="shortcut icon" href="https://img3.doubanio.com/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+  
+    <script type="text/javascript">var _body_start = new Date();</script>
+    
+   
+
+
+
+
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+    
+
+
+
+
+
+<div class="top-nav-info">
+      
+      <a href="https://www.douban.com/accounts/login?source=main" class="nav-login" rel="nofollow">登录</a>
+      <a href="https://www.douban.com/accounts/register?source=main" class="nav-register" rel="nofollow">注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+        
+        <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+        <div id="top-nav-appintro" class="more-items">
+            <p class="appintro-title">豆瓣</p>
+            <p class="slogan">我们的精神角落</p>
+            <p class="qrcode">
+                扫码直接下载
+            </p>
+            <div class="download">
+                <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=iOS">iPhone</a>
+                <span>·</span>
+                <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&amp;direct_dl=1&amp;download=Android" class="download-android">Android</a>
+            </div>
+        </div>
+        <div id="doubanapp-tip">
+            <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 4.0 全新发布</a>
+            <a href="javascript: void 0;" class="tip-close">×</a>
+        </div>
+    </div>
+
+    <div class="global-nav-items">
+      <ul>
+          
+            
+            <li class="on">
+            <a href="https://www.douban.com/" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-main&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              豆瓣
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://book.douban.com/" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-book&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              读书
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://movie.douban.com/" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-movie&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              电影
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://music.douban.com/" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-music&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              音乐
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://www.douban.com/location/" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-location&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              同城
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://www.douban.com/group/" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-group&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              小组
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://read.douban.com/?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-read&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              阅读
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://douban.fm/?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-fm&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              FM
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://dongxi.douban.com/?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-commodity&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              东西
+            </a>
+            </li>
+          
+            
+            <li class="">
+            <a href="https://market.douban.com/?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-market&#34;,&#34;uid&#34;:&#34;0&#34;}">
+              市集
+            </a>
+            </li>
+          
+            <li>
+              <a href="#more" class="bn-more"><span>更多</span></a>
+              <div class="more-items">
+                <table cellpadding="0" cellspacing="0">
+                    
+                    <tr><td><a href="https://moment.douban.com" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-moment&#34;,&#34;uid&#34;:&#34;0&#34;}">一刻</a></td></tr>
+                    
+                    <tr><td><a href="https://ypy.douban.com" target="_blank" data-moreurl-dict="{&#34;from&#34;:&#34;top-nav-click-ypy&#34;,&#34;uid&#34;:&#34;0&#34;}">豆瓣摄影</a></td></tr>
+                </table>
+              </div>
+            </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+
+   
+    
+
+
+
+
+
+
+
+<div id="db-nav-sns" class="nav">
+  <div class="nav-wrap">
+    <div class="nav-primary">
+      <div class="nav-search">
+        <form action="https://www.douban.com/search" method="get">
+          <fieldset>
+            <legend>搜索：</legend>
+            <label for="inp-query">搜索你感兴趣的内容和人...</label>
+            <div class="inp">
+              <input type="hidden" name="source" value="suggest">
+              <input id="inp-query" name="q" size="22" title="搜索搜索你感兴趣的内容和人..." maxlength="60" autocomplete="off"  value="">
+            </div>
+            <div class="inp-btn"><input type="submit" value="搜索"></div>
+          </fieldset>
+        </form>
+      </div>
+  
+      <div class="nav-logo">
+        <a href="https://www.douban.com">豆瓣社区</a>
+      </div>
+  
+      <div class="nav-items">
+        <ul>
+          <li><a href="https://www.douban.com/">首页</a></li>
+          <li>
+              <a href="https://www.douban.com/explore/">浏览发现</a>
+          </li>
+          <li>
+              <a href="https://www.douban.com/app/">移动应用</a>
+          </li>
+          <li>
+            <a href="https://www.douban.com/game/explore?dcs=sns-nav&amp;dcm=douban">游戏</a>
+          </li>
+          <li><a href="https://www.douban.com/online/">线上活动</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    <div id="wrapper">
+        
+
+        
+<div id="content">
+    
+
+    <div class="grid-16-8 clearfix">
+        
+        
+        <div class="article">
+               
+    
+    
+    
+    <div id="reg-up">
+        <a href="https://www.douban.com/accounts/register" data-source=note data-key="regpop" data-cookie="1" data-expired="3600000" data-width="478" data-height="480" class="btn-reg lnk-show-reg">快速注册</a>
+    </div>
+    
+    
+    
+    <div id="note-332000398" class="note-container" data-url="https://www.douban.com/note/332000398/" data-author="wsxl焦头烂额" data-is-original="0">
+
+    
+    
+    
+        <div class="note-header note-header-container">
+        <h1>个人感想：《On Lisp》和 《DSL》:lisp为什么不流行？</h1>
+
+    
+    <div>
+        <a href="https://www.douban.com/people/wsxlcug/"><img class="note_author_avatar" width="24" height="24" src="https://img3.doubanio.com/icon/u1185201-82.jpg" alt="wsxl焦头烂额"></a>
+        <a href="https://www.douban.com/people/wsxlcug/" class="note-author">wsxl焦头烂额</a>
+        <span class="pub-date">2014-02-22 22:10:55</span>
+    </div>
+    
+    </div>
+
+
+    
+    <div class="note" id="note_332000398_short" style="display:none;"></div>
+    <div id="note_332000398_full" >
+            
+            <div class="note" id="link-report">最近看了两本书《on lisp》和《领域特定语言》(DSL)<br><br>前者介绍lisp的一些特点，很多和SICP重合。有的很有用，比如如何写延后计算的一个无限长列表（流），如何写一个prolog的解释器，如何写简单和复杂的宏等等。<br><br>DSL这本书就讲了如何写内部和外部DSL。<br><br>有好几个人都写到，当你需要一个内部脚本语言的时候，与其自己实现，不如直接就用LISP。原因很简单。当界面和场景需要频繁改变更新的时候，内部脚本对于隔离数据和程序，数据模型和界面、流程控制（MCV）非常有用。你不必为了实现一个小功能把整个程序重新编译一遍，用脚本实现新功能不仅简单容易调试，还使得功能实现、可能的错误更直观。<br><br>脚本需求往往是以下几个层次逐步递进<br>1 简单的复制顺序按键。vi和loutus123的脚本其实就是这种，缺点非常明显，不够智能，连临时变量都没有，可做的事情非常少<br>2 批量处理。这样就需要循环的控制了。理论上可以通过一些方法绕过，甚至用按键序列也不是不能实现，只是没有几个写内部脚本的会满意于这点<br>3 有智能判断，有*可靠*的临时变量。这个时候基本就不得不引进程序块（也就是if语句和for语句被包起来的那块）和变量scope了。如果允许程序块嵌套，也就是if套循环或者循环套循环，基本就不得不实现一个正规的脚本语言了，这样工作量就大了。如果自己实现整套脚本语言，很容易出错误，不如嵌入一个现成的语言。<br><br>一个全功能的脚本语言，如果想要解析简单而正确，1代码量小2功能全，3易扩展，在过去基本只能有一个选择，lisp。lisp不管垃圾回收的话，是当时所有语言里面代码最简单功能最全的。其他所有语言都是代码比lisp复杂功能还没有lisp的零头。要实现新的内部特殊语法，lisp也是最简单的，用宏展开就完了，不像其他语言还要一个个写逻辑绑上去。像各种shell,sendmail,各种配置脚本等等，到后来扩展起来都是头疼的要死。<br><br>但是除了emacs和autocad用lisp外，微软里面用vb，一大堆人写lua，python，tk，ruby，perl等等，origin甚至直接用伪c，就没有几个愿意用lisp的。为什么？<br><br>DSL里面没把直接说，但是解释得很清楚：lisp是给机器读的，层次结构清晰，几乎不会有模糊解释，这才有lisp宏这种用程序写程序的东西，别的语言要想实现用程序写程序首先就要实现解析语法树的功能，lisp根本不用天然就是解析好的语法树，操作起来特别方便。当然，到后面要实现写实现宏的宏这种元语言的元语言的奇葩，还是要废不少脑子的。<br><br>但是你反过来想，机器认得好操作的东西，还有一样是什么？是汇编语言。现在还有几个人用汇编？lisp没人用的原因很简单，违反人类语言的习惯，不是人读的。一个是前缀表达式的问题（forth这种比basic设计的好的多的语言也是因为类似的原因被抛弃），另外一个原因就是括号过多的本质；层次太深。定义一个函数，定义就有起码两层，局部变量全局加一层，内部有并行的两层，循环全局二层内部三层。虽然有ide和缩进规则可以保证括号配对，但是说句实在话，我们是人，干吗要干中缀转前缀和括号配对这种本应该是电脑的活？ocamel和haskell不搞这些，命令式语法写起来爽多了，也没有给fp本质带来什么麻烦啊？没有了宏有点不方便，但是90%需要用宏的地方用内置语法糖就解决了呀？而且语法糖也并不多。<br><br>不说写的时候，光是看的时候就有问题。我们大家习惯了说有上下文有歧义性的语句，我们习惯了靠关键字和顺序来定义单词的词性和角色，我们不习惯层次太深的套套逻辑。我到现在看lisp，判断语言的层次关系仍然使用关键词和缩进，很少去数括号在哪里配对。我想其实很多lisper应该也是一样的。只要语法结构设计合理，特别是语法块设计合理并且不搞太复杂的愈发特征，类C语法的复杂度还是可以接受的。<br><br>实际上，lisp的优点很多，但是lisp宏这东西，虽然比c语言的简单替换宏要有力的多，却容易进一步带来理解的困难。你写的程序是要给别人看得，你写的方便要别人也看的方便才是，用了太多自定义宏，除非这种替换是简化原有层次关系变得更直观的，否则只会像方言一样带来不便。我同意宏是个好东西，但是写一个生成宏的宏，除非没有更好的方案，我觉得实在是有点过了。而现代的 脚本语言也不是早年的那些了，从设计的一开始就考虑好了解析的需求，从虚拟机的层次实现新语法（类型反射+语句块，我觉得是比lisp宏更强大更本质的解决方案），所以语法树分析也没有那么必要了，虽然应用范围窄了不少。内部语言最讨厌的就是语法解析部分了，只要表现力足够，人家又写好了现成的解释器不必自己实现，那么用容易理解的就好了，不必非lisp不可。<br><br>ruby自称是新时代的perl，实际上的lisp。我觉得像lisp的部分就在于可以实现类似宏的内部新语法，和程序块（一般叫迭代器，其实就是一个匿名的函数或者lambda函数作为常规函数的参数的用法）这两个。ruby用的是反射的方法，我觉得比lisp宏的抽象层次更高，同时又保留了一般语法的易读性。迭代器和lambda函数的区别也非常简单，就是少用了一到两层括号。别看就少了那么几个关键字少了一层括号的语法糖，易读性和易用性增加了上十倍。C#里面引进异步关键字，多了一个关键字，看起来更复杂了，但是写程序的时候再也不用函数套函数了，让编译程序去算嵌套关系，把计算机擅长的东西还给计算机，极大简化了写程序的难度，增加了直观性。语法糖减少了语法层次，就是好的；只是减少敲键盘次数却打乱了层次或者引入歧义，则没什么必要。王垠说的python的缩进容易在打字错误的时候搞乱层次就是个例子。C就有不少这种错误设计，但是lisp这样没有半点变通又太过了。<br><br>可能有人会说，这些语言扩展都很有限，没有lisp丰富和强大，不少情况扩展起来也没有lisp简单，不会出现像lisp那样光靠宏就实现面向对象那样强大。问题是，用户用得爽，容易理解，20%的改进解决了80%的问题，这就够了。如果有必要用到非常大的复杂情况，这种情况就不该用脚本了。设计DSL首先就要警惕像过去的一大堆脚本语言那样大而全让用户不知道怎么写，从而失去了脚本的本意。<br><br><br>==========<br>谈到内部dsl，onlisp一书里面有两个例子，一个是把树状判断逻辑链编译成一个单独的函数变量。一个是实现一个完全由lisp实现的数据库外加语言。非常让人印象深刻。但是，实际上都是玩弄lisp，根本不是现实的解决方案，只是证明能做，并不能证明做好。<br><br>数据库问题的关键在于性能，性能瓶颈又来自于小内存和大数据，还有数据可靠性和持久性。lisp万般能耐，不和底层打交道，永远解决不了语言外的问题。<br><br>逻辑判断链是个数据结构的问题。lisp的表能模拟任何一种数据结构，闭包还能用函数对象把数据结构的细节隐藏起来——但是这和解决问题有关系吗？你要写复杂的逻辑判断，应该把数据结构突出出来才是，这样才能防止错误，把数据的生成和分配用闭包隐藏起来除了减少内存分配错误，帮助很小。<br><br>这个世界上存在复杂性，有些复杂性是数据内在的，我们应该直面；有的是语言的表现能力问题，我们要改进语言或者使用dsl或者写类库，隐藏复杂性；这两者应该分开。</div>
+            
+    
+
+            
+
+    </div>
+
+
+            
+    
+    <div id="sep"></div>
+    <div id="note_332000398_footer" class="note-ft" >
+        
+        
+        <div class="note-footer-stat">
+          <div class="note-footer-stat-privacy">
+          </div>
+
+          <span class="note-footer-stat-del">
+          </span>
+        </div>
+
+        
+        <div class="sns-bar">
+            <div class="footer-sharing">
+                <div class="sns-bar-fav ">
+                    
+    
+        <a class="fav-add btn-fav j a_show_login" title="标为喜欢？" href="https://www.douban.com/accounts/register?reason=like" data-tid="332000398" data-tkind="1015">喜欢</a>
+
+    
+
+    
+
+                </div>
+                    
+    
+    
+    
+    <div class="sharing" data-target="{&#34;url&#34;: &#34;http://www.douban.com/note/332000398/&#34;, &#34;desc&#34;: &#34;\u6700\u8fd1\u770b\u4e86\u4e24\u672c\u4e66\u300aon lisp\u300b\u548c\u300a\u9886\u57df\u7279\u5b9a\u8bed\u8a00\u300b(DSL) \u524d\u8005\u4ecb\u7ecdlisp\u7684\u4e00\u4e9b\u7279\u70b9\uff0c\u5f88\u591a\u548cSICP\u91cd\u5408\u3002\u6709\u7684\u5f88\u6709\u7528\uff0c\u6bd4\u5982\u5982\u4f55\u5199\u5ef6\u540e\u8ba1\u7b97\u7684\u4e00\u4e2a\u65e0\u9650\u957f\u5217\u8868\uff08\u6d41\uff09\uff0c\u5982\u4f55\u5199\u4e00\u4e2aprolog\u7684\u89e3\u91ca\u5668\uff0c\u5982\u4f55\u5199\u7b80...&#34;, &#34;pic&#34;: &#34;&#34;, &#34;title&#34;: &#34;\u4e2a\u4eba\u611f\u60f3\uff1a\u300aOn Lisp\u300b\u548c \u300aDSL\u300b:lisp\u4e3a\u4ec0\u4e48\u4e0d\u6d41\u884c\uff1f&#34;}">
+        <div class="sharing-button">
+            <div class="sharing-douban">
+                
+
+    
+
+
+        <div class="rec-sec">
+
+    <span class="rec">
+        
+            <a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="332000398" data-mode="plain" data-name="个人感想：《On Lisp》和 《DSL》:lisp..." data-type="com.douban.people" data-desc="最近看了两本书《on lisp》和《领域特定语言》(DSL) 前者介绍lisp的一些特点，很多和SICP重合。有的很有用，比如如何写延后计算的一个无限长列表（流），如何写一个prolog的解释器，如何写简..." data-href="https://www.douban.com/note/332000398/" data-image="" data-properties="{&#34;href&#34;:&#34;http:\/\/www.douban.com\/people\/wsxlcug\/&#34;,&#34;name&#34;:&#34;wsxl焦头烂额&#34;,&#34;uid&#34;:&#34;1185201&#34;}" data-redir="https://www.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="1015" data-object_id="332000398" data-target_type="rec" data-target_action="0" data-action_props="{&#34;note_url&#34;:&#34;http:\/\/www.douban.com\/note\/332000398\/&#34;,&#34;note_title&#34;:&#34;个人感想：《On Lisp》和 《DSL》:lisp...&#34;,&#34;author_name&#34;:&#34;wsxl焦头烂额&#34;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_eff9a" class="j a_show_login lnk-sharing lnk-douban-sharing">
+                    
+                            推荐
+                    
+            </a>
+    </span>
+            </div>
+
+            </div>
+            <span class="sharing-indicator"></span>
+        </div>
+        <div class="sharing-layer is-hidden">
+            <div class="sharing-wechat">
+                <span class="sharing-icon__wechat">微信扫码</span>
+                <div class="sharing-wechat-qrcode"></div>
+            </div>
+            
+            <ul class="sharing-list">
+                <li class="sharing-icon__weibo" data-share="weibo">新浪微博</li>
+                <li class="sharing-icon__qq" data-share="qq">QQ好友</li>
+                <li class="sharing-icon__qzone" data-share="qzone">QQ空间</li>
+            </ul>
+        </div>
+    </div>
+    
+
+            </div>
+            
+            
+        </div>
+    </div>
+
+
+    </div>
+    <div class="clear" ></div>
+
+    <div class="tabs" id='reviews'>
+      <a href="https://www.douban.com/note/332000398/#sep" class=on>回应</a>
+      <a href="https://www.douban.com/note/332000398/?type=rec#sep" >推荐</a>
+      <a href="https://www.douban.com/note/332000398/?type=like#sep" >喜欢</a>
+    </div>
+
+    <div class="">
+          
+
+
+
+
+
+
+
+
+
+
+<div id="comments" class="">
+
+
+
+
+
+<div id="last"></div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    <br/><span class="pl2" align="right"><a class="j a_show_login" href="https://www.douban.com/accounts/register?reason=comment">&gt; 我来回应</a></span>
+
+
+ 
+
+ 
+
+    
+    
+    
+
+
+
+
+
+
+
+
+</div>
+
+
+<script>
+Do(function(){
+  $('#comments').find('.comment-item').hover(function(){$(this).addClass('over');}, function(){$(this).removeClass('over');});
+  $('.reply-quote .toggle-reply').click(function(e) {
+    e.preventDefault();
+    var el = $(this);
+    el.prevAll('span').toggle();
+    el.find('span').toggle();
+  });
+});
+</script>
+
+
+
+
+    </div>
+
+
+
+	
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+        </div>
+        <div class="aside">
+                
+    
+
+
+
+
+
+
+<div class="mod mod-usercard">
+  <div class="pic">
+      <a href="https://www.douban.com/people/wsxlcug/"><img src="https://img3.doubanio.com/icon/u1185201-82.jpg" alt="wsxl焦头烂额" width="48" height="48"/></a>
+  </div>
+  <div class="content">
+    <a href="https://www.douban.com/people/wsxlcug/">wsxl焦头烂额</a>
+        <span class="usercard-loc">(湖北武汉)</span>
+    <p>已婚大叔 专业物理 兴趣 青年漫画 生物科普 搜集的动画脱口秀 http://u....</p>
+    <div class="ft">
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+
+
+
+    
+    
+    
+        <div class="mod">
+            
+    <h2>
+        wsxl焦头烂额的最新日记
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="https://www.douban.com/people/wsxlcug/notes" target="_self">全部</a>
+                ) </span>
+    </h2>
+
+            <ul class="note-list">
+                  <li>
+                    <a title="fgo两月纪念" href="https://www.douban.com/note/601130676/">fgo两月纪念</a>
+                    
+                  </li>
+                  <li>
+                    <a title="几个关于卡斯特罗的段子" href="https://www.douban.com/note/594282476/">几个关于卡斯特罗的段子</a>
+                    
+                  </li>
+                  <li>
+                    <a title="水培海芋需要加土吗？" href="https://www.douban.com/note/582845785/">水培海芋需要加土吗？</a>
+                    
+                  </li>
+                  <li>
+                    <a title="短信同步应该有黑名单、延迟同步制度以对抗验证码盗窃" href="https://www.douban.com/note/577482770/">短信同步应该有黑名单、延迟同步制度以对抗验证码盗窃</a>
+                    
+                      <span>&nbsp;(2人喜欢)</span>
+                  </li>
+                  <li>
+                    <a title="我们应该如何抵制" href="https://www.douban.com/note/570794731/">我们应该如何抵制</a>
+                    
+                      <span>&nbsp;(2人喜欢)</span>
+                  </li>
+            </ul>
+        </div>
+
+
+
+    
+
+
+
+
+
+
+<div class="mod">
+    
+    <h2>
+        热门话题
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="/gallery/explore" target="_self">更多</a>
+                ) </span>
+    </h2>
+
+
+    <ul>
+        
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E6%8B%96%E5%BB%B6%E7%97%87/?from=hot_topic_note" class="rec_topics_name">拖延症</a>
+                <span class="rec_topics_subtitle">明天再点开这个话题也不晚 · 1077条内容</span>
+            </li>
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E5%8A%A8%E7%89%A9%E5%9B%AD/?from=hot_topic_note" class="rec_topics_name">动物园</a>
+                <span class="rec_topics_subtitle">动物园的正确打开方式 · 161条内容</span>
+            </li>
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E6%95%85%E4%B9%A1/?from=hot_topic_note" class="rec_topics_name">故乡</a>
+                <span class="rec_topics_subtitle">佳节归乡，离前一瞥 · 945条内容</span>
+            </li>
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E8%B5%B0%E4%BA%B2%E8%AE%BF%E5%8F%8B%E5%BC%82%E9%97%BB%E5%BD%95/?from=hot_topic_note" class="rec_topics_name">走亲访友异闻录</a>
+                <span class="rec_topics_subtitle">聊聊饭局酒桌上的奇妙见闻 · 635条内容</span>
+            </li>
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E5%A9%9A%E5%A7%BB%E5%85%B3%E7%B3%BB/?from=hot_topic_note" class="rec_topics_name">婚姻关系</a>
+                <span class="rec_topics_subtitle">情感、伦理与契约 · 331条内容</span>
+            </li>
+            <li class="rec_topics">
+                <a href="https://www.douban.com/gallery/topic/%E4%B8%8A%E4%B8%80%E8%BE%88%E7%9A%84%E5%9B%B0%E5%A2%83/?from=hot_topic_note" class="rec_topics_name">上一辈的困境</a>
+                <span class="rec_topics_subtitle">用理解代替批判 · 331条内容</span>
+            </li>
+    </ul>
+</div>
+
+    <!-- douban ad begin -->
+    <div id="dale_personal_note_middle_right" style="margin-bottom: 20px;"></div>
+    <!-- douban ad end -->
+
+<div class="mod">
+    
+    <div class="hd">
+        
+    <h2>
+        推荐这篇日记的豆列
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="https://www.douban.com/note/332000398/doulists" target="_self">全部</a>
+                ) </span>
+    </h2>
+
+    </div>
+    <div class="indent">
+        <ul class="bs">
+            <li><a href="https://www.douban.com/doulist/37701531/">wsxl的 IT日记</a>
+                  <span class="pl">&nbsp;(1人关注)</span>
+            </li>
+            <li><a href="https://www.douban.com/doulist/4181084/">大</a>
+            </li>
+            <li><a href="https://www.douban.com/doulist/22885405/">wsxl懒毛猪的日记</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+    <!-- douban app begin -->
+    
+
+<style>
+    .qrcode-app {
+        margin: 20px 0;
+    }
+    .qrcode-app a.download {
+        display: block;
+        width: 300px;
+        height: 80px;
+        background: url(/pics/qrcode_app4@2x.png) no-repeat;
+        background-size: contain;
+        background-image: -webkit-image-set(url(/pics/qrcode_app4.png) 1x, url(/pics/qrcode_app4@2x.png) 2x);
+        background-image: -moz-image-set(url(/pics/qrcode_app4.png) 1x, url(/pics/qrcode_app4@2x.png) 2x);
+        background-image: -ms-image-set(url(/pics/qrcode_app4.png) 1x, url(/pics/qrcode_app4@2x.png) 2x);
+        background-image: -o-image-set(url(/pics/qrcode_app4.png) 1x, url(/pics/qrcode_app4@2x.png) 2x);
+    }
+</style>
+<div class="qrcode-app">
+    <a class="download" href="https://www.douban.com/doubanapp/app?channel=Db_Homepage_Bar&amp;direct_dl=1" target="_blank">
+    </a>
+</div>
+
+    <!-- douban app end -->
+
+        </div>
+        <div class="extra">
+            
+    
+<!-- douban ad begin -->
+<div id="dale_personal_note_bottom_super_banner"></div>
+<script type="text/javascript">
+    (function (global) {
+        var body = global.document.body,
+            html = global.document.documentElement;
+
+        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        if (height >= 1000) {
+            (global.DoubanAdSlots = global.DoubanAdSlots || []).push('dale_personal_note_bottom_super_banner');
+        }
+    })(this);
+</script>
+<!-- douban ad end -->
+
+
+        </div>
+    </div>
+</div>
+
+        
+<div id="footer">
+    
+<span id="icp" class="fleft gray-link">
+    &copy; 2005－2017 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+    <a href="https://www.douban.com/about">关于豆瓣</a>
+    · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+    · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+    · <a href="https://www.douban.com/about?policy=disclaimer">免责声明</a>
+    
+    · <a href="https://help.douban.com/?app=main" target="_blank">帮助中心</a>
+    · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+    · <a href="https://www.douban.com/partner/">豆瓣广告</a>
+</span>
+
+</div>
+
+    </div>
+    <script type="text/javascript" src="https://img3.doubanio.com/misc/mixed_static/169179ac1c0c13db.js"></script><script type="text/javascript">
+        var douban_src = '//' + 'www.douban.com';
+        var fav_type = 'fav_note';
+        var fav_url = 'https://www.douban.com/note/332000398/?type=like#sep';
+        window.fav_title = '标为喜欢？';
+    </script><script type="text/javascript" src="https://img3.doubanio.com/misc/mixed_static/578aae2972b47937.js"></script>
+    
+    <script src="https://img3.doubanio.com/f/sns/b76b5fce747a6cd9f6d6f27ed6ce230b09ef797c/js/sns/note/copy.js" type="text/javascript"></script>
+    
+
+
+
+
+    
+<script type="text/javascript">
+    (function (global) {
+        var newNode = global.document.createElement('script'),
+            existingNode = global.document.getElementsByTagName('script')[0],
+            adSource = '//erebor.douban.com/',
+            userId = '',
+            browserId = 'OCanLG_wHCY',
+            criteria = '3:/note/332000398/',
+            preview = '',
+            debug = false,
+            adSlots = ['dale_personal_note_middle_right'];
+
+        global.DoubanAdRequest = {src: adSource, uid: userId, bid: browserId, crtr: criteria, prv: preview, debug: debug};
+        global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
+
+        newNode.setAttribute('type', 'text/javascript');
+        newNode.setAttribute('src', 'https://img3.doubanio.com/f/shire/99a1c905fb5a6d46d8e742d60199e3a99414a580/js/ad.js');
+        newNode.setAttribute('async', true);
+        existingNode.parentNode.insertBefore(newNode, existingNode);
+    })(this);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5WP579" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WP579');</script>
+<!-- End Google Tag Manager -->
+
+
+<script type="text/javascript">
+var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+    var p=(('https:' == document.location.protocol) ? 'https' : 'http'), u=p+'://fundin.douban.com/';
+    _paq.push(['setTrackerUrl', u+'piwik']);
+    _paq.push(['setSiteId', '100001']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript';
+    g.defer=true;
+    g.async=true;
+    g.src=p+'://img3.doubanio.com/dae/fundin/piwik.js';
+    s.parentNode.insertBefore(g,s);
+})();
+</script>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-7019765-1']);
+_gaq.push(['_setCampNameKey', 'dcn']);
+_gaq.push(['_setCampSourceKey', 'dcs']);
+_gaq.push(['_setCampMediumKey', 'dcm']);
+_gaq.push(['_setCampTermKey', 'dct']);
+_gaq.push(['_setCampContentKey', 'dcc']);
+_gaq.push(['_addOrganic', 'baidu', 'word']);
+_gaq.push(['_addOrganic', 'soso', 'w']);
+_gaq.push(['_addOrganic', '3721', 'name']);
+_gaq.push(['_addOrganic', 'youdao', 'q']);
+_gaq.push(['_addOrganic', 'so.360.cn', 'q']);
+_gaq.push(['_addOrganic', 'vnet', 'kw']);
+_gaq.push(['_addOrganic', 'sogou', 'query']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣']);
+_gaq.push(['_addIgnoredOrganic', 'douban']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣网']);
+_gaq.push(['_addIgnoredOrganic', 'www.douban.com']);
+_gaq.push(['_setDomainName', '.douban.com']);
+
+
+    _gaq.push(['_setCustomVar', 1, 'responsive_view_mode', 'desktop', 3]);
+
+_gaq.push(['_trackPageview']);
+_gaq.push(['_trackPageLoadTime']);
+
+window._ga_init = function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+};
+if (window.addEventListener) {
+    window.addEventListener('load', _ga_init, false);
+} else {
+    window.attachEvent('onload', _ga_init);
+}
+</script>
+
+
+
+
+
+    <!-- sindar25a-docker-->
+
+  <script>_SPLITTEST=''</script>
+</body>
+
+</html>
+
